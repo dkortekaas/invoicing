@@ -222,8 +222,10 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
                     type="number"
                     step="0.01"
                     placeholder="0.00"
-                    {...field}
+                    value={field.value !== undefined ? String(field.value) : ''}
                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    onBlur={field.onBlur}
+                    name={field.name}
                   />
                 </FormControl>
                 <FormMessage />
@@ -268,8 +270,10 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
                     type="number"
                     min={0}
                     max={100}
-                    {...field}
+                    value={field.value !== undefined ? String(field.value) : ''}
                     onChange={(e) => field.onChange(parseInt(e.target.value) || 100)}
+                    onBlur={field.onBlur}
+                    name={field.name}
                   />
                 </FormControl>
                 <FormDescription>
@@ -289,7 +293,13 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
               <FormItem>
                 <FormLabel>Leverancier</FormLabel>
                 <FormControl>
-                  <Input placeholder="Naam leverancier" {...field} />
+                  <Input 
+                    placeholder="Naam leverancier" 
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -303,7 +313,13 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
               <FormItem>
                 <FormLabel>Factuurnummer</FormLabel>
                 <FormControl>
-                  <Input placeholder="Factuurnummer leverancier" {...field} />
+                  <Input 
+                    placeholder="Factuurnummer leverancier" 
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -318,7 +334,13 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
             <FormItem>
               <FormLabel>Notities</FormLabel>
               <FormControl>
-                <Textarea placeholder="Extra informatie" {...field} />
+                <Textarea 
+                  placeholder="Extra informatie" 
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

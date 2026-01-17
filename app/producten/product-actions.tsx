@@ -12,10 +12,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ProductForm } from "@/components/products/product-form"
 import { deleteProduct } from "./actions"
-import type { Product } from "@/types"
-
 interface ProductActionsProps {
-  product: Product
+  product: {
+    id: string
+    name: string
+    description: string | null
+    unitPrice: number
+    vatRate: number
+    unit: string
+    isActive: boolean
+  }
 }
 
 export function ProductActions({ product }: ProductActionsProps) {
@@ -72,8 +78,8 @@ export function ProductActions({ product }: ProductActionsProps) {
           id: product.id,
           name: product.name,
           description: product.description || "",
-          unitPrice: product.unitPrice.toNumber(),
-          vatRate: product.vatRate.toNumber(),
+          unitPrice: product.unitPrice,
+          vatRate: product.vatRate,
           unit: product.unit,
           isActive: product.isActive,
         }}

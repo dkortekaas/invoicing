@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { db } from '@/lib/db';
+import { db, clearPrismaCache } from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { VATDashboard } from '@/components/vat/vat-dashboard';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,11 @@ export default async function BTWPage() {
     return null;
   }
 
+  // Clear Prisma cache to ensure we have the latest models after migrations
+  if (process.env.NODE_ENV !== 'production') {
+    clearPrismaCache();
+  }
+
   const current = getCurrentQuarter();
   const prev1 = getPreviousQuarter(current.year, current.quarter);
   const prev2 = getPreviousQuarter(prev1.year, prev1.quarter);
@@ -23,25 +28,38 @@ export default async function BTWPage() {
   
   const reports = await Promise.all(
     quarters.map(async (q) => {
-      const report = await db.vATReport.findUnique({
-        where: {
-          userId_year_quarter: {
-            userId: session.user.id,
-            year: q.year,
-            quarter: q.quarter,
+      try {
+        const report = await db.vATReport.findUnique({
+          where: {
+            userId_year_quarter: {
+              userId: session.user.id,
+              year: q.year,
+              quarter: q.quarter,
+            },
           },
-        },
-      });
+        });
 
-      return {
-        year: q.year,
-        quarter: q.quarter,
-        label: `Q${q.quarter} ${q.year}`,
-        vatBalance: report ? Number(report.vatBalance) : 0,
-        status: report?.status || 'DRAFT',
-        totalRevenue: report ? Number(report.totalRevenue) : 0,
-        totalExpenses: report ? Number(report.totalExpenses) : 0,
-      };
+        return {
+          year: q.year,
+          quarter: q.quarter,
+          label: `Q${q.quarter} ${q.year}`,
+          vatBalance: report ? Number(report.vatBalance) : 0,
+          status: report?.status || 'DRAFT' as const,
+          totalRevenue: report ? Number(report.totalRevenue) : 0,
+          totalExpenses: report ? Number(report.totalExpenses) : 0,
+        };
+      } catch (error) {
+        console.error('Error loading VAT report:', error);
+        return {
+          year: q.year,
+          quarter: q.quarter,
+          label: `Q${q.quarter} ${q.year}`,
+          vatBalance: 0,
+          status: 'DRAFT' as const,
+          totalRevenue: 0,
+          totalExpenses: 0,
+        };
+      }
     })
   );
 

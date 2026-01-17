@@ -70,36 +70,49 @@ export default async function ProductenPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                products.map((product: typeof products[0]) => (
-                  <TableRow
-                    key={product.id}
-                    className={!product.isActive ? "opacity-50" : ""}
-                  >
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {product.description || "-"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(product.unitPrice)}
-                    </TableCell>
-                    <TableCell className="text-center capitalize">
-                      {product.unit}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {product.vatRate.toNumber()}%
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge
-                        variant={product.isActive ? "default" : "secondary"}
-                      >
-                        {product.isActive ? "Actief" : "Inactief"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <ProductActions product={product} />
-                    </TableCell>
-                  </TableRow>
-                ))
+                products.map((product: typeof products[0]) => {
+                  // Convert Decimal objects to numbers for Client Component
+                  const productData = {
+                    id: product.id,
+                    name: product.name,
+                    description: product.description || "",
+                    unitPrice: Number(product.unitPrice),
+                    vatRate: Number(product.vatRate),
+                    unit: product.unit,
+                    isActive: product.isActive,
+                  };
+
+                  return (
+                    <TableRow
+                      key={product.id}
+                      className={!product.isActive ? "opacity-50" : ""}
+                    >
+                      <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {product.description || "-"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(product.unitPrice)}
+                      </TableCell>
+                      <TableCell className="text-center capitalize">
+                        {product.unit}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {product.vatRate.toNumber()}%
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge
+                          variant={product.isActive ? "default" : "secondary"}
+                        >
+                          {product.isActive ? "Actief" : "Inactief"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <ProductActions product={productData} />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>

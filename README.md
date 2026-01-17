@@ -10,10 +10,15 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - 📦 **Producten & Diensten**: Definieer herbruikbare producten en diensten
 - 💰 **BTW-berekening**: Automatische BTW-berekening voor 0%, 9% en 21% tarieven
 - 📊 **Dashboard**: Overzicht van openstaande facturen, omzet en statistieken
+- 📈 **Analytics & BI Dashboard**: Compleet business intelligence dashboard met KPI tracking, trends, en visualisaties
 - 📑 **PDF Export**: Professionele PDF facturen met alle vereiste gegevens
+- 📊 **Excel Export**: Exporteer analytics data naar Excel voor verdere analyse
 - 🖼️ **Bedrijfslogo**: Upload je bedrijfslogo voor gebruik op facturen
 - 🔐 **Authenticatie**: Veilige authenticatie met NextAuth.js v5
 - 🔒 **Twee-Factor Authenticatie (2FA)**: Extra beveiliging met TOTP authenticatie
+- ⏱️ **Time Tracking**: Track tijd per project en klant
+- 🔄 **Recurring Invoices**: Automatische terugkerende facturen
+- 📧 **Email Systeem**: Verstuur facturen en herinneringen via email
 - 🇳🇱 **Nederlandse standaarden**: Volledig aangepast aan Nederlandse factuurvereisten
 - 🎨 **Modern UI**: Gebouwd met Next.js 15, React 19, Tailwind CSS en shadcn/ui
 
@@ -26,6 +31,8 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - **Database**: PostgreSQL met Prisma ORM
 - **Forms**: React Hook Form + Zod validatie
 - **PDF**: @react-pdf/renderer
+- **Charts**: Recharts voor data visualisatie
+- **Excel Export**: ExcelJS voor analytics export
 - **Data Fetching**: Server Actions
 
 ## 📋 Vereisten
@@ -102,25 +109,46 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
 
 ```
 /app
-  /(dashboard)
-    page.tsx              # Dashboard overview
-    /facturen             # Facturen beheer
-      page.tsx            # Facturen lijst
-      /[id]               # Factuur detail
-      /nieuw              # Nieuwe factuur
-      actions.ts          # Server actions
-    /klanten              # Klanten beheer
-    /producten            # Producten beheer
-    /instellingen         # Bedrijfsinstellingen
+  page.tsx               # Home dashboard
+  /dashboard             # Analytics & BI dashboard
+    page.tsx             # Analytics dashboard met KPI's en grafieken
+  /facturen              # Facturen beheer
+    page.tsx             # Facturen lijst
+    /[id]                # Factuur detail
+    /nieuw               # Nieuwe factuur
+    actions.ts           # Server actions
+  /klanten               # Klanten beheer
+  /producten             # Producten beheer
+  /instellingen          # Bedrijfsinstellingen
+  /tijd                  # Time tracking
+  /abonnementen          # Recurring invoices
+  /btw                   # BTW rapportage
   /api
-    /invoices/[id]/pdf    # PDF generatie endpoint
+    /analytics           # Analytics API endpoints
+      /kpis              # KPI berekeningen
+      /trends            # Trend analyse
+      /customers         # Klant analyse
+      /export            # Excel export
+    /invoices/[id]/pdf   # PDF generatie endpoint
 /components
   /ui                    # shadcn/ui components
   /dashboard             # Dashboard components
+  /analytics             # Analytics chart components
+    kpi-card.tsx         # KPI display cards
+    revenue-chart.tsx    # Omzet trends grafiek
+    customer-chart.tsx   # Top klanten distributie
+    cashflow-chart.tsx   # Cashflow visualisatie
+    goals-progress.tsx   # Doelstellingen tracking
+    period-selector.tsx  # Datum range selector
   /invoices              # Factuur components
-  /customers              # Klant components
+  /customers             # Klant components
   /products              # Product components
 /lib
+  /analytics             # Analytics library
+    kpis.ts              # KPI berekeningen
+    trends.ts            # Trend analyse
+    comparisons.ts       # Periode vergelijkingen
+    export.ts            # Excel export utilities
   db.ts                  # Prisma client
   validations.ts         # Zod schemas
   utils.ts              # Helper functions
@@ -137,6 +165,13 @@ De applicatie gebruikt de volgende hoofdmodellen:
 - **Product**: Producten en diensten
 - **Invoice**: Facturen met items
 - **InvoiceItem**: Factuurregels
+- **Project**: Projecten voor time tracking
+- **TimeEntry**: Tijd registraties
+- **RecurringInvoice**: Terugkerende facturen
+- **Expense**: Uitgaven/kosten
+- **VATReport**: BTW rapporten
+- **BusinessGoal**: Doelstellingen voor analytics
+- **AnalyticsSnapshot**: Dagelijkse analytics snapshots
 
 Zie `prisma/schema.prisma` voor het volledige schema.
 
@@ -197,12 +232,43 @@ Zie `prisma/schema.prisma` voor het volledige schema.
 
 ### Dashboard
 
-Het dashboard toont:
+Het home dashboard toont:
 - **Openstaand**: Totaalbedrag van verzonden en achterstallige facturen
 - **Achterstallig**: Aantal en bedrag van achterstallige facturen
 - **Omzet deze maand**: Totaal van betaalde facturen deze maand
 - **Klanten**: Aantal klanten
 - **Recente facturen**: Laatste 5 facturen
+
+### Analytics Dashboard
+
+Het analytics dashboard (`/dashboard`) biedt uitgebreide business intelligence:
+
+#### KPI Cards
+- **Omzet deze maand**: Met groei percentage vs vorige maand
+- **Winst marge**: Percentage winst marge
+- **Openstaand**: Totaal openstaand bedrag
+- **Actieve klanten**: Klanten met activiteit in laatste 90 dagen
+- **Gemiddelde betaaltermijn**: Gemiddeld aantal dagen tot betaling
+- **Gemiddelde factuurwaarde**: Gemiddeld bedrag per factuur
+- **Utilization Rate**: Percentage billable hours (indien time tracking gebruikt)
+- **MRR/ARR**: Monthly/Annual Recurring Revenue (indien recurring invoices)
+
+#### Visualisaties
+- **Omzet Trends**: Maandelijkse omzet, kosten en winst (lijn/bar grafiek)
+- **Top Klanten**: Distributie van omzet per klant (pie chart)
+- **Cashflow**: Maandelijkse cashflow visualisatie (waterfall chart)
+- **Doelstellingen**: Progress tracking voor ingestelde doelen
+
+#### Functionaliteiten
+- **Period Selector**: Filter op maand, kwartaal, jaar of custom date range
+- **Excel Export**: Exporteer alle analytics data naar Excel
+- **Responsive Design**: Volledig geoptimaliseerd voor mobile en desktop
+
+#### Data Analyse
+- Maandelijkse trends (tot 12 maanden)
+- Top klanten analyse
+- Periode vergelijkingen (MoM, QoQ, YoY)
+- Real-time KPI berekeningen
 
 ## 🔧 Development
 
@@ -211,6 +277,12 @@ Het dashboard toont:
 Maak een nieuwe migratie:
 ```bash
 npx prisma migrate dev --name migration_name
+```
+
+**Voor analytics features:**
+```bash
+npx prisma migrate dev --name add_analytics
+npx prisma generate
 ```
 
 Genereer Prisma Client (na schema wijzigingen):
@@ -380,18 +452,35 @@ De instellingen pagina is georganiseerd in 4 tabs:
 - **Beveiliging**: Wachtwoord wijzigen en 2FA instellingen
 - **Bedrijfsgegevens**: Bedrijfsinformatie en logo upload
 - **Financiële gegevens**: BTW, KvK, IBAN en factuur instellingen
+- **Email Instellingen**: Configureer email templates en auto-send instellingen
 
 ### Factuur Preview
 Bekijk een live preview van je factuur voordat je deze verzendt of downloadt.
 
+### Analytics Dashboard
+Het analytics dashboard biedt een compleet overzicht van je business performance met:
+- Real-time KPI tracking
+- Interactieve grafieken en visualisaties
+- Trend analyse en vergelijkingen
+- Top klanten en product analyse
+- Cashflow overzicht
+- Doelstellingen tracking
+- Excel export functionaliteit
+
 ## 🚧 Toekomstige Features
 
-- [ ] Email verzending (Resend API)
-- [ ] Recurring invoices
-- [ ] Invoice reminders
-- [ ] Export naar Excel/CSV
+- [x] Email verzending (Resend API) ✅
+- [x] Recurring invoices ✅
+- [x] Invoice reminders ✅
+- [x] Export naar Excel/CSV ✅
+- [x] Time tracking integration ✅
+- [x] Analytics & BI Dashboard ✅
+- [ ] Forecasting & predictive analytics
+- [ ] Benchmarking tegen industrie gemiddeldes
+- [ ] Geautomatiseerde email rapporten (wekelijks/maandelijks)
+- [ ] Custom report builder
+- [ ] Multi-year vergelijkingen
 - [ ] Multi-currency support
-- [ ] Time tracking integration
 - [ ] Quotes (offerten) module
 - [ ] Dark mode
 - [ ] Multi-language support

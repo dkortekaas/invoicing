@@ -19,7 +19,28 @@ export default async function TijdPage() {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  let recentEntries = [];
+  type TimeEntryData = {
+    id: string;
+    description: string;
+    startTime: Date;
+    endTime?: Date | null;
+    duration: number;
+    hourlyRate: number;
+    amount: number;
+    billable: boolean;
+    invoiced: boolean;
+    activityType?: string | null;
+    notes?: string | null;
+    project?: {
+      name: string;
+      color?: string;
+    } | null;
+    customer?: {
+      name: string;
+    } | null;
+  };
+
+  let recentEntries: TimeEntryData[] = [];
   try {
     const entries = await db.timeEntry.findMany({
       where: {
@@ -44,6 +65,10 @@ export default async function TijdPage() {
       duration: Number(entry.duration),
       hourlyRate: Number(entry.hourlyRate),
       amount: Number(entry.amount),
+      project: entry.project ? {
+        name: entry.project.name,
+        color: entry.project.color || undefined,
+      } : null,
     }));
   } catch (error: any) {
     console.error('Error loading time entries:', error);
@@ -101,7 +126,7 @@ export default async function TijdPage() {
       <div>
         <h2 className="text-xl font-semibold mb-4">Recente entries</h2>
         <Suspense fallback={<div>Laden...</div>}>
-          <TimeEntryList entries={recentEntries as any} />
+          <TimeEntryList entries={recentEntries} />
         </Suspense>
       </div>
     </div>

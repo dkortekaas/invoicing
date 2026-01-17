@@ -43,6 +43,7 @@ model User {
   projects        Project[]
   timeEntries     TimeEntry[]
   activityTypes   ActivityType[]
+  recurringInvoices RecurringInvoice[]
   
   // NextAuth sessions
   accounts        Account[]
@@ -72,6 +73,7 @@ model Customer {
   invoices        Invoice[]
   projects        Project[]
   timeEntries     TimeEntry[]
+  recurringInvoices RecurringInvoice[]
 
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -133,6 +135,10 @@ model Invoice {
   emailsSentCount Int          @default(0)
   lastEmailSentAt DateTime?
 
+  // Recurring invoice relation
+  recurringInvoiceId String?
+  recurringInvoice   RecurringInvoice? @relation(fields: [recurringInvoiceId], references: [id])
+
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -140,6 +146,7 @@ model Invoice {
   @@index([customerId])
   @@index([status])
   @@index([invoiceDate])
+  @@index([recurringInvoiceId])
 }
 
 model InvoiceItem {
@@ -402,4 +409,145 @@ model ActivityType {
   
   @@unique([userId, name])
   @@index([userId])
+}
+
+// Recurring Invoices Models
+
+model RecurringInvoice {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  
+  // Naming
+  name        String   // "Retainer Q1 2025", "Hosting Package"
+  description String?
+  reference   String?  // Contract nummer
+  
+  // Scheduling
+  frequency   RecurringFrequency
+  interval    Int      @default(1) // Elke X maanden/weken
+  
+  startDate   DateTime
+  endDate     DateTime?
+  nextDate    DateTime // Volgende generatie datum
+  lastDate    DateTime? // Laatste keer gegenereerd
+  
+  // Status
+  status      RecurringStatus @default(ACTIVE)
+  
+  // Billing details
+  dayOfMonth  Int?     // Voor monthly: dag van de maand (1-28)
+  
+  // Auto-send
+  autoSend    Boolean  @default(false)
+  sendDays    Int      @default(0) // Dagen na generatie voor verzending
+  
+  // Items template
+  items       RecurringInvoiceItem[]
+  
+  // Pricing history
+  priceChanges RecurringPriceChange[]
+  
+  // Generated invoices
+  invoices    Invoice[]
+  
+  // Logs
+  logs        RecurringInvoiceLog[]
+  
+  // Metadata
+  notes       String?  // Interne notities
+  contract    String?  // PDF path naar contract
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([customerId])
+  @@index([status])
+  @@index([nextDate])
+}
+
+enum RecurringFrequency {
+  WEEKLY
+  BIWEEKLY     // Tweewekelijks
+  MONTHLY
+  QUARTERLY
+  BIANNUAL     // Halfjaarlijks
+  ANNUAL
+}
+
+enum RecurringStatus {
+  ACTIVE       // Actief, genereert facturen
+  PAUSED       // Gepauzeerd
+  ENDED        // Afgelopen (einddatum bereikt)
+  CANCELLED    // Geannuleerd
+}
+
+model RecurringInvoiceItem {
+  id                  String            @id @default(cuid())
+  recurringInvoiceId  String
+  recurringInvoice    RecurringInvoice  @relation(fields: [recurringInvoiceId], references: [id], onDelete: Cascade)
+  
+  description String
+  quantity    Decimal  @db.Decimal(10, 2)
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  vatRate     Decimal  @db.Decimal(5, 2)
+  
+  sortOrder   Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([recurringInvoiceId])
+}
+
+model RecurringPriceChange {
+  id                  String            @id @default(cuid())
+  recurringInvoiceId  String
+  recurringInvoice    RecurringInvoice  @relation(fields: [recurringInvoiceId], references: [id], onDelete: Cascade)
+  
+  effectiveDate DateTime
+  oldAmount     Decimal  @db.Decimal(10, 2)
+  newAmount     Decimal  @db.Decimal(10, 2)
+  reason        String?
+  
+  applied       Boolean  @default(false)
+  appliedAt     DateTime?
+  
+  createdBy     String   // User ID die wijziging maakte
+  createdAt     DateTime @default(now())
+  
+  @@index([recurringInvoiceId])
+  @@index([effectiveDate])
+}
+
+model RecurringInvoiceLog {
+  id                  String   @id @default(cuid())
+  recurringInvoiceId  String
+  recurringInvoice    RecurringInvoice  @relation(fields: [recurringInvoiceId], references: [id], onDelete: Cascade)
+  
+  action      RecurringLogAction
+  invoiceId   String?  // Als actie een factuur genereerde
+  
+  details     String?
+  createdBy   String?  // User ID
+  createdAt   DateTime @default(now())
+  
+  @@index([recurringInvoiceId])
+  @@index([createdAt])
+}
+
+enum RecurringLogAction {
+  CREATED
+  ACTIVATED
+  PAUSED
+  RESUMED
+  CANCELLED
+  ENDED
+  INVOICE_GENERATED
+  PRICE_CHANGED
+  SCHEDULE_UPDATED
 }

@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   Clock,
+  Repeat,
 } from "lucide-react"
 
 import {
@@ -36,6 +37,11 @@ const navigation = [
     title: "Facturen",
     url: "/facturen",
     icon: FileText,
+  },
+  {
+    title: "Abonnementen",
+    url: "/abonnementen",
+    icon: Repeat,
   },
   {
     title: "Tijdregistratie",

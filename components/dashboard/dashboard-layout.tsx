@@ -1,38 +1,52 @@
 "use client"
 
-import { useState, useCallback } from "react"
-import { Sidebar } from "./sidebar"
+import { useSession } from "next-auth/react"
+import { usePathname, useRouter } from "next/navigation"
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
 import { Header } from "./header"
-import { MobileSidebar } from "./mobile-sidebar"
+import { Loader2 } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { status } = useSession()
+  const router = useRouter()
+  const pathname = usePathname()
 
-  const handleClose = useCallback(() => {
-    setMobileMenuOpen(false)
-  }, [])
+  // Don't show dashboard layout for auth pages
+  if (pathname?.startsWith("/login") || pathname?.startsWith("/register")) {
+    return <>{children}</>
+  }
+
+  // Show loading while checking session
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
+
+  // Redirect to login if not authenticated
+  if (status === "unauthenticated") {
+    router.push(`/login?callbackUrl=${encodeURIComponent(pathname || "/")}`)
+    return null
+  }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Desktop Sidebar */}
-      <div className="hidden md:flex">
-        <Sidebar />
-      </div>
-
-      {/* Mobile Sidebar */}
-      <MobileSidebar open={mobileMenuOpen} onClose={handleClose} />
-
-      {/* Main Content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Header onMenuClick={() => setMobileMenuOpen(true)} />
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <Header />
+        <Separator />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           {children}
         </main>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }

@@ -18,10 +18,16 @@ model User {
   companyCity     String
   companyPostalCode String
   companyCountry  String    @default("Nederland")
+  companyLogo     String?   // Logo URL/path
   vatNumber       String?   // BTW-nummer
   kvkNumber       String?   // KvK-nummer
   iban            String?
   invoicePrefix   String    @default("FAC")
+  
+  // 2FA velden
+  twoFactorSecret String?   // TOTP secret key
+  twoFactorEnabled Boolean  @default(false)
+  backupCodes     String?   // JSON array van backup codes
 
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -29,6 +35,10 @@ model User {
   customers       Customer[]
   invoices        Invoice[]
   products        Product[]
+  
+  // NextAuth sessions
+  accounts        Account[]
+  sessions        Session[]
 }
 
 model Customer {
@@ -147,4 +157,43 @@ enum InvoiceStatus {
   PAID       // Betaald
   OVERDUE    // Achterstallig
   CANCELLED  // Geannuleerd
+}
+
+// NextAuth models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token      String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }

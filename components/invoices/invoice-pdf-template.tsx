@@ -4,6 +4,7 @@ import {
   Text,
   View,
   StyleSheet,
+  Image,
 } from "@react-pdf/renderer"
 import { formatDate, formatCurrency, formatNumber } from "@/lib/utils"
 
@@ -35,6 +36,7 @@ interface Company {
   companyPostalCode: string
   companyCity: string
   companyCountry: string
+  companyLogo?: string | null
   vatNumber?: string | null
   kvkNumber?: string | null
   iban?: string | null
@@ -69,6 +71,14 @@ const styles = StyleSheet.create({
   },
   companyInfo: {
     maxWidth: "50%",
+  },
+  logoContainer: {
+    marginBottom: 8,
+  },
+  logo: {
+    maxWidth: 120,
+    maxHeight: 60,
+    objectFit: "contain",
   },
   companyName: {
     fontSize: 18,
@@ -272,6 +282,16 @@ export function InvoicePDF({ invoice }: InvoicePDFProps) {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.companyInfo}>
+            {invoice.company.companyLogo && (
+              <View style={styles.logoContainer}>
+                <Image
+                  src={invoice.company.companyLogo.startsWith("http") 
+                    ? invoice.company.companyLogo 
+                    : `${process.env.NEXTAUTH_URL || "http://localhost:3000"}${invoice.company.companyLogo}`}
+                  style={styles.logo}
+                />
+              </View>
+            )}
             <Text style={styles.companyName}>{invoice.company.companyName}</Text>
             <Text style={styles.addressLine}>{invoice.company.companyAddress}</Text>
             <Text style={styles.addressLine}>

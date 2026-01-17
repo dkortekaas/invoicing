@@ -3,43 +3,44 @@
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { productSchema, type ProductFormData } from "@/lib/validations"
-import { TEMP_USER_ID, getOrCreateTempUser } from "@/lib/server-utils"
+import { getCurrentUserId } from "@/lib/server-utils"
 
 export async function getProducts() {
+  const userId = await getCurrentUserId()
   const products = await db.product.findMany({
-    where: { userId: TEMP_USER_ID },
+    where: { userId },
     orderBy: { name: "asc" },
   })
   return products
 }
 
 export async function getActiveProducts() {
+  const userId = await getCurrentUserId()
   const products = await db.product.findMany({
-    where: { userId: TEMP_USER_ID, isActive: true },
+    where: { userId, isActive: true },
     orderBy: { name: "asc" },
   })
   return products
 }
 
 export async function getProduct(id: string) {
+  const userId = await getCurrentUserId()
   const product = await db.product.findUnique({
-    where: { id, userId: TEMP_USER_ID },
+    where: { id, userId },
   })
   return product
 }
 
 export async function createProduct(data: ProductFormData) {
   const validated = productSchema.parse(data)
-
-  // Zorg dat de temp user bestaat
-  await getOrCreateTempUser()
+  const userId = await getCurrentUserId()
 
   const product = await db.product.create({
     data: {
       ...validated,
       unitPrice: validated.unitPrice,
       vatRate: validated.vatRate,
-      userId: TEMP_USER_ID,
+      userId,
     },
   })
 
@@ -49,9 +50,10 @@ export async function createProduct(data: ProductFormData) {
 
 export async function updateProduct(id: string, data: ProductFormData) {
   const validated = productSchema.parse(data)
+  const userId = await getCurrentUserId()
 
   const product = await db.product.update({
-    where: { id, userId: TEMP_USER_ID },
+    where: { id, userId },
     data: {
       ...validated,
       unitPrice: validated.unitPrice,
@@ -64,16 +66,18 @@ export async function updateProduct(id: string, data: ProductFormData) {
 }
 
 export async function deleteProduct(id: string) {
+  const userId = await getCurrentUserId()
   await db.product.delete({
-    where: { id, userId: TEMP_USER_ID },
+    where: { id, userId },
   })
 
   revalidatePath("/producten")
 }
 
 export async function toggleProductActive(id: string, isActive: boolean) {
+  const userId = await getCurrentUserId()
   const product = await db.product.update({
-    where: { id, userId: TEMP_USER_ID },
+    where: { id, userId },
     data: { isActive },
   })
 

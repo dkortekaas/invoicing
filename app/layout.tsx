@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
+import { AuthProvider } from "@/components/providers/session-provider"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="nl">
       <body className={inter.className}>
-        <DashboardLayout>{children}</DashboardLayout>
+        <AuthProvider>
+          <DashboardLayout>{children}</DashboardLayout>
+        </AuthProvider>
       </body>
     </html>
   )

@@ -3,11 +3,12 @@
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { customerSchema, type CustomerFormData } from "@/lib/validations"
-import { TEMP_USER_ID, getOrCreateTempUser } from "@/lib/server-utils"
+import { getCurrentUserId } from "@/lib/server-utils"
 
 export async function getCustomers() {
+  const userId = await getCurrentUserId()
   const customers = await db.customer.findMany({
-    where: { userId: TEMP_USER_ID },
+    where: { userId },
     orderBy: { createdAt: "desc" },
     include: {
       _count: {
@@ -19,8 +20,9 @@ export async function getCustomers() {
 }
 
 export async function getCustomer(id: string) {
+  const userId = await getCurrentUserId()
   const customer = await db.customer.findUnique({
-    where: { id, userId: TEMP_USER_ID },
+    where: { id, userId },
     include: {
       invoices: {
         orderBy: { invoiceDate: "desc" },
@@ -33,14 +35,12 @@ export async function getCustomer(id: string) {
 
 export async function createCustomer(data: CustomerFormData) {
   const validated = customerSchema.parse(data)
-
-  // Zorg dat de temp user bestaat
-  await getOrCreateTempUser()
+  const userId = await getCurrentUserId()
 
   const customer = await db.customer.create({
     data: {
       ...validated,
-      userId: TEMP_USER_ID,
+      userId,
     },
   })
 
@@ -50,9 +50,10 @@ export async function createCustomer(data: CustomerFormData) {
 
 export async function updateCustomer(id: string, data: CustomerFormData) {
   const validated = customerSchema.parse(data)
+  const userId = await getCurrentUserId()
 
   const customer = await db.customer.update({
-    where: { id, userId: TEMP_USER_ID },
+    where: { id, userId },
     data: validated,
   })
 
@@ -62,8 +63,9 @@ export async function updateCustomer(id: string, data: CustomerFormData) {
 }
 
 export async function deleteCustomer(id: string) {
+  const userId = await getCurrentUserId()
   await db.customer.delete({
-    where: { id, userId: TEMP_USER_ID },
+    where: { id, userId },
   })
 
   revalidatePath("/klanten")

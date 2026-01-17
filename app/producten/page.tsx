@@ -1,6 +1,3 @@
-"use client"
-
-import { useState } from "react"
 import { Plus, MoreHorizontal, Pencil, Trash2, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,62 +19,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency } from "@/lib/utils"
 import { ProductForm } from "@/components/products/product-form"
+import { getProducts } from "./actions"
+import { ProductActions } from "./product-actions"
+import { ProductFormButton } from "./product-form-button"
 
-// Placeholder data
-const products = [
-  {
-    id: "1",
-    name: "Consultancy",
-    description: "Strategisch advies en consultancy",
-    unitPrice: 95.0,
-    vatRate: 21,
-    unit: "uur",
-    isActive: true,
-  },
-  {
-    id: "2",
-    name: "Ontwikkeling",
-    description: "Software development werkzaamheden",
-    unitPrice: 85.0,
-    vatRate: 21,
-    unit: "uur",
-    isActive: true,
-  },
-  {
-    id: "3",
-    name: "Training",
-    description: "Training en workshops",
-    unitPrice: 750.0,
-    vatRate: 21,
-    unit: "dag",
-    isActive: true,
-  },
-  {
-    id: "4",
-    name: "Support",
-    description: "Technische ondersteuning",
-    unitPrice: 65.0,
-    vatRate: 21,
-    unit: "uur",
-    isActive: false,
-  },
-]
-
-export default function ProductenPage() {
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<(typeof products)[0] | null>(
-    null
-  )
-
-  const handleEdit = (product: (typeof products)[0]) => {
-    setEditingProduct(product)
-    setFormOpen(true)
-  }
-
-  const handleClose = () => {
-    setFormOpen(false)
-    setEditingProduct(null)
-  }
+export default async function ProductenPage() {
+  const products = await getProducts()
 
   return (
     <div className="space-y-6">
@@ -89,10 +36,7 @@ export default function ProductenPage() {
             Beheer je producten en diensten voor facturatie
           </p>
         </div>
-        <Button onClick={() => setFormOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nieuw Product
-        </Button>
+        <ProductFormButton />
       </div>
 
       {/* Products list */}
@@ -128,10 +72,7 @@ export default function ProductenPage() {
                     <p className="text-muted-foreground">
                       Nog geen producten. Voeg je eerste product toe!
                     </p>
-                    <Button className="mt-4" onClick={() => setFormOpen(true)}>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Nieuw Product
-                    </Button>
+                    <ProductFormButton />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -150,7 +91,9 @@ export default function ProductenPage() {
                     <TableCell className="text-center capitalize">
                       {product.unit}
                     </TableCell>
-                    <TableCell className="text-center">{product.vatRate}%</TableCell>
+                    <TableCell className="text-center">
+                      {product.vatRate.toNumber()}%
+                    </TableCell>
                     <TableCell className="text-center">
                       <Badge
                         variant={product.isActive ? "default" : "secondary"}
@@ -159,24 +102,7 @@ export default function ProductenPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Acties</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEdit(product)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Bewerken
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Verwijderen
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <ProductActions product={product} />
                     </TableCell>
                   </TableRow>
                 ))
@@ -185,13 +111,6 @@ export default function ProductenPage() {
           </Table>
         </CardContent>
       </Card>
-
-      {/* Product form dialog */}
-      <ProductForm
-        open={formOpen}
-        onOpenChange={handleClose}
-        product={editingProduct ?? undefined}
-      />
     </div>
   )
 }

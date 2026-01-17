@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, Bell, User } from "lucide-react"
+import { signOut, useSession } from "next-auth/react"
+import { Bell, User, LogOut, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,12 +25,9 @@ const pageTitle: Record<string, string> = {
   "/instellingen": "Instellingen",
 }
 
-interface HeaderProps {
-  onMenuClick: () => void
-}
-
-export function Header({ onMenuClick }: HeaderProps) {
+export function Header() {
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   // Bepaal de pagina titel
   let title = pageTitle[pathname]
@@ -39,24 +37,17 @@ export function Header({ onMenuClick }: HeaderProps) {
     else title = "Dashboard"
   }
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" })
+  }
+
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-white px-4 md:px-6">
-      {/* Mobile menu button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="md:hidden"
-        onClick={onMenuClick}
-      >
-        <Menu className="h-5 w-5" />
-        <span className="sr-only">Menu openen</span>
-      </Button>
+    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+      <SidebarTrigger className="-ml-1" />
 
-      {/* Page title */}
-      <h1 className="text-lg font-semibold md:text-xl">{title}</h1>
-
-      {/* Spacer */}
-      <div className="flex-1" />
+      <div className="flex-1">
+        <h1 className="text-lg font-semibold md:text-xl">{title}</h1>
+      </div>
 
       {/* Actions */}
       <div className="flex items-center gap-2">
@@ -75,13 +66,32 @@ export function Header({ onMenuClick }: HeaderProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Mijn Account</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              <div className="flex flex-col">
+                <span>{session?.user?.name || "Gebruiker"}</span>
+                <span className="text-xs font-normal text-muted-foreground">
+                  {session?.user?.email}
+                </span>
+              </div>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/instellingen">Instellingen</Link>
+              <Link href="/instellingen">
+                <Settings className="mr-2 h-4 w-4" />
+                Instellingen
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/instellingen?tab=2fa">
+                <Settings className="mr-2 h-4 w-4" />
+                2FA Beveiliging
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Uitloggen</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Uitloggen
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

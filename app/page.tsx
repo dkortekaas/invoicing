@@ -5,46 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatsCard } from "@/components/dashboard/stats-card"
 import { formatCurrency, STATUS_LABELS, STATUS_COLORS, cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { getDashboardStats, getRecentInvoices } from "@/app/facturen/actions"
 
-// Placeholder data - dit wordt later vervangen door database queries
-const stats = {
-  totalOutstanding: 12450.0,
-  overdueCount: 2,
-  overdueAmount: 3200.0,
-  revenueThisMonth: 8500.0,
-  revenueThisYear: 45000.0,
-  invoiceCount: 24,
-  customerCount: 12,
-}
-
-const recentInvoices = [
-  {
-    id: "1",
-    invoiceNumber: "2025-0024",
-    customer: { name: "Acme B.V." },
-    total: 1250.0,
-    status: "SENT",
-    invoiceDate: new Date("2025-01-15"),
-  },
-  {
-    id: "2",
-    invoiceNumber: "2025-0023",
-    customer: { name: "Tech Solutions" },
-    total: 3500.0,
-    status: "PAID",
-    invoiceDate: new Date("2025-01-10"),
-  },
-  {
-    id: "3",
-    invoiceNumber: "2025-0022",
-    customer: { name: "Design Studio" },
-    total: 850.0,
-    status: "OVERDUE",
-    invoiceDate: new Date("2024-12-15"),
-  },
-]
-
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const stats = await getDashboardStats()
+  const recentInvoices = await getRecentInvoices(5)
   return (
     <div className="space-y-6">
       {/* Header met snelle acties */}
@@ -101,34 +66,40 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentInvoices.map((invoice) => (
-                <Link
-                  key={invoice.id}
-                  href={`/facturen/${invoice.id}`}
-                  className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/50"
-                >
-                  <div className="space-y-1">
-                    <p className="font-medium">{invoice.invoiceNumber}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {invoice.customer.name}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">
-                      {formatCurrency(invoice.total)}
-                    </p>
-                    <Badge
-                      variant="secondary"
-                      className={cn(
-                        "mt-1",
-                        STATUS_COLORS[invoice.status]
-                      )}
-                    >
-                      {STATUS_LABELS[invoice.status]}
-                    </Badge>
-                  </div>
-                </Link>
-              ))}
+              {recentInvoices.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Nog geen facturen
+                </p>
+              ) : (
+                recentInvoices.map((invoice) => (
+                  <Link
+                    key={invoice.id}
+                    href={`/facturen/${invoice.id}`}
+                    className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/50"
+                  >
+                    <div className="space-y-1">
+                      <p className="font-medium">{invoice.invoiceNumber}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {invoice.customer.companyName || invoice.customer.name}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">
+                        {formatCurrency(invoice.total)}
+                      </p>
+                      <Badge
+                        variant="secondary"
+                        className={cn(
+                          "mt-1",
+                          STATUS_COLORS[invoice.status]
+                        )}
+                      >
+                        {STATUS_LABELS[invoice.status]}
+                      </Badge>
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { renderToBuffer } from "@react-pdf/renderer"
 import { InvoicePDF } from "@/components/invoices/invoice-pdf-template"
 import { db } from "@/lib/db"
-import { TEMP_USER_ID } from "@/lib/server-utils"
+import { getCurrentUserId } from "@/lib/server-utils"
 import type { InvoiceItem } from "@/types"
 
 // Force dynamic rendering - don't pre-render at build time
@@ -14,10 +14,11 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    const userId = await getCurrentUserId()
 
     // Haal factuur op met alle relaties
     const invoice = await db.invoice.findUnique({
-      where: { id, userId: TEMP_USER_ID },
+      where: { id, userId },
       include: {
         customer: true,
         items: {
@@ -69,6 +70,7 @@ export async function GET(
         companyPostalCode: invoice.user.companyPostalCode,
         companyCity: invoice.user.companyCity,
         companyCountry: invoice.user.companyCountry,
+        companyLogo: invoice.user.companyLogo,
         vatNumber: invoice.user.vatNumber,
         kvkNumber: invoice.user.kvkNumber,
         iban: invoice.user.iban,
@@ -83,12 +85,17 @@ export async function GET(
     // Convert Buffer to Uint8Array for Response compatibility
     const uint8Array = new Uint8Array(pdfBuffer)
 
+    // Check if this is a preview request (from iframe) or download
+    const isPreview = request.headers.get("referer")?.includes("/facturen/")
+    
     // Return PDF response
     return new Response(uint8Array, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="factuur-${invoice.invoiceNumber}.pdf"`,
+        "Content-Disposition": isPreview 
+          ? `inline; filename="factuur-${invoice.invoiceNumber}.pdf"`
+          : `attachment; filename="factuur-${invoice.invoiceNumber}.pdf"`,
       },
     })
   } catch (error) {

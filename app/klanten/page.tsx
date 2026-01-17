@@ -17,42 +17,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getCustomers } from "./actions"
+import { getCustomers, deleteCustomer } from "./actions"
+import { CustomerActions } from "./customer-actions"
 
 export default async function KlantenPage() {
-  // In productie: haal klanten op uit database
-  // const customers = await getCustomers()
-
-  // Placeholder data voor nu
-  const customers = [
-    {
-      id: "1",
-      name: "Jan Janssen",
-      companyName: "Acme B.V.",
-      email: "jan@acme.nl",
-      phone: "06-12345678",
-      city: "Amsterdam",
-      _count: { invoices: 5 },
-    },
-    {
-      id: "2",
-      name: "Maria de Vries",
-      companyName: "Tech Solutions",
-      email: "maria@techsolutions.nl",
-      phone: "06-87654321",
-      city: "Rotterdam",
-      _count: { invoices: 3 },
-    },
-    {
-      id: "3",
-      name: "Peter van den Berg",
-      companyName: null,
-      email: "peter@voorbeeld.nl",
-      phone: "06-11223344",
-      city: "Utrecht",
-      _count: { invoices: 1 },
-    },
-  ]
+  const customers = await getCustomers()
 
   return (
     <div className="space-y-6">
@@ -130,32 +99,7 @@ export default async function KlantenPage() {
                       {customer._count.invoices}
                     </TableCell>
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Acties</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link href={`/klanten/${customer.id}`}>
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Bewerken
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link href={`/facturen/nieuw?klant=${customer.id}`}>
-                              <FileText className="mr-2 h-4 w-4" />
-                              Nieuwe factuur
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Verwijderen
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <CustomerActions customer={customer} />
                     </TableCell>
                   </TableRow>
                 ))

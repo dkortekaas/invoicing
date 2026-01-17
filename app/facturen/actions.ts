@@ -4,10 +4,11 @@ import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { invoiceSchema, type InvoiceFormData } from "@/lib/validations"
 import { generateInvoiceNumber, roundToTwo } from "@/lib/utils"
-import { TEMP_USER_ID, getOrCreateTempUser } from "@/lib/server-utils"
+import { getCurrentUserId } from "@/lib/server-utils"
 
 export async function getInvoices(status?: string) {
-  const where: Record<string, unknown> = { userId: TEMP_USER_ID }
+  const userId = await getCurrentUserId()
+  const where: Record<string, unknown> = { userId }
   if (status && status !== "ALL") {
     where.status = status
   }
@@ -24,8 +25,9 @@ export async function getInvoices(status?: string) {
 }
 
 export async function getInvoice(id: string) {
+  const userId = await getCurrentUserId()
   const invoice = await db.invoice.findUnique({
-    where: { id, userId: TEMP_USER_ID },
+    where: { id, userId },
     include: {
       customer: true,
       items: {
@@ -38,12 +40,13 @@ export async function getInvoice(id: string) {
 }
 
 export async function getNextInvoiceNumber() {
+  const userId = await getCurrentUserId()
   const year = new Date().getFullYear()
   const prefix = `${year}-`
 
   const lastInvoice = await db.invoice.findFirst({
     where: {
-      userId: TEMP_USER_ID,
+      userId,
       invoiceNumber: {
         startsWith: prefix,
       },
@@ -65,9 +68,7 @@ export async function createInvoice(
   status: "DRAFT" | "SENT" = "DRAFT"
 ) {
   const validated = invoiceSchema.parse(data)
-
-  // Zorg dat de temp user bestaat
-  await getOrCreateTempUser()
+  const userId = await getCurrentUserId()
 
   // Bereken totalen
   let subtotal = 0
@@ -100,7 +101,7 @@ export async function createInvoice(
 
   const invoice = await db.invoice.create({
     data: {
-      userId: TEMP_USER_ID,
+      userId,
       invoiceNumber,
       customerId: validated.customerId,
       invoiceDate: validated.invoiceDate,
@@ -220,8 +221,9 @@ export async function updateInvoiceStatus(
     updateData.paidAt = new Date()
   }
 
+  const userId = await getCurrentUserId()
   const invoice = await db.invoice.update({
-    where: { id, userId: TEMP_USER_ID },
+    where: { id, userId },
     data: updateData,
   })
 
@@ -232,8 +234,9 @@ export async function updateInvoiceStatus(
 }
 
 export async function deleteInvoice(id: string) {
+  const userId = await getCurrentUserId()
   await db.invoice.delete({
-    where: { id, userId: TEMP_USER_ID },
+    where: { id, userId },
   })
 
   revalidatePath("/facturen")
@@ -241,6 +244,7 @@ export async function deleteInvoice(id: string) {
 }
 
 export async function getDashboardStats() {
+  const userId = await getCurrentUserId()
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const startOfYear = new Date(now.getFullYear(), 0, 1)
@@ -255,7 +259,7 @@ export async function getDashboardStats() {
     // Openstaande facturen (SENT + OVERDUE)
     db.invoice.aggregate({
       where: {
-        userId: TEMP_USER_ID,
+        userId,
         status: { in: ["SENT", "OVERDUE"] },
       },
       _sum: { total: true },
@@ -265,7 +269,7 @@ export async function getDashboardStats() {
     // Achterstallige facturen
     db.invoice.aggregate({
       where: {
-        userId: TEMP_USER_ID,
+        userId,
         status: "OVERDUE",
       },
       _sum: { total: true },
@@ -275,7 +279,7 @@ export async function getDashboardStats() {
     // Omzet deze maand
     db.invoice.aggregate({
       where: {
-        userId: TEMP_USER_ID,
+        userId,
         status: "PAID",
         paidAt: { gte: startOfMonth },
       },
@@ -285,7 +289,7 @@ export async function getDashboardStats() {
     // Omzet dit jaar
     db.invoice.aggregate({
       where: {
-        userId: TEMP_USER_ID,
+        userId,
         status: "PAID",
         paidAt: { gte: startOfYear },
       },
@@ -294,7 +298,7 @@ export async function getDashboardStats() {
 
     // Aantal klanten
     db.customer.count({
-      where: { userId: TEMP_USER_ID },
+      where: { userId },
     }),
   ])
 
@@ -310,8 +314,9 @@ export async function getDashboardStats() {
 }
 
 export async function getRecentInvoices(limit = 5) {
+  const userId = await getCurrentUserId()
   const invoices = await db.invoice.findMany({
-    where: { userId: TEMP_USER_ID },
+    where: { userId },
     orderBy: { invoiceDate: "desc" },
     take: limit,
     include: {

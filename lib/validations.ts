@@ -81,7 +81,62 @@ export const invoiceSchema = z.object({
 
 export type InvoiceFormData = z.infer<typeof invoiceSchema>
 
-// ========== User/Company Settings Schema ==========
+// ========== Profile Schema ==========
+export const profileSchema = z.object({
+  name: z.string().optional().nullable(),
+  email: z.string().email("Ongeldig e-mailadres"),
+})
+
+export type ProfileFormData = z.infer<typeof profileSchema>
+
+// ========== Company Info Schema ==========
+export const companyInfoSchema = z.object({
+  companyName: z.string().min(1, "Bedrijfsnaam is verplicht"),
+  companyEmail: z.string().email("Ongeldig e-mailadres"),
+  companyPhone: z.string().optional().nullable(),
+  companyAddress: z.string().min(1, "Adres is verplicht"),
+  companyCity: z.string().min(1, "Plaats is verplicht"),
+  companyPostalCode: z
+    .string()
+    .regex(postcodeRegex, "Ongeldig postcode formaat (bijv. 1234 AB)"),
+  companyCountry: z.string().min(1, "Land is verplicht"),
+  companyLogo: z.string().optional().nullable(),
+})
+
+export type CompanyInfoFormData = z.infer<typeof companyInfoSchema>
+
+// ========== Financial Info Schema ==========
+export const financialInfoSchema = z.object({
+  vatNumber: z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (val) => !val || vatNumberRegex.test(val),
+      "Ongeldig BTW-nummer formaat (bijv. NL123456789B01)"
+    ),
+  kvkNumber: z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (val) => !val || /^\d{8}$/.test(val),
+      "KvK-nummer moet 8 cijfers zijn"
+    ),
+  iban: z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (val) => !val || ibanRegex.test(val.replace(/\s/g, "")),
+      "Ongeldig IBAN formaat"
+    ),
+  invoicePrefix: z.string().min(1, "Prefix is verplicht"),
+})
+
+export type FinancialInfoFormData = z.infer<typeof financialInfoSchema>
+
+// ========== User/Company Settings Schema (legacy, kept for backwards compatibility) ==========
 export const companySettingsSchema = z.object({
   companyName: z.string().min(1, "Bedrijfsnaam is verplicht"),
   companyEmail: z.string().email("Ongeldig e-mailadres"),
@@ -148,3 +203,17 @@ export const registerSchema = z.object({
 })
 
 export type RegisterFormData = z.infer<typeof registerSchema>
+
+// ========== Change Password Schema ==========
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Huidig wachtwoord is verplicht"),
+    newPassword: z.string().min(6, "Wachtwoord moet minimaal 6 karakters zijn"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Wachtwoorden komen niet overeen",
+    path: ["confirmPassword"],
+  })
+
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>

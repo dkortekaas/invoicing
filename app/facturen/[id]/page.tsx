@@ -36,78 +36,32 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import { formatCurrency, formatDate, formatDateLong } from "@/lib/utils"
+import { getInvoice, updateInvoiceStatus, deleteInvoice } from "../actions"
+import { InvoiceActionsClient } from "./invoice-actions-client"
+import { InvoicePreview } from "./invoice-preview"
 
 interface FactuurDetailPageProps {
   params: Promise<{ id: string }>
 }
 
-// Placeholder data
-const invoice = {
-  id: "1",
-  invoiceNumber: "2025-0024",
-  status: "SENT",
-  invoiceDate: new Date("2025-01-15"),
-  dueDate: new Date("2025-02-14"),
-  reference: "PO-12345",
-  notes: "Betaling graag binnen 30 dagen.",
-  subtotal: 1033.06,
-  vatAmount: 216.94,
-  total: 1250.0,
-  customer: {
-    name: "Jan Janssen",
-    companyName: "Acme B.V.",
-    email: "jan@acme.nl",
-    address: "Kerkstraat 123",
-    postalCode: "1012 AB",
-    city: "Amsterdam",
-    country: "Nederland",
-    vatNumber: "NL123456789B01",
-  },
-  items: [
-    {
-      id: "1",
-      description: "Consultancy werkzaamheden",
-      quantity: 8,
-      unit: "uur",
-      unitPrice: 95.0,
-      vatRate: 21,
-      subtotal: 760.0,
-      vatAmount: 159.6,
-      total: 919.6,
-    },
-    {
-      id: "2",
-      description: "Ontwikkeling nieuwe features",
-      quantity: 3,
-      unit: "uur",
-      unitPrice: 85.0,
-      vatRate: 21,
-      subtotal: 255.0,
-      vatAmount: 53.55,
-      total: 308.55,
-    },
-  ],
-  user: {
-    companyName: "Mijn Bedrijf",
-    companyEmail: "info@mijnbedrijf.nl",
-    companyAddress: "Hoofdstraat 1",
-    companyPostalCode: "1234 AB",
-    companyCity: "Amsterdam",
-    vatNumber: "NL987654321B01",
-    kvkNumber: "12345678",
-    iban: "NL91ABNA0417164300",
-  },
-}
-
 export default async function FactuurDetailPage({ params }: FactuurDetailPageProps) {
   const { id } = await params
-
-  // In productie: haal factuur op uit database
-  // const invoice = await getInvoice(id)
+  const invoice = await getInvoice(id)
 
   if (!invoice) {
     notFound()
   }
+
+  // Group VAT by rate for display
+  const vatByRate = invoice.items.reduce((acc, item) => {
+    const rate = item.vatRate.toNumber().toString()
+    if (!acc[rate]) {
+      acc[rate] = { subtotal: 0, vatAmount: 0 }
+    }
+    acc[rate].subtotal += item.subtotal.toNumber()
+    acc[rate].vatAmount += item.vatAmount.toNumber()
+    return acc
+  }, {} as Record<string, { subtotal: number; vatAmount: number }>)
 
   return (
     <div className="space-y-6">
@@ -133,49 +87,24 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Download PDF
+          <Button variant="outline" asChild>
+            <a href={`/api/invoices/${invoice.id}/pdf`} download>
+              <Download className="mr-2 h-4 w-4" />
+              Download PDF
+            </a>
           </Button>
 
-          {invoice.status === "DRAFT" && (
-            <Button>
-              <Send className="mr-2 h-4 w-4" />
-              Verzenden
-            </Button>
-          )}
-
-          {(invoice.status === "SENT" || invoice.status === "OVERDUE") && (
-            <Button>
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Markeer als betaald
-            </Button>
-          )}
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href={`/facturen/${id}/bewerken`}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Bewerken
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Verwijderen
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <InvoiceActionsClient
+            invoice={{
+              id: invoice.id,
+              status: invoice.status,
+            }}
+          />
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <InvoicePreview invoiceId={invoice.id} invoiceNumber={invoice.invoiceNumber}>
+        <div className="grid gap-6 lg:grid-cols-3">
         {/* Invoice details */}
         <div className="space-y-6 lg:col-span-2">
           {/* Addresses */}
@@ -193,12 +122,16 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                   <p>
                     {invoice.user.companyPostalCode} {invoice.user.companyCity}
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    BTW: {invoice.user.vatNumber}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    KvK: {invoice.user.kvkNumber}
-                  </p>
+                  {invoice.user.vatNumber && (
+                    <p className="text-sm text-muted-foreground">
+                      BTW: {invoice.user.vatNumber}
+                    </p>
+                  )}
+                  {invoice.user.kvkNumber && (
+                    <p className="text-sm text-muted-foreground">
+                      KvK: {invoice.user.kvkNumber}
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -252,12 +185,14 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                     <TableRow key={item.id}>
                       <TableCell>{item.description}</TableCell>
                       <TableCell className="text-right">
-                        {item.quantity} {item.unit}
+                        {formatCurrency(item.quantity)} {item.unit}
                       </TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(item.unitPrice)}
                       </TableCell>
-                      <TableCell className="text-right">{item.vatRate}%</TableCell>
+                      <TableCell className="text-right">
+                        {item.vatRate.toNumber()}%
+                      </TableCell>
                       <TableCell className="text-right font-medium">
                         {formatCurrency(item.subtotal)}
                       </TableCell>
@@ -271,8 +206,18 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                       {formatCurrency(invoice.subtotal)}
                     </TableCell>
                   </TableRow>
+                  {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
+                    <TableRow key={rate}>
+                      <TableCell colSpan={4}>
+                        BTW {rate}% over {formatCurrency(subtotal)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(vatAmount)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
                   <TableRow>
-                    <TableCell colSpan={4}>BTW (21%)</TableCell>
+                    <TableCell colSpan={4}>Totaal BTW</TableCell>
                     <TableCell className="text-right">
                       {formatCurrency(invoice.vatAmount)}
                     </TableCell>
@@ -295,7 +240,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                 <CardTitle>Notities</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">{invoice.notes}</p>
+                <p className="text-muted-foreground whitespace-pre-wrap">{invoice.notes}</p>
               </CardContent>
             </Card>
           )}
@@ -340,21 +285,23 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           </Card>
 
           {/* Payment info */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Betalingsgegevens</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">IBAN</span>
-                <span className="font-mono text-sm">{invoice.user.iban}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">T.n.v.</span>
-                <span>{invoice.user.companyName}</span>
-              </div>
-            </CardContent>
-          </Card>
+          {invoice.user.iban && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Betalingsgegevens</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">IBAN</span>
+                  <span className="font-mono text-sm">{invoice.user.iban}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">T.n.v.</span>
+                  <span>{invoice.user.companyName}</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Total */}
           <Card className="bg-gray-50">
@@ -369,6 +316,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           </Card>
         </div>
       </div>
+      </InvoicePreview>
     </div>
   )
 }

@@ -1,52 +1,27 @@
 import { InvoiceForm } from "@/components/invoices/invoice-form"
+import { getCustomers } from "@/app/klanten/actions"
+import { getActiveProducts } from "@/app/producten/actions"
 
-// Placeholder data - wordt later uit database gehaald
-const customers = [
-  {
-    id: "1",
-    name: "Jan Janssen",
-    companyName: "Acme B.V.",
-    paymentTermDays: 30,
-  },
-  {
-    id: "2",
-    name: "Maria de Vries",
-    companyName: "Tech Solutions",
-    paymentTermDays: 14,
-  },
-  {
-    id: "3",
-    name: "Peter van den Berg",
-    companyName: null,
-    paymentTermDays: 30,
-  },
-]
+export default async function NieuweFactuurPage() {
+  const customers = await getCustomers()
+  const products = await getActiveProducts()
 
-const products = [
-  {
-    id: "1",
-    name: "Consultancy",
-    unitPrice: 95.0,
-    vatRate: 21,
-    unit: "uur",
-  },
-  {
-    id: "2",
-    name: "Ontwikkeling",
-    unitPrice: 85.0,
-    vatRate: 21,
-    unit: "uur",
-  },
-  {
-    id: "3",
-    name: "Training",
-    unitPrice: 750.0,
-    vatRate: 21,
-    unit: "dag",
-  },
-]
+  // Transform data for form
+  const customersForForm = customers.map((c) => ({
+    id: c.id,
+    name: c.name,
+    companyName: c.companyName,
+    paymentTermDays: c.paymentTermDays,
+  }))
 
-export default function NieuweFactuurPage() {
+  const productsForForm = products.map((p) => ({
+    id: p.id,
+    name: p.name,
+    unitPrice: p.unitPrice.toNumber(),
+    vatRate: p.vatRate.toNumber(),
+    unit: p.unit,
+  }))
+
   return (
     <div className="space-y-6">
       <div>
@@ -56,7 +31,7 @@ export default function NieuweFactuurPage() {
         </p>
       </div>
 
-      <InvoiceForm customers={customers} products={products} />
+      <InvoiceForm customers={customersForForm} products={productsForForm} />
     </div>
   )
 }

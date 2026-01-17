@@ -216,13 +216,13 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                       {formatCurrency(invoice.subtotal)}
                     </TableCell>
                   </TableRow>
-                  {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
+                  {Object.entries(vatByRate).map(([rate, values]: [string, { subtotal: number; vatAmount: number }]) => (
                     <TableRow key={rate}>
                       <TableCell colSpan={4}>
-                        BTW {rate}% over {formatCurrency(subtotal)}
+                        BTW {rate}% over {formatCurrency(values.subtotal)}
                       </TableCell>
                       <TableCell className="text-right">
-                        {formatCurrency(vatAmount)}
+                        {formatCurrency(values.vatAmount)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -364,7 +364,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                               reminderTypes.push('first', 'second', 'final');
                             }
                             
-                            return reminderTypes.map((type) => (
+                            return reminderTypes.map((type: 'friendly' | 'first' | 'second' | 'final') => (
                               <div key={type} className="flex gap-2">
                                 <EmailSendButton
                                   invoiceId={invoice.id}

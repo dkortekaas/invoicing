@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { enable2FA, disable2FA, verify2FASetup, generate2FASecret } from "./actions"
+import { disable2FA, verify2FASetup, generate2FASecret } from "./actions"
 
 interface TwoFactorSetupProps {
   isEnabled: boolean

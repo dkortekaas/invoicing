@@ -9,6 +9,8 @@ import { TwoFactorSetup } from "./2fa/two-factor-setup"
 import { WachtwoordForm } from "./wachtwoord-form"
 import { getProfile, getCompanyInfo, getFinancialInfo } from "./actions"
 
+export const dynamic = "force-dynamic"
+
 interface InstellingenPageProps {
   searchParams: Promise<{ tab?: string }>
 }

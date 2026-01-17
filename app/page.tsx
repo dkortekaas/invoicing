@@ -7,6 +7,8 @@ import { formatCurrency, STATUS_LABELS, STATUS_COLORS, cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { getDashboardStats, getRecentInvoices } from "@/app/facturen/actions"
 
+export const dynamic = "force-dynamic"
+
 export default async function DashboardPage() {
   const stats = await getDashboardStats()
   const recentInvoices = await getRecentInvoices(5)

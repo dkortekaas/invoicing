@@ -133,6 +133,7 @@ export async function updateInvoice(
   data: InvoiceFormData,
   status?: "DRAFT" | "SENT"
 ) {
+  const userId = await getCurrentUserId()
   const validated = invoiceSchema.parse(data)
 
   // Bereken totalen
@@ -196,7 +197,7 @@ export async function updateInvoice(
   }
 
   const invoice = await db.invoice.update({
-    where: { id, userId: TEMP_USER_ID },
+    where: { id, userId },
     data: updateData,
     include: {
       items: true,

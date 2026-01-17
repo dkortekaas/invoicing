@@ -1,5 +1,7 @@
 import Link from "next/link"
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, FileText } from "lucide-react"
+
+export const dynamic = "force-dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {

@@ -4,6 +4,8 @@ import { getInvoice } from "@/app/facturen/actions"
 import { getCustomers } from "@/app/klanten/actions"
 import { getActiveProducts } from "@/app/producten/actions"
 
+export const dynamic = "force-dynamic"
+
 interface FactuurBewerkenPageProps {
   params: Promise<{ id: string }>
 }

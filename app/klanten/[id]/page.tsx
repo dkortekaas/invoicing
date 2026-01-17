@@ -2,6 +2,8 @@ import { notFound } from "next/navigation"
 import { CustomerForm } from "@/components/customers/customer-form"
 import { getCustomer } from "../actions"
 
+export const dynamic = "force-dynamic"
+
 interface KlantDetailPageProps {
   params: Promise<{ id: string }>
 }

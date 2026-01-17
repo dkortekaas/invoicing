@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { signIn } from "next-auth/react"
@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { loginSchema, type LoginFormData } from "@/lib/validations"
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
@@ -71,12 +71,21 @@ export default function LoginPage() {
       const result = await signIn("credentials", {
         email: requiresTwoFactor ? email : data.email,
         password: requiresTwoFactor ? password : data.password,
-        twoFactorCode: data.twoFactorCode,
+        twoFactorCode: data.twoFactorCode || undefined,
         redirect: false,
       })
 
       if (result?.error) {
-        setError(result.error)
+        // Handle specific error messages
+        if (result.error === "CredentialsSignin") {
+          if (requiresTwoFactor) {
+            setError("Ongeldige 2FA code. Probeer het opnieuw.")
+          } else {
+            setError("Ongeldige inloggegevens. Controleer je email en wachtwoord.")
+          }
+        } else {
+          setError(result.error)
+        }
       } else if (result?.ok) {
         router.push(callbackUrl)
         router.refresh()
@@ -187,5 +196,23 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }

@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String?
+  passwordHash    String
+  companyName     String
+  companyEmail    String
+  companyPhone    String?
+  companyAddress  String
+  companyCity     String
+  companyPostalCode String
+  companyCountry  String    @default("Nederland")
+  vatNumber       String?   // BTW-nummer
+  kvkNumber       String?   // KvK-nummer
+  iban            String?
+  invoicePrefix   String    @default("FAC")
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  customers       Customer[]
+  invoices        Invoice[]
+  products        Product[]
+}
+
+model Customer {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name            String
+  companyName     String?
+  email           String
+  phone           String?
+
+  address         String
+  city            String
+  postalCode      String
+  country         String    @default("Nederland")
+
+  vatNumber       String?   // BTW-nummer klant
+
+  paymentTermDays Int       @default(30)
+  notes           String?
+
+  invoices        Invoice[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  vatRate     Decimal  @db.Decimal(5, 2) @default(21.00) // 21%, 9%, 0%
+  unit        String   @default("uur") // uur, stuk, dag, etc.
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  invoiceNumber   String        @unique
+  customerId      String
+  customer        Customer      @relation(fields: [customerId], references: [id])
+
+  invoiceDate     DateTime      @default(now())
+  dueDate         DateTime
+  status          InvoiceStatus @default(DRAFT)
+
+  // Bedragen
+  subtotal        Decimal       @db.Decimal(10, 2)
+  vatAmount       Decimal       @db.Decimal(10, 2)
+  total           Decimal       @db.Decimal(10, 2)
+
+  // Extra velden
+  reference       String?       // Referentie klant
+  notes           String?       // Extra notities op factuur
+  internalNotes   String?       // Interne notities (niet op PDF)
+
+  // Items
+  items           InvoiceItem[]
+
+  // Metadata
+  pdfPath         String?
+  sentAt          DateTime?
+  paidAt          DateTime?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([customerId])
+  @@index([status])
+  @@index([invoiceDate])
+}
+
+model InvoiceItem {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  description String
+  quantity    Decimal  @db.Decimal(10, 2)
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  vatRate     Decimal  @db.Decimal(5, 2)
+  unit        String   @default("uur")
+
+  // Berekend
+  subtotal    Decimal  @db.Decimal(10, 2) // quantity * unitPrice
+  vatAmount   Decimal  @db.Decimal(10, 2) // subtotal * (vatRate / 100)
+  total       Decimal  @db.Decimal(10, 2) // subtotal + vatAmount
+
+  sortOrder   Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([invoiceId])
+}
+
+enum InvoiceStatus {
+  DRAFT      // Concept
+  SENT       // Verzonden
+  PAID       // Betaald
+  OVERDUE    // Achterstallig
+  CANCELLED  // Geannuleerd
+}

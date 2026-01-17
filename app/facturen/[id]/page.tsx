@@ -47,7 +47,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
   }
 
   // Group VAT by rate for display
-  const vatByRate = invoice.items.reduce((acc, item) => {
+  const vatByRate = invoice.items.reduce((acc: Record<string, { subtotal: number; vatAmount: number }>, item: typeof invoice.items[0]) => {
     const rate = item.vatRate.toNumber().toString()
     if (!acc[rate]) {
       acc[rate] = { subtotal: 0, vatAmount: 0 }

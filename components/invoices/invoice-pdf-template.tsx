@@ -7,6 +7,8 @@ import {
   Image,
 } from "@react-pdf/renderer"
 import { formatDate, formatCurrency, formatNumber } from "@/lib/utils"
+import { getWatermarkStyles, shouldShowWatermark } from "@/lib/pdf/watermark"
+import type { SystemSettings } from "@prisma/client"
 
 // Types
 interface InvoiceItem {
@@ -262,9 +264,11 @@ const styles = StyleSheet.create({
 
 interface InvoicePDFProps {
   invoice: InvoiceData
+  watermarkSettings?: SystemSettings | null
+  userTier?: string
 }
 
-export function InvoicePDF({ invoice }: InvoicePDFProps) {
+export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: InvoicePDFProps) {
   // Group VAT by rate
   const vatByRate = invoice.items.reduce((acc, item) => {
     const rate = item.vatRate.toString()
@@ -275,6 +279,16 @@ export function InvoicePDF({ invoice }: InvoicePDFProps) {
     acc[rate].vatAmount += item.subtotal * (item.vatRate / 100)
     return acc
   }, {} as Record<string, { subtotal: number; vatAmount: number }>)
+
+  // Check if watermark should be shown
+  const showWatermark = watermarkSettings && userTier
+    ? shouldShowWatermark(userTier, watermarkSettings)
+    : false
+
+  // Get watermark styles if needed
+  const watermarkStyle = watermarkSettings && showWatermark
+    ? StyleSheet.create({ watermark: getWatermarkStyles(watermarkSettings) }).watermark
+    : null
 
   return (
     <Document>
@@ -447,6 +461,13 @@ export function InvoicePDF({ invoice }: InvoicePDFProps) {
             </View>
           </View>
         </View>
+
+        {/* Watermark - alleen voor free users */}
+        {showWatermark && watermarkSettings && (
+          <View style={watermarkStyle} fixed>
+            <Text>{watermarkSettings.watermarkText}</Text>
+          </View>
+        )}
       </Page>
     </Document>
   )

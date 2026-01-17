@@ -24,7 +24,22 @@ export async function GET(
         items: {
           orderBy: { sortOrder: "asc" },
         },
-        user: true,
+        user: {
+          select: {
+            subscriptionTier: true,
+            companyName: true,
+            companyEmail: true,
+            companyPhone: true,
+            companyAddress: true,
+            companyPostalCode: true,
+            companyCity: true,
+            companyCountry: true,
+            companyLogo: true,
+            vatNumber: true,
+            kvkNumber: true,
+            iban: true,
+          },
+        },
       },
     })
 
@@ -34,6 +49,11 @@ export async function GET(
         { status: 404 }
       )
     }
+
+    // Haal system settings op voor watermerk
+    const settings = await db.systemSettings.findUnique({
+      where: { id: 'default' },
+    })
 
     // Bereid data voor PDF
     const pdfData = {
@@ -77,9 +97,13 @@ export async function GET(
       },
     }
 
-    // Genereer PDF
+    // Genereer PDF met watermerk settings
     const pdfBuffer = await renderToBuffer(
-      InvoicePDF({ invoice: pdfData })
+      InvoicePDF({ 
+        invoice: pdfData,
+        watermarkSettings: settings,
+        userTier: invoice.user.subscriptionTier || 'FREE',
+      })
     )
 
     // Convert Buffer to Uint8Array for Response compatibility

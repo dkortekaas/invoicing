@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
+import { useEffect, useState } from "react"
 import {
   LayoutDashboard,
   Users,
@@ -13,6 +14,7 @@ import {
   Clock,
   Repeat,
   Receipt,
+  Shield,
 } from "lucide-react"
 
 import {
@@ -73,6 +75,15 @@ const navigation = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    // Check if user is admin
+    fetch('/api/admin/check')
+      .then((res) => res.json())
+      .then((data) => setIsAdmin(data.isAdmin))
+      .catch(() => setIsAdmin(false))
+  }, [])
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/login" })
@@ -118,6 +129,16 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 )
               })}
+              {isAdmin && (
+                <SidebarMenuItem className="py-1">
+                  <SidebarMenuButton asChild isActive={pathname?.startsWith('/admin')}>
+                    <Link href="/admin">
+                      <Shield />
+                      <span>Admin</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -33,6 +33,13 @@ model User {
   defaultHourlyRate Decimal? @db.Decimal(10, 2)
   roundingInterval  Int      @default(0) // 0 = geen afronden, 15, 30, 60 minuten
 
+  // Superuser/Admin
+  role            UserRole  @default(USER)
+
+  // Subscription
+  subscriptionTier     String  @default("FREE") // FREE, PRO
+  subscriptionStatus   String  @default("ACTIVE") // ACTIVE, CANCELLED, EXPIRED
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -838,4 +845,40 @@ model AnalyticsSnapshot {
   @@unique([userId, date])
   @@index([userId])
   @@index([date])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPERUSER
+}
+
+enum WatermarkPosition {
+  DIAGONAL      // Diagonaal over de pagina
+  CENTER        // Gecentreerd
+  BOTTOM        // Onderaan
+  TOP           // Bovenaan
+  FOOTER        // In footer sectie
+}
+
+model SystemSettings {
+  id          String   @id @default("default")
+
+  // Watermark settings
+  watermarkEnabled        Boolean  @default(true)
+  watermarkText           String   @default("GRATIS VERSIE - Upgrade naar Pro op app.yoursite.com")
+  watermarkOpacity        Decimal  @db.Decimal(3, 2) @default(0.15)
+  watermarkRotation       Int      @default(-45) // degrees
+  watermarkFontSize       Int      @default(40)
+  watermarkColor          String   @default("#999999")
+  watermarkPosition       WatermarkPosition @default(DIAGONAL)
+
+  // Feature toggles
+  freeUserWatermarkEnabled Boolean @default(true)
+
+  // Metadata
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?  // User ID who made the change
+
+  @@unique([id]) // Ensure only one settings record
 }

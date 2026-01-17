@@ -114,9 +114,24 @@ export async function sendInvoiceEmail({
     },
   };
 
-  // Genereer PDF
+  // Haal system settings op voor watermerk
+  const settings = await db.systemSettings.findUnique({
+    where: { id: 'default' },
+  });
+
+  // Haal user tier op
+  const user = await db.user.findUnique({
+    where: { id: invoice.userId },
+    select: { subscriptionTier: true },
+  });
+
+  // Genereer PDF met watermerk settings
   const pdfBuffer = await renderToBuffer(
-    InvoicePDF({ invoice: pdfData })
+    InvoicePDF({ 
+      invoice: pdfData,
+      watermarkSettings: settings,
+      userTier: user?.subscriptionTier || 'FREE',
+    })
   );
 
   // Verstuur email met PDF bijlage

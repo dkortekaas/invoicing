@@ -19,6 +19,8 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - ⏱️ **Time Tracking**: Track tijd per project en klant
 - 🔄 **Recurring Invoices**: Automatische terugkerende facturen
 - 📧 **Email Systeem**: Verstuur facturen en herinneringen via email
+- 💧 **Watermerk Systeem**: Configureerbaar watermerk op PDF facturen voor free users
+- 👑 **Admin Dashboard**: Superuser dashboard voor systeembeheer en gebruikersbeheer
 - 🇳🇱 **Nederlandse standaarden**: Volledig aangepast aan Nederlandse factuurvereisten
 - 🎨 **Modern UI**: Gebouwd met Next.js 15, React 19, Tailwind CSS en shadcn/ui
 
@@ -93,6 +95,17 @@ Dit zal:
 - De Prisma Client genereren
 - Een initiële migratie uitvoeren
 
+**Voor het watermerk systeem:**
+```bash
+npx prisma migrate dev --name add_watermark_system
+npx prisma generate
+npx prisma db seed
+```
+
+Dit zal:
+- De watermark systeem tabellen aanmaken
+- De standaard watermark instellingen seeden
+
 ### 5. Start de development server
 
 ```bash
@@ -123,7 +136,15 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
   /tijd                  # Time tracking
   /abonnementen          # Recurring invoices
   /btw                   # BTW rapportage
+  /admin                 # Admin dashboard (superuser only)
+    page.tsx             # Admin overzicht
+    /watermark           # Watermerk instellingen
+    /users               # Gebruikersbeheer
   /api
+    /admin               # Admin API endpoints
+      /watermark         # Watermerk settings API
+      /users/[id]/role  # User role management API
+      /check             # Admin check API
     /analytics           # Analytics API endpoints
       /kpis              # KPI berekeningen
       /trends            # Trend analyse
@@ -143,15 +164,24 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
   /invoices              # Factuur components
   /customers             # Klant components
   /products              # Product components
-/lib
+  /lib
   /analytics             # Analytics library
     kpis.ts              # KPI berekeningen
     trends.ts            # Trend analyse
     comparisons.ts       # Periode vergelijkingen
     export.ts            # Excel export utilities
+  /auth                  # Authentication utilities
+    admin-guard.ts       # Admin/superuser permission checks
+  /pdf                   # PDF utilities
+    watermark.ts         # Watermark rendering logic
   db.ts                  # Prisma client
   validations.ts         # Zod schemas
   utils.ts              # Helper functions
+/components
+  /admin                 # Admin components
+    watermark-settings-form.tsx  # Watermark configuration form
+    watermark-preview.tsx         # Live watermark preview
+    user-role-manager.tsx        # User role management
 /prisma
   schema.prisma          # Database schema
 ```
@@ -172,6 +202,8 @@ De applicatie gebruikt de volgende hoofdmodellen:
 - **VATReport**: BTW rapporten
 - **BusinessGoal**: Doelstellingen voor analytics
 - **AnalyticsSnapshot**: Dagelijkse analytics snapshots
+- **SystemSettings**: Systeeminstellingen (watermerk configuratie)
+- **UserRole**: Gebruikersrollen (USER, ADMIN, SUPERUSER)
 
 Zie `prisma/schema.prisma` voor het volledige schema.
 
@@ -285,6 +317,13 @@ npx prisma migrate dev --name add_analytics
 npx prisma generate
 ```
 
+**Voor watermark systeem:**
+```bash
+npx prisma migrate dev --name add_watermark_system
+npx prisma generate
+npx prisma db seed
+```
+
 Genereer Prisma Client (na schema wijzigingen):
 ```bash
 npx prisma generate
@@ -336,6 +375,7 @@ De applicatie gebruikt **NextAuth.js v5** met:
 - Twee-factor authenticatie (2FA) met TOTP
 - JWT-based sessies
 - Wachtwoord wijzigen functionaliteit
+- Role-based access control (USER, ADMIN, SUPERUSER)
 
 ### Eerste Gebruik
 
@@ -355,6 +395,74 @@ De applicatie gebruikt **NextAuth.js v5** met:
    - Scan de QR code met je authenticator app (Google Authenticator, Authy, etc.)
    - Verifieer met een code
    - Sla je backup codes op op een veilige plek
+
+## 👑 Admin Dashboard & Watermerk Systeem
+
+### Superuser Setup
+
+Om toegang te krijgen tot het admin dashboard, moet je eerst een superuser account aanmaken:
+
+**Via SQL:**
+```sql
+UPDATE "User" SET role = 'SUPERUSER' WHERE email = 'your@email.com';
+```
+
+**Via Prisma Studio:**
+1. Open Prisma Studio: `npx prisma studio`
+2. Navigeer naar de User tabel
+3. Zoek je gebruiker
+4. Wijzig de `role` veld naar `SUPERUSER`
+
+### Admin Dashboard Features
+
+Het admin dashboard (`/admin`) is alleen toegankelijk voor superusers en biedt:
+
+#### 1. Admin Overzicht (`/admin`)
+- Totaal aantal gebruikers
+- Totaal aantal facturen
+- Watermerk status
+
+#### 2. Watermerk Instellingen (`/admin/watermark`)
+Configureer het watermerk dat wordt getoond op PDF facturen van gratis gebruikers:
+
+- **Watermerk Enabled**: Schakel watermerk functionaliteit in/uit
+- **Watermerk voor Free Users**: Toon watermerk alleen voor free users
+- **Watermerk Tekst**: Aanpasbare tekst (bijv. "GRATIS VERSIE - Upgrade naar Pro")
+- **Positie**: 
+  - Diagonaal (standaard)
+  - Gecentreerd
+  - Onderaan
+  - Bovenaan
+  - Footer
+- **Transparantie**: 0 (transparant) tot 1 (ondoorzichtig)
+- **Rotatie**: -180° tot 180°
+- **Lettergrootte**: 10px tot 100px
+- **Kleur**: HEX kleurcode
+- **Live Preview**: Real-time preview van watermerk instellingen
+
+#### 3. Gebruikers Beheer (`/admin/users`)
+- Bekijk alle gebruikers
+- Wijzig gebruikersrollen (USER, ADMIN, SUPERUSER)
+- Bekijk abonnement status en factuur statistieken
+- Gebruikers kunnen hun eigen rol niet wijzigen
+
+### Watermerk Functionaliteit
+
+Het watermerk systeem:
+- ✅ Toont automatisch watermerk op PDF facturen voor FREE users
+- ✅ Volledig configureerbaar via admin dashboard
+- ✅ Live preview van wijzigingen
+- ✅ Meerdere posities (diagonaal, center, footer, etc.)
+- ✅ Aanpasbare transparantie, rotatie, grootte en kleur
+- ✅ Alleen zichtbaar voor free users (PRO users zien geen watermerk)
+- ✅ Werkt op zowel PDF downloads als email bijlagen
+
+### Security Features
+
+- **Role-based Access Control**: Alleen superusers kunnen admin dashboard benaderen
+- **Protected Routes**: Admin routes zijn beveiligd met `requireSuperuser()` guard
+- **API Protection**: Alle admin API endpoints controleren superuser status
+- **Audit Trail**: Watermerk wijzigingen worden gelogd met `updatedBy` veld
 
 ## 📦 Deployment
 
@@ -475,6 +583,8 @@ Het analytics dashboard biedt een compleet overzicht van je business performance
 - [x] Export naar Excel/CSV ✅
 - [x] Time tracking integration ✅
 - [x] Analytics & BI Dashboard ✅
+- [x] Watermerk systeem voor free users ✅
+- [x] Admin dashboard met gebruikersbeheer ✅
 - [ ] Forecasting & predictive analytics
 - [ ] Benchmarking tegen industrie gemiddeldes
 - [ ] Geautomatiseerde email rapporten (wekelijks/maandelijks)

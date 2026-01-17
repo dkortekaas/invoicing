@@ -100,8 +100,8 @@ export function AppSidebar() {
                   <FileText className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Facturatie</span>
-                  <span className="truncate text-xs">BetaalMe</span>
+                  <span className="truncate font-semibold">BetaalMe</span>
+                  <span className="truncate text-xs">Gemaakt om betaald te worden</span>
                 </div>
               </Link>
             </SidebarMenuButton>

@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import { Bell, User, LogOut, Settings } from "lucide-react"
+import { RunningTimerIndicator } from "@/components/time/running-timer-indicator"
 import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -19,6 +20,9 @@ const pageTitle: Record<string, string> = {
   "/": "Dashboard",
   "/facturen": "Facturen",
   "/facturen/nieuw": "Nieuwe Factuur",
+  "/tijd": "Tijdregistratie",
+  "/tijd/entries": "Time Entries",
+  "/tijd/projecten": "Projecten",
   "/klanten": "Klanten",
   "/klanten/nieuw": "Nieuwe Klant",
   "/producten": "Producten",
@@ -34,6 +38,7 @@ export function Header() {
   if (!title) {
     if (pathname.startsWith("/facturen/")) title = "Factuur"
     else if (pathname.startsWith("/klanten/")) title = "Klant"
+    else if (pathname.startsWith("/tijd/")) title = "Tijdregistratie"
     else title = "Dashboard"
   }
 
@@ -51,6 +56,9 @@ export function Header() {
 
       {/* Actions */}
       <div className="flex items-center gap-2">
+        {/* Running Timer Indicator */}
+        <RunningTimerIndicator />
+        
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />

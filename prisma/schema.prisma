@@ -29,6 +29,10 @@ model User {
   twoFactorEnabled Boolean  @default(false)
   backupCodes     String?   // JSON array van backup codes
 
+  // Time tracking settings
+  defaultHourlyRate Decimal? @db.Decimal(10, 2)
+  roundingInterval  Int      @default(0) // 0 = geen afronden, 15, 30, 60 minuten
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -36,6 +40,9 @@ model User {
   invoices        Invoice[]
   products        Product[]
   emailSettings   EmailSettings?
+  projects        Project[]
+  timeEntries     TimeEntry[]
+  activityTypes   ActivityType[]
   
   // NextAuth sessions
   accounts        Account[]
@@ -63,6 +70,8 @@ model Customer {
   notes           String?
 
   invoices        Invoice[]
+  projects        Project[]
+  timeEntries     TimeEntry[]
 
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -150,6 +159,9 @@ model InvoiceItem {
   total       Decimal  @db.Decimal(10, 2) // subtotal + vatAmount
 
   sortOrder   Int      @default(0)
+
+  // Time tracking relation (optional)
+  timeEntry   TimeEntry? @relation("TimeEntryToInvoiceItem")
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -271,4 +283,123 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// Time Tracking Models
+
+model Project {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  
+  name        String
+  description String?
+  code        String?  // Project code voor referentie
+  color       String?  // Kleur voor visuele identificatie
+  
+  status      ProjectStatus @default(ACTIVE)
+  
+  // Budget tracking
+  budgetHours   Decimal?  @db.Decimal(10, 2)
+  budgetAmount  Decimal?  @db.Decimal(10, 2)
+  
+  // Default rates
+  defaultHourlyRate Decimal? @db.Decimal(10, 2)
+  
+  // Dates
+  startDate   DateTime?
+  endDate     DateTime?
+  
+  // Relations
+  timeEntries TimeEntry[]
+  
+  // Metadata
+  archived    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([customerId])
+  @@index([status])
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+model TimeEntry {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id])
+  
+  invoiceItemId String?  @unique
+  invoiceItem   InvoiceItem? @relation("TimeEntryToInvoiceItem", fields: [invoiceItemId], references: [id])
+  
+  // Time tracking
+  description String
+  
+  startTime   DateTime
+  endTime     DateTime?
+  
+  duration    Decimal   @db.Decimal(10, 2) // in uren (bijv 1.5 = 1u 30min)
+  
+  // Running timer
+  isRunning   Boolean   @default(false)
+  
+  // Billing
+  billable    Boolean   @default(true)
+  hourlyRate  Decimal   @db.Decimal(10, 2)
+  amount      Decimal   @db.Decimal(10, 2) // duration * hourlyRate
+  
+  // Status
+  invoiced    Boolean   @default(false)
+  
+  // Metadata
+  activityType String?  // Development, Meeting, Research, Support, etc.
+  notes       String?  // Interne notities
+  tags        String[] // Voor filtering/grouping
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([customerId])
+  @@index([projectId])
+  @@index([startTime])
+  @@index([billable])
+  @@index([invoiced])
+  @@index([isRunning])
+}
+
+model ActivityType {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  name        String
+  description String?
+  color       String?
+  icon        String?  // Lucide icon name
+  billable    Boolean  @default(true) // Default billable status
+  
+  sortOrder   Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId, name])
+  @@index([userId])
 }

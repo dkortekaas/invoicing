@@ -17,8 +17,26 @@ function createPrismaClient(): PrismaClient {
     )
   }
 
+  // Normalize DATABASE_URL to explicitly set sslmode=verify-full to avoid warnings
+  let connectionString = process.env.DATABASE_URL
+  try {
+    const url = new URL(connectionString)
+    const params = new URLSearchParams(url.search)
+    
+    // If sslmode is not explicitly set, add verify-full to maintain current secure behavior
+    if (!params.has('sslmode')) {
+      params.set('sslmode', 'verify-full')
+      url.search = params.toString()
+      connectionString = url.toString()
+    }
+  } catch (error) {
+    // If URL parsing fails, use original connection string
+    // This can happen with connection strings that don't follow standard URL format
+    console.warn('Could not parse DATABASE_URL for SSL mode normalization:', error)
+  }
+
   // Create PostgreSQL connection pool
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  const pool = new Pool({ connectionString })
   const adapter = new PrismaPg(pool)
 
   // PrismaClient with adapter for Prisma 7.x

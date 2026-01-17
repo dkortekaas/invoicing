@@ -10,6 +10,7 @@ import {
   Package,
   Settings,
   LogOut,
+  Clock,
 } from "lucide-react"
 
 import {
@@ -35,6 +36,11 @@ const navigation = [
     title: "Facturen",
     url: "/facturen",
     icon: FileText,
+  },
+  {
+    title: "Tijdregistratie",
+    url: "/tijd",
+    icon: Clock,
   },
   {
     title: "Klanten",

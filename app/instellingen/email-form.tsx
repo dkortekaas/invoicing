@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 const emailSettingsSchema = z.object({
@@ -55,6 +56,7 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<EmailSettingsFormData>({
     resolver: zodResolver(emailSettingsSchema),
@@ -131,11 +133,16 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
                 Verstuur automatisch een email wanneer een factuur wordt aangemaakt
               </p>
             </div>
-            <input
-              type="checkbox"
-              id="autoSendInvoice"
-              {...register('autoSendInvoice', { valueAsNumber: false })}
-              className="h-4 w-4"
+            <Controller
+              name="autoSendInvoice"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  id="autoSendInvoice"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
             />
           </div>
 
@@ -148,11 +155,16 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
                 Verstuur automatisch herinneringen op basis van het schema hieronder
               </p>
             </div>
-            <input
-              type="checkbox"
-              id="autoSendReminders"
-              {...register('autoSendReminders', { valueAsNumber: false })}
-              className="h-4 w-4"
+            <Controller
+              name="autoSendReminders"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  id="autoSendReminders"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
             />
           </div>
 
@@ -165,11 +177,16 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
                 Verstuur automatisch een bevestiging wanneer een factuur wordt betaald
               </p>
             </div>
-            <input
-              type="checkbox"
-              id="autoSendPaymentConfirm"
-              {...register('autoSendPaymentConfirm', { valueAsNumber: false })}
-              className="h-4 w-4"
+            <Controller
+              name="autoSendPaymentConfirm"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  id="autoSendPaymentConfirm"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
             />
           </div>
         </CardContent>

@@ -73,7 +73,7 @@ export default async function DashboardPage() {
                   Nog geen facturen
                 </p>
               ) : (
-                recentInvoices.map((invoice) => (
+                recentInvoices.map((invoice: typeof recentInvoices[0]) => (
                   <Link
                     key={invoice.id}
                     href={`/facturen/${invoice.id}`}

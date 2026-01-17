@@ -79,7 +79,7 @@ export async function createInvoice(
   let vatAmount = 0
   let total = 0
 
-  const itemsWithTotals = validated.items.map((item, index) => {
+  const itemsWithTotals = validated.items.map((item: typeof validated.items[0], index: number) => {
     const itemSubtotal = roundToTwo(item.quantity * item.unitPrice)
     const itemVatAmount = roundToTwo(itemSubtotal * (item.vatRate / 100))
     const itemTotal = roundToTwo(itemSubtotal + itemVatAmount)
@@ -145,7 +145,7 @@ export async function updateInvoice(
   let vatAmount = 0
   let total = 0
 
-  const itemsWithTotals = validated.items.map((item, index) => {
+  const itemsWithTotals = validated.items.map((item: typeof validated.items[0], index: number) => {
     const itemSubtotal = roundToTwo(item.quantity * item.unitPrice)
     const itemVatAmount = roundToTwo(itemSubtotal * (item.vatRate / 100))
     const itemTotal = roundToTwo(itemSubtotal + itemVatAmount)

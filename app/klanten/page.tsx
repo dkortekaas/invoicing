@@ -78,7 +78,7 @@ export default async function KlantenPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                customers.map((customer) => (
+                customers.map((customer: typeof customers[0]) => (
                   <TableRow key={customer.id}>
                     <TableCell>
                       <Link

@@ -50,10 +50,10 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
   const allInvoices = await getInvoices()
   const statusCounts = {
     ALL: allInvoices.length,
-    DRAFT: allInvoices.filter((i) => i.status === "DRAFT").length,
-    SENT: allInvoices.filter((i) => i.status === "SENT").length,
-    PAID: allInvoices.filter((i) => i.status === "PAID").length,
-    OVERDUE: allInvoices.filter((i) => i.status === "OVERDUE").length,
+    DRAFT: allInvoices.filter((i: typeof allInvoices[0]) => i.status === "DRAFT").length,
+    SENT: allInvoices.filter((i: typeof allInvoices[0]) => i.status === "SENT").length,
+    PAID: allInvoices.filter((i: typeof allInvoices[0]) => i.status === "PAID").length,
+    OVERDUE: allInvoices.filter((i: typeof allInvoices[0]) => i.status === "OVERDUE").length,
   }
 
   return (
@@ -138,7 +138,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredInvoices.map((invoice) => (
+                filteredInvoices.map((invoice: typeof filteredInvoices[0]) => (
                   <TableRow key={invoice.id}>
                     <TableCell>
                       <Link

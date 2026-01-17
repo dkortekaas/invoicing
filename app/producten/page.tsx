@@ -70,7 +70,7 @@ export default async function ProductenPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                products.map((product) => (
+                products.map((product: typeof products[0]) => (
                   <TableRow
                     key={product.id}
                     className={!product.isActive ? "opacity-50" : ""}

@@ -102,7 +102,7 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
                 <div className="space-y-2">
                   <p className="font-semibold">Backup codes (bewaar deze veilig!):</p>
                   <div className="grid grid-cols-2 gap-2 font-mono text-sm">
-                    {backupCodes.map((code, i) => (
+                    {backupCodes.map((code: string, i: number) => (
                       <div key={i} className="rounded bg-gray-100 p-2 text-center">
                         {code}
                       </div>

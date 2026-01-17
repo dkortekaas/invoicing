@@ -158,6 +158,16 @@ export async function generateRecurringInvoice({
     },
   });
 
+  // Increment invoice count (recurring invoices are premium, so no limit check needed)
+  // But we still track for analytics
+  try {
+    const { incrementInvoiceCount } = await import('@/lib/stripe/subscriptions');
+    await incrementInvoiceCount(recurring.userId);
+  } catch (error) {
+    // Non-critical, continue even if this fails
+    console.warn('Failed to increment invoice count for recurring invoice:', error);
+  }
+
   // Update recurring invoice
   const nextDate = calculateNextDate(
     invoiceDate,

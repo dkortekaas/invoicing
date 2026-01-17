@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getToken } from "next-auth/jwt"
+import { db } from "@/lib/db"
 
 export async function proxy(request: NextRequest) {
   const token = await getToken({ 
@@ -15,6 +16,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/register") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/upload") ||
+    pathname.startsWith("/api/stripe/webhook") ||
     pathname.startsWith("/uploads") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
@@ -28,6 +30,50 @@ export async function proxy(request: NextRequest) {
     const loginUrl = new URL("/login", request.url)
     loginUrl.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(loginUrl)
+  }
+
+  // Check premium routes
+  const premiumRoutes = [
+    '/abonnementen',
+    '/btw',
+    '/tijd',
+    '/dashboard',
+    '/rapporten',
+  ]
+
+  const requiresPremium = premiumRoutes.some(route => 
+    pathname.startsWith(route)
+  )
+
+  if (requiresPremium && token.id) {
+    try {
+      const user = await db.user.findUnique({
+        where: { id: token.id as string },
+        select: {
+          subscriptionTier: true,
+          subscriptionStatus: true,
+          stripeCurrentPeriodEnd: true,
+        },
+      })
+
+      if (user) {
+        const isPro = user.subscriptionTier === 'PRO'
+        const isActive = ['ACTIVE', 'TRIALING'].includes(user.subscriptionStatus)
+        const notExpired = user.stripeCurrentPeriodEnd
+          ? new Date(user.stripeCurrentPeriodEnd) > new Date()
+          : false
+
+        if (!isPro || !isActive || !notExpired) {
+          const feature = pathname.split('/')[1]
+          return NextResponse.redirect(
+            new URL(`/upgrade?feature=${feature}`, request.url)
+          )
+        }
+      }
+    } catch (error) {
+      // If database check fails, allow access (fail open)
+      console.error('Premium route check failed:', error)
+    }
   }
 
   return NextResponse.next()

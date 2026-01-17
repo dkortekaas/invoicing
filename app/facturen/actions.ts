@@ -74,6 +74,16 @@ export async function createInvoice(
   const validated = invoiceSchema.parse(data)
   const userId = await getCurrentUserId()
 
+  // Check if user can create invoice
+  const { canCreateInvoice, incrementInvoiceCount } = await import('@/lib/stripe/subscriptions')
+  const canCreate = await canCreateInvoice(userId)
+
+  if (!canCreate.allowed) {
+    throw new Error(
+      canCreate.reason || 'Je hebt je maandelijkse limiet bereikt. Upgrade naar Pro voor onbeperkt facturen.'
+    )
+  }
+
   // Bereken totalen
   let subtotal = 0
   let vatAmount = 0
@@ -126,6 +136,9 @@ export async function createInvoice(
       items: true,
     },
   })
+
+  // Increment counter for free users
+  await incrementInvoiceCount(userId)
 
   revalidatePath("/facturen")
   revalidatePath("/")

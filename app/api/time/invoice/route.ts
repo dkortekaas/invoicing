@@ -117,6 +117,22 @@ export async function POST(request: NextRequest) {
     // Bereken totalen
     const subtotal = Array.from(groupedItems.values())
       .reduce((sum, item) => sum + item.amount, 0);
+    // Check if user can create invoice
+    const { canCreateInvoice, incrementInvoiceCount } = await import('@/lib/stripe/subscriptions');
+    const canCreate = await canCreateInvoice(session.user.id);
+
+    if (!canCreate.allowed) {
+      return NextResponse.json(
+        { 
+          error: canCreate.reason || 'Je hebt je maandelijkse limiet bereikt',
+          current: canCreate.current,
+          limit: canCreate.limit,
+          upgrade: true,
+        },
+        { status: 403 }
+      );
+    }
+
     const vatAmount = subtotal * 0.21; // 21% BTW
     const total = subtotal + vatAmount;
 
@@ -150,6 +166,9 @@ export async function POST(request: NextRequest) {
         customer: true,
       },
     });
+
+    // Increment counter for free users
+    await incrementInvoiceCount(session.user.id);
 
     // Mark time entries as invoiced
     await db.timeEntry.updateMany({

@@ -37,8 +37,22 @@ model User {
   role            UserRole  @default(USER)
 
   // Subscription
-  subscriptionTier     String  @default("FREE") // FREE, PRO
-  subscriptionStatus   String  @default("ACTIVE") // ACTIVE, CANCELLED, EXPIRED
+  stripeCustomerId       String?   @unique
+  stripeSubscriptionId   String?   @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+  
+  subscriptionStatus     SubscriptionStatus @default(FREE)
+  subscriptionTier        SubscriptionTier   @default(FREE)
+  
+  // Usage tracking
+  invoiceCount           Int       @default(0)
+  invoiceCountResetAt    DateTime  @default(now())
+  
+  // Billing
+  billingCycle           BillingCycle?
+  
+  subscriptionEvents     SubscriptionEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -853,6 +867,38 @@ enum UserRole {
   SUPERUSER
 }
 
+enum SubscriptionStatus {
+  FREE
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  UNPAID
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionEventType {
+  SUBSCRIPTION_CREATED
+  SUBSCRIPTION_UPDATED
+  SUBSCRIPTION_DELETED
+  SUBSCRIPTION_TRIAL_ENDING
+  PAYMENT_SUCCEEDED
+  PAYMENT_FAILED
+  INVOICE_PAID
+  INVOICE_PAYMENT_FAILED
+}
+
 enum WatermarkPosition {
   DIAGONAL      // Diagonaal over de pagina
   CENTER        // Gecentreerd
@@ -881,4 +927,24 @@ model SystemSettings {
   updatedBy   String?  // User ID who made the change
 
   @@unique([id]) // Ensure only one settings record
+}
+
+model SubscriptionEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type        SubscriptionEventType
+  
+  // Stripe data
+  stripeEventId String  @unique
+  
+  // Metadata
+  metadata    Json?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
 }

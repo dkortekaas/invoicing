@@ -21,6 +21,9 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - 📧 **Email Systeem**: Verstuur facturen en herinneringen via email
 - 💧 **Watermerk Systeem**: Configureerbaar watermerk op PDF facturen voor free users
 - 👑 **Admin Dashboard**: Superuser dashboard voor systeembeheer en gebruikersbeheer
+- 💳 **Stripe Abonnementen**: Volledig geïntegreerd subscription systeem met feature gating
+- 🎯 **Free & Pro Plans**: Gratis plan met basis features, Pro plan met premium functionaliteiten
+- 🔒 **Feature Gating**: Automatische toegangscontrole voor premium features
 - 🇳🇱 **Nederlandse standaarden**: Volledig aangepast aan Nederlandse factuurvereisten
 - 🎨 **Modern UI**: Gebouwd met Next.js 15, React 19, Tailwind CSS en shadcn/ui
 
@@ -36,6 +39,7 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - **Charts**: Recharts voor data visualisatie
 - **Excel Export**: ExcelJS voor analytics export
 - **Data Fetching**: Server Actions
+- **Payments**: Stripe voor subscription management
 
 ## 📋 Vereisten
 
@@ -102,9 +106,16 @@ npx prisma generate
 npx prisma db seed
 ```
 
+**Voor het subscription systeem:**
+```bash
+npx prisma migrate dev --name add_subscriptions
+npx prisma generate
+```
+
 Dit zal:
-- De watermark systeem tabellen aanmaken
-- De standaard watermark instellingen seeden
+- De subscription velden toevoegen aan de User tabel
+- De SubscriptionEvent tabel aanmaken
+- De benodigde enums toevoegen (SubscriptionStatus, SubscriptionTier, BillingCycle, etc.)
 
 ### 5. Start de development server
 
@@ -135,6 +146,8 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
   /instellingen          # Bedrijfsinstellingen
   /tijd                  # Time tracking
   /abonnementen          # Recurring invoices
+  /abonnement            # Subscription management
+  /upgrade               # Upgrade to Pro plan
   /btw                   # BTW rapportage
   /admin                 # Admin dashboard (superuser only)
     page.tsx             # Admin overzicht
@@ -150,6 +163,11 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
       /trends            # Trend analyse
       /customers         # Klant analyse
       /export            # Excel export
+    /stripe              # Stripe API endpoints
+      /checkout          # Create checkout session
+      /portal             # Billing portal session
+      /webhook            # Stripe webhooks
+      /subscription       # Subscription status
     /invoices/[id]/pdf   # PDF generatie endpoint
 /components
   /ui                    # shadcn/ui components
@@ -172,6 +190,11 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     export.ts            # Excel export utilities
   /auth                  # Authentication utilities
     admin-guard.ts       # Admin/superuser permission checks
+    subscription-guard.ts # Subscription feature guards
+  /stripe                # Stripe integration
+    client.ts             # Stripe client setup
+    subscriptions.ts      # Subscription utilities & feature checks
+    webhooks.ts           # Webhook handlers
   /pdf                   # PDF utilities
     watermark.ts         # Watermark rendering logic
   db.ts                  # Prisma client
@@ -182,6 +205,12 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     watermark-settings-form.tsx  # Watermark configuration form
     watermark-preview.tsx         # Live watermark preview
     user-role-manager.tsx        # User role management
+  /subscription           # Subscription components
+    pricing-card.tsx             # Pricing display card
+    upgrade-banner.tsx           # Upgrade CTA banner
+    feature-locked.tsx           # Locked feature modal
+    usage-meter.tsx              # Usage tracking display
+    billing-portal-button.tsx    # Manage subscription button
 /prisma
   schema.prisma          # Database schema
 ```
@@ -203,7 +232,10 @@ De applicatie gebruikt de volgende hoofdmodellen:
 - **BusinessGoal**: Doelstellingen voor analytics
 - **AnalyticsSnapshot**: Dagelijkse analytics snapshots
 - **SystemSettings**: Systeeminstellingen (watermerk configuratie)
+- **SubscriptionEvent**: Subscription events voor audit trail
 - **UserRole**: Gebruikersrollen (USER, ADMIN, SUPERUSER)
+- **SubscriptionStatus**: Subscription status (FREE, ACTIVE, TRIALING, etc.)
+- **SubscriptionTier**: Subscription tier (FREE, PRO)
 
 Zie `prisma/schema.prisma` voor het volledige schema.
 
@@ -324,6 +356,12 @@ npx prisma generate
 npx prisma db seed
 ```
 
+**Voor subscription systeem:**
+```bash
+npx prisma migrate dev --name add_subscriptions
+npx prisma generate
+```
+
 Genereer Prisma Client (na schema wijzigingen):
 ```bash
 npx prisma generate
@@ -367,6 +405,103 @@ De applicatie gebruikt:
 - **shadcn/ui** voor UI componenten
 - **CSS variables** voor theming
 - **Responsive design** (mobile-first)
+
+## 💳 Subscription Systeem
+
+De applicatie heeft een volledig geïntegreerd Stripe subscription systeem met feature gating.
+
+### Abonnementen
+
+#### Free Plan
+- ✅ Basis facturen maken en versturen
+- ✅ Klantenbeheer
+- ✅ Productencatalogus
+- ✅ PDF generatie
+- ✅ Email notificaties (beperkt)
+- ✅ Maximaal 50 facturen per maand
+- ❌ Recurring invoices
+- ❌ BTW rapportage
+- ❌ Tijdregistratie
+- ❌ Analytics dashboard
+- ❌ Email integratie (onbeperkt)
+
+#### Pro Plan (€19/maand of €190/jaar)
+- ✅ Alles van Free
+- ✅ Onbeperkt facturen
+- ✅ Recurring invoices & abonnementen
+- ✅ Volledige BTW rapportage
+- ✅ Tijdregistratie & project tracking
+- ✅ Analytics dashboard & rapporten
+- ✅ Onbeperkte email verzending
+- ✅ Automatische herinneringen
+- ✅ Export functionaliteit (Excel/PDF)
+- ✅ Prioriteit support
+
+### Stripe Setup
+
+1. **Maak een Stripe account aan** op [stripe.com](https://stripe.com)
+
+2. **Maak Products & Prices aan** in Stripe Dashboard:
+   - Ga naar Products → Create product
+   - Maak "Pro Plan - Monthly" (€19.00/month)
+   - Maak "Pro Plan - Yearly" (€190.00/year)
+   - Kopieer de Price IDs
+
+3. **Configureer Webhooks**:
+   - Ga naar Developers → Webhooks
+   - Voeg endpoint toe: `https://yourdomain.com/api/stripe/webhook`
+   - Selecteer events:
+     - `customer.subscription.created`
+     - `customer.subscription.updated`
+     - `customer.subscription.deleted`
+     - `invoice.paid`
+     - `invoice.payment_failed`
+   - Kopieer webhook secret
+
+4. **Configureer Customer Portal**:
+   - Ga naar Settings → Customer Portal
+   - Enable: Edit subscription, Cancel subscription
+   - Configureer branding
+
+5. **Voeg environment variables toe**:
+```env
+# Stripe
+STRIPE_SECRET_KEY="sk_test_..."
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+
+# Stripe Price IDs
+STRIPE_PRICE_ID_MONTHLY="price_..."
+STRIPE_PRICE_ID_YEARLY="price_..."
+
+# App URL
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+
+### Subscription Management
+
+- **Upgrade**: Bezoek `/upgrade` om naar Pro te upgraden
+- **Beheer abonnement**: Ga naar `/abonnement` om je abonnement te beheren
+- **Billing Portal**: Gebruik de "Beheer abonnement" knop om naar Stripe Customer Portal te gaan
+- **Feature Gating**: Premium routes worden automatisch beschermd en redirecten naar upgrade pagina
+
+### Feature Gating
+
+Premium features zijn automatisch beschermd:
+- `/abonnementen` - Recurring invoices
+- `/btw` - BTW rapportage
+- `/tijd` - Time tracking
+- `/dashboard` - Analytics dashboard
+- `/rapporten` - Reports
+
+Free users worden automatisch doorgestuurd naar de upgrade pagina wanneer ze proberen premium features te gebruiken.
+
+### Invoice Limits
+
+- **Free users**: Maximaal 50 facturen per maand
+- **Pro users**: Onbeperkt facturen
+- Het systeem trackt automatisch het aantal facturen en reset maandelijks
+- Gebruikers krijgen een waarschuwing wanneer ze hun limiet naderen
 
 ## 🔐 Authenticatie
 
@@ -495,6 +630,16 @@ DATABASE_URL="postgresql://user:password@localhost:5432/invoice_app?schema=publi
 NEXTAUTH_SECRET="generate-a-random-secret-here"
 NEXTAUTH_URL="http://localhost:3000"
 
+# Stripe (optioneel voor development)
+STRIPE_SECRET_KEY="sk_test_..."
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+STRIPE_PRICE_ID_MONTHLY="price_..."
+STRIPE_PRICE_ID_YEARLY="price_..."
+
+# App URL
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
 # Node Environment
 NODE_ENV="development"
 ```
@@ -509,6 +654,15 @@ openssl rand -base64 32
 DATABASE_URL="postgresql://user:password@host:5432/dbname?schema=public&sslmode=verify-full"
 NEXTAUTH_SECRET="your-production-secret-key"
 NEXTAUTH_URL="https://your-domain.com"
+
+# Stripe (production keys)
+STRIPE_SECRET_KEY="sk_live_..."
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_live_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+STRIPE_PRICE_ID_MONTHLY="price_live_..."
+STRIPE_PRICE_ID_YEARLY="price_live_..."
+
+NEXT_PUBLIC_APP_URL="https://your-domain.com"
 NODE_ENV="production"
 ```
 
@@ -585,6 +739,7 @@ Het analytics dashboard biedt een compleet overzicht van je business performance
 - [x] Analytics & BI Dashboard ✅
 - [x] Watermerk systeem voor free users ✅
 - [x] Admin dashboard met gebruikersbeheer ✅
+- [x] Stripe subscription systeem met feature gating ✅
 - [ ] Forecasting & predictive analytics
 - [ ] Benchmarking tegen industrie gemiddeldes
 - [ ] Geautomatiseerde email rapporten (wekelijks/maandelijks)

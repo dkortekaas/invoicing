@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -30,6 +31,7 @@ export function EmailSendButton({
   reminderType,
   onSuccess,
 }: EmailSendButtonProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +61,11 @@ export function EmailSendButton({
       setSuccess(true);
       setTimeout(() => {
         setOpen(false);
-        onSuccess?.();
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.refresh();
+        }
       }, 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Er is een fout opgetreden');

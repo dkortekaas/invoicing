@@ -99,7 +99,6 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                 invoiceNumber={invoice.invoiceNumber}
                 customerEmail={invoice.customer.email}
                 type="invoice"
-                onSuccess={() => window.location.reload()}
               />
             </>
           )}
@@ -343,7 +342,6 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                         invoiceNumber={invoice.invoiceNumber}
                         customerEmail={invoice.customer.email}
                         type="invoice"
-                        onSuccess={() => window.location.reload()}
                       />
                       <EmailPreviewDialog
                         invoiceId={invoice.id}
@@ -372,7 +370,6 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                                   customerEmail={invoice.customer.email}
                                   type="reminder"
                                   reminderType={type}
-                                  onSuccess={() => window.location.reload()}
                                 />
                                 <EmailPreviewDialog
                                   invoiceId={invoice.id}
@@ -393,7 +390,6 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                     invoiceNumber={invoice.invoiceNumber}
                     customerEmail={invoice.customer.email}
                     type="payment-confirmation"
-                    onSuccess={() => window.location.reload()}
                   />
                 )}
               </CardContent>

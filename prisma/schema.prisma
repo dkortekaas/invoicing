@@ -45,6 +45,15 @@ model User {
   activityTypes   ActivityType[]
   recurringInvoices RecurringInvoice[]
   
+  // BTW relations
+  expenses      Expense[]
+  vatReports    VATReport[]
+  icpEntries    ICPEntry[]
+  
+  // BTW settings
+  vatRegistered Boolean  @default(true)
+  vatScheme     VATScheme @default(REGULAR)
+  
   // NextAuth sessions
   accounts        Account[]
   sessions        Session[]
@@ -74,6 +83,14 @@ model Customer {
   projects        Project[]
   timeEntries     TimeEntry[]
   recurringInvoices RecurringInvoice[]
+  
+  // BTW relations
+  expenses    Expense[]
+  icpEntries  ICPEntry[]
+
+  // BTW info
+  vatCountry  String?   // Land voor ICP
+  vatReversed Boolean   @default(false) // Verlegd BTW van toepassing
 
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -169,6 +186,9 @@ model InvoiceItem {
 
   // Time tracking relation (optional)
   timeEntry   TimeEntry? @relation("TimeEntryToInvoiceItem")
+  
+  // Expense relation (optional)
+  expense     Expense?
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -322,6 +342,7 @@ model Project {
   
   // Relations
   timeEntries TimeEntry[]
+  expenses    Expense[]
   
   // Metadata
   archived    Boolean   @default(false)
@@ -550,4 +571,190 @@ enum RecurringLogAction {
   INVOICE_GENERATED
   PRICE_CHANGED
   SCHEDULE_UPDATED
+}
+
+// BTW Reporting Models
+
+model Expense {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Basic info
+  date        DateTime
+  description String
+  category    ExpenseCategory
+  
+  // Amounts
+  amount      Decimal  @db.Decimal(10, 2) // Inclusief BTW
+  vatAmount   Decimal  @db.Decimal(10, 2)
+  vatRate     Decimal  @db.Decimal(5, 2)
+  netAmount   Decimal  @db.Decimal(10, 2) // Exclusief BTW
+  
+  // Supplier info
+  supplier    String?
+  invoiceNumber String?
+  
+  // Deductibility
+  deductible     Boolean  @default(true)
+  deductiblePerc Decimal  @db.Decimal(5, 2) @default(100) // Percentage aftrekbaar
+  
+  // Receipt
+  receipt     String?  // File path naar scan/foto
+  
+  // Relations
+  customerId  String?  // Als doorbelast aan klant
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  
+  projectId   String?  // Koppel aan project
+  project     Project?  @relation(fields: [projectId], references: [id])
+  
+  invoiced    Boolean  @default(false) // Doorbelast op factuur
+  invoiceItemId String? @unique
+  invoiceItem   InvoiceItem? @relation(fields: [invoiceItemId], references: [id])
+  
+  // Metadata
+  notes       String?
+  tags        String[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([date])
+  @@index([category])
+  @@index([deductible])
+}
+
+enum ExpenseCategory {
+  OFFICE           // Kantoorkosten
+  TRAVEL           // Reiskosten
+  EQUIPMENT        // Apparatuur
+  SOFTWARE         // Software/subscriptions
+  MARKETING        // Marketing
+  EDUCATION        // Opleiding
+  INSURANCE        // Verzekeringen
+  ACCOUNTANT       // Accountant/administratie
+  TELECOM          // Telefoon/internet
+  UTILITIES        // Energie
+  RENT             // Huur
+  MAINTENANCE      // Onderhoud
+  PROFESSIONAL     // Professionele diensten
+  OTHER            // Overig
+}
+
+model VATReport {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Period
+  year        Int
+  quarter     Int      // 1, 2, 3, 4
+  startDate   DateTime
+  endDate     DateTime
+  
+  // Revenue (Omzet)
+  revenueHighRate    Decimal @db.Decimal(10, 2) // 21%
+  revenueHighVAT     Decimal @db.Decimal(10, 2)
+  
+  revenueLowRate     Decimal @db.Decimal(10, 2) // 9%
+  revenueLowVAT      Decimal @db.Decimal(10, 2)
+  
+  revenueZeroRate    Decimal @db.Decimal(10, 2) // 0%
+  
+  revenueReversed    Decimal @db.Decimal(10, 2) // Verlegd
+  revenueEU          Decimal @db.Decimal(10, 2) // ICP
+  revenueExport      Decimal @db.Decimal(10, 2) // Export buiten EU
+  
+  totalRevenue       Decimal @db.Decimal(10, 2)
+  totalRevenueVAT    Decimal @db.Decimal(10, 2)
+  
+  // Expenses (Inkopen/Kosten)
+  expensesHighRate   Decimal @db.Decimal(10, 2)
+  expensesHighVAT    Decimal @db.Decimal(10, 2)
+  
+  expensesLowRate    Decimal @db.Decimal(10, 2)
+  expensesLowVAT     Decimal @db.Decimal(10, 2)
+  
+  expensesReversed   Decimal @db.Decimal(10, 2) // Verlegd ontvangen
+  
+  totalExpenses      Decimal @db.Decimal(10, 2)
+  totalExpensesVAT   Decimal @db.Decimal(10, 2)
+  
+  // Calculation
+  vatOwed            Decimal @db.Decimal(10, 2) // Te betalen
+  vatDeductible      Decimal @db.Decimal(10, 2) // Aftrekbaar
+  vatBalance         Decimal @db.Decimal(10, 2) // Saldo (owes - deductible)
+  
+  // Status
+  status      VATReportStatus @default(DRAFT)
+  filedDate   DateTime?
+  
+  // Adjustments/Corrections
+  adjustments VATAdjustment[]
+  
+  // Metadata
+  notes       String?
+  generatedAt DateTime @default(now())
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId, year, quarter])
+  @@index([userId])
+  @@index([year, quarter])
+}
+
+enum VATReportStatus {
+  DRAFT
+  FINAL
+  FILED      // Ingediend bij Belastingdienst
+}
+
+model VATAdjustment {
+  id          String    @id @default(cuid())
+  reportId    String
+  report      VATReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  
+  description String
+  amount      Decimal   @db.Decimal(10, 2)
+  reason      String?
+  
+  createdAt   DateTime  @default(now())
+  
+  @@index([reportId])
+}
+
+model ICPEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Period
+  year        Int
+  quarter     Int
+  
+  // Customer (EU business)
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  
+  // Amounts
+  amount      Decimal  @db.Decimal(10, 2) // Totaal voor deze klant dit kwartaal
+  
+  // Metadata
+  invoiceIds  String[] // Factuur IDs voor referentie
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([userId, year, quarter, customerId])
+  @@index([userId])
+  @@index([year, quarter])
+  @@index([customerId])
+}
+
+enum VATScheme {
+  REGULAR       // Reguliere regeling
+  SMALL         // Kleine ondernemersregeling (KOR)
+  MARGIN        // Margeregeling
 }

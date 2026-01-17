@@ -12,6 +12,7 @@ import {
   LogOut,
   Clock,
   Repeat,
+  Receipt,
 } from "lucide-react"
 
 import {
@@ -57,6 +58,11 @@ const navigation = [
     title: "Producten",
     url: "/producten",
     icon: Package,
+  },
+  {
+    title: "BTW",
+    url: "/btw",
+    icon: Receipt,
   },
   {
     title: "Instellingen",

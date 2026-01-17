@@ -1,4 +1,4 @@
-# Facturatie App
+# BetaalMe
 
 Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine bedrijven. Maak, beheer en verstuur facturen met volledige BTW-ondersteuning en Nederlandse factuurvereisten.
 

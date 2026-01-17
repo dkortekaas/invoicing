@@ -9,8 +9,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Facturatie App",
-  description: "Professionele facturatie voor ZZP-ers en kleine bedrijven",
+  title: "BetaalMe",
+  description: "Gemaakt om betaald te worden.",
 }
 
 export default function RootLayout({

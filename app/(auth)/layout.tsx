@@ -8,8 +8,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Inloggen - Facturatie App",
-  description: "Inloggen op je facturatie app",
+  title: "Inloggen - BetaalMe",
+  description: "Inloggen op je BetaalMe account", 
 }
 
 export default function AuthLayout({

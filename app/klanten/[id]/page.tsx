@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { CustomerForm } from "@/components/customers/customer-form"
+import { getCustomer } from "../actions"
 
 export const dynamic = "force-dynamic"
 
@@ -10,27 +11,26 @@ interface KlantDetailPageProps {
 export default async function KlantDetailPage({ params }: KlantDetailPageProps) {
   const { id } = await params
 
-  // In productie: haal klant op uit database
-  // const customer = await getCustomer(id)
-
-  // Placeholder data voor nu
-  const customer = {
-    id,
-    name: "Jan Janssen",
-    companyName: "Acme B.V.",
-    email: "jan@acme.nl",
-    phone: "06-12345678",
-    address: "Kerkstraat 123",
-    city: "Amsterdam",
-    postalCode: "1012 AB",
-    country: "Nederland",
-    vatNumber: "NL123456789B01",
-    paymentTermDays: 30,
-    notes: "Belangrijke klant",
-  }
+  const customer = await getCustomer(id)
 
   if (!customer) {
     notFound()
+  }
+
+  // Transform Prisma customer to form data format
+  const customerFormData = {
+    id: customer.id,
+    name: customer.name,
+    companyName: customer.companyName,
+    email: customer.email,
+    phone: customer.phone,
+    address: customer.address,
+    city: customer.city,
+    postalCode: customer.postalCode,
+    country: customer.country,
+    vatNumber: customer.vatNumber,
+    paymentTermDays: customer.paymentTermDays,
+    notes: customer.notes,
   }
 
   return (
@@ -42,7 +42,7 @@ export default async function KlantDetailPage({ params }: KlantDetailPageProps) 
         </p>
       </div>
 
-      <CustomerForm customer={customer} />
+      <CustomerForm customer={customerFormData} />
     </div>
   )
 }

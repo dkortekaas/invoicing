@@ -1,7 +1,7 @@
-import type { Customer, Invoice, InvoiceItem, Product, User, InvoiceStatus } from "@prisma/client"
+import type { Customer, Invoice, InvoiceItem, Product, User, InvoiceStatus, EmailType, EmailStatus } from "@prisma/client"
 
 // Re-export Prisma types
-export type { Customer, Invoice, InvoiceItem, Product, User, InvoiceStatus }
+export type { Customer, Invoice, InvoiceItem, Product, User, InvoiceStatus, EmailType, EmailStatus }
 
 // Invoice met relaties
 export type InvoiceWithRelations = Invoice & {

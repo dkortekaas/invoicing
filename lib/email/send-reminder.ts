@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { format, differenceInDays } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { render } from '@react-email/render';
-import { EmailType } from '@prisma/client';
+import type { EmailType } from '@/types';
 
 interface SendReminderEmailParams {
   invoiceId: string;

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ProductForm } from "@/components/products/product-form"
 import { deleteProduct } from "./actions"
-import type { Product } from "@prisma/client"
+import type { Product } from "@/types"
 
 interface ProductActionsProps {
   product: Product

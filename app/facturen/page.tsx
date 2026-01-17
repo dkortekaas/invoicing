@@ -39,7 +39,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
   // Filter op search term als die bestaat
   const filteredInvoices = search
     ? invoices.filter(
-        (invoice) =>
+        (invoice: typeof invoices[0]) =>
           invoice.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
           invoice.customer.name.toLowerCase().includes(search.toLowerCase()) ||
           invoice.customer.companyName?.toLowerCase().includes(search.toLowerCase())

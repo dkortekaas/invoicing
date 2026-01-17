@@ -90,7 +90,7 @@ export function AppSidebar() {
                   (item.url !== "/" && pathname.startsWith(item.url))
 
                 return (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem key={item.title} className="py-1">
                     <SidebarMenuButton asChild isActive={isActive}>
                       <Link href={item.url}>
                         <item.icon />

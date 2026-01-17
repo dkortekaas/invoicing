@@ -223,3 +223,65 @@ export async function changePassword(data: ChangePasswordFormData) {
 
   revalidatePath("/instellingen")
 }
+
+// ========== Email Settings Actions ==========
+export async function getEmailSettings() {
+  const userId = await getCurrentUserId()
+  
+  let settings = await db.emailSettings.findUnique({
+    where: { userId },
+  })
+
+  // Create default settings if they don't exist
+  if (!settings) {
+    settings = await db.emailSettings.create({
+      data: {
+        userId,
+        autoSendInvoice: false,
+        autoSendReminders: false,
+        autoSendPaymentConfirm: true,
+        friendlyReminderDays: -3,
+        firstReminderDays: 7,
+        secondReminderDays: 14,
+        finalReminderDays: 30,
+      },
+    })
+  }
+
+  return {
+    autoSendInvoice: settings.autoSendInvoice,
+    autoSendReminders: settings.autoSendReminders,
+    autoSendPaymentConfirm: settings.autoSendPaymentConfirm,
+    friendlyReminderDays: settings.friendlyReminderDays,
+    firstReminderDays: settings.firstReminderDays,
+    secondReminderDays: settings.secondReminderDays,
+    finalReminderDays: settings.finalReminderDays,
+    emailSignature: settings.emailSignature,
+    invoiceEmailCc: settings.invoiceEmailCc,
+  }
+}
+
+export async function updateEmailSettings(data: {
+  autoSendInvoice: boolean
+  autoSendReminders: boolean
+  autoSendPaymentConfirm: boolean
+  friendlyReminderDays: number
+  firstReminderDays: number
+  secondReminderDays: number
+  finalReminderDays: number
+  emailSignature?: string
+  invoiceEmailCc?: string
+}) {
+  const userId = await getCurrentUserId()
+
+  await db.emailSettings.upsert({
+    where: { userId },
+    create: {
+      userId,
+      ...data,
+    },
+    update: data,
+  })
+
+  revalidatePath("/instellingen")
+}

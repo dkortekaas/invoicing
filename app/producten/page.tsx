@@ -1,7 +1,6 @@
-import { Plus, MoreHorizontal, Pencil, Trash2, Search } from "lucide-react"
+import { Search } from "lucide-react"
 
 export const dynamic = "force-dynamic"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -11,16 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency } from "@/lib/utils"
-import { ProductForm } from "@/components/products/product-form"
 import { getProducts } from "./actions"
 import { ProductActions } from "./product-actions"
 import { ProductFormButton } from "./product-form-button"

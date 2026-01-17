@@ -4,7 +4,7 @@ import { join } from "path"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { db } from "@/lib/db"
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     const userId = await getCurrentUserId()
 

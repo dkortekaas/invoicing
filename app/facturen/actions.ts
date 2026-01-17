@@ -34,6 +34,9 @@ export async function getInvoice(id: string) {
         orderBy: { sortOrder: "asc" },
       },
       user: true,
+      emails: {
+        orderBy: { createdAt: "desc" },
+      },
     },
   })
   return invoice
@@ -56,7 +59,8 @@ export async function getNextInvoiceNumber() {
 
   let sequence = 1
   if (lastInvoice) {
-    const lastNumber = parseInt(lastInvoice.invoiceNumber.split("-")[1])
+    const parts = lastInvoice.invoiceNumber.split("-")
+    const lastNumber = parts[1] ? parseInt(parts[1]) : 0
     sequence = lastNumber + 1
   }
 

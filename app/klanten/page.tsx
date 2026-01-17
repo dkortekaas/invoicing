@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Plus, Search, MoreHorizontal, Pencil, Trash2, FileText } from "lucide-react"
+import { Plus, Search } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 import { Button } from "@/components/ui/button"
@@ -12,14 +12,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getCustomers, deleteCustomer } from "./actions"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { getCustomers } from "./actions"
 import { CustomerActions } from "./customer-actions"
 
 export default async function KlantenPage() {

@@ -5,11 +5,6 @@ export const dynamic = "force-dynamic"
 import {
   ArrowLeft,
   Download,
-  Send,
-  CheckCircle,
-  Pencil,
-  Trash2,
-  MoreHorizontal,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,19 +23,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Separator } from "@/components/ui/separator"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import { formatCurrency, formatDate, formatDateLong } from "@/lib/utils"
-import { getInvoice, updateInvoiceStatus, deleteInvoice } from "../actions"
+import { getInvoice } from "../actions"
 import { InvoiceActionsClient } from "./invoice-actions-client"
 import { InvoicePreview } from "./invoice-preview"
+import { EmailSendButton } from "@/components/email/email-send-button"
+import { EmailHistoryList } from "@/components/email/email-history-list"
+import { EmailPreviewDialog } from "@/components/email/email-preview-dialog"
+import { differenceInDays } from "date-fns"
 
 interface FactuurDetailPageProps {
   params: Promise<{ id: string }>
@@ -95,6 +87,22 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
               Download PDF
             </a>
           </Button>
+
+          {invoice.customer.email && invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && (
+            <>
+              <EmailPreviewDialog
+                invoiceId={invoice.id}
+                type="invoice"
+              />
+              <EmailSendButton
+                invoiceId={invoice.id}
+                invoiceNumber={invoice.invoiceNumber}
+                customerEmail={invoice.customer.email}
+                type="invoice"
+                onSuccess={() => window.location.reload()}
+              />
+            </>
+          )}
 
           <InvoiceActionsClient
             invoice={{
@@ -316,6 +324,96 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
               </div>
             </CardContent>
           </Card>
+
+          {/* Email Actions */}
+          {invoice.customer.email && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Email acties</CardTitle>
+                <CardDescription>
+                  Verstuur emails naar {invoice.customer.email}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && (
+                  <>
+                    <div className="flex gap-2">
+                      <EmailSendButton
+                        invoiceId={invoice.id}
+                        invoiceNumber={invoice.invoiceNumber}
+                        customerEmail={invoice.customer.email}
+                        type="invoice"
+                        onSuccess={() => window.location.reload()}
+                      />
+                      <EmailPreviewDialog
+                        invoiceId={invoice.id}
+                        type="invoice"
+                      />
+                    </div>
+                    {invoice.status === 'SENT' || invoice.status === 'OVERDUE' ? (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Herinneringen:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {(() => {
+                            const daysOverdue = differenceInDays(new Date(), invoice.dueDate);
+                            const reminderTypes: Array<'friendly' | 'first' | 'second' | 'final'> = [];
+                            
+                            if (daysOverdue < 0) {
+                              reminderTypes.push('friendly');
+                            } else {
+                              reminderTypes.push('first', 'second', 'final');
+                            }
+                            
+                            return reminderTypes.map((type) => (
+                              <div key={type} className="flex gap-2">
+                                <EmailSendButton
+                                  invoiceId={invoice.id}
+                                  invoiceNumber={invoice.invoiceNumber}
+                                  customerEmail={invoice.customer.email}
+                                  type="reminder"
+                                  reminderType={type}
+                                  onSuccess={() => window.location.reload()}
+                                />
+                                <EmailPreviewDialog
+                                  invoiceId={invoice.id}
+                                  type="reminder"
+                                  reminderType={type}
+                                />
+                              </div>
+                            ));
+                          })()}
+                        </div>
+                      </div>
+                    ) : null}
+                  </>
+                )}
+                {invoice.status === 'PAID' && (
+                  <EmailSendButton
+                    invoiceId={invoice.id}
+                    invoiceNumber={invoice.invoiceNumber}
+                    customerEmail={invoice.customer.email}
+                    type="payment-confirmation"
+                    onSuccess={() => window.location.reload()}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Email History */}
+          {invoice.emails && invoice.emails.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Email geschiedenis</CardTitle>
+                <CardDescription>
+                  Overzicht van verzonden emails
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <EmailHistoryList emails={invoice.emails} />
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
       </InvoicePreview>

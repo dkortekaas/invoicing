@@ -24,14 +24,14 @@ export default async function FactuurBewerkenPage({ params }: FactuurBewerkenPag
   }
 
   // Transform data for form
-  const customersForForm = customers.map((c) => ({
+  const customersForForm = customers.map((c: typeof customers[0]) => ({
     id: c.id,
     name: c.name,
     companyName: c.companyName,
     paymentTermDays: c.paymentTermDays,
   }))
 
-  const productsForForm = products.map((p) => ({
+  const productsForForm = products.map((p: typeof products[0]) => ({
     id: p.id,
     name: p.name,
     unitPrice: p.unitPrice.toNumber(),

@@ -7,7 +7,8 @@ import { BedrijfsgegevensForm } from "./bedrijfsgegevens-form"
 import { FinancieleGegevensForm } from "./financiele-gegevens-form"
 import { TwoFactorSetup } from "./2fa/two-factor-setup"
 import { WachtwoordForm } from "./wachtwoord-form"
-import { getProfile, getCompanyInfo, getFinancialInfo } from "./actions"
+import { EmailSettingsForm } from "./email-form"
+import { getProfile, getCompanyInfo, getFinancialInfo, getEmailSettings } from "./actions"
 
 export const dynamic = "force-dynamic"
 
@@ -34,10 +35,11 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
   }
 
   // Fetch all data in parallel
-  const [profile, companyInfo, financialInfo, params] = await Promise.all([
+  const [profile, companyInfo, financialInfo, emailSettings, params] = await Promise.all([
     getProfile(),
     getCompanyInfo(),
     getFinancialInfo(),
+    getEmailSettings(),
     searchParams,
   ])
 
@@ -54,11 +56,12 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
       </div>
 
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="profiel">Profiel</TabsTrigger>
           <TabsTrigger value="beveiliging">Beveiliging</TabsTrigger>
           <TabsTrigger value="bedrijfsgegevens">Bedrijfsgegevens</TabsTrigger>
           <TabsTrigger value="financiele-gegevens">Financiële gegevens</TabsTrigger>
+          <TabsTrigger value="email">Email</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profiel" className="mt-6">
@@ -81,6 +84,10 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
               hasSecret={!!dbUser.twoFactorSecret}
             />
           </div>
+        </TabsContent>
+
+        <TabsContent value="email" className="mt-6">
+          <EmailSettingsForm initialData={emailSettings} />
         </TabsContent>
       </Tabs>
     </div>

@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react"
 import { usePathname, useRouter } from "next/navigation"
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Header } from "./header"
 import { Loader2 } from "lucide-react"

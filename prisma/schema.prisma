@@ -35,6 +35,7 @@ model User {
   customers       Customer[]
   invoices        Invoice[]
   products        Product[]
+  emailSettings   EmailSettings?
   
   // NextAuth sessions
   accounts        Account[]
@@ -118,6 +119,11 @@ model Invoice {
   sentAt          DateTime?
   paidAt          DateTime?
 
+  // Email tracking
+  emails          EmailLog[]
+  emailsSentCount Int          @default(0)
+  lastEmailSentAt DateTime?
+
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -157,6 +163,75 @@ enum InvoiceStatus {
   PAID       // Betaald
   OVERDUE    // Achterstallig
   CANCELLED  // Geannuleerd
+}
+
+enum EmailType {
+  INVOICE           // Nieuwe factuur
+  REMINDER_FRIENDLY // Vriendelijke herinnering (voor vervaldatum)
+  REMINDER_FIRST    // 1e herinnering (na vervaldatum)
+  REMINDER_SECOND   // 2e herinnering
+  REMINDER_FINAL    // Finale herinnering
+  PAYMENT_RECEIVED  // Betaling ontvangen bevestiging
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  FAILED
+  BOUNCED
+}
+
+model EmailLog {
+  id          String      @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  type        EmailType
+  recipient   String
+  subject     String
+  status      EmailStatus @default(PENDING)
+  
+  resendId    String?     // Resend email ID voor tracking
+  error       String?
+  
+  sentAt      DateTime?
+  openedAt    DateTime?   // Via Resend webhooks
+  clickedAt   DateTime?   // Via Resend webhooks
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([invoiceId])
+  @@index([status])
+  @@index([type])
+}
+
+model EmailSettings {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Auto-send settings
+  autoSendInvoice        Boolean  @default(false)
+  autoSendReminders      Boolean  @default(false)
+  autoSendPaymentConfirm Boolean  @default(true)
+  
+  // Reminder timing
+  friendlyReminderDays   Int      @default(-3)  // 3 dagen voor vervaldatum
+  firstReminderDays      Int      @default(7)   // 7 dagen na vervaldatum
+  secondReminderDays     Int      @default(14)
+  finalReminderDays      Int      @default(30)
+  
+  // Template customization
+  companyLogo       String?
+  emailSignature    String?
+  invoiceEmailCc    String?  // CC alle factuur emails
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // NextAuth models

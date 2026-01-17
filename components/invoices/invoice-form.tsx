@@ -70,7 +70,7 @@ interface InvoiceFormProps {
 export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [, setSelectedCustomer] = useState<Customer | null>(null)
 
   const today = new Date()
   const defaultDueDate = calculateDueDate(today, 30)
@@ -343,7 +343,9 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
               </CardHeader>
               <CardContent className="space-y-4">
                 {fields.map((field, index) => {
-                  const itemTotals = calculateItemTotal(watchedItems[index])
+                  const item = watchedItems[index]
+                  if (!item) return null
+                  const itemTotals = calculateItemTotal(item)
 
                   return (
                     <div key={field.id} className="space-y-4 rounded-lg border p-4">

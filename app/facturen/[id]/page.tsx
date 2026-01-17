@@ -216,7 +216,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                       {formatCurrency(invoice.subtotal)}
                     </TableCell>
                   </TableRow>
-                  {Object.entries(vatByRate).map(([rate, values]: [string, { subtotal: number; vatAmount: number }]) => (
+                  {(Object.entries(vatByRate) as Array<[string, { subtotal: number; vatAmount: number }]>).map(([rate, values]) => (
                     <TableRow key={rate}>
                       <TableCell colSpan={4}>
                         BTW {rate}% over {formatCurrency(values.subtotal)}

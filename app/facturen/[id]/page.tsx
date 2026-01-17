@@ -191,7 +191,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {invoice.items.map((item) => (
+                  {invoice.items.map((item: typeof invoice.items[0]) => (
                     <TableRow key={item.id}>
                       <TableCell>{item.description}</TableCell>
                       <TableCell className="text-right">

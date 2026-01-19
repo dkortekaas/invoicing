@@ -46,7 +46,7 @@ export default async function CheckoutSuccessPage({ searchParams }: SuccessPageP
               <Link href="/abonnement">Bekijk abonnement</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/">Naar dashboard</Link>
+              <Link href="/dashboard">Naar dashboard</Link>
             </Button>
           </div>
         </CardContent>

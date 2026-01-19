@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -122,9 +123,10 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
       const recurring = await response.json();
       router.push(`/abonnementen/${recurring.id}`);
       router.refresh();
+      toast.success('Abonnement opgeslagen');
     } catch (error) {
       console.error('Submit error:', error);
-      alert(error instanceof Error ? error.message : 'Er is een fout opgetreden');
+      toast.error(error instanceof Error ? error.message : 'Er is een fout opgetreden');
     } finally {
       setLoading(false);
     }

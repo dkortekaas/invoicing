@@ -1,6 +1,6 @@
 import { requireSuperuser } from '@/lib/auth/admin-guard';
 import { Shield } from 'lucide-react';
-import Link from 'next/link';
+import { AdminTabs } from '@/components/admin/admin-tabs';
 
 export default async function AdminLayout({
   children,
@@ -16,26 +16,7 @@ export default async function AdminLayout({
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
       </div>
 
-      <nav className="flex gap-4 pb-4 border-b">
-        <Link
-          href="/admin"
-          className="text-sm font-medium hover:text-primary transition-colors"
-        >
-          Overzicht
-        </Link>
-        <Link
-          href="/admin/watermark"
-          className="text-sm font-medium hover:text-primary transition-colors"
-        >
-          Watermerk
-        </Link>
-        <Link
-          href="/admin/users"
-          className="text-sm font-medium hover:text-primary transition-colors"
-        >
-          Gebruikers
-        </Link>
-      </nav>
+      <AdminTabs />
 
       {children}
     </div>

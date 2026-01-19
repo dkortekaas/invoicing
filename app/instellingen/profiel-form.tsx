@@ -1,6 +1,7 @@
 "use client"
 
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -38,9 +39,10 @@ export function ProfielForm({ initialData }: ProfielFormProps) {
     try {
       await updateProfile(data)
       router.refresh()
+      toast.success("Profiel opgeslagen")
     } catch (error) {
       console.error("Error saving profile:", error)
-      alert("Fout bij opslaan profiel")
+      toast.error("Fout bij opslaan profiel")
     } finally {
       setIsSubmitting(false)
     }

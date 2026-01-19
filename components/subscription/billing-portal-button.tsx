@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Settings, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export function BillingPortalButton() {
   const [loading, setLoading] = useState(false);
@@ -21,7 +22,7 @@ export function BillingPortalButton() {
       }
     } catch (error) {
       console.error('Portal error:', error);
-      alert('Er is een fout opgetreden');
+      toast.error('Er is een fout opgetreden');
     } finally {
       setLoading(false);
     }

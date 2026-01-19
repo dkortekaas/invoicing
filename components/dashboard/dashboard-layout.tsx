@@ -17,8 +17,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
 
-  // Don't show dashboard layout for auth pages
-  if (pathname?.startsWith("/login") || pathname?.startsWith("/register")) {
+  // Don't show dashboard layout for auth pages and marketing pages
+  if (
+    pathname?.startsWith("/login") ||
+    pathname?.startsWith("/register") ||
+    pathname === "/" ||
+    pathname === "/prijzen" ||
+    pathname?.startsWith("/uitnodiging")
+  ) {
     return <>{children}</>
   }
 

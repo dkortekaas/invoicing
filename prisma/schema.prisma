@@ -82,6 +82,10 @@ model User {
   // NextAuth sessions
   accounts Account[]
   sessions Session[]
+
+  // Invitations
+  sentInvitations     Invitation[] @relation("InvitationSender")
+  receivedInvitation Invitation?  @relation("InvitationReceiver")
 }
 
 model Customer {
@@ -947,4 +951,47 @@ model SubscriptionEvent {
   @@index([userId])
   @@index([type])
   @@index([createdAt])
+}
+
+// User Invitations Model
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  CANCELLED
+}
+
+model Invitation {
+  id          String   @id @default(cuid())
+  
+  // Sender (admin/owner)
+  senderId    String
+  sender      User     @relation("InvitationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  
+  // Receiver (invited user)
+  receiverId  String?  @unique
+  receiver    User?    @relation("InvitationReceiver", fields: [receiverId], references: [id], onDelete: SetNull)
+  
+  // Invitation details
+  email       String
+  token       String   @unique // Unique token for invitation link
+  status      InvitationStatus @default(PENDING)
+  
+  // Role for the invited user
+  role        UserRole @default(USER)
+  
+  // Expiration
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([senderId])
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@index([expiresAt])
 }

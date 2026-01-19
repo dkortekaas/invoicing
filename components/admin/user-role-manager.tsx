@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import {
@@ -56,9 +57,10 @@ export function UserRoleManager({ users }: UserRoleManagerProps) {
       }
 
       router.refresh();
+      toast.success('Rol bijgewerkt');
     } catch (error) {
       console.error('Update role error:', error);
-      alert(error instanceof Error ? error.message : 'Er is een fout opgetreden');
+      toast.error(error instanceof Error ? error.message : 'Er is een fout opgetreden');
     } finally {
       setUpdating(null);
     }

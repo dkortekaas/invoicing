@@ -1,6 +1,7 @@
 "use client"
 
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -39,9 +40,10 @@ export function FinancieleGegevensForm({ initialData }: FinancieleGegevensFormPr
     try {
       await updateFinancialInfo(data)
       router.refresh()
+      toast.success("Financiële gegevens opgeslagen")
     } catch (error) {
       console.error("Error saving financial info:", error)
-      alert("Fout bij opslaan financiële gegevens")
+      toast.error("Fout bij opslaan financiële gegevens")
     } finally {
       setIsSubmitting(false)
     }

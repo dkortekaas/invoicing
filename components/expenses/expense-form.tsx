@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -119,9 +120,10 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
         router.push('/btw/kosten');
         router.refresh();
       }
+      toast.success(expense ? 'Kost bijgewerkt' : 'Kost toegevoegd');
     } catch (error) {
       console.error('Submit error:', error);
-      alert('Er is een fout opgetreden');
+      toast.error('Er is een fout opgetreden');
     } finally {
       setLoading(false);
     }

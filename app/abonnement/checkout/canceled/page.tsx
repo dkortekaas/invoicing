@@ -33,7 +33,7 @@ export default async function CheckoutCanceledPage() {
               <Link href="/upgrade">Probeer opnieuw</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/">Naar dashboard</Link>
+              <Link href="/dashboard">Naar dashboard</Link>
             </Button>
           </div>
         </CardContent>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -76,7 +77,7 @@ export function TimerWidget() {
 
   const handleStart = async () => {
     if (!description.trim()) {
-      alert('Voer een beschrijving in');
+      toast.error('Voer een beschrijving in');
       return;
     }
 
@@ -103,9 +104,10 @@ export function TimerWidget() {
       setProjectId('');
       setActivityType('');
       router.refresh();
+      toast.success('Timer gestart');
     } catch (error) {
       console.error('Start timer error:', error);
-      alert(error instanceof Error ? error.message : 'Timer starten mislukt');
+      toast.error(error instanceof Error ? error.message : 'Timer starten mislukt');
     } finally {
       setLoading(false);
     }
@@ -130,9 +132,10 @@ export function TimerWidget() {
       setRunningTimer(null);
       setElapsed(0);
       router.refresh();
+      toast.success('Timer gestopt');
     } catch (error) {
       console.error('Stop timer error:', error);
-      alert(error instanceof Error ? error.message : 'Timer stoppen mislukt');
+      toast.error(error instanceof Error ? error.message : 'Timer stoppen mislukt');
     } finally {
       setLoading(false);
     }

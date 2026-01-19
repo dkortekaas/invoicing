@@ -1,6 +1,9 @@
 import { requireSuperuser } from '@/lib/auth/admin-guard';
 import { db } from '@/lib/db';
 import { UserRoleManager } from '@/components/admin/user-role-manager';
+import { InvitationManager } from '@/components/admin/invitation-manager';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Users, Mail } from 'lucide-react';
 
 export default async function UsersPage() {
   await requireSuperuser();
@@ -39,7 +42,24 @@ export default async function UsersPage() {
         </p>
       </div>
 
-      <UserRoleManager users={usersWithCounts} />
+      <Tabs defaultValue="users" className="w-full">
+        <TabsList>
+          <TabsTrigger value="users" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Gebruikers
+          </TabsTrigger>
+          <TabsTrigger value="invitations" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Uitnodigingen
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="users">
+          <UserRoleManager users={usersWithCounts} />
+        </TabsContent>
+        <TabsContent value="invitations">
+          <InvitationManager />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

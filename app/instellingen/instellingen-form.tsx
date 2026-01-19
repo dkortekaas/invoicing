@@ -1,6 +1,7 @@
 "use client"
 
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -40,9 +41,10 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
     try {
       await updateCompanySettings(data)
       router.refresh()
+      toast.success("Instellingen opgeslagen")
     } catch (error) {
       console.error("Error saving settings:", error)
-      alert("Fout bij opslaan instellingen")
+      toast.error("Fout bij opslaan instellingen")
     } finally {
       setIsSubmitting(false)
     }

@@ -1,71 +1,94 @@
 import { SystemSettings } from '@prisma/client';
 
-export function getWatermarkStyles(settings: SystemSettings): any {
+// A4 page dimensions in points (react-pdf uses points, not pixels)
+const PAGE_WIDTH = 595; // A4 width in points
+const PAGE_HEIGHT = 842; // A4 height in points
+
+export function getWatermarkContainerStyles(settings: SystemSettings): any {
   const opacity = Number(settings.watermarkOpacity);
-  
-  const baseStyle = {
-    position: 'absolute' as const,
-    color: settings.watermarkColor,
-    fontSize: settings.watermarkFontSize,
-    opacity: opacity,
-    fontWeight: 'bold' as const,
-    textTransform: 'uppercase' as const,
-    letterSpacing: 2,
-    userSelect: 'none' as const,
-    pointerEvents: 'none' as const,
-  };
 
   switch (settings.watermarkPosition) {
     case 'DIAGONAL':
-      return {
-        ...baseStyle,
-        top: '50%',
-        left: '50%',
-        transform: `translate(-50%, -50%) rotate(${settings.watermarkRotation}deg)`,
-        width: '100%',
-        textAlign: 'center' as const,
-      };
-    
     case 'CENTER':
       return {
-        ...baseStyle,
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        textAlign: 'center' as const,
+        position: 'absolute' as const,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex' as const,
+        justifyContent: 'center' as const,
+        alignItems: 'center' as const,
+        opacity: opacity,
       };
     
     case 'BOTTOM':
       return {
-        ...baseStyle,
-        bottom: 50,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        textAlign: 'center' as const,
+        position: 'absolute' as const,
+        bottom: 70,
+        left: 0,
+        right: 0,
+        display: 'flex' as const,
+        justifyContent: 'center' as const,
+        opacity: opacity,
       };
     
     case 'TOP':
       return {
-        ...baseStyle,
+        position: 'absolute' as const,
         top: 50,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        textAlign: 'center' as const,
+        left: 0,
+        right: 0,
+        display: 'flex' as const,
+        justifyContent: 'center' as const,
+        opacity: opacity,
       };
     
     case 'FOOTER':
       return {
-        ...baseStyle,
+        position: 'absolute' as const,
         bottom: 20,
         left: 0,
         right: 0,
-        textAlign: 'center' as const,
-        fontSize: settings.watermarkFontSize * 0.6, // Kleiner in footer
+        display: 'flex' as const,
+        justifyContent: 'center' as const,
+        opacity: opacity,
       };
     
     default:
-      return baseStyle;
+      return {
+        position: 'absolute' as const,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex' as const,
+        justifyContent: 'center' as const,
+        alignItems: 'center' as const,
+        opacity: opacity,
+      };
   }
+}
+
+export function getWatermarkTextStyles(settings: SystemSettings): any {
+  const baseStyle: any = {
+    color: settings.watermarkColor,
+    fontSize: settings.watermarkPosition === 'FOOTER' 
+      ? settings.watermarkFontSize * 0.6 
+      : settings.watermarkFontSize,
+    fontWeight: 'bold' as const,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 2,
+    textAlign: 'center' as const,
+  };
+
+  // For diagonal, we need to apply rotation
+  // react-pdf supports transform as an array: [['rotate', '45deg']]
+  if (settings.watermarkPosition === 'DIAGONAL') {
+    baseStyle.transform = [[`rotate`, `${settings.watermarkRotation}deg`]];
+  }
+
+  return baseStyle;
 }
 
 export function shouldShowWatermark(

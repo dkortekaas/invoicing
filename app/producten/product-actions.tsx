@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -38,9 +39,10 @@ export function ProductActions({ product }: ProductActionsProps) {
     try {
       await deleteProduct(product.id)
       router.refresh()
+      toast.success("Product verwijderd")
     } catch (error) {
       console.error("Error deleting product:", error)
-      alert("Fout bij verwijderen product")
+      toast.error("Fout bij verwijderen product")
     } finally {
       setIsLoading(false)
     }

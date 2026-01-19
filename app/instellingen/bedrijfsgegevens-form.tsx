@@ -1,6 +1,7 @@
 "use client"
 
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -47,9 +48,10 @@ export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps)
         companyLogo: logoUrl || null,
       })
       router.refresh()
+      toast.success("Bedrijfsgegevens opgeslagen")
     } catch (error) {
       console.error("Error saving company info:", error)
-      alert("Fout bij opslaan bedrijfsgegevens")
+      toast.error("Fout bij opslaan bedrijfsgegevens")
     } finally {
       setIsSubmitting(false)
     }

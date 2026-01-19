@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { MoreHorizontal, Pencil, Trash2, FileText } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -27,7 +28,7 @@ export function CustomerActions({ customer }: CustomerActionsProps) {
 
   const handleDelete = async () => {
     if (customer._count.invoices > 0) {
-      alert(
+      toast.error(
         "Deze klant heeft facturen. Verwijder eerst alle facturen voordat je de klant kunt verwijderen."
       )
       return
@@ -41,9 +42,10 @@ export function CustomerActions({ customer }: CustomerActionsProps) {
     try {
       await deleteCustomer(customer.id)
       router.refresh()
+      toast.success("Klant verwijderd")
     } catch (error) {
       console.error("Error deleting customer:", error)
-      alert("Fout bij verwijderen klant")
+      toast.error("Fout bij verwijderen klant")
     } finally {
       setIsLoading(false)
     }

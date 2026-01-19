@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { RecurringCard } from './recurring-card';
 
@@ -46,9 +47,10 @@ export function RecurringList({ recurring }: RecurringListProps) {
       }
 
       router.refresh();
+      toast.success('Abonnement gepauzeerd');
     } catch (error) {
       console.error('Pause error:', error);
-      alert('Er is een fout opgetreden bij het pauzeren');
+      toast.error('Er is een fout opgetreden bij het pauzeren');
     } finally {
       setLoading(null);
     }
@@ -66,9 +68,10 @@ export function RecurringList({ recurring }: RecurringListProps) {
       }
 
       router.refresh();
+      toast.success('Abonnement hervat');
     } catch (error) {
       console.error('Resume error:', error);
-      alert('Er is een fout opgetreden bij het hervatten');
+      toast.error('Er is een fout opgetreden bij het hervatten');
     } finally {
       setLoading(null);
     }
@@ -92,10 +95,11 @@ export function RecurringList({ recurring }: RecurringListProps) {
       }
 
       const invoice = await response.json();
+      toast.success('Factuur gegenereerd');
       router.push(`/facturen/${invoice.id}`);
     } catch (error) {
       console.error('Generate error:', error);
-      alert('Er is een fout opgetreden bij het genereren');
+      toast.error('Er is een fout opgetreden bij het genereren');
     } finally {
       setLoading(null);
     }
@@ -117,9 +121,10 @@ export function RecurringList({ recurring }: RecurringListProps) {
       }
 
       router.refresh();
+      toast.success('Abonnement verwijderd');
     } catch (error) {
       console.error('Delete error:', error);
-      alert('Er is een fout opgetreden bij het verwijderen');
+      toast.error('Er is een fout opgetreden bij het verwijderen');
     } finally {
       setLoading(null);
     }

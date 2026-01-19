@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -91,10 +92,10 @@ export function WatermarkSettingsForm({ initialSettings }: WatermarkSettingsForm
       }
 
       router.refresh();
-      alert('Instellingen opgeslagen!');
+      toast.success('Instellingen opgeslagen!');
     } catch (error) {
       console.error('Submit error:', error);
-      alert('Er is een fout opgetreden');
+      toast.error('Er is een fout opgetreden');
     } finally {
       setLoading(false);
     }

@@ -7,7 +7,7 @@ import {
   Image,
 } from "@react-pdf/renderer"
 import { formatDate, formatCurrency, formatNumber } from "@/lib/utils"
-import { getWatermarkStyles, shouldShowWatermark } from "@/lib/pdf/watermark"
+import { getWatermarkContainerStyles, getWatermarkTextStyles, shouldShowWatermark } from "@/lib/pdf/watermark"
 import type { SystemSettings } from "@prisma/client"
 
 // Types
@@ -286,8 +286,11 @@ export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: In
     : false
 
   // Get watermark styles if needed
-  const watermarkStyle = watermarkSettings && showWatermark
-    ? StyleSheet.create({ watermark: getWatermarkStyles(watermarkSettings) }).watermark
+  const watermarkContainerStyle = watermarkSettings && showWatermark
+    ? StyleSheet.create({ 
+        container: getWatermarkContainerStyles(watermarkSettings),
+        text: getWatermarkTextStyles(watermarkSettings),
+      })
     : null
 
   return (
@@ -463,9 +466,11 @@ export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: In
         </View>
 
         {/* Watermark - alleen voor free users */}
-        {showWatermark && watermarkSettings && (
-          <View style={watermarkStyle} fixed>
-            <Text>{watermarkSettings.watermarkText}</Text>
+        {showWatermark && watermarkSettings && watermarkContainerStyle && (
+          <View style={watermarkContainerStyle.container} fixed>
+            <Text style={watermarkContainerStyle.text}>
+              {watermarkSettings.watermarkText}
+            </Text>
           </View>
         )}
       </Page>

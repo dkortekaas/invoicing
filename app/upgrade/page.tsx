@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { PricingCard } from '@/components/subscription/pricing-card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -50,7 +51,7 @@ export default function UpgradePage() {
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      alert('Er is een fout opgetreden');
+      toast.error('Er is een fout opgetreden');
     }
   };
 

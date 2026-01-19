@@ -10,10 +10,13 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Allow access to auth pages and API routes
+  // Allow access to auth pages, marketing pages, and API routes
   if (
+    pathname === "/" ||
+    pathname === "/prijzen" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
+    pathname.startsWith("/uitnodiging") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/upload") ||
     pathname.startsWith("/api/stripe/webhook") ||

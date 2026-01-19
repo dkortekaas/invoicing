@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -28,7 +29,7 @@ export default function NewTimeEntryPage() {
     e.preventDefault();
     
     if (!description.trim()) {
-      alert('Beschrijving is verplicht');
+      toast.error('Beschrijving is verplicht');
       return;
     }
 
@@ -55,9 +56,10 @@ export default function NewTimeEntryPage() {
       }
 
       router.push('/tijd/entries');
+      toast.success('Tijdregistratie toegevoegd');
     } catch (error) {
       console.error('Create entry error:', error);
-      alert(error instanceof Error ? error.message : 'Entry aanmaken mislukt');
+      toast.error(error instanceof Error ? error.message : 'Entry aanmaken mislukt');
     } finally {
       setLoading(false);
     }

@@ -1,11 +1,4 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "../globals.css"
-import { AuthProvider } from "@/components/providers/session-provider"
-
-const inter = Inter({
-  subsets: ["latin"],
-})
 
 export const metadata: Metadata = {
   title: "Inloggen - BetaalMe",
@@ -17,11 +10,5 @@ export default function AuthLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return (
-    <html lang="nl">
-      <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
-    </html>
-  )
+  return <>{children}</>
 }

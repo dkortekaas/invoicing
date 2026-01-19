@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { invoiceSchema, type InvoiceFormData } from "@/lib/validations"
 import { generateInvoiceNumber, roundToTwo } from "@/lib/utils"
 import { getCurrentUserId } from "@/lib/server-utils"
+import { logCreate, logUpdate, logDelete, logPaymentRecorded } from "@/lib/audit/helpers"
 
 export async function getInvoices(status?: string) {
   const userId = await getCurrentUserId()
@@ -140,6 +141,14 @@ export async function createInvoice(
   // Increment counter for free users
   await incrementInvoiceCount(userId)
 
+  // Log audit trail
+  await logCreate("invoice", invoice.id, {
+    invoiceNumber: invoice.invoiceNumber,
+    customerId: invoice.customerId,
+    total: invoice.total.toNumber(),
+    status: invoice.status,
+  }, userId)
+
   revalidatePath("/facturen")
   revalidatePath("/")
   return invoice
@@ -185,10 +194,12 @@ export async function updateInvoice(
     where: { invoiceId: id },
   })
 
-  // Get current invoice to check status change
+  // Get current invoice to check status change and for audit logging
   const currentInvoice = await db.invoice.findUnique({
     where: { id },
-    select: { status: true, sentAt: true },
+    include: {
+      items: true,
+    },
   })
 
   const updateData: Record<string, unknown> = {
@@ -221,6 +232,39 @@ export async function updateInvoice(
     },
   })
 
+  // Log audit trail
+  if (currentInvoice) {
+    await logUpdate(
+      "invoice",
+      id,
+      {
+        customerId: currentInvoice.customerId,
+        invoiceDate: currentInvoice.invoiceDate,
+        dueDate: currentInvoice.dueDate,
+        status: currentInvoice.status,
+        subtotal: currentInvoice.subtotal.toNumber(),
+        vatAmount: currentInvoice.vatAmount.toNumber(),
+        total: currentInvoice.total.toNumber(),
+        reference: currentInvoice.reference,
+        notes: currentInvoice.notes,
+        internalNotes: currentInvoice.internalNotes,
+      },
+      {
+        customerId: invoice.customerId,
+        invoiceDate: invoice.invoiceDate,
+        dueDate: invoice.dueDate,
+        status: invoice.status,
+        subtotal: invoice.subtotal.toNumber(),
+        vatAmount: invoice.vatAmount.toNumber(),
+        total: invoice.total.toNumber(),
+        reference: invoice.reference,
+        notes: invoice.notes,
+        internalNotes: invoice.internalNotes,
+      },
+      userId
+    )
+  }
+
   revalidatePath("/facturen")
   revalidatePath(`/facturen/${id}`)
   revalidatePath("/")
@@ -240,10 +284,33 @@ export async function updateInvoiceStatus(
   }
 
   const userId = await getCurrentUserId()
+  
+  // Get current invoice for audit logging
+  const currentInvoice = await db.invoice.findUnique({
+    where: { id, userId },
+    select: { status: true, total: true },
+  })
+  
   const invoice = await db.invoice.update({
     where: { id, userId },
     data: updateData,
   })
+
+  // Log audit trail for status change
+  if (currentInvoice) {
+    await logUpdate(
+      "invoice",
+      id,
+      { status: currentInvoice.status },
+      { status: invoice.status },
+      userId
+    )
+    
+    // Log payment if status changed to PAID
+    if (status === "PAID" && currentInvoice.status !== "PAID") {
+      await logPaymentRecorded(id, currentInvoice.total.toNumber(), userId)
+    }
+  }
 
   revalidatePath("/facturen")
   revalidatePath(`/facturen/${id}`)
@@ -253,9 +320,36 @@ export async function updateInvoiceStatus(
 
 export async function deleteInvoice(id: string) {
   const userId = await getCurrentUserId()
+  
+  // Get invoice data before deletion for audit logging
+  const invoice = await db.invoice.findUnique({
+    where: { id, userId },
+    select: {
+      invoiceNumber: true,
+      customerId: true,
+      total: true,
+      status: true,
+    },
+  })
+  
   await db.invoice.delete({
     where: { id, userId },
   })
+
+  // Log audit trail
+  if (invoice) {
+    await logDelete(
+      "invoice",
+      id,
+      {
+        invoiceNumber: invoice.invoiceNumber,
+        customerId: invoice.customerId,
+        total: invoice.total.toNumber(),
+        status: invoice.status,
+      },
+      userId
+    )
+  }
 
   revalidatePath("/facturen")
   revalidatePath("/")

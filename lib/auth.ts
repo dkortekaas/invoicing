@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs"
 import speakeasy from "speakeasy"
 import NextAuth from "next-auth"
 import { verifyBackupCode } from "./auth-utils"
+import { logLogin, logLoginFailed } from "./audit/helpers"
 
 export const authOptions = {
   providers: [
@@ -28,7 +29,8 @@ export const authOptions = {
           })
 
           if (!user) {
-            // User not found - don't log as this is a normal failed login attempt
+            // Log failed login attempt
+            await logLoginFailed(email, "User not found")
             return null
           }
 
@@ -39,7 +41,8 @@ export const authOptions = {
           )
 
           if (!isValidPassword) {
-            // Invalid password - don't log as this is a normal failed login attempt
+            // Log failed login attempt
+            await logLoginFailed(email, "Invalid password")
             return null
           }
 
@@ -71,10 +74,14 @@ export const authOptions = {
             }
 
             if (!isValid) {
-              // Invalid 2FA code (neither TOTP nor backup code) - don't log as this is a normal failed login attempt
+              // Log failed login attempt
+              await logLoginFailed(email, "Invalid 2FA code")
               return null
             }
           }
+
+          // Log successful login
+          await logLogin(user.email, user.id)
 
           return {
             id: user.id,

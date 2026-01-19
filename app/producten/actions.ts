@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { productSchema, type ProductFormData } from "@/lib/validations"
 import { getCurrentUserId } from "@/lib/server-utils"
+import { logCreate, logUpdate, logDelete } from "@/lib/audit/helpers"
 
 export async function getProducts() {
   const userId = await getCurrentUserId()
@@ -44,6 +45,14 @@ export async function createProduct(data: ProductFormData) {
     },
   })
 
+  // Log audit trail
+  await logCreate("product", product.id, {
+    name: product.name,
+    unitPrice: product.unitPrice.toNumber(),
+    vatRate: product.vatRate.toNumber(),
+    isActive: product.isActive,
+  }, userId)
+
   revalidatePath("/producten")
   return product
 }
@@ -51,6 +60,11 @@ export async function createProduct(data: ProductFormData) {
 export async function updateProduct(id: string, data: ProductFormData) {
   const validated = productSchema.parse(data)
   const userId = await getCurrentUserId()
+
+  // Get current product for audit logging
+  const currentProduct = await db.product.findUnique({
+    where: { id, userId },
+  })
 
   const product = await db.product.update({
     where: { id, userId },
@@ -61,15 +75,61 @@ export async function updateProduct(id: string, data: ProductFormData) {
     },
   })
 
+  // Log audit trail
+  if (currentProduct) {
+    await logUpdate(
+      "product",
+      id,
+      {
+        name: currentProduct.name,
+        unitPrice: currentProduct.unitPrice.toNumber(),
+        vatRate: currentProduct.vatRate.toNumber(),
+        isActive: currentProduct.isActive,
+      },
+      {
+        name: product.name,
+        unitPrice: product.unitPrice.toNumber(),
+        vatRate: product.vatRate.toNumber(),
+        isActive: product.isActive,
+      },
+      userId
+    )
+  }
+
   revalidatePath("/producten")
   return product
 }
 
 export async function deleteProduct(id: string) {
   const userId = await getCurrentUserId()
+  
+  // Get product data before deletion for audit logging
+  const product = await db.product.findUnique({
+    where: { id, userId },
+    select: {
+      name: true,
+      unitPrice: true,
+      vatRate: true,
+    },
+  })
+  
   await db.product.delete({
     where: { id, userId },
   })
+
+  // Log audit trail
+  if (product) {
+    await logDelete(
+      "product",
+      id,
+      {
+        name: product.name,
+        unitPrice: product.unitPrice.toNumber(),
+        vatRate: product.vatRate.toNumber(),
+      },
+      userId
+    )
+  }
 
   revalidatePath("/producten")
 }

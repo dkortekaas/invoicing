@@ -43,6 +43,13 @@ export function Header() {
   }
 
   const handleLogout = async () => {
+    // Log logout action before signing out
+    try {
+      await fetch("/api/auth/logout", { method: "POST" })
+    } catch (error) {
+      // Don't block logout if logging fails
+      console.error("Failed to log logout:", error)
+    }
     await signOut({ callbackUrl: "/login" })
   }
 

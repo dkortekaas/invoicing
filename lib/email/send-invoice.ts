@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { render } from '@react-email/render';
 import type { InvoiceItem } from '@/types';
+import { logInvoiceSent } from '@/lib/audit/helpers';
 
 interface SendInvoiceEmailParams {
   invoiceId: string;
@@ -188,6 +189,9 @@ export async function sendInvoiceEmail({
       status: invoice.status === 'DRAFT' ? 'SENT' : invoice.status,
     },
   });
+
+  // Log audit trail
+  await logInvoiceSent(invoice.id, invoice.customer.email, invoice.userId);
 
   return { success: true, emailId: data?.id };
 }

@@ -86,6 +86,9 @@ model User {
   // Invitations
   sentInvitations     Invitation[] @relation("InvitationSender")
   receivedInvitation Invitation?  @relation("InvitationReceiver")
+  
+  // Audit logs
+  auditLogs          AuditLog[]
 }
 
 model Customer {
@@ -994,4 +997,68 @@ model Invitation {
   @@index([token])
   @@index([status])
   @@index([expiresAt])
+}
+
+// Audit Trail Model
+model AuditLog {
+  id          String   @id @default(cuid())
+  timestamp   DateTime @default(now())
+  
+  // User information (snapshot for deleted users)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userEmail   String   // Snapshot of email at time of action
+  
+  // Action details
+  action      AuditAction
+  entityType  String   // invoice, customer, product, settings, etc.
+  entityId    String?  // ID of the affected record
+  
+  // Change tracking
+  changes     Json?    // { field: { oldValue, newValue } }
+  
+  // Request context
+  ipAddress   String?
+  userAgent   String?
+  sessionId   String?
+  
+  // Additional metadata
+  metadata    Json?    // Extra context (export format, print action, etc.)
+  
+  // Compliance features
+  previousHash String? // Hash of previous log entry for chain integrity
+  hash         String  // Hash of this log entry
+  
+  // Fraud detection flags
+  isSuspicious Boolean @default(false)
+  suspiciousReason String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([timestamp])
+  @@index([userId])
+  @@index([userEmail])
+  @@index([action])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([entityType, entityId])
+  @@index([isSuspicious])
+  @@index([createdAt])
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  VIEW
+  EXPORT
+  LOGIN
+  LOGOUT
+  LOGIN_FAILED
+  PAYMENT_RECORDED
+  INVOICE_SENT
+  SETTINGS_CHANGED
+  PASSWORD_CHANGED
+  TWO_FA_ENABLED
+  TWO_FA_DISABLED
 }

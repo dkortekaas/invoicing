@@ -17,6 +17,7 @@ import {
 } from "@/lib/validations"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { hashPassword } from "@/lib/auth-utils"
+import { logUpdate, logPasswordChange, logSettingsChange, log2FAChange } from "@/lib/audit/helpers"
 
 // ========== Profile Actions ==========
 export async function getProfile() {
@@ -40,6 +41,12 @@ export async function updateProfile(data: ProfileFormData) {
   const validated = profileSchema.parse(data)
   const userId = await getCurrentUserId()
 
+  // Get current profile for audit logging
+  const currentUser = await db.user.findUnique({
+    where: { id: userId },
+    select: { name: true, email: true },
+  })
+
   await db.user.update({
     where: { id: userId },
     data: {
@@ -47,6 +54,23 @@ export async function updateProfile(data: ProfileFormData) {
       email: validated.email,
     },
   })
+
+  // Log audit trail
+  if (currentUser) {
+    await logUpdate(
+      "user",
+      userId,
+      {
+        name: currentUser.name,
+        email: currentUser.email,
+      },
+      {
+        name: validated.name,
+        email: validated.email,
+      },
+      userId
+    )
+  }
 
   revalidatePath("/instellingen")
 }
@@ -79,6 +103,21 @@ export async function updateCompanyInfo(data: CompanyInfoFormData) {
   const validated = companyInfoSchema.parse(data)
   const userId = await getCurrentUserId()
 
+  // Get current company info for audit logging
+  const currentUser = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      companyName: true,
+      companyEmail: true,
+      companyPhone: true,
+      companyAddress: true,
+      companyCity: true,
+      companyPostalCode: true,
+      companyCountry: true,
+      companyLogo: true,
+    },
+  })
+
   await db.user.update({
     where: { id: userId },
     data: {
@@ -92,6 +131,35 @@ export async function updateCompanyInfo(data: CompanyInfoFormData) {
       companyLogo: validated.companyLogo,
     },
   })
+
+  // Log audit trail
+  if (currentUser) {
+    await logUpdate(
+      "settings",
+      userId,
+      {
+        companyName: currentUser.companyName,
+        companyEmail: currentUser.companyEmail,
+        companyPhone: currentUser.companyPhone,
+        companyAddress: currentUser.companyAddress,
+        companyCity: currentUser.companyCity,
+        companyPostalCode: currentUser.companyPostalCode,
+        companyCountry: currentUser.companyCountry,
+        companyLogo: currentUser.companyLogo,
+      },
+      {
+        companyName: validated.companyName,
+        companyEmail: validated.companyEmail,
+        companyPhone: validated.companyPhone,
+        companyAddress: validated.companyAddress,
+        companyCity: validated.companyCity,
+        companyPostalCode: validated.companyPostalCode,
+        companyCountry: validated.companyCountry,
+        companyLogo: validated.companyLogo,
+      },
+      userId
+    )
+  }
 
   revalidatePath("/instellingen")
 }
@@ -120,6 +188,17 @@ export async function updateFinancialInfo(data: FinancialInfoFormData) {
   const validated = financialInfoSchema.parse(data)
   const userId = await getCurrentUserId()
 
+  // Get current financial info for audit logging
+  const currentUser = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      vatNumber: true,
+      kvkNumber: true,
+      iban: true,
+      invoicePrefix: true,
+    },
+  })
+
   await db.user.update({
     where: { id: userId },
     data: {
@@ -129,6 +208,27 @@ export async function updateFinancialInfo(data: FinancialInfoFormData) {
       invoicePrefix: validated.invoicePrefix,
     },
   })
+
+  // Log audit trail
+  if (currentUser) {
+    await logUpdate(
+      "settings",
+      userId,
+      {
+        vatNumber: currentUser.vatNumber,
+        kvkNumber: currentUser.kvkNumber,
+        iban: currentUser.iban,
+        invoicePrefix: currentUser.invoicePrefix,
+      },
+      {
+        vatNumber: validated.vatNumber,
+        kvkNumber: validated.kvkNumber,
+        iban: validated.iban,
+        invoicePrefix: validated.invoicePrefix,
+      },
+      userId
+    )
+  }
 
   revalidatePath("/instellingen")
 }
@@ -220,6 +320,9 @@ export async function changePassword(data: ChangePasswordFormData) {
       passwordHash: newPasswordHash,
     },
   })
+
+  // Log password change
+  await logPasswordChange(userId)
 
   revalidatePath("/instellingen")
 }

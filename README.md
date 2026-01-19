@@ -26,6 +26,7 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - 🔒 **Feature Gating**: Automatische toegangscontrole voor premium features
 - 📧 **User Invitations**: PRO accounts kunnen extra gebruikers uitnodigen
 - 🏠 **Marketing Homepage**: Professionele marketing homepage met features, pricing en smooth scrolling
+- 📋 **Audit Trail Systeem**: Compleet audit logging systeem met fraud detectie en compliance features
 - 🇳🇱 **Nederlandse standaarden**: Volledig aangepast aan Nederlandse factuurvereisten
 - 🎨 **Modern UI**: Gebouwd met Next.js 15, React 19, Tailwind CSS en shadcn/ui
 
@@ -407,6 +408,12 @@ npx prisma migrate dev --name add_subscriptions
 npx prisma generate
 ```
 
+**Voor audit trail systeem:**
+```bash
+npx prisma migrate dev --name add_audit_trail
+npx prisma generate
+```
+
 Genereer Prisma Client (na schema wijzigingen):
 ```bash
 npx prisma generate
@@ -450,6 +457,88 @@ De applicatie gebruikt:
 - **shadcn/ui** voor UI componenten
 - **CSS variables** voor theming
 - **Responsive design** (mobile-first)
+
+## 📋 Audit Trail Systeem
+
+De applicatie heeft een compleet audit trail systeem voor volledige traceerbaarheid en compliance met Nederlandse fiscale vereisten.
+
+### Functionaliteiten
+
+#### Automatische Logging
+- Alle CRUD operaties (CREATE, UPDATE, DELETE) worden automatisch gelogd
+- Login/logout en mislukte login pogingen
+- Financiële acties (betalingen, factuur verzending)
+- Instellingen wijzigingen
+- Export acties
+
+#### Fraud Detectie
+Het systeem detecteert automatisch verdachte patronen:
+- **Buiten kantooruren**: Acties tussen 22:00 - 6:00
+- **Bulk wijzigingen**: >10 wijzigingen in 5 minuten
+- **Wijzigingen aan verzonden facturen**: Aanpassingen aan reeds verzonden of betaalde facturen
+- **BTW-aangifte wijzigingen**: Wijzigingen aan ingediende BTW-aangiftes
+- **Brute force**: ≥5 mislukte login pogingen in 15 minuten
+- **Onbekende IP-adressen**: Acties vanaf nieuwe IP-adressen
+
+#### Compliance Features
+- **Immutable Logs**: Audit records kunnen NOOIT worden gewijzigd of verwijderd
+- **Hash-Chain**: Elke log entry bevat een hash van de vorige entry voor tamper detection
+- **Retention Policy**: Database is geoptimaliseerd voor 7+ jaar bewaartermijn (Nederlandse fiscale vereiste)
+- **Export Functionaliteit**: Exporteer audit logs als CSV of JSON voor accountantscontrole
+- **Digitale Handtekening**: Timestamp en hash-chain zorgen voor betrouwbare timestamp
+
+#### UI Componenten
+- **AuditLogViewer**: Chronologisch overzicht met filters en paginatie
+- **RecentActivity**: Dashboard widget met recente activiteit
+- **AuditAlerts**: Overzicht van verdachte activiteiten met samenvatting
+- **Entity Timeline**: Bekijk de volledige geschiedenis van een specifieke entiteit
+
+#### API Endpoints
+- `GET /api/audit-logs` - Lijst met filters en paginatie
+- `GET /api/audit-logs/entity/:type/:id` - Geschiedenis van specifiek record
+- `GET /api/audit-logs/user/:id` - Alle acties van een gebruiker
+- `GET /api/audit-logs/export` - Export voor accountant (CSV/JSON)
+- `GET /api/audit-logs/alerts` - Verdachte activiteiten
+
+### Gebruik
+
+#### Audit Logs Bekijken
+```typescript
+// In een component
+import { AuditLogViewer } from "@/components/audit/audit-log-viewer"
+
+// Volledige audit log
+<AuditLogViewer showFilters={true} />
+
+// Entity-specifieke geschiedenis
+<AuditLogViewer entityType="invoice" entityId={invoiceId} />
+```
+
+#### Recent Activity Widget
+```typescript
+import { RecentActivity } from "@/components/audit/recent-activity"
+
+<RecentActivity limit={10} />
+```
+
+#### Alerts Component
+```typescript
+import { AuditAlerts } from "@/components/audit/audit-alerts"
+
+<AuditAlerts days={7} />
+```
+
+### Database Schema
+
+Het audit trail systeem gebruikt de `AuditLog` tabel met de volgende belangrijke velden:
+- `timestamp`, `userId`, `userEmail` (snapshot voor verwijderde users)
+- `action`, `entityType`, `entityId`
+- `changes` (JSON met old/new values)
+- `ipAddress`, `userAgent`, `sessionId`
+- `previousHash`, `hash` (voor hash-chain integriteit)
+- `isSuspicious`, `suspiciousReason`
+
+Zie `AUDIT_TRAIL_IMPLEMENTATION.md` voor volledige documentatie.
 
 ## 💳 Subscription Systeem
 
@@ -810,6 +899,28 @@ PRO accounts kunnen gebruikers uitnodigen:
 - Uitnodigingen verlopen automatisch na 7 dagen
 - Nieuwe gebruikers krijgen bedrijfsgegevens van de sender
 
+### Audit Trail Systeem
+Het audit trail systeem biedt volledige traceerbaarheid en compliance:
+- **Automatische Logging**: Alle CRUD operaties worden automatisch gelogd
+- **Chronologische Geschiedenis**: Bekijk de volledige geschiedenis van elke entiteit (facturen, klanten, producten)
+- **Fraud Detectie**: Automatische detectie van verdachte activiteiten:
+  - Acties buiten kantooruren
+  - Bulk wijzigingen in korte tijd
+  - Wijzigingen aan verzonden/betaalde facturen
+  - Meerdere mislukte login pogingen
+  - Onbekende IP-adressen
+- **Compliance Features**:
+  - Immutable logs (logs kunnen niet worden gewijzigd of verwijderd)
+  - Hash-chain voor tamper detection
+  - Export functionaliteit voor accountantscontrole (CSV/JSON)
+  - 7+ jaar bewaartermijn ondersteuning
+- **UI Componenten**:
+  - Timeline view per entiteit
+  - Global audit log met filters
+  - Recent activity dashboard widget
+  - Alerts overzicht voor verdachte activiteiten
+- **API Endpoints**: Volledige REST API voor audit log querying en export
+
 ## 🚧 Toekomstige Features
 
 - [x] Email verzending (Resend API) ✅
@@ -824,6 +935,7 @@ PRO accounts kunnen gebruikers uitnodigen:
 - [x] Marketing homepage met smooth scrolling ✅
 - [x] User invitations voor PRO accounts ✅
 - [x] Abonnementen overzicht in admin dashboard ✅
+- [x] Audit trail systeem met fraud detectie ✅
 - [ ] Forecasting & predictive analytics
 - [ ] Benchmarking tegen industrie gemiddeldes
 - [ ] Geautomatiseerde email rapporten (wekelijks/maandelijks)

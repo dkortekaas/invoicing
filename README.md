@@ -705,9 +705,6 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
 # Node Environment
 NODE_ENV="development"
-
-# Optional: Overheid.io API voor KVK lookup (development)
-OVERHEID_IO_API_KEY="your-api-key-here"
 ```
 
 **Genereer een NEXTAUTH_SECRET:**

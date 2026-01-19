@@ -6,7 +6,7 @@ import { isInvitationExpired } from '@/lib/invitations/utils';
  * GET - Validate an invitation token
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
   try {

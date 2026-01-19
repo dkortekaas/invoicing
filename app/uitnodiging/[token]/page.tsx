@@ -54,7 +54,7 @@ export default async function InvitationPage({ params }: InvitationPageProps) {
           invitation={{
             token: invitation.token,
             email: invitation.email,
-            role: invitation.role,
+            role: invitation.role === 'SUPERUSER' ? 'ADMIN' : invitation.role,
             sender: invitation.sender,
           }}
         />

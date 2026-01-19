@@ -7,7 +7,7 @@ import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
  * DELETE - Cancel an invitation
  */
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();

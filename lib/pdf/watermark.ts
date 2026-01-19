@@ -1,9 +1,5 @@
 import { SystemSettings } from '@prisma/client';
 
-// A4 page dimensions in points (react-pdf uses points, not pixels)
-const PAGE_WIDTH = 595; // A4 width in points
-const PAGE_HEIGHT = 842; // A4 height in points
-
 export function getWatermarkContainerStyles(settings: SystemSettings): any {
   const opacity = Number(settings.watermarkOpacity);
 

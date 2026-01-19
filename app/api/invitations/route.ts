@@ -7,7 +7,7 @@ import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
 /**
  * GET - List all invitations for the current user (as sender)
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const session = await auth();
   
   if (!session?.user?.id) {

@@ -24,6 +24,8 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - 💳 **Stripe Abonnementen**: Volledig geïntegreerd subscription systeem met feature gating
 - 🎯 **Free & Pro Plans**: Gratis plan met basis features, Pro plan met premium functionaliteiten
 - 🔒 **Feature Gating**: Automatische toegangscontrole voor premium features
+- 📧 **User Invitations**: PRO accounts kunnen extra gebruikers uitnodigen
+- 🏠 **Marketing Homepage**: Professionele marketing homepage met features, pricing en smooth scrolling
 - 🇳🇱 **Nederlandse standaarden**: Volledig aangepast aan Nederlandse factuurvereisten
 - 🎨 **Modern UI**: Gebouwd met Next.js 15, React 19, Tailwind CSS en shadcn/ui
 
@@ -117,6 +119,17 @@ Dit zal:
 - De SubscriptionEvent tabel aanmaken
 - De benodigde enums toevoegen (SubscriptionStatus, SubscriptionTier, BillingCycle, etc.)
 
+**Voor user invitations:**
+```bash
+npx prisma migrate dev --name add_user_invitations
+npx prisma generate
+```
+
+Dit zal:
+- De Invitation tabel aanmaken
+- De InvitationStatus enum toevoegen
+- Relaties tussen User en Invitation aanmaken
+
 ### 5. Start de development server
 
 ```bash
@@ -133,7 +146,9 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
 
 ```
 /app
-  page.tsx               # Home dashboard
+  (marketing)            # Marketing pages (publiek toegankelijk)
+    page.tsx             # Marketing homepage
+    layout.tsx           # Marketing layout met header/footer
   /dashboard             # Analytics & BI dashboard
     page.tsx             # Analytics dashboard met KPI's en grafieken
   /facturen              # Facturen beheer
@@ -148,16 +163,24 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
   /abonnementen          # Recurring invoices
   /abonnement            # Subscription management
   /upgrade               # Upgrade to Pro plan
+  /prijzen               # Pricing page (publiek)
   /btw                   # BTW rapportage
+  /uitnodiging/[token]   # Invitation accept page
   /admin                 # Admin dashboard (superuser only)
     page.tsx             # Admin overzicht
     /watermark           # Watermerk instellingen
     /users               # Gebruikersbeheer
+    /subscriptions       # Abonnementen overzicht
   /api
     /admin               # Admin API endpoints
       /watermark         # Watermerk settings API
       /users/[id]/role  # User role management API
       /check             # Admin check API
+    /invitations         # User invitations API
+      route.ts           # List/create invitations
+      /[id]              # Cancel invitation
+      /accept            # Accept invitation
+      /validate/[token]  # Validate invitation token
     /analytics           # Analytics API endpoints
       /kpis              # KPI berekeningen
       /trends            # Trend analyse
@@ -171,6 +194,14 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     /invoices/[id]/pdf   # PDF generatie endpoint
 /components
   /ui                    # shadcn/ui components
+  /marketing             # Marketing components
+    header.tsx           # Marketing header met smooth scroll
+    footer.tsx           # Marketing footer
+    hero.tsx             # Hero sectie
+    features.tsx         # Features sectie
+    problem-solution.tsx # Problem/solution sectie
+    how-it-works.tsx     # How it works sectie
+    call-to-action.tsx   # CTA component
   /dashboard             # Dashboard components
   /analytics             # Analytics chart components
     kpi-card.tsx         # KPI display cards
@@ -182,6 +213,10 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
   /invoices              # Factuur components
   /customers             # Klant components
   /products              # Product components
+  /admin                 # Admin components
+    invitation-manager.tsx      # Invitation management UI
+    invitation-accept-form.tsx  # Invitation accept form
+    subscription-manager.tsx    # Subscription overview
   /lib
   /analytics             # Analytics library
     kpis.ts              # KPI berekeningen
@@ -197,6 +232,8 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     webhooks.ts           # Webhook handlers
   /pdf                   # PDF utilities
     watermark.ts         # Watermark rendering logic
+  /invitations           # Invitation utilities
+    utils.ts             # Invitation token generation & validation
   db.ts                  # Prisma client
   validations.ts         # Zod schemas
   utils.ts              # Helper functions
@@ -205,6 +242,7 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     watermark-settings-form.tsx  # Watermark configuration form
     watermark-preview.tsx         # Live watermark preview
     user-role-manager.tsx        # User role management
+    admin-tabs.tsx               # Admin navigation tabs
   /subscription           # Subscription components
     pricing-card.tsx             # Pricing display card
     upgrade-banner.tsx           # Upgrade CTA banner
@@ -233,9 +271,11 @@ De applicatie gebruikt de volgende hoofdmodellen:
 - **AnalyticsSnapshot**: Dagelijkse analytics snapshots
 - **SystemSettings**: Systeeminstellingen (watermerk configuratie)
 - **SubscriptionEvent**: Subscription events voor audit trail
+- **Invitation**: User invitations (voor PRO accounts)
 - **UserRole**: Gebruikersrollen (USER, ADMIN, SUPERUSER)
 - **SubscriptionStatus**: Subscription status (FREE, ACTIVE, TRIALING, etc.)
 - **SubscriptionTier**: Subscription tier (FREE, PRO)
+- **InvitationStatus**: Invitation status (PENDING, ACCEPTED, EXPIRED, CANCELLED)
 
 Zie `prisma/schema.prisma` voor het volledige schema.
 
@@ -243,29 +283,34 @@ Zie `prisma/schema.prisma` voor het volledige schema.
 
 ### Eerste Setup
 
-1. **Profiel instellen**
+1. **Registreer een account**
+   - Bezoek de homepage (`/`)
+   - Klik op "Start gratis!" in de header
+   - Vul je gegevens in en maak een account aan
+
+2. **Profiel instellen**
    - Ga naar Instellingen → Profiel
    - Vul je naam en email in
    - Sla op
 
-2. **Bedrijfsgegevens instellen**
+3. **Bedrijfsgegevens instellen**
    - Ga naar Instellingen → Bedrijfsgegevens
    - Vul je bedrijfsgegevens in (naam, adres, postcode, stad, land, telefoon)
    - Upload je bedrijfslogo (optioneel, wordt getoond op facturen)
    - Sla op
 
-3. **Financiële gegevens instellen**
+4. **Financiële gegevens instellen**
    - Ga naar Instellingen → Financiële gegevens
    - Vul je BTW-nummer, KvK-nummer en IBAN in
    - Pas je factuur prefix aan indien gewenst
    - Sla op
 
-2. **Klanten toevoegen**
+5. **Klanten toevoegen**
    - Ga naar Klanten
    - Klik op "Nieuwe Klant"
    - Vul klantgegevens in
 
-3. **Producten/Diensten toevoegen** (optioneel)
+6. **Producten/Diensten toevoegen** (optioneel)
    - Ga naar Producten
    - Voeg je standaard producten of diensten toe
    - Deze kunnen snel worden toegevoegd aan facturen
@@ -436,6 +481,7 @@ De applicatie heeft een volledig geïntegreerd Stripe subscription systeem met f
 - ✅ Automatische herinneringen
 - ✅ Export functionaliteit (Excel/PDF)
 - ✅ Prioriteit support
+- ✅ **User Invitations**: Nodig extra gebruikers uit voor je account
 
 ### Stripe Setup
 
@@ -484,6 +530,11 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 - **Beheer abonnement**: Ga naar `/abonnement` om je abonnement te beheren
 - **Billing Portal**: Gebruik de "Beheer abonnement" knop om naar Stripe Customer Portal te gaan
 - **Feature Gating**: Premium routes worden automatisch beschermd en redirecten naar upgrade pagina
+- **User Invitations**: PRO accounts kunnen extra gebruikers uitnodigen via Admin → Gebruikers → Uitnodigingen tab
+  - Verstuur uitnodigingen via email
+  - Kopieer uitnodigingslinks
+  - Bekijk status van alle uitnodigingen
+  - Uitnodigingen verlopen na 7 dagen
 
 ### Feature Gating
 
@@ -580,6 +631,18 @@ Configureer het watermerk dat wordt getoond op PDF facturen van gratis gebruiker
 - Wijzig gebruikersrollen (USER, ADMIN, SUPERUSER)
 - Bekijk abonnement status en factuur statistieken
 - Gebruikers kunnen hun eigen rol niet wijzigen
+- **Uitnodigingen Tab**: Beheer user invitations (alleen voor PRO accounts)
+  - Verstuur uitnodigingen naar nieuwe gebruikers
+  - Bekijk status van alle uitnodigingen
+  - Kopieer uitnodigingslinks
+  - Annuleer actieve uitnodigingen
+
+#### 4. Abonnementen Beheer (`/admin/subscriptions`)
+- Overzicht van alle gebruikersabonnementen
+- Statistieken: totaal gebruikers, PRO accounts, actieve abonnementen
+- Zoekfunctionaliteit op naam, email of bedrijfsnaam
+- Bekijk abonnementsstatus, betalingscyclus, verloopt datum
+- Stripe Customer ID tracking
 
 ### Watermerk Functionaliteit
 
@@ -642,6 +705,9 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
 # Node Environment
 NODE_ENV="development"
+
+# Optional: Overheid.io API voor KVK lookup (development)
+OVERHEID_IO_API_KEY="your-api-key-here"
 ```
 
 **Genereer een NEXTAUTH_SECRET:**
@@ -708,6 +774,16 @@ Voor vragen of problemen:
 
 ## 📸 Screenshots
 
+### Marketing Homepage
+De marketing homepage (`/`) biedt:
+- **Hero Sectie**: Krachtige headline met CTA buttons
+- **Problem/Solution**: Toont de problemen die de app oplost
+- **Features**: Overzicht van alle features met iconen
+- **How It Works**: Stap-voor-stap uitleg
+- **Pricing**: Transparante prijsweergave
+- **Smooth Scrolling**: Automatische smooth scroll naar secties bij klikken op hash links
+- **Responsive Design**: Volledig geoptimaliseerd voor alle devices
+
 ### Instellingen
 De instellingen pagina is georganiseerd in 4 tabs:
 - **Profiel**: Persoonlijke gegevens (naam, email)
@@ -729,6 +805,14 @@ Het analytics dashboard biedt een compleet overzicht van je business performance
 - Doelstellingen tracking
 - Excel export functionaliteit
 
+### User Invitations
+PRO accounts kunnen gebruikers uitnodigen:
+- Verstuur uitnodigingen via email
+- Kopieer uitnodigingslinks
+- Bekijk status (Pending, Accepted, Expired, Cancelled)
+- Uitnodigingen verlopen automatisch na 7 dagen
+- Nieuwe gebruikers krijgen bedrijfsgegevens van de sender
+
 ## 🚧 Toekomstige Features
 
 - [x] Email verzending (Resend API) ✅
@@ -740,6 +824,9 @@ Het analytics dashboard biedt een compleet overzicht van je business performance
 - [x] Watermerk systeem voor free users ✅
 - [x] Admin dashboard met gebruikersbeheer ✅
 - [x] Stripe subscription systeem met feature gating ✅
+- [x] Marketing homepage met smooth scrolling ✅
+- [x] User invitations voor PRO accounts ✅
+- [x] Abonnementen overzicht in admin dashboard ✅
 - [ ] Forecasting & predictive analytics
 - [ ] Benchmarking tegen industrie gemiddeldes
 - [ ] Geautomatiseerde email rapporten (wekelijks/maandelijks)

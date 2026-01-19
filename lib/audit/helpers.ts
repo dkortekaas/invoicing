@@ -4,7 +4,6 @@ import { createAuditLog } from "./logger"
 import { detectChanges } from "./utils"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { db } from "@/lib/db"
-import type { AuditAction } from "@prisma/client"
 
 /**
  * Get user email for audit logging

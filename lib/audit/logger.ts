@@ -65,7 +65,7 @@ async function getPreviousHash(userId?: string): Promise<string | null> {
  */
 async function detectSuspiciousActivity(
   data: AuditLogData,
-  previousHash: string | null
+  _previousHash: string | null
 ): Promise<{ isSuspicious: boolean; reason?: string }> {
   const reasons: string[] = []
   

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Fragment } from "react"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,7 +15,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
-import { AlertTriangle, Download, RefreshCw } from "lucide-react"
+import { AlertTriangle, Download, RefreshCw, Eye, ChevronDown, ChevronUp } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   Table,
   TableBody,
@@ -62,8 +69,10 @@ export function AuditLogViewer({
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null)
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   const [filters, setFilters] = useState({
-    action: "",
+    action: "ALL",
     startDate: "",
     endDate: "",
   })
@@ -90,7 +99,7 @@ export function AuditLogViewer({
         setTotalPages(data.pagination?.totalPages || 1)
       } else {
         // Fetch all logs
-        if (filters.action) params.append("action", filters.action)
+        if (filters.action && filters.action !== "ALL") params.append("action", filters.action)
         if (filters.startDate) params.append("startDate", filters.startDate)
         if (filters.endDate) params.append("endDate", filters.endDate)
 
@@ -131,6 +140,16 @@ export function AuditLogViewer({
     }
   }
 
+  const toggleRow = (logId: string) => {
+    const newExpanded = new Set(expandedRows)
+    if (newExpanded.has(logId)) {
+      newExpanded.delete(logId)
+    } else {
+      newExpanded.add(logId)
+    }
+    setExpandedRows(newExpanded)
+  }
+
   const getActionColor = (action: string) => {
     switch (action) {
       case "CREATE":
@@ -152,6 +171,38 @@ export function AuditLogViewer({
       default:
         return "bg-gray-100 text-gray-800"
     }
+  }
+
+  const formatChanges = (changes: any) => {
+    if (!changes || typeof changes !== "object") return null
+    
+    return Object.entries(changes).map(([key, value]: [string, any]) => (
+      <div key={key} className="border-l-2 border-blue-200 pl-3 py-1">
+        <div className="font-medium text-sm">{key}</div>
+        <div className="text-xs text-muted-foreground space-y-1">
+          <div>
+            <span className="text-red-600">Oud: </span>
+            <span className="font-mono">
+              {value.oldValue === null
+                ? "null"
+                : typeof value.oldValue === "object"
+                ? JSON.stringify(value.oldValue, null, 2)
+                : String(value.oldValue)}
+            </span>
+          </div>
+          <div>
+            <span className="text-green-600">Nieuw: </span>
+            <span className="font-mono">
+              {value.newValue === null
+                ? "null"
+                : typeof value.newValue === "object"
+                ? JSON.stringify(value.newValue, null, 2)
+                : String(value.newValue)}
+            </span>
+          </div>
+        </div>
+      </div>
+    ))
   }
 
   if (loading && logs.length === 0) {
@@ -205,7 +256,7 @@ export function AuditLogViewer({
                 <SelectValue placeholder="Alle acties" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Alle acties</SelectItem>
+                <SelectItem value="ALL">Alle acties</SelectItem>
                 <SelectItem value="CREATE">Aanmaken</SelectItem>
                 <SelectItem value="UPDATE">Bijwerken</SelectItem>
                 <SelectItem value="DELETE">Verwijderen</SelectItem>
@@ -251,48 +302,94 @@ export function AuditLogViewer({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {logs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="font-mono text-sm">
-                      {format(new Date(log.timestamp), "dd-MM-yyyy HH:mm:ss", {
-                        locale: nl,
-                      })}
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">
-                          {log.user?.name || log.userEmail}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {log.userEmail}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getActionColor(log.action)}>
-                        {log.action}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{log.entityType}</div>
-                        {log.entityId && (
-                          <div className="text-xs text-muted-foreground">
-                            {log.entityId.substring(0, 8)}...
+                {logs.map((log) => {
+                  const isExpanded = expandedRows.has(log.id)
+                  const hasChanges = log.changes && Object.keys(log.changes).length > 0
+                  
+                  return (
+                    <Fragment key={log.id}>
+                      <TableRow
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => toggleRow(log.id)}
+                      >
+                        <TableCell className="font-mono text-sm">
+                          {format(new Date(log.timestamp), "dd-MM-yyyy HH:mm:ss", {
+                            locale: nl,
+                          })}
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">
+                              {log.user?.name || log.userEmail}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {log.userEmail}
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {log.isSuspicious && (
-                        <Badge variant="destructive" className="gap-1">
-                          <AlertTriangle className="h-3 w-3" />
-                          Verdacht
-                        </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getActionColor(log.action)}>
+                            {log.action}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{log.entityType}</div>
+                            {log.entityId && (
+                              <div className="text-xs text-muted-foreground">
+                                {log.entityId.substring(0, 8)}...
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {log.isSuspicious && (
+                              <Badge variant="destructive" className="gap-1">
+                                <AlertTriangle className="h-3 w-3" />
+                                Verdacht
+                              </Badge>
+                            )}
+                            {hasChanges && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toggleRow(log.id)
+                                }}
+                                className="text-muted-foreground hover:text-foreground"
+                              >
+                                {isExpanded ? (
+                                  <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4" />
+                                )}
+                              </button>
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedLog(log)
+                              }}
+                              className="text-muted-foreground hover:text-foreground"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                      {isExpanded && hasChanges && (
+                        <TableRow>
+                          <TableCell colSpan={5} className="bg-muted/30">
+                            <div className="py-3 space-y-2">
+                              <div className="text-sm font-medium mb-2">Wijzigingen:</div>
+                              <div className="space-y-2">{formatChanges(log.changes)}</div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
                       )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                    </Fragment>
+                  )
+                })}
               </TableBody>
             </Table>
 
@@ -324,6 +421,100 @@ export function AuditLogViewer({
           </div>
         )}
       </CardContent>
+
+      {/* Detail Dialog */}
+      <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Audit Log Details</DialogTitle>
+            <DialogDescription>
+              Volledige details van deze audit log entry
+            </DialogDescription>
+          </DialogHeader>
+          {selectedLog && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground">Datum/Tijd</div>
+                  <div className="font-mono text-sm">
+                    {format(new Date(selectedLog.timestamp), "dd-MM-yyyy HH:mm:ss", {
+                      locale: nl,
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground">Actie</div>
+                  <Badge className={getActionColor(selectedLog.action)}>
+                    {selectedLog.action}
+                  </Badge>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground">Gebruiker</div>
+                  <div>
+                    <div className="font-medium">
+                      {selectedLog.user?.name || selectedLog.userEmail}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {selectedLog.userEmail}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground">Entiteit</div>
+                  <div>
+                    <div className="font-medium">{selectedLog.entityType}</div>
+                    {selectedLog.entityId && (
+                      <div className="text-xs text-muted-foreground font-mono">
+                        {selectedLog.entityId}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {selectedLog.ipAddress && (
+                  <div>
+                    <div className="text-sm font-medium text-muted-foreground">IP Adres</div>
+                    <div className="font-mono text-sm">{selectedLog.ipAddress}</div>
+                  </div>
+                )}
+                {selectedLog.userAgent && (
+                  <div>
+                    <div className="text-sm font-medium text-muted-foreground">User Agent</div>
+                    <div className="text-xs break-all">{selectedLog.userAgent}</div>
+                  </div>
+                )}
+                {selectedLog.isSuspicious && (
+                  <div className="col-span-2">
+                    <div className="text-sm font-medium text-muted-foreground">Verdacht Reden</div>
+                    <div className="text-sm text-red-600">{selectedLog.suspiciousReason}</div>
+                  </div>
+                )}
+              </div>
+
+              {selectedLog.changes && Object.keys(selectedLog.changes).length > 0 && (
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground mb-2">
+                    Wijzigingen
+                  </div>
+                  <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+                    {formatChanges(selectedLog.changes)}
+                  </div>
+                </div>
+              )}
+
+              {selectedLog.metadata && (
+                <div>
+                  <div className="text-sm font-medium text-muted-foreground mb-2">
+                    Metadata
+                  </div>
+                  <pre className="border rounded-lg p-4 bg-muted/30 text-xs overflow-x-auto">
+                    {JSON.stringify(selectedLog.metadata, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { getCurrentUserId } from "@/lib/server-utils"
-import { requireSuperuser } from "@/lib/auth/admin-guard"
+import { requireAdmin, isSuperuser } from "@/lib/auth/admin-guard"
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // Alleen ADMIN en SUPERUSER hebben toegang
+    await requireAdmin()
+    
     const currentUserId = await getCurrentUserId()
     const { id } = params
+    const userIsSuperuser = await isSuperuser(currentUserId)
     
-    // Users can only see their own logs unless they're superuser
+    // Alleen SUPERUSER kan andere users' logs bekijken
     let targetUserId = id
-    try {
-      await requireSuperuser()
-    } catch {
-      // Not superuser, only allow viewing own logs
+    if (!userIsSuperuser) {
+      // ADMIN kan alleen eigen logs bekijken
       if (id !== currentUserId) {
         return NextResponse.json(
-          { error: "Unauthorized" },
+          { error: "Unauthorized - Alleen SUPERUSER kan andere gebruikers' logs bekijken" },
           { status: 403 }
         )
       }

@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { getCurrentUserId } from "@/lib/server-utils"
-import { requireSuperuser } from "@/lib/auth/admin-guard"
+import { requireAdmin, isSuperuser } from "@/lib/auth/admin-guard"
 
 export async function GET(request: NextRequest) {
   try {
-    // Only superusers can export all logs, regular users can export their own
-    let userId: string | undefined
-    let isSuperuser = false
+    // Alleen ADMIN en SUPERUSER hebben toegang
+    await requireAdmin()
     
-    try {
-      await requireSuperuser()
-      isSuperuser = true
-    } catch {
-      userId = await getCurrentUserId()
+    // Check if user is superuser for global access, otherwise only own logs
+    const currentUserId = await getCurrentUserId()
+    const userIsSuperuser = await isSuperuser(currentUserId)
+    
+    let userId: string | undefined
+    if (!userIsSuperuser) {
+      // ADMIN kan alleen eigen logs exporteren
+      userId = currentUserId
     }
     
     const { searchParams } = new URL(request.url)
@@ -23,7 +25,7 @@ export async function GET(request: NextRequest) {
     
     const where: any = {}
     
-    if (userId && !isSuperuser) {
+    if (userId) {
       where.userId = userId
     }
     

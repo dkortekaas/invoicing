@@ -15,6 +15,7 @@ import {
   Repeat,
   Receipt,
   Shield,
+  History,
 } from "lucide-react"
 
 import {
@@ -130,14 +131,24 @@ export function AppSidebar() {
                 )
               })}
               {isAdmin && (
-                <SidebarMenuItem className="py-1">
-                  <SidebarMenuButton asChild isActive={pathname?.startsWith('/admin')}>
-                    <Link href="/admin">
-                      <Shield />
-                      <span>Admin</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <>
+                  <SidebarMenuItem className="py-1">
+                    <SidebarMenuButton asChild isActive={pathname?.startsWith('/audit-logs')}>
+                      <Link href="/audit-logs">
+                        <History />
+                        <span>Audit Log</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem className="py-1">
+                    <SidebarMenuButton asChild isActive={pathname?.startsWith('/admin')}>
+                      <Link href="/admin">
+                        <Shield />
+                        <span>Admin</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
               )}
             </SidebarMenu>
           </SidebarGroupContent>

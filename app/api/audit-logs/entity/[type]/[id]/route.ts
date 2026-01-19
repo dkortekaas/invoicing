@@ -1,26 +1,37 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { getCurrentUserId } from "@/lib/server-utils"
+import { requireAdmin, isSuperuser } from "@/lib/auth/admin-guard"
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { type: string; id: string } }
 ) {
   try {
-    const userId = await getCurrentUserId()
+    // Alleen ADMIN en SUPERUSER hebben toegang
+    await requireAdmin()
+    
+    const currentUserId = await getCurrentUserId()
+    const userIsSuperuser = await isSuperuser(currentUserId)
     const { type, id } = params
+    
+    // Build where clause
+    const where: any = {
+      entityType: type,
+      entityId: id,
+    }
+    
+    // Alleen SUPERUSER kan alle logs zien, ADMIN alleen eigen logs
+    if (!userIsSuperuser) {
+      where.OR = [
+        { userId: currentUserId },
+        { userId: null }, // System logs
+      ]
+    }
     
     // Get all audit logs for this entity
     const logs = await db.auditLog.findMany({
-      where: {
-        entityType: type,
-        entityId: id,
-        // Only show logs for entities owned by the user (unless superuser)
-        OR: [
-          { userId },
-          { userId: null }, // System logs
-        ],
-      },
+      where,
       orderBy: { timestamp: "asc" },
       include: {
         user: {

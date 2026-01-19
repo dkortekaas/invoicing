@@ -50,6 +50,7 @@ export async function proxy(request: NextRequest) {
       const user = await db.user.findUnique({
         where: { id: token.id as string },
         select: {
+          role: true,
           subscriptionTier: true,
           subscriptionStatus: true,
           stripeCurrentPeriodEnd: true,
@@ -57,6 +58,11 @@ export async function proxy(request: NextRequest) {
       })
 
       if (user) {
+        // Superusers have access to everything, skip subscription check
+        if (user.role === 'SUPERUSER') {
+          return NextResponse.next()
+        }
+
         const isPro = user.subscriptionTier === 'PRO'
         const isActive = ['ACTIVE', 'TRIALING'].includes(user.subscriptionStatus)
         const notExpired = user.stripeCurrentPeriodEnd

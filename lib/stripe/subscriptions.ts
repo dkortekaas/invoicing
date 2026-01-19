@@ -26,6 +26,7 @@ export async function hasFeatureAccess(
   const user = await db.user.findUnique({
     where: { id: userId },
     select: {
+      role: true,
       subscriptionTier: true,
       subscriptionStatus: true,
       stripeCurrentPeriodEnd: true,
@@ -33,6 +34,11 @@ export async function hasFeatureAccess(
   });
 
   if (!user) return false;
+
+  // Superusers have access to everything
+  if (user.role === 'SUPERUSER') {
+    return true;
+  }
 
   // Check if subscription is active
   if (user.subscriptionTier === 'PRO') {
@@ -59,6 +65,7 @@ export async function canCreateInvoice(userId: string): Promise<{
   const user = await db.user.findUnique({
     where: { id: userId },
     select: {
+      role: true,
       subscriptionTier: true,
       subscriptionStatus: true,
       invoiceCount: true,
@@ -68,6 +75,11 @@ export async function canCreateInvoice(userId: string): Promise<{
 
   if (!user) {
     return { allowed: false, reason: 'User not found' };
+  }
+
+  // Superusers have unlimited access
+  if (user.role === 'SUPERUSER') {
+    return { allowed: true };
   }
 
   // Pro users have unlimited

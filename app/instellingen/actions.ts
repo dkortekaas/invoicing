@@ -17,7 +17,7 @@ import {
 } from "@/lib/validations"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { hashPassword } from "@/lib/auth-utils"
-import { logUpdate, logPasswordChange, logSettingsChange, log2FAChange } from "@/lib/audit/helpers"
+import { logUpdate, logPasswordChange } from "@/lib/audit/helpers"
 
 // ========== Profile Actions ==========
 export async function getProfile() {

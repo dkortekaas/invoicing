@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
         total: alerts.length,
         byReason: Object.keys(groupedAlerts).map((reason) => ({
           reason,
-          count: groupedAlerts[reason].length,
+          count: groupedAlerts[reason]?.length || 0,
         })),
       },
     })

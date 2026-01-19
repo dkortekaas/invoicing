@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { getCurrentUserId } from "@/lib/server-utils"
-import { requireAdmin, requireSuperuser, isSuperuser } from "@/lib/auth/admin-guard"
+import { requireAdmin, isSuperuser } from "@/lib/auth/admin-guard"
 
 export async function GET(request: NextRequest) {
   try {

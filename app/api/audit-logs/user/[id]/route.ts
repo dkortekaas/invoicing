@@ -5,14 +5,14 @@ import { requireAdmin, isSuperuser } from "@/lib/auth/admin-guard"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Alleen ADMIN en SUPERUSER hebben toegang
     await requireAdmin()
     
     const currentUserId = await getCurrentUserId()
-    const { id } = params
+    const { id } = await params
     const userIsSuperuser = await isSuperuser(currentUserId)
     
     // Alleen SUPERUSER kan andere users' logs bekijken

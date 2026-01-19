@@ -4,8 +4,8 @@ import { getCurrentUserId } from "@/lib/server-utils"
 import { requireAdmin, isSuperuser } from "@/lib/auth/admin-guard"
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { type: string; id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ type: string; id: string }> }
 ) {
   try {
     // Alleen ADMIN en SUPERUSER hebben toegang
@@ -13,7 +13,7 @@ export async function GET(
     
     const currentUserId = await getCurrentUserId()
     const userIsSuperuser = await isSuperuser(currentUserId)
-    const { type, id } = params
+    const { type, id } = await params
     
     // Build where clause
     const where: any = {

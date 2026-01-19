@@ -46,6 +46,7 @@ interface AuditLog {
   changes: any
   metadata: any
   ipAddress: string | null
+  userAgent: string | null
   isSuspicious: boolean
   suspiciousReason: string | null
 }

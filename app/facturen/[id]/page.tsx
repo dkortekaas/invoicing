@@ -26,7 +26,8 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import { formatCurrency, formatDate, formatDateLong } from "@/lib/utils"
-import { getInvoice } from "../actions"
+import { getInvoice, getInvoicePaymentInfo } from "../actions"
+import { PaymentSection } from "./payment-section"
 import { InvoiceActionsClient } from "./invoice-actions-client"
 import { InvoicePreview } from "./invoice-preview"
 import { EmailSendButton } from "@/components/email/email-send-button"
@@ -40,7 +41,10 @@ interface FactuurDetailPageProps {
 
 export default async function FactuurDetailPage({ params }: FactuurDetailPageProps) {
   const { id } = await params
-  const invoice = await getInvoice(id)
+  const [invoice, paymentInfo] = await Promise.all([
+    getInvoice(id),
+    getInvoicePaymentInfo(id),
+  ])
 
   if (!invoice) {
     notFound()
@@ -48,12 +52,12 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
 
   // Group VAT by rate for display
   const vatByRate = invoice.items.reduce((acc: Record<string, { subtotal: number; vatAmount: number }>, item: typeof invoice.items[0]) => {
-    const rate = item.vatRate.toNumber().toString()
+    const rate = item.vatRate.toString()
     if (!acc[rate]) {
       acc[rate] = { subtotal: 0, vatAmount: 0 }
     }
-    acc[rate].subtotal += item.subtotal.toNumber()
-    acc[rate].vatAmount += item.vatAmount.toNumber()
+    acc[rate].subtotal += item.subtotal
+    acc[rate].vatAmount += item.vatAmount
     return acc
   }, {} as Record<string, { subtotal: number; vatAmount: number }>)
 
@@ -200,7 +204,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                         {formatCurrency(item.unitPrice)}
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.vatRate.toNumber()}%
+                        {item.vatRate}%
                       </TableCell>
                       <TableCell className="text-right font-medium">
                         {formatCurrency(item.subtotal)}
@@ -323,6 +327,19 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
               </div>
             </CardContent>
           </Card>
+
+          {/* Payment Link */}
+          {paymentInfo && (
+            <PaymentSection
+              invoiceId={invoice.id}
+              invoiceNumber={invoice.invoiceNumber}
+              invoiceStatus={invoice.status}
+              paymentLinkToken={paymentInfo.paymentLinkToken}
+              paymentLinkExpiresAt={paymentInfo.paymentLinkExpiresAt}
+              mollieEnabled={paymentInfo.mollieEnabled}
+              payments={paymentInfo.payments}
+            />
+          )}
 
           {/* Email Actions */}
           {invoice.customer.email && (

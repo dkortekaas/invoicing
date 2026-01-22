@@ -75,6 +75,12 @@ model User {
   vatRegistered Boolean   @default(true)
   vatScheme     VATScheme @default(REGULAR)
 
+  // Mollie payment settings
+  mollieApiKey     String?   // Encrypted
+  mollieProfileId  String?
+  mollieEnabled    Boolean   @default(false)
+  mollieTestMode   Boolean   @default(true)
+
   // Analytics
   businessGoals      BusinessGoal[]
   analyticsSnapshots AnalyticsSnapshot[]
@@ -188,6 +194,11 @@ model Invoice {
   recurringInvoiceId String?
   recurringInvoice   RecurringInvoice? @relation(fields: [recurringInvoiceId], references: [id])
 
+  // Mollie payment link
+  paymentLinkToken     String?   @unique
+  paymentLinkExpiresAt DateTime?
+  payments             Payment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -196,6 +207,7 @@ model Invoice {
   @@index([status])
   @@index([invoiceDate])
   @@index([recurringInvoiceId])
+  @@index([paymentLinkToken])
 }
 
 model InvoiceItem {
@@ -234,6 +246,62 @@ enum InvoiceStatus {
   PAID // Betaald
   OVERDUE // Achterstallig
   CANCELLED // Geannuleerd
+}
+
+// Mollie Payment Models
+
+model Payment {
+  id              String    @id @default(cuid())
+  invoiceId       String
+  invoice         Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  molliePaymentId String    @unique
+  mollieStatus    String    // open, pending, paid, failed, canceled, expired
+  amount          Decimal   @db.Decimal(10, 2)
+  currency        String    @default("EUR")
+  method          String?   // ideal, bancontact, creditcard, etc.
+
+  consumerName    String?
+  consumerAccount String?   // IBAN
+
+  paidAt          DateTime?
+  expiresAt       DateTime?
+
+  metadata        Json?
+
+  events          PaymentEvent[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([invoiceId])
+  @@index([mollieStatus])
+  @@index([createdAt])
+}
+
+model PaymentEvent {
+  id          String           @id @default(cuid())
+  paymentId   String
+  payment     Payment          @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  eventType   PaymentEventType
+  mollieStatus String?
+  metadata    Json?
+
+  createdAt   DateTime         @default(now())
+
+  @@index([paymentId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+enum PaymentEventType {
+  PAYMENT_CREATED
+  PAYMENT_PAID
+  PAYMENT_FAILED
+  PAYMENT_CANCELED
+  PAYMENT_EXPIRED
+  WEBHOOK_RECEIVED
 }
 
 enum EmailType {

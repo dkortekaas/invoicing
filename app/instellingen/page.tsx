@@ -8,7 +8,8 @@ import { FinancieleGegevensForm } from "./financiele-gegevens-form"
 import { TwoFactorSetup } from "./2fa/two-factor-setup"
 import { WachtwoordForm } from "./wachtwoord-form"
 import { EmailSettingsForm } from "./email-form"
-import { getProfile, getCompanyInfo, getFinancialInfo, getEmailSettings } from "./actions"
+import { getProfile, getCompanyInfo, getFinancialInfo, getEmailSettings, getMollieSettings } from "./actions"
+import { MollieSettingsForm } from "./mollie-settings-form"
 
 export const dynamic = "force-dynamic"
 
@@ -35,11 +36,12 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
   }
 
   // Fetch all data in parallel
-  const [profile, companyInfo, financialInfo, emailSettings, params] = await Promise.all([
+  const [profile, companyInfo, financialInfo, emailSettings, mollieSettings, params] = await Promise.all([
     getProfile(),
     getCompanyInfo(),
     getFinancialInfo(),
     getEmailSettings(),
+    getMollieSettings(),
     searchParams,
   ])
 
@@ -56,12 +58,13 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
       </div>
 
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="profiel">Profiel</TabsTrigger>
           <TabsTrigger value="beveiliging">Beveiliging</TabsTrigger>
           <TabsTrigger value="bedrijfsgegevens">Bedrijfsgegevens</TabsTrigger>
-          <TabsTrigger value="financiele-gegevens">Financiële gegevens</TabsTrigger>
+          <TabsTrigger value="financiele-gegevens">Financieel</TabsTrigger>
           <TabsTrigger value="email">Email</TabsTrigger>
+          <TabsTrigger value="betalingen">Betalingen</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profiel" className="mt-6">
@@ -88,6 +91,10 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
 
         <TabsContent value="email" className="mt-6">
           <EmailSettingsForm initialData={emailSettings} />
+        </TabsContent>
+
+        <TabsContent value="betalingen" className="mt-6">
+          <MollieSettingsForm initialData={mollieSettings} />
         </TabsContent>
       </Tabs>
     </div>

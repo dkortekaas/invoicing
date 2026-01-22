@@ -789,6 +789,9 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 STRIPE_PRICE_ID_MONTHLY="price_..."
 STRIPE_PRICE_ID_YEARLY="price_..."
 
+# Mollie Payments (optioneel)
+MOLLIE_ENCRYPTION_KEY="generate-a-64-hex-character-key-here"
+
 # App URL
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
@@ -799,6 +802,11 @@ NODE_ENV="development"
 **Genereer een NEXTAUTH_SECRET:**
 ```bash
 openssl rand -base64 32
+```
+
+**Genereer een MOLLIE_ENCRYPTION_KEY (64 hex karakters):**
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 **Voor productie:**
@@ -813,6 +821,9 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_live_..."
 STRIPE_WEBHOOK_SECRET="whsec_..."
 STRIPE_PRICE_ID_MONTHLY="price_live_..."
 STRIPE_PRICE_ID_YEARLY="price_live_..."
+
+# Mollie Payments
+MOLLIE_ENCRYPTION_KEY="your-64-hex-character-encryption-key"
 
 NEXT_PUBLIC_APP_URL="https://your-domain.com"
 NODE_ENV="production"

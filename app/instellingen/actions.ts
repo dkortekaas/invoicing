@@ -14,7 +14,11 @@ import {
   type FinancialInfoFormData,
   changePasswordSchema,
   type ChangePasswordFormData,
+  mollieSettingsSchema,
+  type MollieSettingsFormData,
 } from "@/lib/validations"
+import { encryptApiKey, validateMollieApiKey } from "@/lib/mollie/encryption"
+import { MollieClient } from "@/lib/mollie/client"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { hashPassword } from "@/lib/auth-utils"
 import { logUpdate, logPasswordChange } from "@/lib/audit/helpers"
@@ -387,4 +391,121 @@ export async function updateEmailSettings(data: {
   })
 
   revalidatePath("/instellingen")
+}
+
+// ========== Mollie Settings Actions ==========
+export async function getMollieSettings() {
+  const userId = await getCurrentUserId()
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      mollieApiKey: true,
+      mollieEnabled: true,
+      mollieTestMode: true,
+    },
+  })
+
+  if (!user) {
+    throw new Error("User not found")
+  }
+
+  return {
+    mollieEnabled: user.mollieEnabled,
+    mollieTestMode: user.mollieTestMode,
+    hasApiKey: !!user.mollieApiKey,
+  }
+}
+
+export async function updateMollieSettings(data: MollieSettingsFormData) {
+  const validated = mollieSettingsSchema.parse(data)
+  const userId = await getCurrentUserId()
+
+  // Validate API key format
+  const keyValidation = validateMollieApiKey(validated.mollieApiKey)
+  if (!keyValidation.valid) {
+    throw new Error(keyValidation.error || "Ongeldige API key")
+  }
+
+  // Encrypt the API key
+  const encryptedApiKey = encryptApiKey(validated.mollieApiKey)
+
+  // Get current settings for audit logging
+  const currentUser = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      mollieEnabled: true,
+      mollieTestMode: true,
+      mollieApiKey: true,
+    },
+  })
+
+  await db.user.update({
+    where: { id: userId },
+    data: {
+      mollieApiKey: encryptedApiKey,
+      mollieEnabled: validated.mollieEnabled,
+      mollieTestMode: keyValidation.isTestKey,
+    },
+  })
+
+  // Log audit trail (don't log actual API key values)
+  if (currentUser) {
+    await logUpdate(
+      "settings",
+      userId,
+      {
+        mollieEnabled: currentUser.mollieEnabled,
+        mollieTestMode: currentUser.mollieTestMode,
+        mollieApiKeyConfigured: !!currentUser.mollieApiKey,
+      },
+      {
+        mollieEnabled: validated.mollieEnabled,
+        mollieTestMode: keyValidation.isTestKey,
+        mollieApiKeyConfigured: true,
+      },
+      userId
+    )
+  }
+
+  revalidatePath("/instellingen")
+}
+
+export async function testMollieConnection(): Promise<{
+  success: boolean
+  mode?: "test" | "live"
+  error?: string
+}> {
+  const userId = await getCurrentUserId()
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      mollieApiKey: true,
+      mollieTestMode: true,
+    },
+  })
+
+  if (!user || !user.mollieApiKey) {
+    return { success: false, error: "Geen API key geconfigureerd" }
+  }
+
+  try {
+    const { decryptApiKey } = await import("@/lib/mollie/encryption")
+    const apiKey = decryptApiKey(user.mollieApiKey)
+
+    const client = new MollieClient({
+      apiKey,
+      testMode: user.mollieTestMode,
+    })
+
+    const result = await client.testConnection()
+    return result
+  } catch (error) {
+    console.error("Mollie connection test failed:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Verbinding mislukt",
+    }
+  }
 }

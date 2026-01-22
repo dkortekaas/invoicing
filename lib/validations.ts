@@ -217,3 +217,18 @@ export const changePasswordSchema = z
   })
 
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>
+
+// ========== Mollie Settings Schema ==========
+export const mollieSettingsSchema = z.object({
+  mollieApiKey: z
+    .string()
+    .min(1, "API key is verplicht")
+    .refine(
+      (val) => val.startsWith("test_") || val.startsWith("live_"),
+      "API key moet beginnen met 'test_' of 'live_'"
+    ),
+  mollieEnabled: z.boolean(),
+  mollieTestMode: z.boolean(),
+})
+
+export type MollieSettingsFormData = z.infer<typeof mollieSettingsSchema>

@@ -26,7 +26,22 @@ export async function sendInvoiceEmail({
       items: {
         orderBy: { sortOrder: 'asc' }
       },
-      user: true,
+      user: {
+        select: {
+          companyName: true,
+          companyEmail: true,
+          companyPhone: true,
+          companyAddress: true,
+          companyPostalCode: true,
+          companyCity: true,
+          companyCountry: true,
+          companyLogo: true,
+          vatNumber: true,
+          kvkNumber: true,
+          iban: true,
+          mollieEnabled: true,
+        },
+      },
     },
   });
 
@@ -36,6 +51,18 @@ export async function sendInvoiceEmail({
 
   if (!invoice.customer.email) {
     throw new Error('Klant heeft geen e-mailadres');
+  }
+
+  // Build payment URL if Mollie is enabled and payment link exists
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  let paymentUrl: string | undefined;
+
+  if (invoice.user.mollieEnabled && invoice.paymentLinkToken) {
+    const expiresAt = invoice.paymentLinkExpiresAt;
+    // Only include payment URL if link is not expired
+    if (!expiresAt || new Date() < expiresAt) {
+      paymentUrl = `${APP_URL}/pay/${invoice.paymentLinkToken}`;
+    }
   }
 
   // Format data voor email template
@@ -65,6 +92,7 @@ export async function sendInvoiceEmail({
     companyPhone: invoice.user.companyPhone || undefined,
     reference: invoice.reference || undefined,
     notes: invoice.notes || undefined,
+    paymentUrl,
   };
 
   // Preview mode: return HTML only

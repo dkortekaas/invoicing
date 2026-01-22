@@ -28,7 +28,7 @@ export async function getInvoices(status?: string) {
 export async function getInvoice(id: string) {
   const userId = await getCurrentUserId()
   const invoice = await db.invoice.findUnique({
-    where: { id, userId },
+    where: { id },
     include: {
       customer: true,
       items: {
@@ -40,7 +40,27 @@ export async function getInvoice(id: string) {
       },
     },
   })
-  return invoice
+  
+  // Verify invoice belongs to user
+  if (!invoice || invoice.userId !== userId) {
+    return null
+  }
+  
+  // Convert Decimal fields to numbers for serialization
+  return {
+    ...invoice,
+    subtotal: invoice.subtotal.toNumber(),
+    vatAmount: invoice.vatAmount.toNumber(),
+    total: invoice.total.toNumber(),
+    items: invoice.items.map((item) => ({
+      ...item,
+      quantity: item.quantity.toNumber(),
+      unitPrice: item.unitPrice.toNumber(),
+      vatRate: item.vatRate.toNumber(),
+      subtotal: item.subtotal.toNumber(),
+      vatAmount: item.vatAmount.toNumber(),
+    })),
+  }
 }
 
 export async function getNextInvoiceNumber() {
@@ -287,12 +307,16 @@ export async function updateInvoiceStatus(
   
   // Get current invoice for audit logging
   const currentInvoice = await db.invoice.findUnique({
-    where: { id, userId },
-    select: { status: true, total: true },
+    where: { id },
+    select: { userId: true, status: true, total: true },
   })
   
+  if (!currentInvoice || currentInvoice.userId !== userId) {
+    throw new Error("Factuur niet gevonden")
+  }
+  
   const invoice = await db.invoice.update({
-    where: { id, userId },
+    where: { id },
     data: updateData,
   })
 
@@ -315,7 +339,14 @@ export async function updateInvoiceStatus(
   revalidatePath("/facturen")
   revalidatePath(`/facturen/${id}`)
   revalidatePath("/")
-  return invoice
+  
+  // Convert Decimal fields to numbers for serialization
+  return {
+    ...invoice,
+    subtotal: invoice.subtotal.toNumber(),
+    vatAmount: invoice.vatAmount.toNumber(),
+    total: invoice.total.toNumber(),
+  }
 }
 
 export async function deleteInvoice(id: string) {
@@ -323,14 +354,19 @@ export async function deleteInvoice(id: string) {
   
   // Get invoice data before deletion for audit logging
   const invoice = await db.invoice.findUnique({
-    where: { id, userId },
+    where: { id },
     select: {
+      userId: true,
       invoiceNumber: true,
       customerId: true,
       total: true,
       status: true,
     },
   })
+  
+  if (!invoice || invoice.userId !== userId) {
+    throw new Error("Factuur niet gevonden")
+  }
   
   await db.invoice.delete({
     where: { id, userId },
@@ -438,4 +474,113 @@ export async function getRecentInvoices(limit = 5) {
     },
   })
   return invoices
+}
+
+// ========== Payment Link Actions ==========
+export async function generatePaymentLink(invoiceId: string) {
+  const userId = await getCurrentUserId()
+
+  // Verify invoice belongs to user
+  const invoice = await db.invoice.findUnique({
+    where: { id: invoiceId },
+    include: {
+      user: {
+        select: { mollieEnabled: true },
+      },
+    },
+  })
+
+  if (!invoice || invoice.userId !== userId) {
+    throw new Error("Factuur niet gevonden")
+  }
+
+  if (!invoice.user.mollieEnabled) {
+    throw new Error("Mollie betalingen zijn niet ingeschakeld")
+  }
+
+  if (invoice.status === "PAID") {
+    throw new Error("Deze factuur is al betaald")
+  }
+
+  if (invoice.status === "CANCELLED") {
+    throw new Error("Deze factuur is geannuleerd")
+  }
+
+  // Generate payment link
+  const { createPaymentLink } = await import("@/lib/mollie/payments")
+  const result = await createPaymentLink(invoiceId)
+
+  revalidatePath(`/facturen/${invoiceId}`)
+  return result
+}
+
+export async function getInvoicePaymentInfo(invoiceId: string) {
+  const userId = await getCurrentUserId()
+
+  const invoice = await db.invoice.findUnique({
+    where: { id: invoiceId },
+    include: {
+      user: {
+        select: {
+          mollieEnabled: true,
+        },
+      },
+      payments: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          mollieStatus: true,
+          amount: true,
+          method: true,
+          paidAt: true,
+          createdAt: true,
+          consumerName: true,
+        },
+      },
+    },
+  })
+
+  if (!invoice || invoice.userId !== userId) {
+    return null
+  }
+
+  return {
+    paymentLinkToken: invoice.paymentLinkToken,
+    paymentLinkExpiresAt: invoice.paymentLinkExpiresAt,
+    mollieEnabled: invoice.user.mollieEnabled,
+    payments: invoice.payments.map((payment) => ({
+      ...payment,
+      amount: payment.amount.toNumber(),
+    })),
+  }
+}
+
+export async function getRecentPayments(limit = 5) {
+  const userId = await getCurrentUserId()
+
+  const payments = await db.payment.findMany({
+    where: {
+      invoice: {
+        userId,
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      invoice: {
+        select: {
+          id: true,
+          invoiceNumber: true,
+          customer: {
+            select: {
+              name: true,
+              companyName: true,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  return payments
 }

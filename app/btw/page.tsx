@@ -75,13 +75,13 @@ export default async function BTWPage() {
 
         <div className="flex items-center gap-2">
           <Button variant="outline" asChild>
-            <Link href="/btw/kosten">
+            <Link href="/kosten">
               <FileSpreadsheet className="mr-2 h-4 w-4" />
               Kosten
             </Link>
           </Button>
           <Button asChild>
-            <Link href="/btw/kosten/nieuw">
+            <Link href="/kosten/nieuw">
               <Plus className="mr-2 h-4 w-4" />
               Nieuwe uitgave
             </Link>

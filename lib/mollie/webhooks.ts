@@ -1,5 +1,5 @@
 import { db } from "@/lib/db"
-import { createMollieClientFromInvoice, MollieClient } from "./client"
+import { createMollieClientFromInvoice } from "./client"
 import { statusToEventType } from "./payments"
 import type { MolliePaymentResponse, MolliePaymentStatus } from "./types"
 
@@ -117,7 +117,7 @@ export async function handlePaymentWebhook(molliePaymentId: string): Promise<{
  * Handle successful payment
  */
 async function handlePaymentPaid(
-  paymentId: string,
+  _paymentId: string,
   invoice: {
     id: string
     invoiceNumber: string
@@ -168,7 +168,7 @@ async function sendPaymentConfirmationEmail(
     user: { id: string; email: string }
     customer: { name: string; email: string }
   },
-  molliePayment: MolliePaymentResponse
+  _molliePayment: MolliePaymentResponse
 ) {
   // Check if user has auto-send payment confirm enabled
   const emailSettings = await db.emailSettings.findUnique({

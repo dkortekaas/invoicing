@@ -1,9 +1,8 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { PaymentStatusBadge } from "./payment-status-badge"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import { CreditCard, ArrowRight } from "lucide-react"
+import { CreditCard } from "lucide-react"
 
 interface Payment {
   id: string

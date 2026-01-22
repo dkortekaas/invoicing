@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -28,10 +29,11 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Upload, X, FileText, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 const expenseSchema = z.object({
   date: z.date(),
@@ -73,6 +75,9 @@ interface ExpenseFormProps {
 export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(expense?.receipt || null);
+  const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ExpenseFormData>({
     resolver: zodResolver(expenseSchema),
@@ -98,6 +103,92 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
     },
   });
 
+  const handleReceiptUpload = async (file: File) => {
+    setIsUploadingReceipt(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      if (expense?.id) {
+        formData.append('expenseId', expense.id);
+      }
+
+      const response = await fetch('/api/upload/receipt', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Fout bij uploaden bestand');
+      }
+
+      const data = await response.json();
+      setReceiptUrl(data.url);
+      toast.success('Bestand geüpload');
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast.error(error.message || 'Fout bij uploaden bestand');
+    } finally {
+      setIsUploadingReceipt(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = [
+      'image/png',
+      'image/jpeg',
+      'image/jpg',
+      'image/webp',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Alleen PDF, afbeeldingen of Word documenten zijn toegestaan');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Bestand is te groot. Maximum 5MB toegestaan');
+      return;
+    }
+
+    await handleReceiptUpload(file);
+  };
+
+  const handleRemoveReceipt = async () => {
+    if (!expense?.id) {
+      setReceiptUrl(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/expenses/${expense.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receipt: null }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to remove receipt');
+      }
+
+      setReceiptUrl(null);
+      toast.success('Bestand verwijderd');
+    } catch (error) {
+      console.error('Remove receipt error:', error);
+      toast.error('Fout bij verwijderen bestand');
+    }
+  };
+
   const onSubmit = async (data: ExpenseFormData) => {
     setLoading(true);
     try {
@@ -107,7 +198,10 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          receipt: receiptUrl,
+        }),
       });
 
       if (!response.ok) {
@@ -117,10 +211,10 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push('/btw/kosten');
+        router.push('/kosten');
         router.refresh();
       }
-      toast.success(expense ? 'Kost bijgewerkt' : 'Kost toegevoegd');
+      toast.success(expense ? 'Kosten bijgewerkt' : 'Kosten toegevoegd');
     } catch (error) {
       console.error('Submit error:', error);
       toast.error('Er is een fout opgetreden');
@@ -369,6 +463,76 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
             </FormItem>
           )}
         />
+
+        <FormItem>
+          <FormLabel>Factuur/Bon</FormLabel>
+          <div className="space-y-4">
+            {receiptUrl && (
+              <div className="flex items-center gap-4 p-4 border rounded-lg">
+                <FileText className="h-8 w-8 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Bestand geüpload</p>
+                  <Link
+                    href={receiptUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Bekijk bestand
+                  </Link>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleRemoveReceipt}
+                  disabled={isUploadingReceipt}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <Input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx"
+                onChange={handleFileSelect}
+                disabled={isUploadingReceipt || loading}
+                className="hidden"
+                id="receipt-upload"
+              />
+              <Label
+                htmlFor="receipt-upload"
+                className="cursor-pointer"
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isUploadingReceipt || loading}
+                  asChild
+                >
+                  <span>
+                    {isUploadingReceipt ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploaden...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        {receiptUrl ? 'Bestand wijzigen' : 'Factuur/Bon uploaden'}
+                      </>
+                    )}
+                  </span>
+                </Button>
+              </Label>
+            </div>
+            <FormDescription>
+              Upload een PDF, afbeelding of Word document van de factuur of bon. Maximaal 5MB.
+            </FormDescription>
+          </div>
+        </FormItem>
 
         <div className="flex justify-end gap-4">
           <Button

@@ -72,7 +72,7 @@ export default async function ExpensesPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/btw/kosten/nieuw">
+          <Link href="/kosten/nieuw">
             <Plus className="mr-2 h-4 w-4" />
             Nieuwe uitgave
           </Link>
@@ -104,7 +104,7 @@ export default async function ExpensesPage() {
                   <TableRow key={expense.id}>
                     <TableCell>{format(new Date(expense.date), 'dd-MM-yyyy', { locale: nl })}</TableCell>
                     <TableCell>
-                      <Link href={`/btw/kosten/${expense.id}`} className="hover:underline">
+                      <Link href={`/kosten/${expense.id}`} className="hover:underline">
                         {expense.description}
                       </Link>
                     </TableCell>

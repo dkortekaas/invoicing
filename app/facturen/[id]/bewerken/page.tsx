@@ -51,9 +51,9 @@ export default async function FactuurBewerkenPage({ params }: FactuurBewerkenPag
     internalNotes: invoice.internalNotes || "",
     items: invoice.items.map((item: typeof invoice.items[0]) => ({
       description: item.description,
-      quantity: item.quantity.toNumber(),
-      unitPrice: item.unitPrice.toNumber(),
-      vatRate: item.vatRate.toNumber(),
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      vatRate: item.vatRate,
       unit: item.unit,
     })),
   }

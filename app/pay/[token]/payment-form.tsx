@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -32,7 +31,6 @@ interface PaymentFormProps {
 }
 
 export function PaymentForm({ token, invoiceId, amount, pendingPayment }: PaymentFormProps) {
-  const router = useRouter()
   const [issuers, setIssuers] = useState<Issuer[]>([])
   const [selectedIssuer, setSelectedIssuer] = useState<string>("")
   const [isLoading, setIsLoading] = useState(true)

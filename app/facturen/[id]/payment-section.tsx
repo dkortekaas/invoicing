@@ -2,7 +2,7 @@
 
 import { PaymentLinkGenerator } from "@/components/payments/payment-link-generator"
 import { PaymentStatusBadge } from "@/components/payments/payment-status-badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { generatePaymentLink } from "../actions"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { CreditCard } from "lucide-react"

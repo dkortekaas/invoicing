@@ -147,7 +147,7 @@ export function PaymentLinkGenerator({
                 variant="outline"
                 size="icon"
                 onClick={handleCopyLink}
-                disabled={isExpired}
+                disabled={!!isExpired}
               >
                 {copied ? (
                   <Check className="h-4 w-4 text-green-600" />
@@ -159,7 +159,7 @@ export function PaymentLinkGenerator({
                 variant="outline"
                 size="icon"
                 onClick={() => setShowQR(!showQR)}
-                disabled={isExpired}
+                disabled={!!isExpired}
               >
                 <QrCode className="h-4 w-4" />
               </Button>
@@ -176,7 +176,7 @@ export function PaymentLinkGenerator({
                 variant="outline"
                 size="sm"
                 asChild
-                disabled={isExpired}
+                disabled={!!isExpired}
               >
                 <a href={paymentUrl || "#"} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="mr-2 h-4 w-4" />

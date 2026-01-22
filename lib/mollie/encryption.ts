@@ -2,7 +2,6 @@ import { createCipheriv, createDecipheriv, randomBytes } from "crypto"
 
 const ALGORITHM = "aes-256-gcm"
 const IV_LENGTH = 16
-const AUTH_TAG_LENGTH = 16
 
 function getEncryptionKey(): Buffer {
   const key = process.env.MOLLIE_ENCRYPTION_KEY
@@ -53,6 +52,9 @@ export function decryptApiKey(encryptedData: string): string {
   }
 
   const [ivBase64, authTagBase64, encrypted] = parts
+  if (!ivBase64 || !authTagBase64 || !encrypted) {
+    throw new Error("Invalid encrypted data format")
+  }
   const iv = Buffer.from(ivBase64, "base64")
   const authTag = Buffer.from(authTagBase64, "base64")
 

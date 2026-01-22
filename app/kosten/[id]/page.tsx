@@ -24,8 +24,18 @@ export default async function EditExpensePage({
   });
 
   if (!expense) {
-    redirect('/btw/kosten');
+    redirect('/kosten');
   }
+
+  // Convert Decimal fields to numbers for Client Component serialization
+  const serializedExpense = {
+    ...expense,
+    amount: expense.amount.toNumber(),
+    vatAmount: expense.vatAmount.toNumber(),
+    vatRate: expense.vatRate.toNumber(),
+    netAmount: expense.netAmount.toNumber(),
+    deductiblePerc: expense.deductiblePerc.toNumber(),
+  };
 
   return (
     <div className="space-y-6">
@@ -41,7 +51,7 @@ export default async function EditExpensePage({
           <CardTitle>Uitgave details</CardTitle>
         </CardHeader>
         <CardContent>
-          <ExpenseForm expense={expense} />
+          <ExpenseForm expense={serializedExpense} />
         </CardContent>
       </Card>
     </div>

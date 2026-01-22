@@ -25,8 +25,8 @@ export default async function CompletePage({ params }: CompletePageProps) {
   }
 
   // If there's a recent payment, sync its status
-  if (invoice.payments.length > 0) {
-    const latestPayment = invoice.payments[0]
+  const latestPayment = invoice.payments[0]
+  if (latestPayment) {
     await syncPaymentStatus(latestPayment.id)
 
     // Reload to get updated status

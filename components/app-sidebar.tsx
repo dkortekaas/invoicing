@@ -16,6 +16,7 @@ import {
   Receipt,
   Shield,
   History,
+  Euro,
 } from "lucide-react"
 
 import {
@@ -61,6 +62,11 @@ const navigation = [
     title: "Producten",
     url: "/producten",
     icon: Package,
+  },
+  {
+    title: "Kosten",
+    url: "/kosten",
+    icon: Euro,
   },
   {
     title: "BTW",

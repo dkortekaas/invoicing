@@ -1,8 +1,6 @@
 import { Metadata } from "next"
-import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { CheckCircle, Home, Mail } from "lucide-react"
+import { CheckCircle, Mail } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Betaling geslaagd",

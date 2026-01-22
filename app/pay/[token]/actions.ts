@@ -24,8 +24,9 @@ export async function getPaymentPageData(token: string) {
   }
 
   // Check for pending payment
-  const pendingPayment = invoice.payments.length > 0 &&
-    ["open", "pending"].includes(invoice.payments[0].mollieStatus)
+  const firstPayment = invoice.payments[0]
+  const pendingPayment = firstPayment &&
+    ["open", "pending"].includes(firstPayment.mollieStatus)
 
   return {
     found: true as const,
@@ -52,9 +53,9 @@ export async function getPaymentPageData(token: string) {
         total: item.total,
       })),
     },
-    pendingPayment: pendingPayment ? {
-      id: invoice.payments[0].id,
-      status: invoice.payments[0].mollieStatus,
+    pendingPayment: pendingPayment && firstPayment ? {
+      id: firstPayment.id,
+      status: firstPayment.mollieStatus,
     } : null,
   }
 }

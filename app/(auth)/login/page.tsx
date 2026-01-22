@@ -39,7 +39,7 @@ function LoginForm() {
     },
   })
 
-  const callbackUrl = searchParams.get("callbackUrl") || "/"
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
 
   async function onSubmit(data: LoginFormData & { twoFactorCode?: string }) {
     setIsLoading(true)

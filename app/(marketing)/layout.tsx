@@ -2,13 +2,13 @@ import type { Metadata } from 'next';
 import Header from '@/components/marketing/header';
 import Footer from '@/components/marketing/footer';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://betaalme.nl';
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://declair.app';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'BetaalMe - Facturatie Software voor ZZP\'ers | Snel Betaald Worden',
-    template: '%s | BetaalMe',
+    default: 'Declair - Facturatie Software voor ZZP\'ers | Snel Betaald Worden',
+    template: '%s | Declair',
   },
   description: 'Professionele facturatiesoftware voor ZZP\'ers en kleine bedrijven. Maak facturen in 1 minuut, automatische betaalherinneringen, iDEAL-betaallink. Gratis starten.',
   keywords: [
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
     'ideal betaallink',
     'freelancer facturatie',
   ],
-  authors: [{ name: 'BetaalMe' }],
-  creator: 'BetaalMe',
+  authors: [{ name: 'Declair' }],
+  creator: 'Declair',
   publisher: 'Shortcheese Solutions',
   robots: {
     index: true,
@@ -43,21 +43,21 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'nl_NL',
     url: siteUrl,
-    siteName: 'BetaalMe',
-    title: 'BetaalMe - Facturatie Software voor ZZP\'ers',
+    siteName: 'Declair',
+    title: 'Declair - Facturatie Software voor ZZP\'ers',
     description: 'Professionele facturatiesoftware voor ZZP\'ers. Maak facturen in 1 minuut, automatische betaalherinneringen, iDEAL-betaallink. Gratis starten.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'BetaalMe - Facturatie Software',
+        alt: 'Declair - Facturatie Software',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'BetaalMe - Facturatie Software voor ZZP\'ers',
+    title: 'Declair - Facturatie Software voor ZZP\'ers',
     description: 'Professionele facturatiesoftware voor ZZP\'ers. Maak facturen in 1 minuut. Gratis starten.',
     images: ['/og-image.png'],
   },
@@ -78,7 +78,7 @@ export default function MarketingLayout({
       {
         '@type': 'Organization',
         '@id': `${siteUrl}/#organization`,
-        name: 'BetaalMe',
+        name: 'Declair',
         url: siteUrl,
         logo: {
           '@type': 'ImageObject',
@@ -90,7 +90,7 @@ export default function MarketingLayout({
         '@type': 'WebSite',
         '@id': `${siteUrl}/#website`,
         url: siteUrl,
-        name: 'BetaalMe',
+        name: 'Declair',
         publisher: {
           '@id': `${siteUrl}/#organization`,
         },
@@ -98,7 +98,7 @@ export default function MarketingLayout({
       },
       {
         '@type': 'SoftwareApplication',
-        name: 'BetaalMe',
+        name: 'Declair',
         applicationCategory: 'BusinessApplication',
         operatingSystem: 'Web',
         offers: {

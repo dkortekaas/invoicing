@@ -7,14 +7,14 @@ const Footer = () => {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4" aria-label="BetaalMe - Naar homepage">
+            <Link href="/" className="flex items-center gap-2 mb-4" aria-label="Declair - Naar homepage">
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center" aria-hidden="true">
                 <span className="text-primary-foreground font-bold text-lg">B</span>
               </div>
-              <span className="font-bold text-xl text-background">BetaalMe</span>
+              <span className="font-bold text-xl text-background">Declair</span>
             </Link>
             <p className="text-sm text-background/60 leading-relaxed">
-              Factureren zonder gedoe voor zzp&apos;ers en eenmanszaken. Gemaakt om betaald te worden.
+              Factureren zonder gedoe voor zzp&apos;ers en eenmanszaken. Jouw administratie. Helder geregeld.
             </p>
           </div>
 
@@ -106,7 +106,7 @@ const Footer = () => {
 
         <div className="mt-12 pt-8 border-t border-background/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-background/50">
-            © {new Date().getFullYear()} BetaalMe.nl. Alle rechten voorbehouden.
+            © {new Date().getFullYear()} Declair.nl. Alle rechten voorbehouden.
           </p>
           <p className="text-sm text-background/50">
             Shortcheese Solutions

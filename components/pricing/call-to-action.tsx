@@ -32,7 +32,7 @@ const PricingCTA = () => {
           </h2>
 
           <p className="text-lg text-primary-foreground/80 mb-10 animate-fade-up delay-100">
-            Start vandaag met BetaalMe. Gratis en binnen een minuut aan de slag.
+            Start vandaag met Declair. Gratis en binnen een minuut aan de slag.
           </p>
 
           <div className="animate-fade-up delay-200">

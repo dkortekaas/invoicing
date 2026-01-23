@@ -115,7 +115,7 @@ export const UNITS = [
   { value: "km", label: "Kilometer" },
 ] as const
 
-// Status labels in Nederlands
+// Invoice Status labels in Nederlands
 export const STATUS_LABELS: Record<string, string> = {
   DRAFT: "Concept",
   SENT: "Verzonden",
@@ -124,7 +124,7 @@ export const STATUS_LABELS: Record<string, string> = {
   CANCELLED: "Geannuleerd",
 }
 
-// Status kleuren voor badges
+// Invoice Status kleuren voor badges
 export const STATUS_COLORS: Record<string, string> = {
   DRAFT: "bg-gray-100 text-gray-800",
   SENT: "bg-blue-100 text-blue-800",
@@ -132,3 +132,52 @@ export const STATUS_COLORS: Record<string, string> = {
   OVERDUE: "bg-red-100 text-red-800",
   CANCELLED: "bg-gray-100 text-gray-500",
 }
+
+// Generate credit nota nummer: CN-YYYY-0001
+export function generateCreditNoteNumber(year: number, sequence: number): string {
+  return `CN-${year}-${sequence.toString().padStart(4, "0")}`
+}
+
+// Credit Note Status labels in Nederlands
+export const CREDIT_NOTE_STATUS_LABELS: Record<string, string> = {
+  DRAFT: "Concept",
+  FINAL: "Definitief",
+  SENT: "Verzonden",
+  PROCESSED: "Verwerkt",
+  REFUNDED: "Terugbetaald",
+}
+
+// Credit Note Status kleuren voor badges
+export const CREDIT_NOTE_STATUS_COLORS: Record<string, string> = {
+  DRAFT: "bg-gray-100 text-gray-800",
+  FINAL: "bg-purple-100 text-purple-800",
+  SENT: "bg-blue-100 text-blue-800",
+  PROCESSED: "bg-green-100 text-green-800",
+  REFUNDED: "bg-emerald-100 text-emerald-800",
+}
+
+// Credit Note Reason labels in Nederlands
+export const CREDIT_NOTE_REASON_LABELS: Record<string, string> = {
+  PRICE_CORRECTION: "Prijscorrectie",
+  QUANTITY_CORRECTION: "Aantalaanpassing",
+  RETURN: "Retour",
+  CANCELLATION: "Annulering",
+  DISCOUNT_AFTER: "Korting achteraf",
+  VAT_CORRECTION: "BTW correctie",
+  DUPLICATE_INVOICE: "Dubbele factuur",
+  GOODWILL: "Coulance",
+  OTHER: "Overig",
+}
+
+// Credit Note Reason options for forms
+export const CREDIT_NOTE_REASONS = [
+  { value: "PRICE_CORRECTION", label: "Prijscorrectie" },
+  { value: "QUANTITY_CORRECTION", label: "Aantalaanpassing" },
+  { value: "RETURN", label: "Retour" },
+  { value: "CANCELLATION", label: "Annulering" },
+  { value: "DISCOUNT_AFTER", label: "Korting achteraf" },
+  { value: "VAT_CORRECTION", label: "BTW correctie" },
+  { value: "DUPLICATE_INVOICE", label: "Dubbele factuur" },
+  { value: "GOODWILL", label: "Coulance" },
+  { value: "OTHER", label: "Overig" },
+] as const

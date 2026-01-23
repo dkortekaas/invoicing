@@ -10,7 +10,7 @@ export function MarketingHeader() {
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold text-xl">
           <FileText className="h-6 w-6" />
-          BetaalMe
+          Declair
         </Link>
         <nav className="flex items-center gap-6">
           <Link

@@ -32,7 +32,7 @@ const CTA = () => {
           </h2>
 
           <p className="text-lg text-primary-foreground/80 mb-10 animate-fade-up delay-100">
-            Start vandaag nog met BetaalMe. Gratis en binnen een minuut aan de slag.
+            Start vandaag nog met Declair. Gratis en binnen een minuut aan de slag.
           </p>
 
           <div className="animate-fade-up delay-200">
@@ -42,7 +42,7 @@ const CTA = () => {
               asChild
             >
               <Link href="/register">
-                Start vandaag met BetaalMe
+                Start vandaag met Declair
                 <ArrowRight className="w-5 h-5" aria-hidden="true" />
               </Link>
             </Button>

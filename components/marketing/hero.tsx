@@ -41,7 +41,7 @@ const Hero = () => {
             <br />
             <span className="text-primary">Word betaald.</span>
             <br />
-            BetaalMe.
+            Declair.
           </h1>
 
           {/* Subheadline */}

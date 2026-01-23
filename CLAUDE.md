@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-BetaalMe is a Dutch invoicing web application for ZZP-ers (freelancers) and small businesses. It handles invoices, customers, products, time tracking, recurring invoices, VAT reporting, and analytics with full Dutch localization.
+Declair is a Dutch invoicing web application for ZZP-ers (freelancers) and small businesses. It handles invoices, customers, products, time tracking, recurring invoices, VAT reporting, and analytics with full Dutch localization.
 
 ## Commands
 

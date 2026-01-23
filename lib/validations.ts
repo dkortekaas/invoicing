@@ -81,6 +81,69 @@ export const invoiceSchema = z.object({
 
 export type InvoiceFormData = z.infer<typeof invoiceSchema>
 
+// ========== Credit Note Item Schema ==========
+export const creditNoteItemSchema = z.object({
+  description: z.string().min(1, "Omschrijving is verplicht"),
+  quantity: z.number()
+    .positive("Aantal moet hoger dan 0 zijn")
+    .multipleOf(0.01, "Maximaal 2 decimalen"),
+  unitPrice: z.number()
+    .min(0, "Prijs mag niet negatief zijn")
+    .multipleOf(0.01, "Maximaal 2 decimalen"),
+  vatRate: z.number()
+    .refine((val) => [0, 9, 21].includes(val), "Kies 0%, 9% of 21%"),
+  unit: z.string().min(1, "Eenheid is verplicht"),
+  originalInvoiceItemId: z.string().optional().nullable(),
+})
+
+export type CreditNoteItemFormData = z.infer<typeof creditNoteItemSchema>
+
+// ========== Credit Note Reason Enum ==========
+export const creditNoteReasons = [
+  "PRICE_CORRECTION",
+  "QUANTITY_CORRECTION",
+  "RETURN",
+  "CANCELLATION",
+  "DISCOUNT_AFTER",
+  "VAT_CORRECTION",
+  "DUPLICATE_INVOICE",
+  "GOODWILL",
+  "OTHER",
+] as const
+
+export type CreditNoteReason = typeof creditNoteReasons[number]
+
+// ========== Credit Note Schema ==========
+export const creditNoteSchema = z.object({
+  customerId: z.string().min(1, "Selecteer een klant"),
+  creditNoteDate: z.date(),
+  reason: z.enum(creditNoteReasons, {
+    errorMap: () => ({ message: "Selecteer een reden" }),
+  }),
+  originalInvoiceId: z.string().optional().nullable(),
+  originalInvoiceNumber: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  internalNotes: z.string().optional().nullable(),
+  items: z
+    .array(creditNoteItemSchema)
+    .min(1, "Voeg minimaal één regel toe"),
+}).refine(
+  (data) => {
+    // If reason is OTHER, description is required
+    if (data.reason === "OTHER") {
+      return data.description && data.description.trim().length > 0
+    }
+    return true
+  },
+  {
+    message: "Omschrijving is verplicht bij reden 'Overig'",
+    path: ["description"],
+  }
+)
+
+export type CreditNoteFormData = z.infer<typeof creditNoteSchema>
+
 // ========== Profile Schema ==========
 export const profileSchema = z.object({
   name: z.string().optional().nullable(),

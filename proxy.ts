@@ -40,7 +40,6 @@ export async function proxy(request: NextRequest) {
     '/abonnementen',
     '/btw',
     '/tijd',
-    '/dashboard',
     '/rapporten',
   ]
 

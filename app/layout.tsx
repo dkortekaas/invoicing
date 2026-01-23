@@ -24,10 +24,10 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "BetaalMe",
-    template: "%s | BetaalMe",
+    default: "Declair",
+    template: "%s | Declair",
   },
-  description: "Gemaakt om betaald te worden.",
+  description: "Jouw administratie. Helder geregeld.",
   formatDetection: {
     telephone: false,
   },

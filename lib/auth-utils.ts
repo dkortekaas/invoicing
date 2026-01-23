@@ -26,7 +26,7 @@ export async function verifyPassword(
 export function generateTwoFactorSecret(email: string, companyName: string) {
   return speakeasy.generateSecret({
     name: `${companyName} (${email})`,
-    issuer: "BetaalMe",
+    issuer: "Declair",
   })
 }
 

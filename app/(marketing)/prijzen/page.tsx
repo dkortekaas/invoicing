@@ -5,17 +5,17 @@ import PricingTrust from "@/components/pricing/trust";
 import PricingFAQ from "@/components/pricing/faq";
 import PricingCTA from "@/components/pricing/call-to-action";
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://betaalme.nl";
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://declair.app";
 
 export const metadata: Metadata = {
   title: "Prijzen - Facturatie Software vanaf €0",
   description:
-    "Transparante prijzen voor BetaalMe facturatiesoftware. Start gratis, upgrade wanneer je wilt. Geen contract, maandelijks opzegbaar. Starter €0, Pro €9, Plus €19 per maand.",
+    "Transparante prijzen voor Declair facturatiesoftware. Start gratis, upgrade wanneer je wilt. Geen contract, maandelijks opzegbaar. Starter €0, Pro €9, Plus €19 per maand.",
   alternates: {
     canonical: `${siteUrl}/prijzen`,
   },
   openGraph: {
-    title: "Prijzen - BetaalMe Facturatie Software",
+    title: "Prijzen - Declair Facturatie Software",
     description:
       "Transparante prijzen voor facturatiesoftware. Start gratis, upgrade wanneer je wilt. Geen contract.",
     url: `${siteUrl}/prijzen`,
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "BetaalMe Prijzen",
+        alt: "Declair Prijzen",
       },
     ],
   },
@@ -57,9 +57,9 @@ export default function PricingPage() {
         "@type": "WebPage",
         "@id": `${siteUrl}/prijzen`,
         url: `${siteUrl}/prijzen`,
-        name: "Prijzen - BetaalMe Facturatie Software",
+        name: "Prijzen - Declair Facturatie Software",
         description:
-          "Transparante prijzen voor BetaalMe facturatiesoftware. Start gratis, upgrade wanneer je wilt.",
+          "Transparante prijzen voor Declair facturatiesoftware. Start gratis, upgrade wanneer je wilt.",
         isPartOf: {
           "@id": `${siteUrl}/#website`,
         },
@@ -67,7 +67,7 @@ export default function PricingPage() {
       },
       {
         "@type": "Product",
-        name: "BetaalMe Starter",
+        name: "Declair Starter",
         description: "Gratis facturatiesoftware voor startende zzp'ers",
         offers: {
           "@type": "Offer",
@@ -79,7 +79,7 @@ export default function PricingPage() {
       },
       {
         "@type": "Product",
-        name: "BetaalMe Pro",
+        name: "Declair Pro",
         description:
           "Professionele facturatiesoftware met iDEAL-betaallink en automatische herinneringen",
         offers: {
@@ -93,7 +93,7 @@ export default function PricingPage() {
       },
       {
         "@type": "Product",
-        name: "BetaalMe Plus",
+        name: "Declair Plus",
         description:
           "Complete facturatieoplossing voor groeiende ondernemers met meerdere gebruikers",
         offers: {

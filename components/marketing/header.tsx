@@ -38,11 +38,11 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50 animate-fade-up">
       <div className="container-tight section-padding !py-4">
         <nav className="flex items-center justify-between" aria-label="Hoofdnavigatie">
-          <Link href="/" className="flex items-center gap-2" aria-label="BetaalMe - Naar homepage">
+          <Link href="/" className="flex items-center gap-2" aria-label="Declair - Naar homepage">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center" aria-hidden="true">
               <span className="text-primary-foreground font-bold text-lg">B</span>
             </div>
-            <span className="font-bold text-xl text-foreground">BetaalMe</span>
+            <span className="font-bold text-xl text-foreground">Declair</span>
           </Link>
 
           {/* Desktop navigation */}

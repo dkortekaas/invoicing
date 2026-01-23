@@ -61,7 +61,7 @@ export default function RegisterPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Registreren</CardTitle>
           <CardDescription>
-            Maak een nieuw account aan voor je BetaalMe account
+            Maak een nieuw account aan voor je Declair account
           </CardDescription>
         </CardHeader>
         <CardContent>

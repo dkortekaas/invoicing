@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Inloggen - BetaalMe",
-  description: "Inloggen op je BetaalMe account", 
+  title: "Inloggen - Declair",
+  description: "Inloggen op je Declair account", 
 }
 
 export default function AuthLayout({

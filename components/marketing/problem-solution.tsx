@@ -84,7 +84,7 @@ const ProblemSolution = () => {
                     De oplossing
                   </span>
                   <p className="text-2xl font-bold text-foreground">
-                    BetaalMe regelt het
+                    Declair regelt het
                   </p>
                 </div>
               </div>

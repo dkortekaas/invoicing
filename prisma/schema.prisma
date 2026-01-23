@@ -71,6 +71,9 @@ model User {
   vatReports VATReport[]
   icpEntries ICPEntry[]
 
+  // Credit notes
+  creditNotes CreditNote[]
+
   // BTW settings
   vatRegistered Boolean   @default(true)
   vatScheme     VATScheme @default(REGULAR)
@@ -125,6 +128,9 @@ model Customer {
   // BTW relations
   expenses   Expense[]
   icpEntries ICPEntry[]
+
+  // Credit notes
+  creditNotes CreditNote[]
 
   // BTW info
   vatCountry  String? // Land voor ICP
@@ -198,6 +204,9 @@ model Invoice {
   paymentLinkToken     String?   @unique
   paymentLinkExpiresAt DateTime?
   payments             Payment[]
+
+  // Credit notes linked to this invoice
+  creditNotes CreditNote[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -311,6 +320,29 @@ enum EmailType {
   REMINDER_SECOND // 2e herinnering
   REMINDER_FINAL // Finale herinnering
   PAYMENT_RECEIVED // Betaling ontvangen bevestiging
+  CREDIT_NOTE // Credit nota
+}
+
+// Credit Note Enums
+
+enum CreditNoteStatus {
+  DRAFT // Concept
+  FINAL // Definitief (vergrendeld)
+  SENT // Verzonden
+  PROCESSED // Verwerkt
+  REFUNDED // Terugbetaald
+}
+
+enum CreditNoteReason {
+  PRICE_CORRECTION // Prijscorrectie
+  QUANTITY_CORRECTION // Aantalaanpassing
+  RETURN // Retour
+  CANCELLATION // Annulering
+  DISCOUNT_AFTER // Korting achteraf
+  VAT_CORRECTION // BTW correctie
+  DUPLICATE_INVOICE // Dubbele factuur
+  GOODWILL // Coulance
+  OTHER // Overig
 }
 
 enum EmailStatus {
@@ -371,6 +403,112 @@ model EmailSettings {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Credit Note Models
+
+model CreditNote {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  creditNoteNumber String @unique
+  customerId       String
+  customer         Customer @relation(fields: [customerId], references: [id])
+
+  creditNoteDate DateTime         @default(now())
+  status         CreditNoteStatus @default(DRAFT)
+  reason         CreditNoteReason
+
+  // Link to original invoice (optional)
+  originalInvoiceId     String?
+  originalInvoice       Invoice? @relation(fields: [originalInvoiceId], references: [id])
+  originalInvoiceNumber String?
+
+  // Amounts
+  subtotal  Decimal @db.Decimal(10, 2)
+  vatAmount Decimal @db.Decimal(10, 2)
+  total     Decimal @db.Decimal(10, 2)
+
+  // Extra velden
+  description   String?
+  notes         String? // Notities op credit nota
+  internalNotes String? // Interne notities (niet op PDF)
+
+  // Items
+  items CreditNoteItem[]
+
+  // Metadata
+  pdfPath     String?
+  sentAt      DateTime?
+  finalizedAt DateTime?
+  processedAt DateTime?
+  refundedAt  DateTime?
+
+  // Email tracking
+  emails          CreditNoteEmailLog[]
+  emailsSentCount Int                  @default(0)
+  lastEmailSentAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([customerId])
+  @@index([status])
+  @@index([creditNoteDate])
+  @@index([originalInvoiceId])
+}
+
+model CreditNoteItem {
+  id           String     @id @default(cuid())
+  creditNoteId String
+  creditNote   CreditNote @relation(fields: [creditNoteId], references: [id], onDelete: Cascade)
+
+  description String
+  quantity    Decimal @db.Decimal(10, 2)
+  unitPrice   Decimal @db.Decimal(10, 2)
+  vatRate     Decimal @db.Decimal(5, 2)
+  unit        String  @default("uur")
+
+  // Berekend
+  subtotal  Decimal @db.Decimal(10, 2) // quantity * unitPrice
+  vatAmount Decimal @db.Decimal(10, 2) // subtotal * (vatRate / 100)
+  total     Decimal @db.Decimal(10, 2) // subtotal + vatAmount
+
+  sortOrder Int @default(0)
+
+  // Link to original invoice item (optional)
+  originalInvoiceItemId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([creditNoteId])
+}
+
+model CreditNoteEmailLog {
+  id           String     @id @default(cuid())
+  creditNoteId String
+  creditNote   CreditNote @relation(fields: [creditNoteId], references: [id], onDelete: Cascade)
+
+  type      EmailType
+  recipient String
+  subject   String
+  status    EmailStatus @default(PENDING)
+
+  resendId String? // Resend email ID voor tracking
+  error    String?
+
+  sentAt    DateTime?
+  openedAt  DateTime? // Via Resend webhooks
+  clickedAt DateTime? // Via Resend webhooks
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([creditNoteId])
+  @@index([status])
 }
 
 // NextAuth models
@@ -1125,6 +1263,9 @@ enum AuditAction {
   LOGIN_FAILED
   PAYMENT_RECORDED
   INVOICE_SENT
+  CREDIT_NOTE_SENT
+  CREDIT_NOTE_FINALIZED
+  CREDIT_NOTE_REFUNDED
   SETTINGS_CHANGED
   PASSWORD_CHANGED
   TWO_FA_ENABLED

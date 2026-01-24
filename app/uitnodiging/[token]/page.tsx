@@ -16,7 +16,7 @@ export default async function InvitationPage({ params }: InvitationPageProps) {
       sender: {
         select: {
           name: true,
-          companyName: true,
+          company: { select: { name: true } },
         },
       },
     },

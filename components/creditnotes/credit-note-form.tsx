@@ -117,7 +117,7 @@ export function CreditNoteForm({
 
   // Filter invoices by selected customer
   const customerInvoices = invoices.filter(
-    (inv) => !watchedCustomerId || invoices.length === 0
+    (_inv) => !watchedCustomerId || invoices.length === 0
   )
 
   // Calculate totals

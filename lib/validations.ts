@@ -117,9 +117,7 @@ export type CreditNoteReason = typeof creditNoteReasons[number]
 export const creditNoteSchema = z.object({
   customerId: z.string().min(1, "Selecteer een klant"),
   creditNoteDate: z.date(),
-  reason: z.enum(creditNoteReasons, {
-    errorMap: () => ({ message: "Selecteer een reden" }),
-  }),
+  reason: z.enum(creditNoteReasons, { message: "Selecteer een reden" }),
   originalInvoiceId: z.string().optional().nullable(),
   originalInvoiceNumber: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
@@ -248,18 +246,12 @@ export const loginSchema = z.object({
 export type LoginFormData = z.infer<typeof loginSchema>
 
 // ========== Register Schema ==========
+// Alleen basisgegevens; bedrijfsgegevens worden na registratie ingevuld (onboarding)
 export const registerSchema = z.object({
   name: z.string().min(1, "Naam is verplicht"),
   email: z.string().email("Ongeldig e-mailadres"),
   password: z.string().min(6, "Wachtwoord moet minimaal 6 karakters zijn"),
   confirmPassword: z.string(),
-  companyName: z.string().min(1, "Bedrijfsnaam is verplicht"),
-  companyEmail: z.string().email("Ongeldig e-mailadres"),
-  companyAddress: z.string().min(1, "Adres is verplicht"),
-  companyCity: z.string().min(1, "Plaats is verplicht"),
-  companyPostalCode: z
-    .string()
-    .regex(postcodeRegex, "Ongeldig postcode formaat (bijv. 1234 AB)"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Wachtwoorden komen niet overeen",
   path: ["confirmPassword"],

@@ -10,7 +10,7 @@ export default async function SubscriptionsPage() {
       id: true,
       name: true,
       email: true,
-      companyName: true,
+      company: { select: { name: true } },
       subscriptionTier: true,
       subscriptionStatus: true,
       billingCycle: true,
@@ -26,6 +26,11 @@ export default async function SubscriptionsPage() {
     },
   });
 
+  const usersWithCompanyName = users.map((u) => ({
+    ...u,
+    companyName: u.company?.name ?? '',
+  }));
+
   return (
     <div className="space-y-6">
       <div>
@@ -35,7 +40,7 @@ export default async function SubscriptionsPage() {
         </p>
       </div>
 
-      <SubscriptionManager users={users} />
+      <SubscriptionManager users={usersWithCompanyName} />
     </div>
   );
 }

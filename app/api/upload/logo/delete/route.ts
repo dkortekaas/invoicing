@@ -8,18 +8,18 @@ export async function DELETE(_request: NextRequest) {
   try {
     const userId = await getCurrentUserId()
 
-    // Get current user's logo
-    const user = await db.user.findUnique({
-      where: { id: userId },
-      select: { companyLogo: true },
+    // Get current user's company logo
+    const company = await db.company.findUnique({
+      where: { userId },
+      select: { logo: true },
     })
 
-    if (!user || !user.companyLogo) {
+    if (!company || !company.logo) {
       return NextResponse.json({ error: "Geen logo gevonden" }, { status: 404 })
     }
 
     // Delete file from filesystem
-    const filepath = join(process.cwd(), "public", user.companyLogo)
+    const filepath = join(process.cwd(), "public", company.logo)
     try {
       await unlink(filepath)
     } catch (error) {
@@ -28,9 +28,9 @@ export async function DELETE(_request: NextRequest) {
     }
 
     // Update database
-    await db.user.update({
-      where: { id: userId },
-      data: { companyLogo: null },
+    await db.company.update({
+      where: { userId },
+      data: { logo: null },
     })
 
     return NextResponse.json({ success: true })

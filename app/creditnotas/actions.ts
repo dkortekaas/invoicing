@@ -6,6 +6,7 @@ import { creditNoteSchema, type CreditNoteFormData } from "@/lib/validations"
 import { generateCreditNoteNumber, roundToTwo } from "@/lib/utils"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { logCreate, logUpdate, logDelete } from "@/lib/audit/helpers"
+import { requireCompanyDetails } from "@/lib/company-guard"
 import type { CreditNoteStatus, CreditNoteReason } from "@prisma/client"
 
 export async function getCreditNotes(status?: string) {
@@ -55,7 +56,7 @@ export async function getCreditNote(id: string) {
       items: {
         orderBy: { sortOrder: "asc" },
       },
-      user: true,
+      user: { include: { company: true } },
       emails: {
         orderBy: { createdAt: "desc" },
       },
@@ -127,6 +128,7 @@ export async function createCreditNote(
   data: CreditNoteFormData,
   status: "DRAFT" | "FINAL" = "DRAFT"
 ) {
+  await requireCompanyDetails()
   const validated = creditNoteSchema.parse(data)
   const userId = await getCurrentUserId()
 

@@ -13,14 +13,14 @@ export async function generate2FASecret() {
   const userId = await getUserId()
   const user = await db.user.findUnique({
     where: { id: userId },
-    select: { email: true, companyName: true },
+    select: { email: true, company: { select: { name: true } } },
   })
 
   if (!user) {
     throw new Error("Gebruiker niet gevonden")
   }
 
-  const secret = generateTwoFactorSecret(user.email, user.companyName)
+  const secret = generateTwoFactorSecret(user.email, user.company?.name ?? user.email)
   const qrCode = await generateQRCodeDataURL(secret.otpauth_url!)
 
   // Save secret temporarily (not enabled yet)

@@ -84,6 +84,32 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // Vereis bedrijfsgegevens voor app-pagina's (niet voor API of instellingen)
+  if (token.id && !pathname.startsWith('/api') && !pathname.startsWith('/instellingen')) {
+    try {
+      const { hasCompanyDetails } = await import('@/lib/company-guard')
+      const user = await db.user.findUnique({
+        where: { id: token.id as string },
+        select: {
+          company: {
+            select: {
+              name: true,
+              email: true,
+              address: true,
+              city: true,
+              postalCode: true,
+            },
+          },
+        },
+      })
+      if (user && !hasCompanyDetails(user.company)) {
+        return NextResponse.redirect(new URL('/instellingen?tab=bedrijfsgegevens', request.url))
+      }
+    } catch (e) {
+      console.error('Company details check failed:', e)
+    }
+  }
+
   return NextResponse.next()
 }
 

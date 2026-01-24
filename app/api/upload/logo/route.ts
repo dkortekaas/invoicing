@@ -49,10 +49,14 @@ export async function POST(request: NextRequest) {
     // Get relative URL path
     const logoUrl = `/uploads/logos/${filename}`
 
-    // Update user's logo in database
-    await db.user.update({
-      where: { id: userId },
-      data: { companyLogo: logoUrl },
+    // Update company logo in database (upsert in case company doesn't exist)
+    await db.company.upsert({
+      where: { userId },
+      update: { logo: logoUrl },
+      create: {
+        userId,
+        logo: logoUrl,
+      },
     })
 
     return NextResponse.json({ url: logoUrl })

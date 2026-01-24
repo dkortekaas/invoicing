@@ -37,6 +37,7 @@ export async function GET(
 
     const user = await db.user.findUnique({
       where: { id: session.user.id },
+      include: { company: true },
     });
 
     if (!user) {
@@ -46,13 +47,14 @@ export async function GET(
       );
     }
 
+    const c = user.company
     const exportData = {
       year,
       quarter,
       company: {
-        name: user.companyName,
+        name: c?.name ?? '',
         vatNumber: user.vatNumber || '',
-        address: `${user.companyAddress}, ${user.companyPostalCode} ${user.companyCity}`,
+        address: c ? [c.address, c.postalCode, c.city].filter(Boolean).join(', ') || '' : '',
       },
       revenue: {
         highRate: Number(report.revenueHighRate),

@@ -41,8 +41,8 @@ export async function getPaymentPageData(token: string) {
         companyName: invoice.customer.companyName,
       },
       issuer: {
-        companyName: invoice.user.companyName,
-        companyEmail: invoice.user.companyEmail,
+        companyName: invoice.user.company?.name ?? "",
+        companyEmail: invoice.user.company?.email ?? "",
         iban: invoice.user.iban,
       },
       items: invoice.items.map((item) => ({

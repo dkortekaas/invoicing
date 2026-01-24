@@ -19,19 +19,14 @@ export async function registerUser(data: RegisterFormData) {
   // Hash password
   const passwordHash = await hashPassword(validated.password)
 
-  // Create user
+  // Create user; bedrijfsgegevens komen in aparte Company-tabel (via Instellingen > Bedrijfsgegevens)
   const user = await db.user.create({
     data: {
       email: validated.email,
       name: validated.name,
       passwordHash,
-      companyName: validated.companyName,
-      companyEmail: validated.companyEmail,
-      companyAddress: validated.companyAddress,
-      companyCity: validated.companyCity,
-      companyPostalCode: validated.companyPostalCode,
-      companyCountry: "Nederland",
       invoicePrefix: "FAC",
+      role: "ADMIN",
     },
   })
 

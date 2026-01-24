@@ -105,10 +105,10 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
               </CardHeader>
               <CardContent>
                 <div className="space-y-1">
-                  <p className="font-semibold">{creditNote.user.companyName}</p>
-                  <p>{creditNote.user.companyAddress}</p>
+                  <p className="font-semibold">{creditNote.user.company?.name ?? ""}</p>
+                  <p>{creditNote.user.company?.address ?? ""}</p>
                   <p>
-                    {creditNote.user.companyPostalCode} {creditNote.user.companyCity}
+                    {creditNote.user.company?.postalCode} {creditNote.user.company?.city}
                   </p>
                   {creditNote.user.vatNumber && (
                     <p className="text-sm text-muted-foreground">

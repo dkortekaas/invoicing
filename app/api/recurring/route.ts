@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calculateNextDate } from '@/lib/recurring/calculations';
+import { ensureCompanyDetails } from '@/lib/company-guard';
 
 // GET - List recurring invoices
 export async function GET(request: NextRequest) {
@@ -55,6 +56,13 @@ export async function POST(request: NextRequest) {
   
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (!(await ensureCompanyDetails(session.user.id))) {
+    return NextResponse.json(
+      { error: 'Vul eerst je bedrijfsgegevens in via Instellingen > Bedrijfsgegevens.' },
+      { status: 403 }
+    );
   }
 
   try {

@@ -33,11 +33,6 @@ export default function RegisterPage() {
       email: "",
       password: "",
       confirmPassword: "",
-      companyName: "",
-      companyEmail: "",
-      companyAddress: "",
-      companyCity: "",
-      companyPostalCode: "",
     },
   })
 
@@ -133,83 +128,9 @@ export default function RegisterPage() {
                 />
               </div>
 
-              <div className="border-t pt-4">
-                <h3 className="mb-4 font-semibold">Bedrijfsgegevens</h3>
-              </div>
-
-              <FormField
-                control={form.control}
-                name="companyName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bedrijfsnaam *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Mijn Bedrijf B.V." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="companyEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bedrijfs e-mail *</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="info@bedrijf.nl" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="companyPostalCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Postcode *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="1234 AB" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="companyAddress"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Adres *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Straatnaam 123" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="companyCity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Plaats *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Amsterdam" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Na het registreren log je in en vul je je bedrijfsgegevens in voordat je klanten, facturen of kosten kunt toevoegen.
+              </p>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

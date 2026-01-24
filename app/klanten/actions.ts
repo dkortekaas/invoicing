@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { customerSchema, type CustomerFormData } from "@/lib/validations"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { logCreate, logUpdate, logDelete } from "@/lib/audit/helpers"
+import { requireCompanyDetails } from "@/lib/company-guard"
 
 export async function getCustomers() {
   const userId = await getCurrentUserId()
@@ -35,6 +36,7 @@ export async function getCustomer(id: string) {
 }
 
 export async function createCustomer(data: CustomerFormData) {
+  await requireCompanyDetails()
   const validated = customerSchema.parse(data)
   const userId = await getCurrentUserId()
 

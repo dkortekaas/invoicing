@@ -18,7 +18,7 @@ export async function sendPaymentConfirmation({
     where: { id: invoiceId },
     include: {
       customer: true,
-      user: true,
+      user: { include: { company: true } },
     },
   });
 
@@ -42,7 +42,7 @@ export async function sendPaymentConfirmation({
       currency: 'EUR',
     }).format(Number(invoice.total)),
     paymentDate: format(invoice.paidAt, 'dd MMMM yyyy', { locale: nl }),
-    companyName: invoice.user.companyName,
+    companyName: invoice.user.company?.name ?? "",
   };
 
   // Preview mode

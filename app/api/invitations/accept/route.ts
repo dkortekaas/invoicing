@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     // Find invitation by token
     const invitation = await db.invitation.findUnique({
       where: { token },
-      include: { sender: true },
+      include: { sender: { include: { company: true } } },
     });
 
     if (!invitation) {
@@ -71,26 +71,35 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await hashPassword(password);
 
-    // Create user account
+    // Create user account; bedrijfsgegevens van sender (uit Company-tabel) indien aanwezig
     // Note: New users start with FREE tier, they don't inherit subscription
     const user = await db.user.create({
       data: {
         email: invitation.email,
         name,
         passwordHash,
-        companyName: invitation.sender.companyName,
-        companyEmail: invitation.sender.companyEmail,
-        companyPhone: invitation.sender.companyPhone,
-        companyAddress: invitation.sender.companyAddress,
-        companyCity: invitation.sender.companyCity,
-        companyPostalCode: invitation.sender.companyPostalCode,
-        companyCountry: invitation.sender.companyCountry,
         role: invitation.role,
-        // New users start with FREE tier
         subscriptionTier: 'FREE',
         subscriptionStatus: 'FREE',
       },
     });
+
+    const senderCompany = invitation.sender.company
+    if (senderCompany?.name?.trim() && senderCompany?.email?.trim() && senderCompany?.address?.trim() && senderCompany?.city?.trim() && senderCompany?.postalCode?.trim()) {
+      await db.company.create({
+        data: {
+          userId: user.id,
+          name: senderCompany.name,
+          email: senderCompany.email,
+          phone: senderCompany.phone,
+          address: senderCompany.address,
+          city: senderCompany.city,
+          postalCode: senderCompany.postalCode,
+          country: senderCompany.country ?? 'Nederland',
+          logo: senderCompany.logo,
+        },
+      })
+    }
 
     // Update invitation
     await db.invitation.update({

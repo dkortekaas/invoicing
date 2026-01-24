@@ -95,8 +95,16 @@ export default async function ExpensesPage() {
             <TableBody>
               {expenses.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                    Nog geen uitgaven geregistreerd
+                  <TableCell colSpan={6} className="text-center py-8">
+                    <p className="text-muted-foreground">
+                      Nog geen uitgaven geregistreerd
+                    </p>
+                    <Button asChild className="mt-4">
+                      <Link href="/kosten/nieuw">
+                        <Plus className="mr-2 h-4 w-4" />
+                        Nieuwe uitgave
+                      </Link>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ) : (

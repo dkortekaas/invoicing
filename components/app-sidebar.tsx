@@ -17,6 +17,7 @@ import {
   Shield,
   History,
   Euro,
+  FileX,
 } from "lucide-react"
 
 import {
@@ -43,6 +44,11 @@ const navigation = [
     title: "Facturen",
     url: "/facturen",
     icon: FileText,
+  },
+  {
+    title: "Credit Nota's",
+    url: "/creditnotas",
+    icon: FileX,
   },
   {
     title: "Abonnementen",

@@ -6,6 +6,7 @@ import { invoiceSchema, type InvoiceFormData } from "@/lib/validations"
 import { generateInvoiceNumber, roundToTwo } from "@/lib/utils"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { logCreate, logUpdate, logDelete, logPaymentRecorded } from "@/lib/audit/helpers"
+import { requireCompanyDetails } from "@/lib/company-guard"
 
 export async function getInvoices(status?: string) {
   const userId = await getCurrentUserId()
@@ -34,7 +35,7 @@ export async function getInvoice(id: string) {
       items: {
         orderBy: { sortOrder: "asc" },
       },
-      user: true,
+      user: { include: { company: true } },
       emails: {
         orderBy: { createdAt: "desc" },
       },
@@ -92,6 +93,7 @@ export async function createInvoice(
   data: InvoiceFormData,
   status: "DRAFT" | "SENT" = "DRAFT"
 ) {
+  await requireCompanyDetails()
   const validated = invoiceSchema.parse(data)
   const userId = await getCurrentUserId()
 

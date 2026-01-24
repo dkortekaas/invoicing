@@ -18,7 +18,7 @@ export async function GET(
         sender: {
           select: {
             name: true,
-            companyName: true,
+            company: { select: { name: true } },
           },
         },
       },

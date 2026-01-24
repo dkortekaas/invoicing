@@ -85,21 +85,23 @@ export async function getCompanyInfo() {
   
   const user = await db.user.findUnique({
     where: { id: userId },
+    include: { company: true },
   })
 
   if (!user) {
     throw new Error("User not found")
   }
 
+  const c = user.company
   return {
-    companyName: user.companyName,
-    companyEmail: user.companyEmail,
-    companyPhone: user.companyPhone,
-    companyAddress: user.companyAddress,
-    companyCity: user.companyCity,
-    companyPostalCode: user.companyPostalCode,
-    companyCountry: user.companyCountry,
-    companyLogo: user.companyLogo,
+    companyName: c?.name ?? "",
+    companyEmail: c?.email ?? "",
+    companyPhone: c?.phone ?? "",
+    companyAddress: c?.address ?? "",
+    companyCity: c?.city ?? "",
+    companyPostalCode: c?.postalCode ?? "",
+    companyCountry: c?.country ?? "Nederland",
+    companyLogo: c?.logo ?? "",
   }
 }
 
@@ -107,59 +109,56 @@ export async function updateCompanyInfo(data: CompanyInfoFormData) {
   const validated = companyInfoSchema.parse(data)
   const userId = await getCurrentUserId()
 
-  // Get current company info for audit logging
-  const currentUser = await db.user.findUnique({
+  const current = await db.user.findUnique({
     where: { id: userId },
-    select: {
-      companyName: true,
-      companyEmail: true,
-      companyPhone: true,
-      companyAddress: true,
-      companyCity: true,
-      companyPostalCode: true,
-      companyCountry: true,
-      companyLogo: true,
-    },
+    include: { company: true },
   })
 
-  await db.user.update({
-    where: { id: userId },
-    data: {
-      companyName: validated.companyName,
-      companyEmail: validated.companyEmail,
-      companyPhone: validated.companyPhone,
-      companyAddress: validated.companyAddress,
-      companyCity: validated.companyCity,
-      companyPostalCode: validated.companyPostalCode,
-      companyCountry: validated.companyCountry,
-      companyLogo: validated.companyLogo,
-    },
-  })
+  const payload = {
+    name: validated.companyName,
+    email: validated.companyEmail,
+    phone: validated.companyPhone,
+    address: validated.companyAddress,
+    city: validated.companyCity,
+    postalCode: validated.companyPostalCode,
+    country: validated.companyCountry,
+    logo: validated.companyLogo,
+  }
 
-  // Log audit trail
-  if (currentUser) {
+  if (current?.company) {
+    await db.company.update({
+      where: { userId },
+      data: payload,
+    })
+  } else {
+    await db.company.create({
+      data: { userId, ...payload },
+    })
+  }
+
+  if (current?.company) {
     await logUpdate(
       "settings",
       userId,
       {
-        companyName: currentUser.companyName,
-        companyEmail: currentUser.companyEmail,
-        companyPhone: currentUser.companyPhone,
-        companyAddress: currentUser.companyAddress,
-        companyCity: currentUser.companyCity,
-        companyPostalCode: currentUser.companyPostalCode,
-        companyCountry: currentUser.companyCountry,
-        companyLogo: currentUser.companyLogo,
+        companyName: current.company.name,
+        companyEmail: current.company.email,
+        companyPhone: current.company.phone,
+        companyAddress: current.company.address,
+        companyCity: current.company.city,
+        companyPostalCode: current.company.postalCode,
+        companyCountry: current.company.country,
+        companyLogo: current.company.logo,
       },
       {
-        companyName: validated.companyName,
-        companyEmail: validated.companyEmail,
-        companyPhone: validated.companyPhone,
-        companyAddress: validated.companyAddress,
-        companyCity: validated.companyCity,
-        companyPostalCode: validated.companyPostalCode,
-        companyCountry: validated.companyCountry,
-        companyLogo: validated.companyLogo,
+        companyName: payload.name,
+        companyEmail: payload.email,
+        companyPhone: payload.phone,
+        companyAddress: payload.address,
+        companyCity: payload.city,
+        companyPostalCode: payload.postalCode,
+        companyCountry: payload.country,
+        companyLogo: payload.logo,
       },
       userId
     )
@@ -243,20 +242,22 @@ export async function getCompanySettings() {
   
   const user = await db.user.findUnique({
     where: { id: userId },
+    include: { company: true },
   })
 
   if (!user) {
     throw new Error("User not found")
   }
 
+  const c = user.company
   return {
-    companyName: user.companyName,
-    companyEmail: user.companyEmail,
-    companyPhone: user.companyPhone,
-    companyAddress: user.companyAddress,
-    companyCity: user.companyCity,
-    companyPostalCode: user.companyPostalCode,
-    companyCountry: user.companyCountry,
+    companyName: c?.name ?? "",
+    companyEmail: c?.email ?? "",
+    companyPhone: c?.phone ?? "",
+    companyAddress: c?.address ?? "",
+    companyCity: c?.city ?? "",
+    companyPostalCode: c?.postalCode ?? "",
+    companyCountry: c?.country ?? "Nederland",
     vatNumber: user.vatNumber,
     kvkNumber: user.kvkNumber,
     iban: user.iban,
@@ -268,16 +269,26 @@ export async function updateCompanySettings(data: CompanySettingsFormData) {
   const validated = companySettingsSchema.parse(data)
   const userId = await getCurrentUserId()
 
+  const payload = {
+    name: validated.companyName,
+    email: validated.companyEmail,
+    phone: validated.companyPhone,
+    address: validated.companyAddress,
+    city: validated.companyCity,
+    postalCode: validated.companyPostalCode,
+    country: validated.companyCountry,
+  }
+
+  const existing = await db.company.findUnique({ where: { userId } })
+  if (existing) {
+    await db.company.update({ where: { userId }, data: payload })
+  } else {
+    await db.company.create({ data: { userId, ...payload } })
+  }
+
   const user = await db.user.update({
     where: { id: userId },
     data: {
-      companyName: validated.companyName,
-      companyEmail: validated.companyEmail,
-      companyPhone: validated.companyPhone,
-      companyAddress: validated.companyAddress,
-      companyCity: validated.companyCity,
-      companyPostalCode: validated.companyPostalCode,
-      companyCountry: validated.companyCountry,
       vatNumber: validated.vatNumber,
       kvkNumber: validated.kvkNumber,
       iban: validated.iban,

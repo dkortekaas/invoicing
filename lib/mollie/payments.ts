@@ -51,14 +51,9 @@ export async function getInvoiceByPaymentToken(token: string) {
       customer: true,
       user: {
         select: {
-          companyName: true,
-          companyEmail: true,
-          companyPhone: true,
-          companyAddress: true,
-          companyCity: true,
-          companyPostalCode: true,
           iban: true,
           mollieEnabled: true,
+          company: true,
         },
       },
       items: {

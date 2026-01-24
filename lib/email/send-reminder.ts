@@ -28,7 +28,7 @@ export async function sendReminderEmail({
     where: { id: invoiceId },
     include: {
       customer: true,
-      user: true,
+      user: { include: { company: true } },
     },
   });
 
@@ -57,9 +57,9 @@ export async function sendReminderEmail({
     }).format(Number(invoice.total)),
     daysOverdue,
     reminderType,
-    companyName: invoice.user.companyName,
-    companyEmail: invoice.user.companyEmail,
-    companyPhone: invoice.user.companyPhone || undefined,
+    companyName: invoice.user.company?.name ?? "",
+    companyEmail: invoice.user.company?.email ?? "",
+    companyPhone: invoice.user.company?.phone || undefined,
   };
 
   const subject = {

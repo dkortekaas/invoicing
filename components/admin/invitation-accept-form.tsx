@@ -37,7 +37,7 @@ interface InvitationAcceptFormProps {
     role: 'USER' | 'ADMIN';
     sender: {
       name: string | null;
-      companyName: string;
+      company?: { name: string | null } | null;
     };
   };
 }
@@ -88,7 +88,7 @@ export function InvitationAcceptForm({ invitation }: InvitationAcceptFormProps) 
       <CardHeader>
         <CardTitle>Uitnodiging accepteren</CardTitle>
         <CardDescription>
-          Je bent uitgenodigd door {invitation.sender.name || invitation.sender.companyName}
+          Je bent uitgenodigd door {invitation.sender.name || invitation.sender.company?.name || 'een beheerder'}
         </CardDescription>
       </CardHeader>
       <CardContent>

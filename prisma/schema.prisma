@@ -6,19 +6,32 @@ datasource db {
   provider = "postgresql"
 }
 
+model Company {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String?  // Bedrijfsnaam
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  postalCode  String?
+  country     String   @default("Nederland")
+  logo        String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
 model User {
   id                String  @id @default(cuid())
   email             String  @unique
   name              String?
   passwordHash      String
-  companyName       String
-  companyEmail      String
-  companyPhone      String?
-  companyAddress    String
-  companyCity       String
-  companyPostalCode String
-  companyCountry    String  @default("Nederland")
-  companyLogo       String? // Logo URL/path
+  company           Company?  // Bedrijfsgegevens in aparte tabel
   vatNumber         String? // BTW-nummer
   kvkNumber         String? // KvK-nummer
   iban              String?

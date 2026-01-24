@@ -5,6 +5,8 @@ export const dynamic = "force-dynamic"
 import {
   ArrowLeft,
   Download,
+  FileX,
+  Plus,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,8 +27,10 @@ import {
 } from "@/components/ui/table"
 import { Separator } from "@/components/ui/separator"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
+import { CreditNoteStatusBadge } from "@/components/creditnotes/credit-note-status-badge"
 import { formatCurrency, formatDate, formatDateLong } from "@/lib/utils"
 import { getInvoice, getInvoicePaymentInfo } from "../actions"
+import { getCreditNotesForInvoice } from "@/app/creditnotas/actions"
 import { PaymentSection } from "./payment-section"
 import { InvoiceActionsClient } from "./invoice-actions-client"
 import { InvoicePreview } from "./invoice-preview"
@@ -41,9 +45,10 @@ interface FactuurDetailPageProps {
 
 export default async function FactuurDetailPage({ params }: FactuurDetailPageProps) {
   const { id } = await params
-  const [invoice, paymentInfo] = await Promise.all([
+  const [invoice, paymentInfo, creditNotes] = await Promise.all([
     getInvoice(id),
     getInvoicePaymentInfo(id),
+    getCreditNotesForInvoice(id),
   ])
 
   if (!invoice) {
@@ -130,10 +135,10 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
               </CardHeader>
               <CardContent>
                 <div className="space-y-1">
-                  <p className="font-semibold">{invoice.user.companyName}</p>
-                  <p>{invoice.user.companyAddress}</p>
+                  <p className="font-semibold">{invoice.user.company?.name ?? ""}</p>
+                  <p>{invoice.user.company?.address ?? ""}</p>
                   <p>
-                    {invoice.user.companyPostalCode} {invoice.user.companyCity}
+                    {invoice.user.company?.postalCode} {invoice.user.company?.city}
                   </p>
                   {invoice.user.vatNumber && (
                     <p className="text-sm text-muted-foreground">
@@ -310,7 +315,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">T.n.v.</span>
-                  <span>{invoice.user.companyName}</span>
+                  <span>{invoice.user.company?.name ?? ""}</span>
                 </div>
               </CardContent>
             </Card>
@@ -427,6 +432,63 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
               </CardContent>
             </Card>
           )}
+
+          {/* Credit Notes */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <FileX className="h-4 w-4" />
+                  Credit Nota&apos;s
+                </CardTitle>
+                <CardDescription>
+                  Credit nota&apos;s voor deze factuur
+                </CardDescription>
+              </div>
+              {invoice.status !== 'DRAFT' && invoice.status !== 'CANCELLED' && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/creditnotas/van-factuur/${invoice.id}`}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Crediteren
+                  </Link>
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent>
+              {creditNotes.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Geen credit nota&apos;s voor deze factuur
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {creditNotes.map((cn: typeof creditNotes[0]) => (
+                    <div
+                      key={cn.id}
+                      className="flex items-center justify-between rounded-lg border p-3"
+                    >
+                      <div>
+                        <Link
+                          href={`/creditnotas/${cn.id}`}
+                          className="font-medium hover:underline"
+                        >
+                          {cn.creditNoteNumber}
+                        </Link>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDate(cn.creditNoteDate)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-medium text-red-600">
+                          -{formatCurrency(cn.total)}
+                        </span>
+                        <CreditNoteStatusBadge status={cn.status} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
       </InvoicePreview>

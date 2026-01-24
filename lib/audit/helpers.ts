@@ -231,13 +231,36 @@ export async function logInvoiceSent(
 ): Promise<void> {
   const actualUserId = userId || (await getCurrentUserId().catch(() => undefined))
   const userEmail = await getUserEmail(actualUserId)
-  
+
   await createAuditLog({
     userId: actualUserId,
     userEmail,
     action: "INVOICE_SENT",
     entityType: "invoice",
     entityId: invoiceId,
+    metadata: {
+      recipient,
+    },
+  })
+}
+
+/**
+ * Log a credit note sent action
+ */
+export async function logCreditNoteSent(
+  creditNoteId: string,
+  recipient: string,
+  userId?: string
+): Promise<void> {
+  const actualUserId = userId || (await getCurrentUserId().catch(() => undefined))
+  const userEmail = await getUserEmail(actualUserId)
+
+  await createAuditLog({
+    userId: actualUserId,
+    userEmail,
+    action: "CREDIT_NOTE_SENT",
+    entityType: "creditNote",
+    entityId: creditNoteId,
     metadata: {
       recipient,
     },

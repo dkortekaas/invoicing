@@ -56,6 +56,24 @@ export async function generateVATReport(
     },
   });
 
+  // Haal alle credit nota's op voor deze periode
+  const creditNotes = await db.creditNote.findMany({
+    where: {
+      userId,
+      creditNoteDate: {
+        gte: startDate,
+        lte: endDate,
+      },
+      status: {
+        in: ['FINAL', 'SENT', 'PROCESSED', 'REFUNDED'], // Exclude DRAFT
+      },
+    },
+    include: {
+      items: true,
+      customer: true,
+    },
+  });
+
   // Initialize totals
   let revenueHighRate = 0;
   let revenueHighVAT = 0;
@@ -66,7 +84,7 @@ export async function generateVATReport(
   let revenueEU = 0;
   let revenueExport = 0;
 
-  // Process invoices
+  // Process invoices (add to revenue)
   invoices.forEach(invoice => {
     // Check for special cases
     if (invoice.customer.vatReversed) {
@@ -74,7 +92,7 @@ export async function generateVATReport(
       return;
     }
 
-    if (invoice.customer.vatCountry && 
+    if (invoice.customer.vatCountry &&
         invoice.customer.vatCountry !== 'NL' &&
         invoice.customer.vatNumber) {
       // EU customer with VAT number = ICP
@@ -96,6 +114,40 @@ export async function generateVATReport(
         revenueLowVAT += vat;
       } else {
         revenueZeroRate += subtotal;
+      }
+    });
+  });
+
+  // Process credit notes (subtract from revenue)
+  creditNotes.forEach(creditNote => {
+    // Check for special cases
+    if (creditNote.customer.vatReversed) {
+      revenueReversed -= Number(creditNote.subtotal);
+      return;
+    }
+
+    if (creditNote.customer.vatCountry &&
+        creditNote.customer.vatCountry !== 'NL' &&
+        creditNote.customer.vatNumber) {
+      // EU customer with VAT number = ICP
+      revenueEU -= Number(creditNote.subtotal);
+      return;
+    }
+
+    // Group by VAT rate
+    creditNote.items.forEach(item => {
+      const vatRate = Number(item.vatRate);
+      const subtotal = Number(item.subtotal);
+      const vat = Number(item.vatAmount);
+
+      if (vatRate >= 20) {
+        revenueHighRate -= subtotal;
+        revenueHighVAT -= vat;
+      } else if (vatRate >= 8 && vatRate <= 10) {
+        revenueLowRate -= subtotal;
+        revenueLowVAT -= vat;
+      } else {
+        revenueZeroRate -= subtotal;
       }
     });
   });

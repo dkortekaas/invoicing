@@ -6,6 +6,7 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 
 - 📄 **Facturen beheren**: Maak, bewerk en beheer facturen met automatische nummering
 - 👁️ **Factuur Preview**: Bekijk een live preview van je factuur voordat je deze verzendt
+- 📝 **Credit Nota's**: Volledige credit nota functionaliteit met status workflow
 - 👥 **Klantenbeheer**: Beheer je klantenbestand met volledige contactgegevens
 - 📦 **Producten & Diensten**: Definieer herbruikbare producten en diensten
 - 💰 **BTW-berekening**: Automatische BTW-berekening voor 0%, 9% en 21% tarieven
@@ -157,6 +158,13 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     /[id]                # Factuur detail
     /nieuw               # Nieuwe factuur
     actions.ts           # Server actions
+  /creditnotas           # Credit nota's beheer
+    page.tsx             # Credit nota's lijst
+    /[id]                # Credit nota detail
+    /[id]/bewerken       # Credit nota bewerken
+    /nieuw               # Nieuwe credit nota
+    /van-factuur/[id]    # Credit nota van factuur
+    actions.ts           # Server actions
   /klanten               # Klanten beheer
   /producten             # Producten beheer
   /instellingen          # Bedrijfsinstellingen
@@ -193,6 +201,9 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
       /webhook            # Stripe webhooks
       /subscription       # Subscription status
     /invoices/[id]/pdf   # PDF generatie endpoint
+    /creditnotes         # Credit nota API endpoints
+      /[id]/pdf          # Credit nota PDF generatie
+      /email             # Credit nota email verzenden
 /components
   /ui                    # shadcn/ui components
   /marketing             # Marketing components
@@ -212,6 +223,11 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     goals-progress.tsx   # Doelstellingen tracking
     period-selector.tsx  # Datum range selector
   /invoices              # Factuur components
+  /creditnotes           # Credit nota components
+    credit-note-form.tsx           # Credit nota formulier
+    credit-note-status-badge.tsx   # Status badge component
+    credit-note-pdf-template.tsx   # PDF template
+    credit-note-email-send-button.tsx  # Email versturen button
   /customers             # Klant components
   /products              # Product components
   /admin                 # Admin components
@@ -263,6 +279,9 @@ De applicatie gebruikt de volgende hoofdmodellen:
 - **Product**: Producten en diensten
 - **Invoice**: Facturen met items
 - **InvoiceItem**: Factuurregels
+- **CreditNote**: Credit nota's met status workflow
+- **CreditNoteItem**: Credit nota regels
+- **CreditNoteEmailLog**: Email geschiedenis voor credit nota's
 - **Project**: Projecten voor time tracking
 - **TimeEntry**: Tijd registraties
 - **RecurringInvoice**: Terugkerende facturen
@@ -335,10 +354,43 @@ Zie `prisma/schema.prisma` voor het volledige schema.
 - **Preview**: Bekijk een live preview van de PDF via de "Preview" tab
 - **Bewerken**: Klik op "Bewerken" in het factuur detail
 - **PDF Downloaden**: Klik op "Download PDF" in het factuur detail of via het dropdown menu
-- **Status wijzigen**: 
+- **Status wijzigen**:
   - Concept → Verzonden
   - Verzonden → Betaald
 - **Verwijderen**: Via dropdown menu (alleen concept facturen)
+- **Crediteren**: Maak een credit nota aan voor de factuur
+
+### Credit Nota's
+
+Credit nota's zijn wettelijk verplicht voor het corrigeren van facturen. De applicatie biedt volledige ondersteuning voor:
+
+#### Credit Nota Maken
+1. Ga naar **Credit Nota's** → **Nieuwe Credit Nota**, of
+2. Vanaf een factuur: klik op "Crediteren" in het factuur detail
+
+#### Credit Nota Workflow
+- **CONCEPT**: Credit nota kan worden bewerkt en verwijderd
+- **DEFINITIEF**: Credit nota is vergrendeld, klaar voor verzending
+- **VERZONDEN**: Credit nota is verzonden naar de klant
+- **VERWERKT**: Credit nota is verwerkt in de administratie
+- **TERUGBETAALD**: Bedrag is teruggestort aan de klant
+
+#### Redenen voor Credit Nota's
+- Prijscorrectie
+- Aantalaanpassing
+- Retour
+- Annulering
+- Korting achteraf
+- BTW correctie
+- Dubbele factuur
+- Coulance
+- Overig (met verplichte omschrijving)
+
+#### Credit Nota's en BTW
+Credit nota's worden automatisch verwerkt in de BTW-aangifte:
+- Omzet wordt gecorrigeerd (afgetrokken)
+- BTW wordt gecorrigeerd per tarief
+- Integratie met ICP rapportage voor EU-klanten
 
 ### Dashboard
 
@@ -947,6 +999,8 @@ Het audit trail systeem biedt volledige traceerbaarheid en compliance:
 - [x] User invitations voor PRO accounts ✅
 - [x] Abonnementen overzicht in admin dashboard ✅
 - [x] Audit trail systeem met fraud detectie ✅
+- [x] Credit nota's met volledige workflow ✅
+- [ ] Klantportaal voor factuur inzage en betaling
 - [ ] Forecasting & predictive analytics
 - [ ] Benchmarking tegen industrie gemiddeldes
 - [ ] Geautomatiseerde email rapporten (wekelijks/maandelijks)

@@ -6,11 +6,13 @@ import {
   ArrowLeft,
   Download,
   FileText,
+  Mail,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -25,6 +27,7 @@ import {
 } from "@/components/ui/table"
 import { Separator } from "@/components/ui/separator"
 import { CreditNoteStatusBadge } from "@/components/creditnotes/credit-note-status-badge"
+import { CreditNoteEmailSendButton } from "@/components/creditnotes/credit-note-email-send-button"
 import { formatCurrency, formatDate, formatDateLong, CREDIT_NOTE_REASON_LABELS } from "@/lib/utils"
 import { getCreditNote } from "../actions"
 import { CreditNoteActionsClient } from "./credit-note-actions-client"
@@ -82,6 +85,14 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
               Download PDF
             </a>
           </Button>
+
+          {creditNote.customer.email && (creditNote.status === 'FINAL' || creditNote.status === 'SENT') && (
+            <CreditNoteEmailSendButton
+              creditNoteId={creditNote.id}
+              creditNoteNumber={creditNote.creditNoteNumber}
+              customerEmail={creditNote.customer.email}
+            />
+          )}
 
           <CreditNoteActionsClient
             creditNote={{
@@ -310,6 +321,71 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
               </div>
             </CardContent>
           </Card>
+
+          {/* Email Actions */}
+          {creditNote.customer.email && (creditNote.status === 'FINAL' || creditNote.status === 'SENT') && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email acties
+                </CardTitle>
+                <CardDescription>
+                  Verstuur emails naar {creditNote.customer.email}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CreditNoteEmailSendButton
+                  creditNoteId={creditNote.id}
+                  creditNoteNumber={creditNote.creditNoteNumber}
+                  customerEmail={creditNote.customer.email}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Email History */}
+          {creditNote.emails && creditNote.emails.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Email geschiedenis</CardTitle>
+                <CardDescription>
+                  Overzicht van verzonden emails
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {creditNote.emails.map((email: typeof creditNote.emails[0]) => (
+                    <div
+                      key={email.id}
+                      className="flex items-center justify-between rounded-lg border p-3 text-sm"
+                    >
+                      <div>
+                        <p className="font-medium">{email.subject}</p>
+                        <p className="text-muted-foreground">
+                          {email.recipient}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-xs ${
+                          email.status === 'SENT' ? 'text-green-600' :
+                          email.status === 'FAILED' ? 'text-red-600' : 'text-yellow-600'
+                        }`}>
+                          {email.status === 'SENT' ? 'Verzonden' :
+                           email.status === 'FAILED' ? 'Mislukt' : 'In wachtrij'}
+                        </p>
+                        {email.sentAt && (
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(email.sentAt)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Internal notes */}
           {creditNote.internalNotes && (

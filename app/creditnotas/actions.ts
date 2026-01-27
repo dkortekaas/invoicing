@@ -200,7 +200,23 @@ export async function createCreditNote(
 
   revalidatePath("/creditnotas")
   revalidatePath("/")
-  return creditNote
+  
+  // Convert Decimal fields to numbers for serialization
+  return {
+    ...creditNote,
+    subtotal: creditNote.subtotal.toNumber(),
+    vatAmount: creditNote.vatAmount.toNumber(),
+    total: creditNote.total.toNumber(),
+    items: creditNote.items.map((item) => ({
+      ...item,
+      quantity: item.quantity.toNumber(),
+      unitPrice: item.unitPrice.toNumber(),
+      vatRate: item.vatRate.toNumber(),
+      subtotal: item.subtotal.toNumber(),
+      vatAmount: item.vatAmount.toNumber(),
+      total: item.total.toNumber(),
+    })),
+  }
 }
 
 export async function updateCreditNote(
@@ -326,7 +342,23 @@ export async function updateCreditNote(
   revalidatePath("/creditnotas")
   revalidatePath(`/creditnotas/${id}`)
   revalidatePath("/")
-  return creditNote
+  
+  // Convert Decimal fields to numbers for serialization
+  return {
+    ...creditNote,
+    subtotal: creditNote.subtotal.toNumber(),
+    vatAmount: creditNote.vatAmount.toNumber(),
+    total: creditNote.total.toNumber(),
+    items: creditNote.items.map((item) => ({
+      ...item,
+      quantity: item.quantity.toNumber(),
+      unitPrice: item.unitPrice.toNumber(),
+      vatRate: item.vatRate.toNumber(),
+      subtotal: item.subtotal.toNumber(),
+      vatAmount: item.vatAmount.toNumber(),
+      total: item.total.toNumber(),
+    })),
+  }
 }
 
 export async function updateCreditNoteStatus(

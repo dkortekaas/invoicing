@@ -19,8 +19,8 @@ export default async function NieuweFactuurPage() {
   const productsForForm = products.map((p: typeof products[0]) => ({
     id: p.id,
     name: p.name,
-    unitPrice: p.unitPrice.toNumber(),
-    vatRate: p.vatRate.toNumber(),
+    unitPrice: p.unitPrice,
+    vatRate: p.vatRate,
     unit: p.unit,
   }))
 

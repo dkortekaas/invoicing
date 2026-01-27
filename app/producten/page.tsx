@@ -71,13 +71,12 @@ export default async function ProductenPage() {
                 </TableRow>
               ) : (
                 products.map((product: typeof products[0]) => {
-                  // Convert Decimal objects to numbers for Client Component
                   const productData = {
                     id: product.id,
                     name: product.name,
                     description: product.description || "",
-                    unitPrice: Number(product.unitPrice),
-                    vatRate: Number(product.vatRate),
+                    unitPrice: product.unitPrice,
+                    vatRate: product.vatRate,
                     unit: product.unit,
                     isActive: product.isActive,
                   };
@@ -98,7 +97,7 @@ export default async function ProductenPage() {
                         {product.unit}
                       </TableCell>
                       <TableCell className="text-center">
-                        {product.vatRate.toNumber()}%
+                        {product.vatRate}%
                       </TableCell>
                       <TableCell className="text-center">
                         <Badge

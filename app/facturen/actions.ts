@@ -23,7 +23,22 @@ export async function getInvoices(status?: string) {
       items: true,
     },
   })
-  return invoices
+  
+  // Convert Decimal fields to numbers for serialization
+  return invoices.map((invoice) => ({
+    ...invoice,
+    subtotal: invoice.subtotal.toNumber(),
+    vatAmount: invoice.vatAmount.toNumber(),
+    total: invoice.total.toNumber(),
+    items: invoice.items.map((item) => ({
+      ...item,
+      quantity: item.quantity.toNumber(),
+      unitPrice: item.unitPrice.toNumber(),
+      vatRate: item.vatRate.toNumber(),
+      subtotal: item.subtotal.toNumber(),
+      vatAmount: item.vatAmount.toNumber(),
+    })),
+  }))
 }
 
 export async function getInvoice(id: string) {
@@ -475,7 +490,14 @@ export async function getRecentInvoices(limit = 5) {
       },
     },
   })
-  return invoices
+  
+  // Convert Decimal fields to numbers for serialization
+  return invoices.map((invoice) => ({
+    ...invoice,
+    subtotal: invoice.subtotal.toNumber(),
+    vatAmount: invoice.vatAmount.toNumber(),
+    total: invoice.total.toNumber(),
+  }))
 }
 
 // ========== Payment Link Actions ==========

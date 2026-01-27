@@ -13,7 +13,13 @@ export async function getProducts() {
     where: { userId },
     orderBy: { name: "asc" },
   })
-  return products
+  
+  // Convert Decimal fields to numbers for serialization
+  return products.map((product) => ({
+    ...product,
+    unitPrice: product.unitPrice.toNumber(),
+    vatRate: product.vatRate.toNumber(),
+  }))
 }
 
 export async function getActiveProducts() {
@@ -22,7 +28,13 @@ export async function getActiveProducts() {
     where: { userId, isActive: true },
     orderBy: { name: "asc" },
   })
-  return products
+  
+  // Convert Decimal fields to numbers for serialization
+  return products.map((product) => ({
+    ...product,
+    unitPrice: product.unitPrice.toNumber(),
+    vatRate: product.vatRate.toNumber(),
+  }))
 }
 
 export async function getProduct(id: string) {
@@ -30,7 +42,17 @@ export async function getProduct(id: string) {
   const product = await db.product.findUnique({
     where: { id, userId },
   })
-  return product
+  
+  if (!product) {
+    return null
+  }
+  
+  // Convert Decimal fields to numbers for serialization
+  return {
+    ...product,
+    unitPrice: product.unitPrice.toNumber(),
+    vatRate: product.vatRate.toNumber(),
+  }
 }
 
 export async function createProduct(data: ProductFormData) {
@@ -56,7 +78,13 @@ export async function createProduct(data: ProductFormData) {
   }, userId)
 
   revalidatePath("/producten")
-  return product
+  
+  // Convert Decimal fields to numbers for serialization
+  return {
+    ...product,
+    unitPrice: product.unitPrice.toNumber(),
+    vatRate: product.vatRate.toNumber(),
+  }
 }
 
 export async function updateProduct(id: string, data: ProductFormData) {
@@ -99,7 +127,13 @@ export async function updateProduct(id: string, data: ProductFormData) {
   }
 
   revalidatePath("/producten")
-  return product
+  
+  // Convert Decimal fields to numbers for serialization
+  return {
+    ...product,
+    unitPrice: product.unitPrice.toNumber(),
+    vatRate: product.vatRate.toNumber(),
+  }
 }
 
 export async function deleteProduct(id: string) {
@@ -144,5 +178,11 @@ export async function toggleProductActive(id: string, isActive: boolean) {
   })
 
   revalidatePath("/producten")
-  return product
+  
+  // Convert Decimal fields to numbers for serialization
+  return {
+    ...product,
+    unitPrice: product.unitPrice.toNumber(),
+    vatRate: product.vatRate.toNumber(),
+  }
 }

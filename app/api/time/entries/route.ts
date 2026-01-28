@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calculateAmount } from '@/lib/time/calculations';
+import { Prisma } from '@prisma/client';
 
 // GET - List time entries met filters
 export async function GET(request: NextRequest) {
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
   const endDate = searchParams.get('endDate');
 
   try {
-    const where: any = {
+    const where: Prisma.TimeEntryWhereInput = {
       userId: session.user.id,
     };
 

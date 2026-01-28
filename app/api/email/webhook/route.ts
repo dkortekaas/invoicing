@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { Prisma } from '@prisma/client';
 
 // Resend webhook voor email events (opened, clicked, etc.)
 export const dynamic = 'force-dynamic';
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update based on event type
-    const updates: any = {};
+    const updates: Prisma.EmailLogUpdateInput = {};
 
     switch (type) {
       case 'email.delivered':

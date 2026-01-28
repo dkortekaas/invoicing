@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { Prisma } from '@prisma/client';
 
 // GET - List projects
 export async function GET(request: NextRequest) {
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
   const archived = searchParams.get('archived');
 
   try {
-    const where: any = {
+    const where: Prisma.ProjectWhereInput = {
       userId: session.user.id,
     };
 

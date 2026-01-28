@@ -47,7 +47,7 @@ export async function generateRecurringInvoice({
   }
 
   // Check of er een price change moet worden toegepast
-  let items = recurring.items;
+  const items = recurring.items;
   if (recurring.priceChanges.length > 0) {
     // Apply price changes (simplified - in productie meer complexe logica)
     const priceChange = recurring.priceChanges[0];

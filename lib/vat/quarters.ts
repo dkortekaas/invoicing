@@ -82,7 +82,7 @@ export async function generateVATReport(
   let revenueZeroRate = 0;
   let revenueReversed = 0;
   let revenueEU = 0;
-  let revenueExport = 0;
+  const revenueExport = 0;
 
   // Process invoices (add to revenue)
   invoices.forEach(invoice => {
@@ -168,7 +168,7 @@ export async function generateVATReport(
   let expensesHighVAT = 0;
   let expensesLowRate = 0;
   let expensesLowVAT = 0;
-  let expensesReversed = 0;
+  const expensesReversed = 0;
 
   expenses.forEach(expense => {
     const vatRate = Number(expense.vatRate);

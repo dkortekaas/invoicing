@@ -14,9 +14,9 @@ function getResend() {
 }
 
 export const resend = new Proxy({} as Resend, {
-  get(_target, prop) {
+  get(_target, prop: string | symbol) {
     const instance = getResend();
-    const value = (instance as any)[prop];
+    const value = (instance as Record<string | symbol, unknown>)[prop];
     if (typeof value === 'function') {
       return value.bind(instance);
     }

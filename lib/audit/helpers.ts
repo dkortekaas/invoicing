@@ -30,7 +30,7 @@ async function getUserEmail(userId?: string): Promise<string> {
 export async function logCreate(
   entityType: string,
   entityId: string,
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   userId?: string
 ): Promise<void> {
   const actualUserId = userId || (await getCurrentUserId().catch(() => undefined))
@@ -45,7 +45,7 @@ export async function logCreate(
     changes: Object.keys(data).reduce((acc, key) => {
       acc[key] = { oldValue: null, newValue: data[key] }
       return acc
-    }, {} as Record<string, { oldValue: any; newValue: any }>),
+    }, {} as Record<string, { oldValue: unknown; newValue: unknown }>),
   })
 }
 
@@ -55,8 +55,8 @@ export async function logCreate(
 export async function logUpdate(
   entityType: string,
   entityId: string,
-  oldData: Record<string, any> | null,
-  newData: Record<string, any>,
+  oldData: Record<string, unknown> | null,
+  newData: Record<string, unknown>,
   userId?: string
 ): Promise<void> {
   const actualUserId = userId || (await getCurrentUserId().catch(() => undefined))
@@ -82,7 +82,7 @@ export async function logUpdate(
 export async function logDelete(
   entityType: string,
   entityId: string,
-  deletedData: Record<string, any>,
+  deletedData: Record<string, unknown>,
   userId?: string
 ): Promise<void> {
   const actualUserId = userId || (await getCurrentUserId().catch(() => undefined))
@@ -97,7 +97,7 @@ export async function logDelete(
     changes: Object.keys(deletedData).reduce((acc, key) => {
       acc[key] = { oldValue: deletedData[key], newValue: null }
       return acc
-    }, {} as Record<string, { oldValue: any; newValue: any }>),
+    }, {} as Record<string, { oldValue: unknown; newValue: unknown }>),
   })
 }
 
@@ -107,7 +107,7 @@ export async function logDelete(
 export async function logView(
   entityType: string,
   entityId: string,
-  metadata?: Record<string, any>,
+  metadata?: Record<string, unknown>,
   userId?: string
 ): Promise<void> {
   const actualUserId = userId || (await getCurrentUserId().catch(() => undefined))
@@ -272,8 +272,8 @@ export async function logCreditNoteSent(
  */
 export async function logSettingsChange(
   settingType: string,
-  oldValue: any,
-  newValue: any,
+  oldValue: unknown,
+  newValue: unknown,
   userId?: string
 ): Promise<void> {
   const actualUserId = userId || (await getCurrentUserId().catch(() => undefined))

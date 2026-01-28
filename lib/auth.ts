@@ -3,6 +3,8 @@ import { db } from "./db"
 import bcrypt from "bcryptjs"
 import speakeasy from "speakeasy"
 import NextAuth from "next-auth"
+import type { JWT } from "next-auth/jwt"
+import type { Session, User } from "next-auth"
 import { verifyBackupCode } from "./auth-utils"
 import { logLogin, logLoginFailed } from "./audit/helpers"
 
@@ -97,14 +99,13 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: any; user: any }) {
+    async jwt({ token, user }: { token: JWT; user?: User | undefined }) {
       if (user) {
         token.id = user.id
-        token.requiresTwoFactor = (user as any).requiresTwoFactor
       }
       return token
     },
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
         session.user.id = token.id as string
       }

@@ -12,7 +12,7 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleHashClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+    (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, hash: string) => {
       if (pathname !== "/") {
         return;
       }
@@ -47,20 +47,20 @@ const Header = () => {
 
           {/* Desktop navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <a
-              href="/#features"
+            <Link
+              href="/"
               onClick={(e) => handleHashClick(e, "#features")}
               className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
             >
               Features
-            </a>
-            <a
-              href="/#how-it-works"
+            </Link>
+            <Link
+              href="/"
               onClick={(e) => handleHashClick(e, "#how-it-works")}
               className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
             >
               Hoe het werkt
-            </a>
+            </Link>
             <Link
               href="/prijzen"
               className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
@@ -104,22 +104,22 @@ const Header = () => {
           >
             <ul className="space-y-2 list-none">
               <li>
-                <a
-                  href="/#features"
+                <Link
+                  href="/"
                   onClick={(e) => handleHashClick(e, "#features")}
                   className="block py-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
                 >
                   Features
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/#how-it-works"
+                <Link
+                  href="/"
                   onClick={(e) => handleHashClick(e, "#how-it-works")}
                   className="block py-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
                 >
                   Hoe het werkt
-                </a>
+                </Link>
               </li>
               <li>
                 <Link

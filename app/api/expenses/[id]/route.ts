@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calculateNetFromGross, calculateVATFromGross } from '@/lib/vat/calculations';
+import { Prisma } from '@prisma/client';
 
 export async function GET(
   _request: NextRequest,
@@ -89,7 +90,7 @@ export async function PATCH(
     }
 
     // Recalculate amounts if amount or vatRate changed
-    let updateData: any = {};
+    const updateData: Prisma.ExpenseUpdateInput = {};
     if (date) updateData.date = new Date(date);
     if (description !== undefined) updateData.description = description;
     if (category) updateData.category = category;

@@ -1,9 +1,42 @@
 import ExcelJS from 'exceljs';
 
+interface KPIData {
+  totalRevenue: number;
+  revenueThisMonth: number;
+  revenueGrowth: number;
+  totalProfit: number;
+  profitMargin: number;
+  totalOutstanding: number;
+  overdueAmount: number;
+  totalInvoices: number;
+  paidInvoices: number;
+  unpaidInvoices: number;
+  averageInvoiceValue: number;
+  averagePaymentDays: number;
+  totalCustomers: number;
+  activeCustomers: number;
+  newCustomers: number;
+}
+
+interface TrendData {
+  month: string;
+  revenue: number;
+  expenses: number;
+  profit: number;
+  invoices: number;
+  hours?: number;
+}
+
+interface CustomerData {
+  name: string;
+  value: number;
+  percentage: number;
+}
+
 export async function exportAnalyticsToExcel(data: {
-  kpis: any;
-  trends: any[];
-  customers: any[];
+  kpis: KPIData;
+  trends: TrendData[];
+  customers: CustomerData[];
   period: { start: Date; end: Date };
 }): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook();

@@ -2,11 +2,11 @@
  * Helper to detect changes between old and new objects
  * This is a pure utility function, not a server action
  */
-export function detectChanges<T extends Record<string, any>>(
+export function detectChanges<T extends Record<string, unknown>>(
   oldData: T | null,
   newData: T
-): Record<string, { oldValue: any; newValue: any }> {
-  const changes: Record<string, { oldValue: any; newValue: any }> = {}
+): Record<string, { oldValue: unknown; newValue: unknown }> {
+  const changes: Record<string, { oldValue: unknown; newValue: unknown }> = {}
   
   if (!oldData) {
     // All fields are new

@@ -73,7 +73,7 @@ async function parseExcel(buffer: Buffer): Promise<ParsedFile> {
 
 function parseCsv(buffer: Buffer): ParsedFile {
   // Remove BOM and convert to string
-  let content = buffer.toString('utf-8').replace(/^\uFEFF/, '');
+  const content = buffer.toString('utf-8').replace(/^\uFEFF/, '');
 
   // Detect line endings
   const lineEnding = content.includes('\r\n') ? '\r\n' : '\n';

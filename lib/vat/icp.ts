@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { getQuarterInfo, isEUCustomer } from './calculations';
+import type { Customer } from '@prisma/client';
 
 /**
  * Generate ICP (Intracommunautaire Prestaties) entries for a quarter
@@ -42,7 +43,7 @@ export async function generateICPReport(
   // Group by customer
   const customerTotals = new Map<string, {
     customerId: string;
-    customer: any;
+    customer: Customer;
     amount: number;
     invoiceIds: string[];
   }>();

@@ -1,4 +1,5 @@
 import { differenceInMinutes } from 'date-fns';
+import type { TimeEntry } from '@prisma/client';
 
 /**
  * Bereken duration tussen twee tijdstippen in uren (decimaal)
@@ -83,8 +84,8 @@ export function formatDurationDecimal(hours: number): string {
 /**
  * Groepeer entries per dag
  */
-export function groupEntriesByDay(entries: any[]) {
-  const grouped = new Map<string, any[]>();
+export function groupEntriesByDay(entries: TimeEntry[]) {
+  const grouped = new Map<string, TimeEntry[]>();
   
   entries.forEach(entry => {
     const date = entry.startTime.toISOString().split('T')[0];
@@ -100,7 +101,7 @@ export function groupEntriesByDay(entries: any[]) {
 /**
  * Bereken totalen voor entries
  */
-export function calculateTotals(entries: any[]) {
+export function calculateTotals(entries: TimeEntry[]) {
   return entries.reduce(
     (acc, entry) => ({
       duration: acc.duration + Number(entry.duration),

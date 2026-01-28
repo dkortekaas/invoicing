@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { requireAdmin, isSuperuser } from "@/lib/auth/admin-guard"
+import { Prisma } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - days)
     
-    const where: any = {
+    const where: Prisma.AuditLogWhereInput = {
       isSuspicious: true,
       timestamp: {
         gte: startDate,

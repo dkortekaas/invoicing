@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calculateNextDate } from '@/lib/recurring/calculations';
 import { ensureCompanyDetails } from '@/lib/company-guard';
+import { Prisma } from '@prisma/client';
 
 // GET - List recurring invoices
 export async function GET(request: NextRequest) {
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
   const customerId = searchParams.get('customerId');
 
   try {
-    const where: any = {
+    const where: Prisma.RecurringInvoiceWhereInput = {
       userId: session.user.id,
     };
 
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
         notes,
         status: 'ACTIVE',
         items: {
-          create: items.map((item: any, index: number) => ({
+          create: items.map((item: { description: string; quantity: number; unitPrice: number; vatRate: number }, index: number) => ({
             description: item.description,
             quantity: item.quantity,
             unitPrice: item.unitPrice,

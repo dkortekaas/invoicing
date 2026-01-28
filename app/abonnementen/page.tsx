@@ -43,7 +43,7 @@ export default async function AbonnementenPage() {
       (sum, item) => sum + Number(item.quantity) * Number(item.unitPrice),
       0
     );
-    totalMRR += calculateMRR(total, r.frequency as any, r.interval);
+    totalMRR += calculateMRR(total, r.frequency, r.interval);
   });
 
   const totalARR = totalMRR * 12;

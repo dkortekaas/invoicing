@@ -6,9 +6,9 @@ import { formatDuration } from '@/lib/time/calculations';
 import Link from 'next/link';
 
 export function RunningTimerIndicator() {
-  const [elapsed, setElapsed] = useState(0);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [description, setDescription] = useState('');
+  const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
     const loadTimer = async () => {
@@ -17,11 +17,17 @@ export function RunningTimerIndicator() {
         if (response.ok) {
           const timers = await response.json();
           if (timers[0]) {
-            setStartTime(new Date(timers[0].startTime));
+            const newStartTime = new Date(timers[0].startTime);
+            setStartTime(newStartTime);
             setDescription(timers[0].description);
+            // Initialize elapsed time when startTime is set
+            const now = Date.now();
+            const hours = (now - newStartTime.getTime()) / (1000 * 60 * 60);
+            setElapsed(hours);
           } else {
             setStartTime(null);
             setDescription('');
+            setElapsed(0);
           }
         }
       } catch (error) {
@@ -36,10 +42,10 @@ export function RunningTimerIndicator() {
 
   useEffect(() => {
     if (!startTime) {
-      setElapsed(0);
       return;
     }
 
+    // Calculate elapsed time and update state
     const updateElapsed = () => {
       const now = Date.now();
       const hours = (now - startTime.getTime()) / (1000 * 60 * 60);
@@ -48,6 +54,7 @@ export function RunningTimerIndicator() {
 
     updateElapsed();
     const interval = setInterval(updateElapsed, 1000);
+    
     return () => clearInterval(interval);
   }, [startTime]);
 

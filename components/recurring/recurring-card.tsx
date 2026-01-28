@@ -68,7 +68,7 @@ export function RecurringCard({
     0
   );
 
-  const mrr = calculateMRR(total, recurring.frequency as any, recurring.interval);
+  const mrr = calculateMRR(total, recurring.frequency, recurring.interval);
 
   const statusConfig = STATUS_CONFIG[recurring.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.ACTIVE;
 
@@ -140,7 +140,7 @@ export function RecurringCard({
         <div>
           <div className="text-sm text-muted-foreground">Frequentie</div>
           <div className="font-medium">
-            {formatFrequency(recurring.frequency as any, recurring.interval)}
+            {formatFrequency(recurring.frequency, recurring.interval)}
           </div>
         </div>
 

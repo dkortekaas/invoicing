@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calculateNetFromGross, calculateVATFromGross } from '@/lib/vat/calculations';
 import { ensureCompanyDetails } from '@/lib/company-guard';
+import { Prisma } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
   const category = searchParams.get('category');
 
   try {
-    const where: any = {
+    const where: Prisma.ExpenseWhereInput = {
       userId: session.user.id,
     };
 

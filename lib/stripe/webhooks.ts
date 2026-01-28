@@ -17,7 +17,7 @@ export async function handleSubscriptionCreated(
     data: {
       stripeSubscriptionId: subscription.id,
       stripePriceId: firstItem.price.id,
-      stripeCurrentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
       subscriptionStatus: mapStripeStatus(subscription.status),
       subscriptionTier: 'PRO',
       billingCycle: firstItem.price.recurring?.interval === 'year' 
@@ -61,7 +61,7 @@ export async function handleSubscriptionUpdated(
     where: { stripeCustomerId: customerId },
     data: {
       stripePriceId: firstItem.price.id,
-      stripeCurrentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
       subscriptionStatus: mapStripeStatus(subscription.status),
       billingCycle: firstItem.price.recurring?.interval === 'year'
         ? 'YEARLY'
@@ -174,7 +174,7 @@ export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 function mapStripeStatus(
   status: Stripe.Subscription.Status
 ): 'FREE' | 'ACTIVE' | 'TRIALING' | 'PAST_DUE' | 'CANCELED' | 'INCOMPLETE' | 'INCOMPLETE_EXPIRED' | 'UNPAID' {
-  const mapping: Record<Stripe.Subscription.Status, any> = {
+  const mapping: Record<Stripe.Subscription.Status, 'FREE' | 'ACTIVE' | 'TRIALING' | 'PAST_DUE' | 'CANCELED' | 'INCOMPLETE' | 'INCOMPLETE_EXPIRED' | 'UNPAID'> = {
     active: 'ACTIVE',
     trialing: 'TRIALING',
     past_due: 'PAST_DUE',

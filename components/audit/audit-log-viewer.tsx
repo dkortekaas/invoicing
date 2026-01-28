@@ -3,6 +3,7 @@
 import { useState, useEffect, Fragment } from "react"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
+import { Prisma } from "@prisma/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -43,8 +44,8 @@ interface AuditLog {
   action: string
   entityType: string
   entityId: string | null
-  changes: any
-  metadata: any
+  changes: Prisma.JsonValue | null
+  metadata: Prisma.JsonValue | null
   ipAddress: string | null
   userAgent: string | null
   isSuspicious: boolean
@@ -174,10 +175,10 @@ export function AuditLogViewer({
     }
   }
 
-  const formatChanges = (changes: any) => {
+  const formatChanges = (changes: Prisma.JsonValue | null) => {
     if (!changes || typeof changes !== "object") return null
     
-    return Object.entries(changes).map(([key, value]: [string, any]) => (
+    return Object.entries(changes as Record<string, unknown>).map(([key, value]) => (
       <div key={key} className="border-l-2 border-blue-200 pl-3 py-1">
         <div className="font-medium text-sm">{key}</div>
         <div className="text-xs text-muted-foreground space-y-1">

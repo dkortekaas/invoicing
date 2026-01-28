@@ -67,7 +67,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
   const [loading, setLoading] = useState(false);
 
   const form = useForm<RecurringFormData>({
-    resolver: zodResolver(recurringSchema) as any,
+    resolver: zodResolver(recurringSchema),
     defaultValues: {
       name: initialData?.name || '',
       description: initialData?.description || '',

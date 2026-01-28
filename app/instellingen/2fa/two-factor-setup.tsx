@@ -44,8 +44,8 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
       setQrCode(result.qrCode)
       setSecret(result.secret)
       setStep("verify")
-    } catch (err: any) {
-      setError(err.message || "Fout bij genereren 2FA secret")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fout bij genereren 2FA secret")
     } finally {
       setIsLoading(false)
     }
@@ -64,8 +64,8 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
       setBackupCodes(result.backupCodes)
       setStep("enabled")
       router.refresh()
-    } catch (err: any) {
-      setError(err.message || "Ongeldige verificatie code")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ongeldige verificatie code")
     } finally {
       setIsLoading(false)
     }
@@ -82,8 +82,8 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
       setSecret(null)
       setBackupCodes([])
       router.refresh()
-    } catch (err: any) {
-      setError(err.message || "Fout bij uitschakelen 2FA")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fout bij uitschakelen 2FA")
     } finally {
       setIsLoading(false)
     }

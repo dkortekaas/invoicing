@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  type TooltipProps,
 } from 'recharts';
 
 interface RevenueChartProps {
@@ -24,36 +25,47 @@ interface RevenueChartProps {
   type?: 'line' | 'bar';
 }
 
-export function RevenueChart({ data, type = 'bar' }: RevenueChartProps) {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('nl-NL', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('nl-NL', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+};
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-background border rounded-lg shadow-lg p-3">
-          <p className="font-semibold mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center gap-2 text-sm">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-muted-foreground">{entry.name}:</span>
-              <span className="font-medium">{formatCurrency(entry.value)}</span>
-            </div>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border rounded-lg shadow-lg p-3">
+        <p className="font-semibold mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center gap-2 text-sm">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-muted-foreground">{entry.name}:</span>
+            <span className="font-medium">{formatCurrency(entry.value)}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
+export function RevenueChart({ data, type = 'bar' }: RevenueChartProps) {
 
   const chartProps = {
     data,

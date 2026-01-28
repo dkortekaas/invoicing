@@ -43,8 +43,8 @@ export default function RegisterPage() {
     try {
       await registerUser(data)
       router.push("/login?registered=true")
-    } catch (err: any) {
-      setError(err.message || "Er is een fout opgetreden bij het registreren")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Er is een fout opgetreden bij het registreren")
     } finally {
       setIsLoading(false)
     }

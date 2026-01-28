@@ -63,8 +63,8 @@ export function LogoUpload({ currentLogo, onUploadSuccess }: LogoUploadProps) {
       const data = await response.json()
       setPreview(data.url)
       onUploadSuccess(data.url)
-    } catch (err: any) {
-      setError(err.message || "Fout bij uploaden logo")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fout bij uploaden logo")
       setPreview(currentLogo || null)
     } finally {
       setIsUploading(false)
@@ -90,8 +90,8 @@ export function LogoUpload({ currentLogo, onUploadSuccess }: LogoUploadProps) {
 
       setPreview(null)
       onUploadSuccess("")
-    } catch (err: any) {
-      setError(err.message || "Fout bij verwijderen logo")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fout bij verwijderen logo")
     } finally {
       setIsUploading(false)
     }

@@ -42,6 +42,7 @@ import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import type { Expense } from '@prisma/client';
 
 const expenseSchema = z.object({
   date: z.date(),
@@ -76,7 +77,7 @@ const CATEGORIES = [
 ];
 
 interface ExpenseFormProps {
-  expense?: any;
+  expense?: Expense;
   onSuccess?: () => void;
   useKOR?: boolean;
 }
@@ -135,7 +136,7 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
       const data = await response.json();
       setReceiptUrl(data.url);
       toast.success('Bestand geüpload');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Upload error:', error);
       toast.error(error.message || 'Fout bij uploaden bestand');
     } finally {

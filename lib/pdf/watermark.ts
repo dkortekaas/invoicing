@@ -1,6 +1,18 @@
 import { SystemSettings } from '@prisma/client';
 
-export function getWatermarkContainerStyles(settings: SystemSettings): any {
+interface WatermarkContainerStyles {
+  position: 'absolute';
+  top?: number;
+  left?: number;
+  right?: number;
+  bottom?: number;
+  display: 'flex';
+  justifyContent: 'center';
+  alignItems?: 'center';
+  opacity: number;
+}
+
+export function getWatermarkContainerStyles(settings: SystemSettings): WatermarkContainerStyles {
   const opacity = Number(settings.watermarkOpacity);
 
   switch (settings.watermarkPosition) {
@@ -66,8 +78,18 @@ export function getWatermarkContainerStyles(settings: SystemSettings): any {
   }
 }
 
-export function getWatermarkTextStyles(settings: SystemSettings): any {
-  const baseStyle: any = {
+interface WatermarkTextStyles {
+  color: string;
+  fontSize: number;
+  fontWeight: 'bold';
+  textTransform: 'uppercase';
+  letterSpacing: number;
+  textAlign: 'center';
+  transform?: Array<[string, string]>;
+}
+
+export function getWatermarkTextStyles(settings: SystemSettings): WatermarkTextStyles {
+  const baseStyle: WatermarkTextStyles = {
     color: settings.watermarkColor,
     fontSize: settings.watermarkPosition === 'FOOTER' 
       ? settings.watermarkFontSize * 0.6 

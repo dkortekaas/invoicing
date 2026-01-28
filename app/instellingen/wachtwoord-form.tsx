@@ -47,8 +47,8 @@ export function WachtwoordForm() {
       setSuccess(true)
       form.reset()
       router.refresh()
-    } catch (err: any) {
-      setError(err.message || "Fout bij wijzigen wachtwoord")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fout bij wijzigen wachtwoord")
     } finally {
       setIsSubmitting(false)
     }

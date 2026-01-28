@@ -11,8 +11,8 @@ export interface AuditLogData {
   action: AuditAction
   entityType: string
   entityId?: string
-  changes?: Record<string, { oldValue: any; newValue: any }>
-  metadata?: Record<string, any>
+  changes?: Record<string, { oldValue: unknown; newValue: unknown }>
+  metadata?: Record<string, unknown>
   ipAddress?: string
   userAgent?: string
   sessionId?: string
@@ -28,7 +28,7 @@ function calculateHash(data: {
   action: string
   entityType: string
   entityId: string | null
-  changes: any
+  changes: Record<string, { oldValue: unknown; newValue: unknown }> | null
   previousHash: string | null
 }): string {
   const hashInput = JSON.stringify({

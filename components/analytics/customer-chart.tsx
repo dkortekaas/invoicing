@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   Legend,
   Tooltip,
+  type TooltipProps,
 } from 'recharts';
 
 interface CustomerChartProps {
@@ -29,52 +30,73 @@ const COLORS = [
   'hsl(var(--accent))',
 ];
 
-export function CustomerChart({ data }: CustomerChartProps) {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('nl-NL', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('nl-NL', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+};
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-background border rounded-lg shadow-lg p-3">
-          <p className="font-semibold mb-1">{data.name}</p>
-          <p className="text-sm text-muted-foreground">
-            {formatCurrency(data.value)} ({data.percentage.toFixed(1)}%)
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  active?: boolean;
+  payload?: Array<{
+    payload: {
+      name: string;
+      value: number;
+      percentage: number;
+    };
+  }>;
+}
 
-  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percentage }: any) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    if (percentage < 5) return null;
-
+const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
     return (
-      <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor={x > cx ? 'start' : 'end'}
-        dominantBaseline="central"
-        className="text-xs font-semibold"
-      >
-        {`${percentage.toFixed(0)}%`}
-      </text>
+      <div className="bg-background border rounded-lg shadow-lg p-3">
+        <p className="font-semibold mb-1">{data.name}</p>
+        <p className="text-sm text-muted-foreground">
+          {formatCurrency(data.value)} ({data.percentage.toFixed(1)}%)
+        </p>
+      </div>
     );
-  };
+  }
+  return null;
+};
+
+interface CustomLabelProps {
+  cx: number;
+  cy: number;
+  midAngle: number;
+  innerRadius: number;
+  outerRadius: number;
+  percentage: number;
+}
+
+const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percentage }: CustomLabelProps) => {
+  const RADIAN = Math.PI / 180;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+  if (percentage < 5) return null;
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="white"
+      textAnchor={x > cx ? 'start' : 'end'}
+      dominantBaseline="central"
+      className="text-xs font-semibold"
+    >
+      {`${percentage.toFixed(0)}%`}
+    </text>
+  );
+};
+
+export function CustomerChart({ data }: CustomerChartProps) {
 
   return (
     <Card>

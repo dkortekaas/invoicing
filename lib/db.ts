@@ -86,9 +86,9 @@ export function clearPrismaCache() {
 
 // Create a proxy that maintains type safety
 const dbHandler: ProxyHandler<PrismaClient> = {
-  get(_target, prop) {
+  get(_target, prop: string | symbol) {
     const client = getDb()
-    const value = (client as any)[prop]
+    const value = (client as Record<string | symbol, unknown>)[prop]
     
     // If the property doesn't exist, it might be a new model that wasn't in the cached client
     // In development, try to get a fresh client
@@ -96,7 +96,7 @@ const dbHandler: ProxyHandler<PrismaClient> = {
       // Clear cache and try again
       clearPrismaCache()
       const freshClient = getDb()
-      const freshValue = (freshClient as any)[prop]
+      const freshValue = (freshClient as Record<string | symbol, unknown>)[prop]
       if (freshValue !== undefined) {
         if (typeof freshValue === "function") {
           return freshValue.bind(freshClient)

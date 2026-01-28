@@ -71,10 +71,10 @@ export default async function TijdPage() {
         color: entry.project.color || undefined,
       } : null,
     }));
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error loading time entries:', error);
     // If timeEntry doesn't exist, it means Prisma client needs to be regenerated
-    if (error?.message?.includes('timeEntry') || error?.message?.includes('Cannot read')) {
+    if (error instanceof Error && (error.message?.includes('timeEntry') || error.message?.includes('Cannot read'))) {
       console.error('Prisma client is not up-to-date. Please restart the dev server.');
     }
     // Return empty array to prevent crash

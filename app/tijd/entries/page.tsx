@@ -53,7 +53,7 @@ export default async function TimeEntriesPage() {
       </div>
 
       <Suspense fallback={<div>Laden...</div>}>
-        <TimeEntryList entries={entries as any} />
+        <TimeEntryList entries={entries} />
       </Suspense>
     </div>
   );

@@ -16,6 +16,8 @@ import {
   type ChangePasswordFormData,
   mollieSettingsSchema,
   type MollieSettingsFormData,
+  fiscalSettingsSchema,
+  type FiscalSettingsFormData,
 } from "@/lib/validations"
 import { encryptApiKey, validateMollieApiKey } from "@/lib/mollie/encryption"
 import { MollieClient } from "@/lib/mollie/client"
@@ -519,4 +521,112 @@ export async function testMollieConnection(): Promise<{
       error: error instanceof Error ? error.message : "Verbinding mislukt",
     }
   }
+}
+
+// ========== Fiscal Settings Actions ==========
+export async function getFiscalSettings(): Promise<FiscalSettingsFormData> {
+  const userId = await getCurrentUserId()
+
+  const settings = await db.fiscalSettings.findUnique({
+    where: { userId },
+  })
+
+  if (!settings) {
+    // Return defaults
+    return {
+      businessType: "EENMANSZAAK",
+      useKOR: false,
+      hoursTracked: false,
+      manualHoursPerYear: null,
+      isStarter: false,
+      starterYearsUsed: 0,
+      firstStarterYear: null,
+      hasHomeOffice: false,
+      homeOfficeType: null,
+      homeOfficePercentage: null,
+      hasBusinessCar: false,
+      carPrivateUsage: null,
+      useFOR: false,
+    }
+  }
+
+  return {
+    businessType: settings.businessType,
+    useKOR: settings.useKOR,
+    hoursTracked: settings.hoursTracked,
+    manualHoursPerYear: settings.manualHoursPerYear,
+    isStarter: settings.isStarter,
+    starterYearsUsed: settings.starterYearsUsed,
+    firstStarterYear: settings.firstStarterYear,
+    hasHomeOffice: settings.hasHomeOffice,
+    homeOfficeType: settings.homeOfficeType,
+    homeOfficePercentage: settings.homeOfficePercentage?.toNumber() ?? null,
+    hasBusinessCar: settings.hasBusinessCar,
+    carPrivateUsage: settings.carPrivateUsage?.toNumber() ?? null,
+    useFOR: settings.useFOR,
+  }
+}
+
+export async function updateFiscalSettings(data: FiscalSettingsFormData) {
+  const validated = fiscalSettingsSchema.parse(data)
+  const userId = await getCurrentUserId()
+
+  // Get current settings for audit logging
+  const currentSettings = await db.fiscalSettings.findUnique({
+    where: { userId },
+  })
+
+  const payload = {
+    businessType: validated.businessType,
+    useKOR: validated.useKOR,
+    hoursTracked: validated.hoursTracked,
+    manualHoursPerYear: validated.manualHoursPerYear,
+    isStarter: validated.isStarter,
+    starterYearsUsed: validated.starterYearsUsed,
+    firstStarterYear: validated.firstStarterYear,
+    hasHomeOffice: validated.hasHomeOffice,
+    homeOfficeType: validated.homeOfficeType,
+    homeOfficePercentage: validated.homeOfficePercentage,
+    hasBusinessCar: validated.hasBusinessCar,
+    carPrivateUsage: validated.carPrivateUsage,
+    useFOR: validated.useFOR,
+  }
+
+  await db.fiscalSettings.upsert({
+    where: { userId },
+    create: {
+      userId,
+      ...payload,
+    },
+    update: payload,
+  })
+
+  // Log audit trail
+  if (currentSettings) {
+    await logUpdate(
+      "settings",
+      userId,
+      {
+        businessType: currentSettings.businessType,
+        useKOR: currentSettings.useKOR,
+        hoursTracked: currentSettings.hoursTracked,
+        isStarter: currentSettings.isStarter,
+        hasHomeOffice: currentSettings.hasHomeOffice,
+        hasBusinessCar: currentSettings.hasBusinessCar,
+        useFOR: currentSettings.useFOR,
+      },
+      {
+        businessType: validated.businessType,
+        useKOR: validated.useKOR,
+        hoursTracked: validated.hoursTracked,
+        isStarter: validated.isStarter,
+        hasHomeOffice: validated.hasHomeOffice,
+        hasBusinessCar: validated.hasBusinessCar,
+        useFOR: validated.useFOR,
+      },
+      userId
+    )
+  }
+
+  revalidatePath("/instellingen")
 }

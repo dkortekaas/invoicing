@@ -15,7 +15,9 @@
       "Bash(xargs -I {} bash -c \"echo ''=== {} ==='' && head -30 ''{}''\")",
       "Bash(npx tsc:*)",
       "Bash(echo:*)",
-      "Bash(npx prisma migrate:*)"
+      "Bash(npx prisma migrate:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx eslint:*)"
     ]
   }
 }

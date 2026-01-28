@@ -18,6 +18,7 @@ import {
   History,
   Euro,
   FileX,
+  Calculator,
 } from "lucide-react"
 
 import {
@@ -79,6 +80,11 @@ const navigation = [
     title: "BTW",
     url: "/btw",
     icon: Receipt,
+  },
+  {
+    title: "Belasting",
+    url: "/belasting",
+    icon: Calculator,
   },
   {
     title: "Instellingen",

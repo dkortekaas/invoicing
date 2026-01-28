@@ -8,7 +8,8 @@ import { FinancieleGegevensForm } from "./financiele-gegevens-form"
 import { TwoFactorSetup } from "./2fa/two-factor-setup"
 import { WachtwoordForm } from "./wachtwoord-form"
 import { EmailSettingsForm } from "./email-form"
-import { getProfile, getCompanyInfo, getFinancialInfo, getEmailSettings, getMollieSettings } from "./actions"
+import { FiscaalForm } from "./fiscaal-form"
+import { getProfile, getCompanyInfo, getFinancialInfo, getEmailSettings, getMollieSettings, getFiscalSettings } from "./actions"
 import { MollieSettingsForm } from "./mollie-settings-form"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
@@ -40,12 +41,13 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
   }
 
   // Fetch all data in parallel
-  const [profile, companyInfo, financialInfo, emailSettings, mollieSettings, params] = await Promise.all([
+  const [profile, companyInfo, financialInfo, emailSettings, mollieSettings, fiscalSettings, params] = await Promise.all([
     getProfile(),
     getCompanyInfo(),
     getFinancialInfo(),
     getEmailSettings(),
     getMollieSettings(),
+    getFiscalSettings(),
     searchParams,
   ])
 
@@ -62,11 +64,12 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
       </div>
 
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="profiel">Profiel</TabsTrigger>
           <TabsTrigger value="beveiliging">Beveiliging</TabsTrigger>
-          <TabsTrigger value="bedrijfsgegevens">Bedrijfsgegevens</TabsTrigger>
+          <TabsTrigger value="bedrijfsgegevens">Bedrijf</TabsTrigger>
           <TabsTrigger value="financiele-gegevens">Financieel</TabsTrigger>
+          <TabsTrigger value="fiscaal">Fiscaal</TabsTrigger>
           <TabsTrigger value="email">Email</TabsTrigger>
           <TabsTrigger value="betalingen">Betalingen</TabsTrigger>
           <TabsTrigger value="import-export">Import/Export</TabsTrigger>
@@ -82,6 +85,10 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
 
         <TabsContent value="financiele-gegevens" className="mt-6">
           <FinancieleGegevensForm initialData={financialInfo} />
+        </TabsContent>
+
+        <TabsContent value="fiscaal" className="mt-6">
+          <FiscaalForm initialData={fiscalSettings} />
         </TabsContent>
 
         <TabsContent value="beveiliging" className="mt-6">

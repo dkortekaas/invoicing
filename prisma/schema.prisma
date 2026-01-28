@@ -115,6 +115,11 @@ model User {
   // Import/Export
   importExportJobs   ImportExportJob[]
   importTemplates    ImportTemplate[]
+
+  // Tax / Inkomstenbelasting
+  fiscalSettings    FiscalSettings?
+  assets            Asset[]
+  taxReports        TaxReport[]
 }
 
 model Customer {
@@ -1386,4 +1391,164 @@ model ImportTemplate {
 
   @@index([userId])
   @@index([entityType])
+}
+
+// ========== Tax / Inkomstenbelasting Models ==========
+
+// Fiscale instellingen per gebruiker
+model FiscalSettings {
+  id                   String          @id @default(cuid())
+  userId               String          @unique
+  user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  businessType         BusinessType    @default(EENMANSZAAK)
+  useKOR               Boolean         @default(false) // Kleineondernemersregeling (geen BTW)
+  hoursTracked         Boolean         @default(false) // Wordt urencriterium bijgehouden via tijdregistratie?
+  manualHoursPerYear   Int?            // Handmatig ingevoerde uren per jaar
+  isStarter            Boolean         @default(false)
+  starterYearsUsed     Int             @default(0) // Hoeveel jaren startersaftrek gebruikt
+  firstStarterYear     Int?            // Eerste jaar dat startersaftrek is toegepast
+  hasHomeOffice        Boolean         @default(false)
+  homeOfficeType       HomeOfficeType?
+  homeOfficePercentage Decimal?        @db.Decimal(5, 2) // Percentage van woning zakelijk
+  hasBusinessCar       Boolean         @default(false)
+  carPrivateUsage      Decimal?        @db.Decimal(5, 2) // Percentage privé gebruik
+  useFOR               Boolean         @default(false) // Fiscale Oudedagsreserve
+
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+}
+
+enum BusinessType {
+  EENMANSZAAK
+  VOF
+  MAATSCHAP
+  BV
+}
+
+enum HomeOfficeType {
+  INDEPENDENT     // Zelfstandige werkruimte
+  NON_INDEPENDENT // Niet-zelfstandige werkruimte
+}
+
+// Bedrijfsmiddelen (activa)
+model Asset {
+  id                 String              @id @default(cuid())
+  userId             String
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name               String
+  description        String?
+  category           AssetCategory
+  purchaseDate       DateTime
+  purchasePrice      Decimal             @db.Decimal(10, 2)
+  supplier           String?
+  usefulLifeYears    Int                 // Afschrijvingstermijn in jaren
+  residualValue      Decimal             @default(0) @db.Decimal(10, 2) // Restwaarde
+  depreciationMethod DepreciationMethod  @default(LINEAR)
+  bookValue          Decimal             @db.Decimal(10, 2) // Huidige boekwaarde
+  isActive           Boolean             @default(true)
+  disposalDate       DateTime?           // Datum verkoop/afschrijving
+  disposalPrice      Decimal?            @db.Decimal(10, 2) // Verkoopprijs
+  kiaApplied         Boolean             @default(false) // KIA toegepast?
+  kiaYear            Int?                // Jaar waarin KIA is toegepast
+
+  depreciationEntries DepreciationEntry[]
+
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([category])
+  @@index([isActive])
+}
+
+enum AssetCategory {
+  EQUIPMENT   // Apparatuur/machines
+  VEHICLE     // Voertuigen
+  FURNITURE   // Inventaris/meubilair
+  SOFTWARE    // Software/licenties
+  BUILDING    // Gebouwen
+  INTANGIBLE  // Immaterieel (goodwill, etc.)
+  OTHER       // Overig
+}
+
+enum DepreciationMethod {
+  LINEAR      // Lineair (gelijke bedragen)
+  DEGRESSIVE  // Degressief (dalende bedragen)
+}
+
+// Afschrijvingen per jaar
+model DepreciationEntry {
+  id             String   @id @default(cuid())
+  assetId        String
+  asset          Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  year           Int
+  amount         Decimal  @db.Decimal(10, 2)
+  bookValueStart Decimal  @db.Decimal(10, 2)
+  bookValueEnd   Decimal  @db.Decimal(10, 2)
+  createdAt      DateTime @default(now())
+
+  @@unique([assetId, year])
+  @@index([year])
+}
+
+// Jaarlijks belastingrapport
+model TaxReport {
+  id                     String          @id @default(cuid())
+  userId                 String
+  user                   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  year                   Int
+  status                 TaxReportStatus @default(DRAFT)
+
+  // Omzet
+  revenueGross           Decimal         @db.Decimal(10, 2) // Bruto omzet
+  creditNotesTotal       Decimal         @db.Decimal(10, 2) // Credit nota's
+  revenueNet             Decimal         @db.Decimal(10, 2) // Netto omzet
+
+  // Kosten per categorie
+  expensesTransport      Decimal         @db.Decimal(10, 2) // Vervoerskosten
+  expensesHousing        Decimal         @db.Decimal(10, 2) // Huisvestingskosten
+  expensesGeneral        Decimal         @db.Decimal(10, 2) // Algemene kosten
+  expensesOffice         Decimal         @db.Decimal(10, 2) // Kantoorkosten
+  expensesOutsourced     Decimal         @db.Decimal(10, 2) // Uitbesteed werk
+  expensesRepresentation Decimal         @db.Decimal(10, 2) // Representatiekosten
+  expensesOther          Decimal         @db.Decimal(10, 2) // Overige kosten
+  expensesTotal          Decimal         @db.Decimal(10, 2) // Totaal kosten
+
+  // Afschrijvingen & winst
+  depreciationTotal      Decimal         @db.Decimal(10, 2) // Totaal afschrijvingen
+  grossProfit            Decimal         @db.Decimal(10, 2) // Bruto winst
+
+  // Aftrekposten
+  kiaAmount              Decimal         @db.Decimal(10, 2) // Kleinschaligheidsinvesteringsaftrek
+  kiaInvestments         Decimal         @db.Decimal(10, 2) // Investeringen voor KIA
+  zelfstandigenaftrek    Decimal         @db.Decimal(10, 2) // Zelfstandigenaftrek
+  startersaftrek         Decimal         @db.Decimal(10, 2) // Startersaftrek
+  forDotation            Decimal         @db.Decimal(10, 2) // FOR dotatie
+
+  // Eindberekening
+  profitBeforeMKB        Decimal         @db.Decimal(10, 2) // Winst voor MKB-vrijstelling
+  mkbVrijstelling        Decimal         @db.Decimal(10, 2) // MKB-winstvrijstelling
+  taxableProfit          Decimal         @db.Decimal(10, 2) // Belastbaar inkomen
+  estimatedTaxBox1       Decimal         @db.Decimal(10, 2) // Geschatte belasting box 1
+
+  // Uren
+  hoursWorked            Int?            // Gewerkte uren
+  meetsHoursCriterion    Boolean         @default(false) // Voldoet aan urencriterium
+
+  generatedAt            DateTime        @default(now())
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  @@unique([userId, year])
+  @@index([userId])
+  @@index([year])
+}
+
+enum TaxReportStatus {
+  DRAFT       // Concept
+  PROVISIONAL // Voorlopig
+  FINAL       // Definitief
+  FILED       // Ingediend bij Belastingdienst
 }

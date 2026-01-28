@@ -1,13 +1,14 @@
 import { db } from '@/lib/db';
 
-export type Feature = 
+export type Feature =
   | 'recurring_invoices'
   | 'vat_reporting'
   | 'time_tracking'
   | 'analytics'
   | 'unlimited_invoices'
   | 'unlimited_emails'
-  | 'export';
+  | 'export'
+  | 'tax_reporting';
 
 const FEATURE_ACCESS: Record<Feature, ('FREE' | 'PRO')[]> = {
   recurring_invoices: ['PRO'],
@@ -17,6 +18,7 @@ const FEATURE_ACCESS: Record<Feature, ('FREE' | 'PRO')[]> = {
   unlimited_invoices: ['PRO'],
   unlimited_emails: ['PRO'],
   export: ['PRO'],
+  tax_reporting: ['PRO'],
 };
 
 export async function hasFeatureAccess(
@@ -150,6 +152,7 @@ export function getFeatureName(feature: Feature): string {
     unlimited_invoices: 'Onbeperkt Facturen',
     unlimited_emails: 'Onbeperkt Emails',
     export: 'Export Functionaliteit',
+    tax_reporting: 'Inkomstenbelasting Overzicht',
   };
   return names[feature];
 }

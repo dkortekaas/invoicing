@@ -287,3 +287,95 @@ export const mollieSettingsSchema = z.object({
 })
 
 export type MollieSettingsFormData = z.infer<typeof mollieSettingsSchema>
+
+// ========== Fiscal Settings Schema ==========
+export const businessTypes = ['EENMANSZAAK', 'VOF', 'MAATSCHAP', 'BV'] as const
+export type BusinessType = typeof businessTypes[number]
+
+export const homeOfficeTypes = ['INDEPENDENT', 'NON_INDEPENDENT'] as const
+export type HomeOfficeType = typeof homeOfficeTypes[number]
+
+export const fiscalSettingsSchema = z.object({
+  businessType: z.enum(businessTypes, { message: "Selecteer een rechtsvorm" }),
+  useKOR: z.boolean(),
+  hoursTracked: z.boolean(),
+  manualHoursPerYear: z
+    .number()
+    .int("Voer een geheel getal in")
+    .min(0, "Uren kunnen niet negatief zijn")
+    .max(8760, "Maximaal 8760 uur per jaar")
+    .optional()
+    .nullable(),
+  isStarter: z.boolean(),
+  starterYearsUsed: z
+    .number()
+    .int()
+    .min(0, "Kan niet negatief zijn")
+    .max(3, "Maximaal 3 jaar startersaftrek"),
+  firstStarterYear: z
+    .number()
+    .int()
+    .min(2000, "Jaar moet na 2000 zijn")
+    .optional()
+    .nullable(),
+  hasHomeOffice: z.boolean(),
+  homeOfficeType: z
+    .enum(homeOfficeTypes, { message: "Selecteer type werkruimte" })
+    .optional()
+    .nullable(),
+  homeOfficePercentage: z
+    .number()
+    .min(0, "Percentage kan niet negatief zijn")
+    .max(100, "Maximaal 100%")
+    .optional()
+    .nullable(),
+  hasBusinessCar: z.boolean(),
+  carPrivateUsage: z
+    .number()
+    .min(0, "Percentage kan niet negatief zijn")
+    .max(100, "Maximaal 100%")
+    .optional()
+    .nullable(),
+  useFOR: z.boolean(),
+})
+
+export type FiscalSettingsFormData = z.infer<typeof fiscalSettingsSchema>
+
+// ========== Asset Schema ==========
+export const assetCategories = [
+  'EQUIPMENT',
+  'VEHICLE',
+  'FURNITURE',
+  'SOFTWARE',
+  'BUILDING',
+  'INTANGIBLE',
+  'OTHER',
+] as const
+export type AssetCategory = typeof assetCategories[number]
+
+export const depreciationMethods = ['LINEAR', 'DEGRESSIVE'] as const
+export type DepreciationMethod = typeof depreciationMethods[number]
+
+export const assetSchema = z.object({
+  name: z.string().min(1, "Naam is verplicht"),
+  description: z.string().optional().nullable(),
+  category: z.enum(assetCategories, { message: "Selecteer een categorie" }),
+  purchaseDate: z.date({ message: "Aankoopdatum is verplicht" }),
+  purchasePrice: z
+    .number()
+    .positive("Aanschafprijs moet positief zijn")
+    .multipleOf(0.01, "Maximaal 2 decimalen"),
+  supplier: z.string().optional().nullable(),
+  usefulLifeYears: z
+    .number()
+    .int("Voer een geheel getal in")
+    .min(1, "Minimaal 1 jaar")
+    .max(50, "Maximaal 50 jaar"),
+  residualValue: z
+    .number()
+    .min(0, "Restwaarde kan niet negatief zijn")
+    .multipleOf(0.01, "Maximaal 2 decimalen"),
+  depreciationMethod: z.enum(depreciationMethods, { message: "Selecteer een afschrijvingsmethode" }),
+})
+
+export type AssetFormData = z.infer<typeof assetSchema>

@@ -10,22 +10,32 @@ export default async function EditExpensePage({
   params: Promise<{ id: string }>;
 }) {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     redirect('/login');
   }
 
   const { id } = await params;
-  const expense = await db.expense.findFirst({
-    where: {
-      id,
-      userId: session.user.id,
-    },
-  });
+
+  // Fetch expense and fiscal settings in parallel
+  const [expense, fiscalSettings] = await Promise.all([
+    db.expense.findFirst({
+      where: {
+        id,
+        userId: session.user.id,
+      },
+    }),
+    db.fiscalSettings.findUnique({
+      where: { userId: session.user.id },
+      select: { useKOR: true },
+    }),
+  ]);
 
   if (!expense) {
     redirect('/kosten');
   }
+
+  const useKOR = fiscalSettings?.useKOR ?? false;
 
   // Convert Decimal fields to numbers for Client Component serialization
   const serializedExpense = {
@@ -51,7 +61,7 @@ export default async function EditExpensePage({
           <CardTitle>Uitgave details</CardTitle>
         </CardHeader>
         <CardContent>
-          <ExpenseForm expense={serializedExpense} />
+          <ExpenseForm expense={serializedExpense} useKOR={useKOR} />
         </CardContent>
       </Card>
     </div>

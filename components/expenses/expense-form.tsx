@@ -78,6 +78,7 @@ const CATEGORIES = [
 interface ExpenseFormProps {
   expense?: any;
   onSuccess?: () => void;
+  useKOR?: boolean;
 }
 
 export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {

@@ -11,6 +11,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { ProductForm } from "@/components/products/product-form"
 import { deleteProduct } from "./actions"
 interface ProductActionsProps {
@@ -29,15 +37,13 @@ export function ProductActions({ product }: ProductActionsProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleDelete = async () => {
-    if (!confirm("Weet je zeker dat je dit product wilt verwijderen?")) {
-      return
-    }
-
     setIsLoading(true)
     try {
       await deleteProduct(product.id)
+      setIsDeleteDialogOpen(false)
       router.refresh()
       toast.success("Product verwijderd")
     } catch (error) {
@@ -64,7 +70,7 @@ export function ProductActions({ product }: ProductActionsProps) {
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-red-600"
-            onClick={handleDelete}
+            onClick={() => setIsDeleteDialogOpen(true)}
             disabled={isLoading}
           >
             <Trash2 className="mr-2 h-4 w-4" />
@@ -72,6 +78,33 @@ export function ProductActions({ product }: ProductActionsProps) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Product verwijderen</DialogTitle>
+            <DialogDescription>
+              Weet je zeker dat je dit product wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={isLoading}
+            >
+              Annuleren
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isLoading}
+            >
+              Verwijderen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <ProductForm
         open={isEditOpen}

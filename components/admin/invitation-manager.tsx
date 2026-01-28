@@ -20,6 +20,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Mail, X, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -48,6 +56,7 @@ export function InvitationManager() {
   const [sending, setSending] = useState(false);
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'USER' | 'ADMIN'>('USER');
+  const [cancelDialogOpen, setCancelDialogOpen] = useState<string | null>(null);
 
   useEffect(() => {
     loadInvitations();
@@ -100,10 +109,6 @@ export function InvitationManager() {
   };
 
   const handleCancelInvitation = async (id: string) => {
-    if (!confirm('Weet je zeker dat je deze uitnodiging wilt annuleren?')) {
-      return;
-    }
-
     try {
       const response = await fetch(`/api/invitations/${id}`, {
         method: 'DELETE',
@@ -113,6 +118,7 @@ export function InvitationManager() {
         throw new Error('Annuleren mislukt');
       }
 
+      setCancelDialogOpen(null);
       toast.success('Uitnodiging geannuleerd');
       loadInvitations();
     } catch (error) {
@@ -255,7 +261,7 @@ export function InvitationManager() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleCancelInvitation(invitation.id)}
+                              onClick={() => setCancelDialogOpen(invitation.id)}
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -275,6 +281,31 @@ export function InvitationManager() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={cancelDialogOpen !== null} onOpenChange={(open) => !open && setCancelDialogOpen(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Uitnodiging annuleren</DialogTitle>
+            <DialogDescription>
+              Weet je zeker dat je deze uitnodiging wilt annuleren? De ontvanger kan deze uitnodiging dan niet meer accepteren.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCancelDialogOpen(null)}
+            >
+              Annuleren
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => cancelDialogOpen && handleCancelInvitation(cancelDialogOpen)}
+            >
+              Uitnodiging annuleren
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

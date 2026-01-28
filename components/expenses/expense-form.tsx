@@ -29,6 +29,14 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { CalendarIcon, Upload, X, FileText, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -77,6 +85,7 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
   const [loading, setLoading] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState<string | null>(expense?.receipt || null);
   const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ExpenseFormData>({
@@ -218,6 +227,31 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
     } catch (error) {
       console.error('Submit error:', error);
       toast.error('Er is een fout opgetreden');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!expense?.id) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/expenses/${expense.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete expense');
+      }
+
+      toast.success('Uitgave verwijderd');
+      setIsDeleteDialogOpen(false);
+      router.push('/kosten');
+      router.refresh();
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('Er is een fout opgetreden bij het verwijderen');
     } finally {
       setLoading(false);
     }
@@ -534,17 +568,62 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
           </div>
         </FormItem>
 
-        <div className="flex justify-end gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.back()}
-          >
-            Annuleren
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Opslaan...' : 'Opslaan'}
-          </Button>
+        <div className="flex justify-between gap-4">
+          {expense?.id ? (
+            <>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                disabled={loading}
+              >
+                Verwijderen
+              </Button>
+              <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Uitgave verwijderen</DialogTitle>
+                    <DialogDescription>
+                      Weet je zeker dat je deze uitgave wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter className="flex justify-end gap-2 sm:justify-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsDeleteDialogOpen(false)}
+                      disabled={loading}
+                    >
+                      Annuleren
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={handleDelete}
+                      disabled={loading}
+                    >
+                      Verwijderen
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              disabled={loading}
+            >
+              Annuleren
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Opslaan...' : 'Opslaan'}
+            </Button>
+          </div>
         </div>
       </form>
     </Form>

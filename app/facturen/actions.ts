@@ -37,6 +37,7 @@ export async function getInvoices(status?: string) {
       vatRate: item.vatRate.toNumber(),
       subtotal: item.subtotal.toNumber(),
       vatAmount: item.vatAmount.toNumber(),
+      total: item.total.toNumber(),
     })),
   }))
 }
@@ -75,6 +76,7 @@ export async function getInvoice(id: string) {
       vatRate: item.vatRate.toNumber(),
       subtotal: item.subtotal.toNumber(),
       vatAmount: item.vatAmount.toNumber(),
+      total: item.total.toNumber(),
     })),
   }
 }

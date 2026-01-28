@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
+import { ExportButton } from '@/components/import-export';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Table,
@@ -71,12 +72,15 @@ export default async function ExpensesPage() {
             Overzicht van alle uitgaven en voorbelasting
           </p>
         </div>
-        <Button asChild>
-          <Link href="/kosten/nieuw">
-            <Plus className="mr-2 h-4 w-4" />
-            Nieuwe uitgave
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <ExportButton entityType="EXPENSES" totalCount={expenses.length} />
+          <Button asChild>
+            <Link href="/kosten/nieuw">
+              <Plus className="mr-2 h-4 w-4" />
+              Nieuwe uitgave
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <Card>

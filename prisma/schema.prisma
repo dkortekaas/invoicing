@@ -111,6 +111,10 @@ model User {
   
   // Audit logs
   auditLogs          AuditLog[]
+
+  // Import/Export
+  importExportJobs   ImportExportJob[]
+  importTemplates    ImportTemplate[]
 }
 
 model Customer {
@@ -1283,4 +1287,103 @@ enum AuditAction {
   PASSWORD_CHANGED
   TWO_FA_ENABLED
   TWO_FA_DISABLED
+}
+
+// Import/Export Models
+
+enum ImportExportType {
+  IMPORT
+  EXPORT
+}
+
+enum ImportExportEntityType {
+  CUSTOMERS
+  INVOICES
+  EXPENSES
+  PRODUCTS
+  TIME_ENTRIES
+}
+
+enum ImportExportJobStatus {
+  PENDING
+  VALIDATING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model ImportExportJob {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Job type
+  type       ImportExportType
+  entityType ImportExportEntityType
+
+  // Status
+  status ImportExportJobStatus @default(PENDING)
+
+  // File info
+  fileName String?
+  filePath String?
+  fileSize Int?
+  mimeType String?
+
+  // Import specifiek
+  columnMapping Json? // { fileColumn: systemField }
+  importOptions Json? // { skipDuplicates, updateExisting, etc }
+
+  // Export specifiek
+  exportOptions Json? // { format, filters, columns }
+  exportFilters Json? // Welke records exporteren
+
+  // Resultaten
+  totalRows     Int?
+  processedRows Int?
+  successRows   Int?
+  errorRows     Int?
+  skippedRows   Int?
+
+  // Errors & warnings
+  errors   Json? // [{ row, field, message }]
+  warnings Json? // [{ row, field, message }]
+
+  // Timing
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ImportTemplate {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Template info
+  name       String
+  entityType ImportExportEntityType
+
+  // Mapping
+  columnMapping Json // { fileColumn: systemField }
+
+  // Opties
+  options Json?
+
+  // Gebruik tracking
+  lastUsedAt DateTime?
+  useCount   Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([entityType])
 }

@@ -10,6 +10,10 @@ import { WachtwoordForm } from "./wachtwoord-form"
 import { EmailSettingsForm } from "./email-form"
 import { getProfile, getCompanyInfo, getFinancialInfo, getEmailSettings, getMollieSettings } from "./actions"
 import { MollieSettingsForm } from "./mollie-settings-form"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const dynamic = "force-dynamic"
 
@@ -58,13 +62,14 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
       </div>
 
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="profiel">Profiel</TabsTrigger>
           <TabsTrigger value="beveiliging">Beveiliging</TabsTrigger>
           <TabsTrigger value="bedrijfsgegevens">Bedrijfsgegevens</TabsTrigger>
           <TabsTrigger value="financiele-gegevens">Financieel</TabsTrigger>
           <TabsTrigger value="email">Email</TabsTrigger>
           <TabsTrigger value="betalingen">Betalingen</TabsTrigger>
+          <TabsTrigger value="import-export">Import/Export</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profiel" className="mt-6">
@@ -95,6 +100,34 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
 
         <TabsContent value="betalingen" className="mt-6">
           <MollieSettingsForm initialData={mollieSettings} />
+        </TabsContent>
+
+        <TabsContent value="import-export" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Import & Export</CardTitle>
+              <CardDescription>
+                Importeer en exporteer je klanten, facturen, producten, kosten en urenregistraties
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Gebruik de import/export tool om:
+              </p>
+              <ul className="list-disc list-inside text-muted-foreground mb-6 space-y-1">
+                <li>Gegevens te exporteren naar Excel of CSV</li>
+                <li>Gegevens te importeren vanuit Excel of CSV</li>
+                <li>Templates te downloaden met de juiste kolomnamen</li>
+                <li>Je recente import taken te bekijken</li>
+              </ul>
+              <Button asChild>
+                <Link href="/instellingen/import-export">
+                  Naar Import & Export
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

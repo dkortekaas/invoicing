@@ -8,6 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { disable2FA, verify2FASetup, generate2FASecret } from "./actions"
 
 interface TwoFactorSetupProps {
@@ -26,6 +34,7 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
   const [backupCodes, setBackupCodes] = useState<string[]>([])
   const [verificationCode, setVerificationCode] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [isDisableDialogOpen, setIsDisableDialogOpen] = useState(false)
 
   const handleEnable = async () => {
     setIsLoading(true)
@@ -63,14 +72,11 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
   }
 
   const handleDisable = async () => {
-    if (!confirm("Weet je zeker dat je 2FA wilt uitschakelen? Dit maakt je account minder veilig.")) {
-      return
-    }
-
     setIsLoading(true)
     setError(null)
     try {
       await disable2FA()
+      setIsDisableDialogOpen(false)
       setStep("setup")
       setQrCode(null)
       setSecret(null)
@@ -85,6 +91,7 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
 
   if (step === "enabled") {
     return (
+      <>
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -118,15 +125,43 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
 
           <Button
             variant="destructive"
-            onClick={handleDisable}
+            onClick={() => setIsDisableDialogOpen(true)}
             disabled={isLoading}
           >
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             <ShieldOff className="mr-2 h-4 w-4" />
             2FA uitschakelen
           </Button>
         </CardContent>
       </Card>
+
+      <Dialog open={isDisableDialogOpen} onOpenChange={setIsDisableDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>2FA uitschakelen</DialogTitle>
+            <DialogDescription>
+              Weet je zeker dat je 2FA wilt uitschakelen? Dit maakt je account minder veilig.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDisableDialogOpen(false)}
+              disabled={isLoading}
+            >
+              Annuleren
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDisable}
+              disabled={isLoading}
+            >
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Uitschakelen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      </>
     )
   }
 

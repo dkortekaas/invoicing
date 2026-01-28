@@ -42,6 +42,9 @@ npx prisma studio        # Open database GUI
 - `app/btw/` - VAT reporting (PRO feature)
 - `app/abonnementen/` - Recurring invoices (PRO feature)
 - `app/dashboard/` - Analytics dashboard (PRO feature)
+- `app/instellingen/import-export/` - Import/export hub
+- `app/api/export/` - Export endpoints (customers, invoices, products, expenses, time-entries)
+- `app/api/import/` - Import endpoints (upload, validate, execute, status)
 
 ### Server Actions Pattern
 Data mutations use Next.js Server Actions in `actions.ts` files colocated with their routes:
@@ -73,6 +76,7 @@ Premium features are controlled via `lib/stripe/subscriptions.ts`:
 - `lib/validations.ts` - All Zod schemas with Dutch validation messages
 - `lib/utils.ts` - Utilities: `cn()`, `formatCurrency()`, `formatDate()`, `generateInvoiceNumber()`
 - `lib/pdf/watermark.ts` - PDF watermark for FREE users
+- `lib/import-export/` - Import/export services with field definitions per entity
 
 ### Component Organization
 - `components/ui/` - shadcn/ui base components
@@ -80,6 +84,7 @@ Premium features are controlled via `lib/stripe/subscriptions.ts`:
 - `components/admin/` - Admin dashboard components
 - `components/subscription/` - Feature gating UI components
 - `components/analytics/` - Charts and KPI cards
+- `components/import-export/` - Export button, modal, and import wizard components
 
 ## Conventions
 

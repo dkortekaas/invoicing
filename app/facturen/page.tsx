@@ -1,10 +1,9 @@
 import Link from "next/link"
-import {
-  Plus,
-} from "lucide-react"
+import { Plus } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 import { Button } from "@/components/ui/button"
+import { ExportButton } from "@/components/import-export"
 import {
   Table,
   TableBody,
@@ -66,12 +65,15 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
             Beheer en verstuur je facturen
           </p>
         </div>
-        <Button asChild>
-          <Link href="/facturen/nieuw">
-            <Plus className="mr-2 h-4 w-4" />
-            Nieuwe Factuur
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <ExportButton entityType="INVOICES" totalCount={allInvoices.length} />
+          <Button asChild>
+            <Link href="/facturen/nieuw">
+              <Plus className="mr-2 h-4 w-4" />
+              Nieuwe Factuur
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}

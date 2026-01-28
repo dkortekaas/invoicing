@@ -29,11 +29,12 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - 🏠 **Marketing Homepage**: Professionele marketing homepage met features, pricing en smooth scrolling
 - 📋 **Audit Trail Systeem**: Compleet audit logging systeem met fraud detectie en compliance features
 - 🇳🇱 **Nederlandse standaarden**: Volledig aangepast aan Nederlandse factuurvereisten
-- 🎨 **Modern UI**: Gebouwd met Next.js 15, React 19, Tailwind CSS en shadcn/ui
+- 📥 **Import/Export**: Importeer en exporteer klanten, facturen, producten, onkosten en tijdregistraties via CSV/Excel
+- 🎨 **Modern UI**: Gebouwd met Next.js 16, React 19, Tailwind CSS en shadcn/ui
 
 ## 🛠️ Technische Stack
 
-- **Framework**: Next.js 15 (App Router, React 19)
+- **Framework**: Next.js 16 (App Router, React 19)
 - **Language**: TypeScript (strict mode)
 - **Styling**: Tailwind CSS 4
 - **Components**: shadcn/ui
@@ -180,6 +181,10 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     /watermark           # Watermerk instellingen
     /users               # Gebruikersbeheer
     /subscriptions       # Abonnementen overzicht
+  /instellingen
+    /import-export       # Import/export pagina
+      page.tsx           # Import/export hub
+      import-export-page.tsx
   /api
     /admin               # Admin API endpoints
       /watermark         # Watermerk settings API
@@ -201,6 +206,18 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
       /webhook            # Stripe webhooks
       /subscription       # Subscription status
     /invoices/[id]/pdf   # PDF generatie endpoint
+    /export              # Export API endpoints
+      /customers         # Klanten export
+      /invoices          # Facturen export
+      /products          # Producten export
+      /expenses          # Onkosten export
+      /time-entries      # Tijdregistraties export
+      /template/[entityType]  # Template downloads
+    /import              # Import API endpoints
+      /upload            # Bestand upload
+      /[jobId]/validate  # Validatie
+      /[jobId]/execute   # Import uitvoeren
+      /[jobId]/status    # Import status
     /creditnotes         # Credit nota API endpoints
       /[id]/pdf          # Credit nota PDF generatie
       /email             # Credit nota email verzenden
@@ -230,11 +247,24 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     credit-note-email-send-button.tsx  # Email versturen button
   /customers             # Klant components
   /products              # Product components
+  /import-export         # Import/export components
+    export-modal.tsx     # Export dialog
+    import-wizard.tsx    # 4-stappen import wizard
   /admin                 # Admin components
     invitation-manager.tsx      # Invitation management UI
     invitation-accept-form.tsx  # Invitation accept form
     subscription-manager.tsx    # Subscription overview
   /lib
+  /import-export         # Import/export library
+    types.ts             # Type definities
+    export-service.ts    # Export logica
+    import-service.ts    # Import logica
+    /fields              # Veld definities per entiteit
+      customers.ts
+      invoices.ts
+      products.ts
+      expenses.ts
+      time-entries.ts
   /analytics             # Analytics library
     kpis.ts              # KPI berekeningen
     trends.ts            # Trend analyse
@@ -296,6 +326,9 @@ De applicatie gebruikt de volgende hoofdmodellen:
 - **SubscriptionStatus**: Subscription status (FREE, ACTIVE, TRIALING, etc.)
 - **SubscriptionTier**: Subscription tier (FREE, PRO)
 - **InvitationStatus**: Invitation status (PENDING, ACCEPTED, EXPIRED, CANCELLED)
+- **ImportExportJob**: Import/export jobs met progress tracking
+- **ImportTemplate**: Opgeslagen kolom mappings voor hergebruik
+- **ImportExportJobStatus**: Job status (PENDING, VALIDATING, PROCESSING, COMPLETED, FAILED, CANCELLED)
 
 Zie `prisma/schema.prisma` voor het volledige schema.
 
@@ -695,6 +728,53 @@ Free users worden automatisch doorgestuurd naar de upgrade pagina wanneer ze pro
 - Het systeem trackt automatisch het aantal facturen en reset maandelijks
 - Gebruikers krijgen een waarschuwing wanneer ze hun limiet naderen
 
+## 📥 Import/Export
+
+De applicatie biedt uitgebreide import/export functionaliteit voor data migratie en backup.
+
+### Ondersteunde Entiteiten
+- **Klanten**: Naam, bedrijfsgegevens, contactinformatie, BTW-nummer
+- **Facturen**: Factuurgegevens met klantverwijzing (alleen export)
+- **Producten**: Producten en diensten met prijzen en BTW-tarieven
+- **Onkosten**: Uitgaven met categorie en BTW-informatie
+- **Tijdregistraties**: Urenregistratie met project- en klantverwijzing
+
+### Export Functionaliteit
+- Export naar **CSV** of **Excel** (.xlsx)
+- Filter op datum, status of selectie
+- Kies welke kolommen je wilt exporteren
+- Nederlandse formatting (DD-MM-YYYY datums, komma als decimaal)
+- UTF-8 encoding met BOM voor Excel compatibiliteit
+
+### Import Functionaliteit
+De import wizard begeleidt je in 4 stappen:
+
+1. **Upload**: Sleep of selecteer een CSV/Excel bestand
+2. **Kolom Mapping**: Automatische detectie van kolommen met handmatige aanpassing
+3. **Validatie**: Bekijk fouten en waarschuwingen per rij
+4. **Resultaat**: Overzicht van geïmporteerde, overgeslagen en mislukte rijen
+
+#### Import Features
+- **Auto-detectie**: Herkent automatisch Nederlandse kolomnamen (bijv. "bedrijfsnaam", "klantnaam")
+- **Duplicaat detectie**: Sla bestaande records over of update ze
+- **Template downloads**: Download lege templates per entiteit
+- **Import historie**: Bekijk recente imports met status
+
+### Export Knoppen
+Export knoppen zijn beschikbaar op de volgende pagina's:
+- `/klanten` - Klanten exporteren
+- `/facturen` - Facturen exporteren
+- `/producten` - Producten exporteren
+- `/kosten` - Kosten exporteren
+- `/tijd` - Tijdregistraties exporteren
+
+### Instellingen Pagina
+Bezoek `/instellingen/import-export` voor:
+- Export kaarten per entiteit met recordaantallen
+- Import wizard starten
+- Template downloads
+- Recente imports geschiedenis
+
 ## 🔐 Authenticatie
 
 De applicatie gebruikt **NextAuth.js v5** met:
@@ -1000,6 +1080,7 @@ Het audit trail systeem biedt volledige traceerbaarheid en compliance:
 - [x] Abonnementen overzicht in admin dashboard ✅
 - [x] Audit trail systeem met fraud detectie ✅
 - [x] Credit nota's met volledige workflow ✅
+- [x] Import/Export functionaliteit voor klanten, facturen, producten, onkosten en tijdregistraties ✅
 - [ ] Klantportaal voor factuur inzage en betaling
 - [ ] Forecasting & predictive analytics
 - [ ] Benchmarking tegen industrie gemiddeldes

@@ -3,6 +3,15 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { RecurringCard } from './recurring-card';
 
 interface RecurringListProps {
@@ -30,12 +39,11 @@ interface RecurringListProps {
 export function RecurringList({ recurring }: RecurringListProps) {
   const router = useRouter();
   const [_loading, setLoading] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null);
+  const [pauseDialogOpen, setPauseDialogOpen] = useState<string | null>(null);
+  const [generateDialogOpen, setGenerateDialogOpen] = useState<string | null>(null);
 
   const handlePause = async (id: string) => {
-    if (!confirm('Weet je zeker dat je dit abonnement wilt pauzeren?')) {
-      return;
-    }
-
     setLoading(id);
     try {
       const response = await fetch(`/api/recurring/${id}/pause`, {
@@ -46,6 +54,7 @@ export function RecurringList({ recurring }: RecurringListProps) {
         throw new Error('Pauzeren mislukt');
       }
 
+      setPauseDialogOpen(null);
       router.refresh();
       toast.success('Abonnement gepauzeerd');
     } catch (error) {
@@ -78,10 +87,6 @@ export function RecurringList({ recurring }: RecurringListProps) {
   };
 
   const handleGenerate = async (id: string) => {
-    if (!confirm('Weet je zeker dat je nu een factuur wilt genereren?')) {
-      return;
-    }
-
     setLoading(id);
     try {
       const response = await fetch(`/api/recurring/${id}/generate`, {
@@ -95,6 +100,7 @@ export function RecurringList({ recurring }: RecurringListProps) {
       }
 
       const invoice = await response.json();
+      setGenerateDialogOpen(null);
       toast.success('Factuur gegenereerd');
       router.push(`/facturen/${invoice.id}`);
     } catch (error) {
@@ -106,10 +112,6 @@ export function RecurringList({ recurring }: RecurringListProps) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Weet je zeker dat je dit abonnement wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.')) {
-      return;
-    }
-
     setLoading(id);
     try {
       const response = await fetch(`/api/recurring/${id}`, {
@@ -120,6 +122,7 @@ export function RecurringList({ recurring }: RecurringListProps) {
         throw new Error('Verwijderen mislukt');
       }
 
+      setDeleteDialogOpen(null);
       router.refresh();
       toast.success('Abonnement verwijderd');
     } catch (error) {
@@ -136,13 +139,92 @@ export function RecurringList({ recurring }: RecurringListProps) {
         <div key={r.id}>
           <RecurringCard
             recurring={r}
-            onPause={handlePause}
+            onPause={(id) => setPauseDialogOpen(id)}
             onResume={handleResume}
-            onGenerate={handleGenerate}
-            onDelete={handleDelete}
+            onGenerate={(id) => setGenerateDialogOpen(id)}
+            onDelete={(id) => setDeleteDialogOpen(id)}
           />
         </div>
       ))}
+
+      <Dialog open={deleteDialogOpen !== null} onOpenChange={(open) => !open && setDeleteDialogOpen(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Abonnement verwijderen</DialogTitle>
+            <DialogDescription>
+              Weet je zeker dat je dit abonnement wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(null)}
+              disabled={_loading !== null}
+            >
+              Annuleren
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteDialogOpen && handleDelete(deleteDialogOpen)}
+              disabled={_loading !== null}
+            >
+              Verwijderen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={pauseDialogOpen !== null} onOpenChange={(open) => !open && setPauseDialogOpen(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Abonnement pauzeren</DialogTitle>
+            <DialogDescription>
+              Weet je zeker dat je dit abonnement wilt pauzeren? Er worden geen nieuwe facturen meer gegenereerd totdat je het abonnement hervat.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setPauseDialogOpen(null)}
+              disabled={_loading !== null}
+            >
+              Annuleren
+            </Button>
+            <Button
+              onClick={() => pauseDialogOpen && handlePause(pauseDialogOpen)}
+              disabled={_loading !== null}
+            >
+              Pauzeren
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={generateDialogOpen !== null} onOpenChange={(open) => !open && setGenerateDialogOpen(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Factuur genereren</DialogTitle>
+            <DialogDescription>
+              Weet je zeker dat je nu een factuur wilt genereren? Dit wordt direct aangemaakt en je wordt doorgestuurd naar de factuur.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setGenerateDialogOpen(null)}
+              disabled={_loading !== null}
+            >
+              Annuleren
+            </Button>
+            <Button
+              onClick={() => generateDialogOpen && handleGenerate(generateDialogOpen)}
+              disabled={_loading !== null}
+            >
+              Genereren
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

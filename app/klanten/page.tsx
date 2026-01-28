@@ -3,6 +3,7 @@ import { Plus, Search } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 import { Button } from "@/components/ui/button"
+import { ExportButton } from "@/components/import-export"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -29,12 +30,15 @@ export default async function KlantenPage() {
             Beheer je klantenbestand
           </p>
         </div>
-        <Button asChild>
-          <Link href="/klanten/nieuw">
-            <Plus className="mr-2 h-4 w-4" />
-            Nieuwe Klant
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <ExportButton entityType="CUSTOMERS" totalCount={customers.length} />
+          <Button asChild>
+            <Link href="/klanten/nieuw">
+              <Plus className="mr-2 h-4 w-4" />
+              Nieuwe Klant
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Search */}

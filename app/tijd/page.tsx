@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, FileText } from 'lucide-react';
 import Link from 'next/link';
+import { ExportButton } from '@/components/import-export';
 
 export default async function TijdPage() {
   const user = await getCurrentUser();
@@ -91,6 +92,7 @@ export default async function TijdPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <ExportButton entityType="TIME_ENTRIES" totalCount={recentEntries.length} />
           <Button variant="outline" asChild>
             <Link href="/tijd/entries">
               <FileText className="mr-2 h-4 w-4" />

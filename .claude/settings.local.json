@@ -13,7 +13,9 @@
       "Bash(npm run build:*)",
       "Bash(npx prisma migrate dev:*)",
       "Bash(xargs -I {} bash -c \"echo ''=== {} ==='' && head -30 ''{}''\")",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(echo:*)",
+      "Bash(npx prisma migrate:*)"
     ]
   }
 }

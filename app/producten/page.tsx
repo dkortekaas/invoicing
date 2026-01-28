@@ -2,6 +2,7 @@ import { Search } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 import { Input } from "@/components/ui/input"
+import { ExportButton } from "@/components/import-export"
 import {
   Table,
   TableBody,
@@ -30,7 +31,10 @@ export default async function ProductenPage() {
             Beheer je producten en diensten voor facturatie
           </p>
         </div>
-        <ProductFormButton />
+        <div className="flex gap-2">
+          <ExportButton entityType="PRODUCTS" totalCount={products.length} />
+          <ProductFormButton />
+        </div>
       </div>
 
       {/* Products list */}

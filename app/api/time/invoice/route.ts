@@ -180,7 +180,22 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(invoice);
+    // Convert Decimal fields to numbers for serialization
+    return NextResponse.json({
+      ...invoice,
+      subtotal: invoice.subtotal.toNumber(),
+      vatAmount: invoice.vatAmount.toNumber(),
+      total: invoice.total.toNumber(),
+      items: invoice.items.map((item) => ({
+        ...item,
+        quantity: item.quantity.toNumber(),
+        unitPrice: item.unitPrice.toNumber(),
+        vatRate: item.vatRate.toNumber(),
+        subtotal: item.subtotal.toNumber(),
+        vatAmount: item.vatAmount.toNumber(),
+        total: item.total.toNumber(),
+      })),
+    });
   } catch (error) {
     console.error('Convert to invoice error:', error);
     return NextResponse.json(

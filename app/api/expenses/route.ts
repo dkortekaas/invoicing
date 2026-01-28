@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calculateNetFromGross, calculateVATFromGross } from '@/lib/vat/calculations';
 import { ensureCompanyDetails } from '@/lib/company-guard';
-import { Prisma } from '@prisma/client';
+import { Prisma, ExpenseCategory } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -28,7 +28,12 @@ export async function GET(request: NextRequest) {
       if (endDate) where.date.lte = new Date(endDate);
     }
 
-    if (category) where.category = category;
+    if (category) {
+      // Validate that category is a valid ExpenseCategory enum value
+      if (Object.values(ExpenseCategory).includes(category as ExpenseCategory)) {
+        where.category = category as ExpenseCategory;
+      }
+    }
 
     const expenses = await db.expense.findMany({
       where,

@@ -21,6 +21,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { formatFrequency, calculateMRR } from '@/lib/recurring/calculations';
+import { RecurringFrequency } from '@prisma/client';
 import Link from 'next/link';
 
 interface RecurringCardProps {
@@ -68,7 +69,7 @@ export function RecurringCard({
     0
   );
 
-  const mrr = calculateMRR(total, recurring.frequency, recurring.interval);
+  const mrr = calculateMRR(total, recurring.frequency as RecurringFrequency, recurring.interval);
 
   const statusConfig = STATUS_CONFIG[recurring.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.ACTIVE;
 
@@ -140,7 +141,7 @@ export function RecurringCard({
         <div>
           <div className="text-sm text-muted-foreground">Frequentie</div>
           <div className="font-medium">
-            {formatFrequency(recurring.frequency, recurring.interval)}
+            {formatFrequency(recurring.frequency as RecurringFrequency, recurring.interval)}
           </div>
         </div>
 

@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calculateNextDate } from '@/lib/recurring/calculations';
 import { ensureCompanyDetails } from '@/lib/company-guard';
-import { Prisma } from '@prisma/client';
+import { Prisma, RecurringStatus } from '@prisma/client';
 
 // GET - List recurring invoices
 export async function GET(request: NextRequest) {
@@ -22,7 +22,12 @@ export async function GET(request: NextRequest) {
       userId: session.user.id,
     };
 
-    if (status) where.status = status;
+    if (status) {
+      // Validate that status is a valid RecurringStatus enum value
+      if (Object.values(RecurringStatus).includes(status as RecurringStatus)) {
+        where.status = status as RecurringStatus;
+      }
+    }
     if (customerId) where.customerId = customerId;
 
     const recurring = await db.recurringInvoice.findMany({

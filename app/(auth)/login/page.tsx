@@ -75,6 +75,11 @@ function LoginForm() {
         redirect: false,
       })
 
+      // Log result for debugging (especially useful for mobile issues)
+      if (process.env.NODE_ENV === "development") {
+        console.log("SignIn result:", { ok: result?.ok, error: result?.error, status: result?.status, url: result?.url })
+      }
+
       if (result?.error) {
         // Handle specific error messages
         if (result.error === "CredentialsSignin") {
@@ -89,9 +94,14 @@ function LoginForm() {
       } else if (result?.ok) {
         router.push(callbackUrl)
         router.refresh()
+      } else {
+        // Handle case where result is undefined or has no ok/error
+        setError("Er is een onbekende fout opgetreden. Probeer het opnieuw.")
       }
     } catch (err) {
-      setError("Er is een fout opgetreden bij het inloggen")
+      // Better error logging for mobile debugging
+      console.error("Login error:", err)
+      setError(`Er is een fout opgetreden bij het inloggen: ${err instanceof Error ? err.message : "Onbekende fout"}`)
     } finally {
       setIsLoading(false)
     }

@@ -5,19 +5,14 @@ import { nl } from 'date-fns/locale';
 import { Clock, Edit, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatDuration } from '@/lib/time/calculations';
+import { formatDuration, groupEntriesByDay, type TimeEntry } from '@/lib/time/calculations';
 import { formatCurrency } from '@/lib/time/formatters';
-import { groupEntriesByDay } from '@/lib/time/calculations';
 
-interface TimeEntry {
-  id: string;
+// Extended TimeEntry interface for the component
+interface TimeEntryWithDetails extends TimeEntry {
   description: string;
-  startTime: string | Date;
   endTime?: string | Date | null;
-  duration: number;
   hourlyRate: number;
-  amount: number;
-  billable: boolean;
   invoiced: boolean;
   activityType?: string | null;
   notes?: string | null;
@@ -31,8 +26,8 @@ interface TimeEntry {
 }
 
 interface TimeEntryListProps {
-  entries: TimeEntry[];
-  onEdit?: (entry: TimeEntry) => void;
+  entries: TimeEntryWithDetails[];
+  onEdit?: (entry: TimeEntryWithDetails) => void;
   onDelete?: (id: string) => void;
   grouped?: boolean;
 }
@@ -115,8 +110,8 @@ function TimeEntryCard({
   onEdit,
   onDelete,
 }: {
-  entry: TimeEntry;
-  onEdit?: (entry: TimeEntry) => void;
+  entry: TimeEntryWithDetails;
+  onEdit?: (entry: TimeEntryWithDetails) => void;
   onDelete?: (id: string) => void;
 }) {
   const startTime = typeof entry.startTime === 'string' ? new Date(entry.startTime) : entry.startTime;

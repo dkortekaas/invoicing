@@ -1,5 +1,14 @@
 import { differenceInMinutes } from 'date-fns';
-import type { TimeEntry } from '@prisma/client';
+
+// Simplified TimeEntry type for client components (matches TimeEntryList interface)
+export interface TimeEntry {
+  id: string;
+  startTime: Date | string;
+  duration: number;
+  amount: number;
+  billable?: boolean;
+  [key: string]: unknown;
+}
 
 /**
  * Bereken duration tussen twee tijdstippen in uren (decimaal)
@@ -84,11 +93,15 @@ export function formatDurationDecimal(hours: number): string {
 /**
  * Groepeer entries per dag
  */
-export function groupEntriesByDay(entries: TimeEntry[]) {
-  const grouped = new Map<string, TimeEntry[]>();
+export function groupEntriesByDay<T extends TimeEntry>(entries: T[]): Map<string, T[]> {
+  const grouped = new Map<string, T[]>();
   
   entries.forEach(entry => {
-    const date = entry.startTime.toISOString().split('T')[0];
+    const dateStr = typeof entry.startTime === 'string' 
+      ? entry.startTime
+      : entry.startTime.toISOString();
+    const date = dateStr.split('T')[0];
+    if (!date) return; // Skip if date parsing fails
     if (!grouped.has(date)) {
       grouped.set(date, []);
     }

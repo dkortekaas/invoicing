@@ -26,12 +26,26 @@ export default async function TimeEntriesPage() {
     },
   });
 
-  // Convert Prisma Decimal objects to numbers for client component serialization
+  // Convert Prisma Decimal objects to numbers and transform to match TimeEntryList interface
   const entries = rawEntries.map(entry => ({
-    ...entry,
+    id: entry.id,
+    description: entry.description,
+    startTime: entry.startTime,
+    endTime: entry.endTime,
     duration: Number(entry.duration),
     hourlyRate: Number(entry.hourlyRate),
     amount: Number(entry.amount),
+    billable: entry.billable,
+    invoiced: entry.invoiced,
+    activityType: entry.activityType,
+    notes: entry.notes,
+    project: entry.project ? {
+      name: entry.project.name,
+      color: entry.project.color || undefined,
+    } : null,
+    customer: entry.customer ? {
+      name: entry.customer.name,
+    } : null,
   }));
 
   return (

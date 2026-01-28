@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { Prisma } from '@prisma/client';
+import { Prisma, ProjectStatus } from '@prisma/client';
 
 // GET - List projects
 export async function GET(request: NextRequest) {
@@ -22,7 +22,12 @@ export async function GET(request: NextRequest) {
     };
 
     if (customerId) where.customerId = customerId;
-    if (status) where.status = status;
+    if (status) {
+      // Validate that status is a valid ProjectStatus enum value
+      if (Object.values(ProjectStatus).includes(status as ProjectStatus)) {
+        where.status = status as ProjectStatus;
+      }
+    }
     if (archived !== null) where.archived = archived === 'true';
 
     const projects = await db.project.findMany({

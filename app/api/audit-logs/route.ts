@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { requireAdmin, isSuperuser } from "@/lib/auth/admin-guard"
-import { Prisma } from "@prisma/client"
+import { Prisma, AuditAction } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
   try {
@@ -45,7 +45,10 @@ export async function GET(request: NextRequest) {
     // SUPERUSER ziet alle logs (geen userId filter)
     
     if (action) {
-      where.action = action
+      // Validate that action is a valid AuditAction enum value
+      if (Object.values(AuditAction).includes(action as AuditAction)) {
+        where.action = action as AuditAction
+      }
     }
     
     if (entityType) {

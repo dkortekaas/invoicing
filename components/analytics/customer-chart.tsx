@@ -51,7 +51,7 @@ interface CustomTooltipProps extends TooltipProps<number, string> {
 }
 
 const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
-  if (active && payload && payload.length) {
+  if (active && payload && payload.length && payload[0]) {
     const data = payload[0].payload;
     return (
       <div className="bg-background border rounded-lg shadow-lg p-3">
@@ -66,21 +66,22 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
 };
 
 interface CustomLabelProps {
-  cx: number;
-  cy: number;
-  midAngle: number;
-  innerRadius: number;
-  outerRadius: number;
-  percentage: number;
+  cx?: number;
+  cy?: number;
+  midAngle?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+  percent?: number;
 }
 
-const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percentage }: CustomLabelProps) => {
+const CustomLabel = ({ cx = 0, cy = 0, midAngle = 0, innerRadius = 0, outerRadius = 0, percent = 0 }: CustomLabelProps) => {
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  const percentage = percent * 100;
 
-  if (percentage < 5) return null;
+  if (percentage < 5 || !cx || !cy) return null;
 
   return (
     <text

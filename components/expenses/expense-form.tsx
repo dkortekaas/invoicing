@@ -76,8 +76,17 @@ const CATEGORIES = [
   { value: 'OTHER', label: 'Overig' },
 ];
 
+// Serialized expense type (Decimal fields converted to numbers for client components)
+type SerializedExpense = Omit<Expense, 'amount' | 'vatAmount' | 'vatRate' | 'netAmount' | 'deductiblePerc'> & {
+  amount: number;
+  vatAmount: number;
+  vatRate: number;
+  netAmount: number;
+  deductiblePerc: number;
+};
+
 interface ExpenseFormProps {
-  expense?: Expense;
+  expense?: SerializedExpense;
   onSuccess?: () => void;
   useKOR?: boolean;
 }
@@ -138,7 +147,7 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
       toast.success('Bestand geüpload');
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error(error.message || 'Fout bij uploaden bestand');
+      toast.error(error instanceof Error ? error.message : 'Fout bij uploaden bestand');
     } finally {
       setIsUploadingReceipt(false);
       if (fileInputRef.current) {

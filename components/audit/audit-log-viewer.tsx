@@ -178,7 +178,7 @@ export function AuditLogViewer({
   const formatChanges = (changes: Prisma.JsonValue | null) => {
     if (!changes || typeof changes !== "object") return null
     
-    return Object.entries(changes as Record<string, unknown>).map(([key, value]) => (
+    return Object.entries(changes as Record<string, { oldValue: unknown; newValue: unknown }>).map(([key, value]) => (
       <div key={key} className="border-l-2 border-blue-200 pl-3 py-1">
         <div className="font-medium text-sm">{key}</div>
         <div className="text-xs text-muted-foreground space-y-1">

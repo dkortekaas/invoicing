@@ -17,7 +17,7 @@ export async function handleSubscriptionCreated(
     data: {
       stripeSubscriptionId: subscription.id,
       stripePriceId: firstItem.price.id,
-      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      stripeCurrentPeriodEnd: new Date((subscription as Stripe.Subscription & { current_period_end: number }).current_period_end * 1000),
       subscriptionStatus: mapStripeStatus(subscription.status),
       subscriptionTier: 'PRO',
       billingCycle: firstItem.price.recurring?.interval === 'year' 
@@ -61,7 +61,7 @@ export async function handleSubscriptionUpdated(
     where: { stripeCustomerId: customerId },
     data: {
       stripePriceId: firstItem.price.id,
-      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      stripeCurrentPeriodEnd: new Date((subscription as Stripe.Subscription & { current_period_end: number }).current_period_end * 1000),
       subscriptionStatus: mapStripeStatus(subscription.status),
       billingCycle: firstItem.price.recurring?.interval === 'year'
         ? 'YEARLY'

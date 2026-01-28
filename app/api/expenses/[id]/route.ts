@@ -99,8 +99,16 @@ export async function PATCH(
     if (deductible !== undefined) updateData.deductible = deductible;
     if (deductiblePerc !== undefined) updateData.deductiblePerc = deductiblePerc;
     if (receipt !== undefined) updateData.receipt = receipt;
-    if (customerId !== undefined) updateData.customerId = customerId;
-    if (projectId !== undefined) updateData.projectId = projectId;
+    if (customerId !== undefined) {
+      updateData.customer = customerId 
+        ? { connect: { id: customerId } }
+        : { disconnect: true };
+    }
+    if (projectId !== undefined) {
+      updateData.project = projectId
+        ? { connect: { id: projectId } }
+        : { disconnect: true };
+    }
     if (notes !== undefined) updateData.notes = notes;
     if (tags !== undefined) updateData.tags = tags;
 

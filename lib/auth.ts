@@ -121,6 +121,41 @@ export const authOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   debug: false, // Set to false to reduce console noise
+  // Required for Vercel deployments
+  trustHost: true,
+  cookies: {
+    // Fix for mobile browsers (iOS Safari, Chrome on iOS)
+    // PKCE code verifier cookie needs sameSite: "none" and secure: true for cross-site requests
+    pkceCodeVerifier: {
+      name: "next-auth.pkce.code_verifier",
+      options: {
+        httpOnly: true,
+        sameSite: "none" as const,
+        path: "/",
+        secure: process.env.NODE_ENV === "production" || process.env.NEXTAUTH_URL?.startsWith("https://"),
+      },
+    },
+    // Session token cookie
+    sessionToken: {
+      name: "next-auth.session_token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: process.env.NODE_ENV === "production" || process.env.NEXTAUTH_URL?.startsWith("https://"),
+      },
+    },
+    // CSRF token cookie
+    csrfToken: {
+      name: "next-auth.csrf_token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: process.env.NODE_ENV === "production" || process.env.NEXTAUTH_URL?.startsWith("https://"),
+      },
+    },
+  },
 }
 
 // Export auth function for use in server components

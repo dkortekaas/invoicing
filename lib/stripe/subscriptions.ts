@@ -8,7 +8,8 @@ export type Feature =
   | 'unlimited_invoices'
   | 'unlimited_emails'
   | 'export'
-  | 'tax_reporting';
+  | 'tax_reporting'
+  | 'ocr_extraction';
 
 const FEATURE_ACCESS: Record<Feature, ('FREE' | 'PRO')[]> = {
   recurring_invoices: ['PRO'],
@@ -19,6 +20,7 @@ const FEATURE_ACCESS: Record<Feature, ('FREE' | 'PRO')[]> = {
   unlimited_emails: ['PRO'],
   export: ['PRO'],
   tax_reporting: ['PRO'],
+  ocr_extraction: ['PRO'],
 };
 
 export async function hasFeatureAccess(
@@ -153,6 +155,7 @@ export function getFeatureName(feature: Feature): string {
     unlimited_emails: 'Onbeperkt Emails',
     export: 'Export Functionaliteit',
     tax_reporting: 'Inkomstenbelasting Overzicht',
+    ocr_extraction: 'OCR Bonnetjes Herkenning',
   };
   return names[feature];
 }

@@ -36,7 +36,7 @@ export function SearchForm({ currentStatus }: SearchFormProps) {
     }, 300)
 
     return () => clearTimeout(timer)
-  }, [searchTerm, currentStatus, router])
+  }, [searchTerm, currentStatus, router, searchParams])
 
   return (
     <div className="relative w-full md:w-64">

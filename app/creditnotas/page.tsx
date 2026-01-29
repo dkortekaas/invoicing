@@ -27,7 +27,7 @@ import { YearFilterSelect } from "@/components/year-filter-select"
 
 const CREDIT_NOTE_SORT_KEYS = ["creditNoteNumber", "customerName", "creditNoteDate", "reason", "total"] as const
 type CreditNoteSortKey = (typeof CREDIT_NOTE_SORT_KEYS)[number]
-function isCreditNoteSortKey(s: string | null): s is CreditNoteSortKey {
+function isCreditNoteSortKey(s: string | null | undefined): s is CreditNoteSortKey {
   return s != null && CREDIT_NOTE_SORT_KEYS.includes(s as CreditNoteSortKey)
 }
 

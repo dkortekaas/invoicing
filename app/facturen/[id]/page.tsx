@@ -5,7 +5,6 @@ export const dynamic = "force-dynamic"
 import {
   ArrowLeft,
   Download,
-  FileX,
   Plus,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"

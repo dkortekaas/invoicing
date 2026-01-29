@@ -129,7 +129,7 @@ export async function logView(
 export async function logExport(
   entityType: string,
   format: string,
-  filters?: Record<string, any>,
+  filters?: Record<string, unknown>,
   userId?: string
 ): Promise<void> {
   const actualUserId = userId || (await getCurrentUserId().catch(() => undefined))
@@ -153,7 +153,7 @@ export async function logExport(
 export async function logLogin(
   userEmail: string,
   userId?: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): Promise<void> {
   await createAuditLog({
     userId,

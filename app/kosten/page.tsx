@@ -41,7 +41,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 const SORT_KEYS = ['date', 'description', 'category', 'amount', 'vatAmount'] as const;
 type SortKey = (typeof SORT_KEYS)[number];
 
-function isValidSortKey(s: string | null): s is SortKey {
+function isValidSortKey(s: string | null | undefined): s is SortKey {
   return s != null && SORT_KEYS.includes(s as SortKey);
 }
 

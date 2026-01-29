@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { ExpenseForm } from '@/components/expenses/expense-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { redirect } from 'next/navigation';
+import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
 
 export default async function EditExpensePage({
   params,
@@ -17,8 +18,8 @@ export default async function EditExpensePage({
 
   const { id } = await params;
 
-  // Fetch expense and fiscal settings in parallel
-  const [expense, fiscalSettings] = await Promise.all([
+  // Fetch expense, fiscal settings, and OCR access in parallel
+  const [expense, fiscalSettings, hasOcrAccess] = await Promise.all([
     db.expense.findFirst({
       where: {
         id,
@@ -29,6 +30,7 @@ export default async function EditExpensePage({
       where: { userId: session.user.id },
       select: { useKOR: true },
     }),
+    hasFeatureAccess(session.user.id, 'ocr_extraction'),
   ]);
 
   if (!expense) {
@@ -61,7 +63,7 @@ export default async function EditExpensePage({
           <CardTitle>Uitgave details</CardTitle>
         </CardHeader>
         <CardContent>
-          <ExpenseForm expense={serializedExpense} useKOR={useKOR} />
+          <ExpenseForm expense={serializedExpense} useKOR={useKOR} hasOcrAccess={hasOcrAccess} />
         </CardContent>
       </Card>
     </div>

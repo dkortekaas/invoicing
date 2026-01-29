@@ -20,7 +20,7 @@ import { SearchForm } from "./search-form"
 
 const CUSTOMER_SORT_KEYS = ["name", "companyName", "email", "city", "invoiceCount"] as const
 type CustomerSortKey = (typeof CUSTOMER_SORT_KEYS)[number]
-function isCustomerSortKey(s: string | null): s is CustomerSortKey {
+function isCustomerSortKey(s: string | null | undefined): s is CustomerSortKey {
   return s != null && CUSTOMER_SORT_KEYS.includes(s as CustomerSortKey)
 }
 

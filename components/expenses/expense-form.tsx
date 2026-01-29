@@ -37,13 +37,15 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { CalendarIcon, Upload, X, FileText, Loader2, Info } from 'lucide-react';
+import { CalendarIcon, Upload, X, FileText, Loader2, Info, Sparkles } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import type { Expense } from '@prisma/client';
+import { OcrPreview } from './ocr-preview';
+import type { OcrResult, OcrExtractedData } from '@/lib/ocr/types';
 
 const expenseSchema = z.object({
   date: z.date(),
@@ -90,15 +92,21 @@ interface ExpenseFormProps {
   expense?: SerializedExpense;
   onSuccess?: () => void;
   useKOR?: boolean;
+  hasOcrAccess?: boolean;
 }
 
-export function ExpenseForm({ expense, onSuccess, useKOR = false }: ExpenseFormProps) {
+export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess = false }: ExpenseFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState<string | null>(expense?.receipt || null);
   const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // OCR state
+  const [isOcrProcessing, setIsOcrProcessing] = useState(false);
+  const [ocrResult, setOcrResult] = useState<OcrResult | null>(null);
+  const [showOcrPreview, setShowOcrPreview] = useState(false);
 
   const form = useForm<ExpenseFormData>({
     resolver: zodResolver(expenseSchema),
@@ -124,6 +132,71 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false }: ExpenseFormP
     },
   });
 
+  // Trigger OCR extraction for a given receipt URL
+  const triggerOcrExtraction = async (url: string) => {
+    // Only process if user has OCR access and file is PDF or image
+    if (!hasOcrAccess) return;
+
+    const isOcrSupported = url.endsWith('.pdf') ||
+      url.endsWith('.png') ||
+      url.endsWith('.jpg') ||
+      url.endsWith('.jpeg') ||
+      url.endsWith('.webp');
+
+    if (!isOcrSupported) return;
+
+    setIsOcrProcessing(true);
+    try {
+      const response = await fetch('/api/ocr/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receiptUrl: url }),
+      });
+
+      const result: OcrResult = await response.json();
+
+      if (result.success && result.data) {
+        setOcrResult(result);
+        setShowOcrPreview(true);
+      } else if (result.error) {
+        toast.error(`OCR: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('OCR error:', error);
+      toast.error('Fout bij automatisch herkennen van gegevens');
+    } finally {
+      setIsOcrProcessing(false);
+    }
+  };
+
+  // Apply OCR extracted data to the form
+  const applyOcrData = (data: OcrExtractedData) => {
+    if (data.date) {
+      form.setValue('date', new Date(data.date));
+    }
+    if (data.amount !== undefined) {
+      form.setValue('amount', data.amount);
+    }
+    if (data.vatRate !== undefined) {
+      form.setValue('vatRate', data.vatRate);
+    }
+    if (data.supplier) {
+      form.setValue('supplier', data.supplier);
+    }
+    if (data.invoiceNumber) {
+      form.setValue('invoiceNumber', data.invoiceNumber);
+    }
+    if (data.description) {
+      form.setValue('description', data.description);
+    }
+    if (data.suggestedCategory) {
+      form.setValue('category', data.suggestedCategory);
+    }
+
+    setShowOcrPreview(false);
+    toast.success('Gegevens overgenomen uit factuur');
+  };
+
   const handleReceiptUpload = async (file: File) => {
     setIsUploadingReceipt(true);
     try {
@@ -146,6 +219,9 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false }: ExpenseFormP
       const data = await response.json();
       setReceiptUrl(data.url);
       toast.success('Bestand geüpload');
+
+      // Trigger OCR extraction automatically after upload
+      await triggerOcrExtraction(data.url);
     } catch (error) {
       console.error('Upload error:', error);
       toast.error(error instanceof Error ? error.message : 'Fout bij uploaden bestand');
@@ -550,13 +626,27 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false }: ExpenseFormP
                 </Button>
               </div>
             )}
+
+            {/* OCR Processing indicator */}
+            {isOcrProcessing && (
+              <div className="flex items-center gap-3 p-4 border rounded-lg bg-muted/50">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                <div>
+                  <p className="text-sm font-medium">Gegevens worden herkend...</p>
+                  <p className="text-xs text-muted-foreground">
+                    We analyseren je factuur of bon
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center gap-2">
               <Input
                 ref={fileInputRef}
                 type="file"
                 accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx"
                 onChange={handleFileSelect}
-                disabled={isUploadingReceipt || loading}
+                disabled={isUploadingReceipt || loading || isOcrProcessing}
                 className="hidden"
                 id="receipt-upload"
               />
@@ -567,7 +657,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false }: ExpenseFormP
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={isUploadingReceipt || loading}
+                  disabled={isUploadingReceipt || loading || isOcrProcessing}
                   asChild
                 >
                   <span>
@@ -588,9 +678,27 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false }: ExpenseFormP
             </div>
             <FormDescription>
               Upload een PDF, afbeelding of Word document van de factuur of bon. Maximaal 5MB.
+              {hasOcrAccess && (
+                <span className="flex items-center gap-1 mt-1 text-primary">
+                  <Sparkles className="h-3 w-3" />
+                  Gegevens worden automatisch herkend (Pro)
+                </span>
+              )}
             </FormDescription>
           </div>
         </FormItem>
+
+        {/* OCR Preview Dialog */}
+        {ocrResult?.data && (
+          <OcrPreview
+            open={showOcrPreview}
+            onOpenChange={setShowOcrPreview}
+            data={ocrResult.data}
+            confidence={ocrResult.confidence}
+            onApply={() => applyOcrData(ocrResult.data!)}
+            onSkip={() => setShowOcrPreview(false)}
+          />
+        )}
 
         <div className="flex justify-between gap-4">
           {expense?.id ? (

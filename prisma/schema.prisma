@@ -877,6 +877,13 @@ model Expense {
   notes String?
   tags  String[]
 
+  // OCR Metadata
+  ocrStatus      OcrStatus?
+  ocrConfidence  Decimal?   @db.Decimal(3, 2) // 0.00-1.00
+  ocrExtractedAt DateTime?
+  ocrRawData     Json?      // Alle geëxtraheerde data
+  ocrError       String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -901,6 +908,14 @@ enum ExpenseCategory {
   MAINTENANCE // Onderhoud
   PROFESSIONAL // Professionele diensten
   OTHER // Overig
+}
+
+enum OcrStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  SKIPPED
 }
 
 model VATReport {

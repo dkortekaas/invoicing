@@ -30,6 +30,7 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - 📋 **Audit Trail Systeem**: Compleet audit logging systeem met fraud detectie en compliance features
 - 🇳🇱 **Nederlandse standaarden**: Volledig aangepast aan Nederlandse factuurvereisten
 - 📥 **Import/Export**: Importeer en exporteer klanten, facturen, producten, onkosten en tijdregistraties via CSV/Excel
+- 🔍 **OCR Bonnetjes Herkenning**: Automatische herkenning van facturen en bonnetjes met AI (PRO feature)
 - 🎨 **Modern UI**: Gebouwd met Next.js 16, React 19, Tailwind CSS en shadcn/ui
 
 ## 🛠️ Technische Stack
@@ -45,6 +46,7 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - **Excel Export**: ExcelJS voor analytics export
 - **Data Fetching**: Server Actions
 - **Payments**: Stripe voor subscription management
+- **OCR**: Anthropic Claude Vision API voor bonnetjes herkenning
 
 ## 📋 Vereisten
 
@@ -221,6 +223,8 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     /creditnotes         # Credit nota API endpoints
       /[id]/pdf          # Credit nota PDF generatie
       /email             # Credit nota email verzenden
+    /ocr                 # OCR API endpoints
+      /extract           # Bonnetjes/facturen uitlezen (PRO)
 /components
   /ui                    # shadcn/ui components
   /marketing             # Marketing components
@@ -281,6 +285,13 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     watermark.ts         # Watermark rendering logic
   /invitations           # Invitation utilities
     utils.ts             # Invitation token generation & validation
+  /ocr                   # OCR service (PRO feature)
+    client.ts            # Anthropic client setup
+    types.ts             # TypeScript interfaces
+    prompts.ts           # Nederlandse extractie prompt
+    pdf-converter.ts     # PDF naar image conversie
+    category-mapper.ts   # Leverancier naar categorie mapping
+    extract-receipt.ts   # Hoofdlogica voor extractie
   db.ts                  # Prisma client
   validations.ts         # Zod schemas
   utils.ts              # Helper functions
@@ -656,6 +667,7 @@ De applicatie heeft een volledig geïntegreerd Stripe subscription systeem met f
 - ✅ Export functionaliteit (Excel/PDF)
 - ✅ Prioriteit support
 - ✅ **User Invitations**: Nodig extra gebruikers uit voor je account
+- ✅ **OCR Bonnetjes Herkenning**: Automatisch gegevens uitlezen uit facturen en bonnetjes
 
 ### Stripe Setup
 
@@ -774,6 +786,58 @@ Bezoek `/instellingen/import-export` voor:
 - Import wizard starten
 - Template downloads
 - Recente imports geschiedenis
+
+## 🔍 OCR Bonnetjes Herkenning (PRO)
+
+PRO gebruikers kunnen automatisch gegevens laten uitlezen uit facturen en bonnetjes bij het toevoegen van onkosten.
+
+### Hoe het werkt
+
+1. **Upload een bon of factuur**
+   - Ga naar Kosten → Nieuwe Uitgave
+   - Upload een PDF of afbeelding (PNG, JPG, WEBP) van je bon of factuur
+
+2. **Automatische herkenning**
+   - Het systeem analyseert de afbeelding met Claude Vision AI
+   - Gegevens zoals leverancier, datum, bedrag, BTW worden automatisch herkend
+
+3. **Preview en bevestigen**
+   - Een preview dialog toont de herkende gegevens
+   - Bekijk de betrouwbaarheidsscore (Hoog/Gemiddeld/Laag)
+   - Klik "Gegevens Overnemen" om het formulier automatisch in te vullen
+
+4. **Controleren en opslaan**
+   - Controleer de ingevulde gegevens
+   - Pas aan indien nodig
+   - Sla de uitgave op
+
+### Ondersteunde documenten
+- **Afbeeldingen**: PNG, JPG, JPEG, WEBP
+- **PDF**: Eerste pagina wordt geanalyseerd
+- **Taal**: Geoptimaliseerd voor Nederlandse bonnen en facturen
+
+### Herkende gegevens
+- Leveranciersnaam
+- Factuurnummer
+- Datum
+- Totaalbedrag (incl. BTW)
+- BTW bedrag en tarief (0%, 9%, 21%)
+- Korte beschrijving
+- Categorie suggestie (automatisch op basis van leverancier)
+
+### Categorie suggesties
+Het systeem herkent automatisch categorieën op basis van de leverancier:
+- **Reiskosten**: Shell, BP, NS, Uber, hotels
+- **Software**: Adobe, Microsoft, Google, GitHub
+- **Apparatuur**: MediaMarkt, Coolblue, Amazon
+- **Kantoor**: Staples, Bruna, HEMA
+- **Telecom**: KPN, Vodafone, Ziggo
+
+### Setup
+Voeg de Anthropic API key toe aan je environment variables:
+```env
+ANTHROPIC_API_KEY="sk-ant-..."
+```
 
 ## 🔐 Authenticatie
 
@@ -924,6 +988,9 @@ STRIPE_PRICE_ID_YEARLY="price_..."
 # Mollie Payments (optioneel)
 MOLLIE_ENCRYPTION_KEY="generate-a-64-hex-character-key-here"
 
+# OCR Bonnetjes Herkenning (optioneel, PRO feature)
+ANTHROPIC_API_KEY="sk-ant-..."
+
 # App URL
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
@@ -956,6 +1023,9 @@ STRIPE_PRICE_ID_YEARLY="price_live_..."
 
 # Mollie Payments
 MOLLIE_ENCRYPTION_KEY="your-64-hex-character-encryption-key"
+
+# OCR Bonnetjes Herkenning
+ANTHROPIC_API_KEY="sk-ant-..."
 
 NEXT_PUBLIC_APP_URL="https://your-domain.com"
 NODE_ENV="production"
@@ -1081,6 +1151,7 @@ Het audit trail systeem biedt volledige traceerbaarheid en compliance:
 - [x] Audit trail systeem met fraud detectie ✅
 - [x] Credit nota's met volledige workflow ✅
 - [x] Import/Export functionaliteit voor klanten, facturen, producten, onkosten en tijdregistraties ✅
+- [x] OCR bonnetjes herkenning met AI (Claude Vision API) ✅
 - [ ] Klantportaal voor factuur inzage en betaling
 - [ ] Forecasting & predictive analytics
 - [ ] Benchmarking tegen industrie gemiddeldes

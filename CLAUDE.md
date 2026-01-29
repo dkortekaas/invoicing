@@ -30,6 +30,7 @@ npx prisma studio        # Open database GUI
 - **PDF**: @react-pdf/renderer
 - **Email**: Resend API
 - **Forms**: React Hook Form + Zod validation
+- **OCR**: Anthropic Claude Vision API for receipt extraction (PRO feature)
 
 ## Architecture
 
@@ -45,6 +46,7 @@ npx prisma studio        # Open database GUI
 - `app/instellingen/import-export/` - Import/export hub
 - `app/api/export/` - Export endpoints (customers, invoices, products, expenses, time-entries)
 - `app/api/import/` - Import endpoints (upload, validate, execute, status)
+- `app/api/ocr/` - OCR extraction endpoint for receipts (PRO feature)
 
 ### Server Actions Pattern
 Data mutations use Next.js Server Actions in `actions.ts` files colocated with their routes:
@@ -68,7 +70,7 @@ Each action:
 Premium features are controlled via `lib/stripe/subscriptions.ts`:
 - `hasFeatureAccess(userId, feature)` - Check if user can access feature
 - `canCreateInvoice(userId)` - Check invoice limits (FREE: 50/month)
-- Features: `recurring_invoices`, `vat_reporting`, `time_tracking`, `analytics`, `export`
+- Features: `recurring_invoices`, `vat_reporting`, `time_tracking`, `analytics`, `export`, `ocr_extraction`
 - SUPERUSER role bypasses all feature gates
 
 ### Key Library Files
@@ -77,6 +79,7 @@ Premium features are controlled via `lib/stripe/subscriptions.ts`:
 - `lib/utils.ts` - Utilities: `cn()`, `formatCurrency()`, `formatDate()`, `generateInvoiceNumber()`
 - `lib/pdf/watermark.ts` - PDF watermark for FREE users
 - `lib/import-export/` - Import/export services with field definitions per entity
+- `lib/ocr/` - OCR service for receipt extraction using Claude Vision API
 
 ### Component Organization
 - `components/ui/` - shadcn/ui base components
@@ -127,4 +130,9 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 STRIPE_PRICE_ID_MONTHLY="price_..."
 STRIPE_PRICE_ID_YEARLY="price_..."
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+
+For OCR (receipt extraction):
+```env
+ANTHROPIC_API_KEY="sk-ant-..."
 ```

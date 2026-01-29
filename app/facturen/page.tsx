@@ -28,7 +28,7 @@ import { YearFilterSelect } from "@/components/year-filter-select"
 
 const INVOICE_SORT_KEYS = ["invoiceNumber", "customerName", "invoiceDate", "dueDate", "total"] as const
 type InvoiceSortKey = (typeof INVOICE_SORT_KEYS)[number]
-function isInvoiceSortKey(s: string | null): s is InvoiceSortKey {
+function isInvoiceSortKey(s: string | null | undefined): s is InvoiceSortKey {
   return s != null && INVOICE_SORT_KEYS.includes(s as InvoiceSortKey)
 }
 

@@ -201,7 +201,7 @@ export default async function BelastingJaarPage({
                 : "border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20"
             }
           >
-            <CardContent className="pt-6">
+            <CardContent>
               <div className="flex items-center gap-4">
                 {report.meetsHoursCriterion ? (
                   <CheckCircle className="h-8 w-8 text-green-600" />

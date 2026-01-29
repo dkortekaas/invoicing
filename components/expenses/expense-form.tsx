@@ -37,7 +37,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { CalendarIcon, Upload, X, FileText, Loader2 } from 'lucide-react';
+import { CalendarIcon, Upload, X, FileText, Loader2, Info } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -91,7 +92,7 @@ interface ExpenseFormProps {
   useKOR?: boolean;
 }
 
-export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
+export function ExpenseForm({ expense, onSuccess, useKOR = false }: ExpenseFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState<string | null>(expense?.receipt || null);
@@ -109,8 +110,8 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
       vatRate: Number(expense.vatRate),
       supplier: expense.supplier || '',
       invoiceNumber: expense.invoiceNumber || '',
-      deductible: expense.deductible,
-      deductiblePerc: Number(expense.deductiblePerc),
+      deductible: useKOR ? false : expense.deductible,
+      deductiblePerc: useKOR ? 0 : Number(expense.deductiblePerc),
       notes: expense.notes || '',
     } : {
       date: new Date(),
@@ -118,8 +119,8 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
       category: '',
       amount: 0,
       vatRate: 21,
-      deductible: true,
-      deductiblePerc: 100,
+      deductible: useKOR ? false : true,
+      deductiblePerc: useKOR ? 0 : 100,
     },
   });
 
@@ -400,30 +401,32 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="deductiblePerc"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Aftrekbaar %</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={field.value !== undefined ? String(field.value) : ''}
-                    onChange={(e) => field.onChange(parseInt(e.target.value) || 100)}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Percentage BTW dat aftrekbaar is
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {!useKOR && (
+            <FormField
+              control={form.control}
+              name="deductiblePerc"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Aftrekbaar %</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={field.value !== undefined ? String(field.value) : ''}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 100)}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Percentage BTW dat aftrekbaar is
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -488,26 +491,36 @@ export function ExpenseForm({ expense, onSuccess }: ExpenseFormProps) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="deductible"
-          render={({ field }) => (
-            <FormItem className="flex items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">BTW aftrekbaar</FormLabel>
-                <FormDescription>
-                  Is de BTW op deze uitgave aftrekbaar?
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+        {useKOR ? (
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Je maakt gebruik van de kleineondernemersregeling (KOR). BTW op uitgaven is niet aftrekbaar.
+              De kosten zijn wel aftrekbaar voor de inkomstenbelasting.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <FormField
+            control={form.control}
+            name="deductible"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">BTW aftrekbaar</FormLabel>
+                  <FormDescription>
+                    Is de BTW op deze uitgave aftrekbaar?
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormItem>
           <FormLabel>Factuur/Bon</FormLabel>

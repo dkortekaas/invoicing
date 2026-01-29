@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { SortableTableHead } from "@/components/ui/sortable-table-head"
 import {
   Card,
   CardContent,
@@ -23,20 +24,30 @@ import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import { getInvoices } from "./actions"
 import { InvoiceActions } from "./invoice-actions"
 import { SearchForm } from "./search-form"
+import { YearFilterSelect } from "@/components/year-filter-select"
+
+const INVOICE_SORT_KEYS = ["invoiceNumber", "customerName", "invoiceDate", "dueDate", "total"] as const
+type InvoiceSortKey = (typeof INVOICE_SORT_KEYS)[number]
+function isInvoiceSortKey(s: string | null): s is InvoiceSortKey {
+  return s != null && INVOICE_SORT_KEYS.includes(s as InvoiceSortKey)
+}
 
 interface FacturenPageProps {
-  searchParams: Promise<{ status?: string; search?: string }>
+  searchParams: Promise<{ status?: string; search?: string; year?: string; sortBy?: string; sortOrder?: string }>
 }
 
 export default async function FacturenPage({ searchParams }: FacturenPageProps) {
   const params = await searchParams
   const status = params.status || "ALL"
   const search = params.search || ""
+  const yearParam = params.year ? parseInt(params.year, 10) : null
+  const sortBy = isInvoiceSortKey(params.sortBy) ? params.sortBy : "invoiceDate"
+  const sortOrder = params.sortOrder === "asc" ? "asc" : "desc"
 
   const invoices = await getInvoices(status === "ALL" ? undefined : status)
 
-  // Filter op search term als die bestaat
-  const filteredInvoices = search
+  // Filter op search term
+  let filteredInvoices = search
     ? invoices.filter(
         (invoice: typeof invoices[0]) =>
           invoice.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
@@ -44,6 +55,39 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
           invoice.customer.companyName?.toLowerCase().includes(search.toLowerCase())
       )
     : invoices
+
+  // Filter op jaar
+  if (yearParam && !Number.isNaN(yearParam)) {
+    filteredInvoices = filteredInvoices.filter((invoice: typeof invoices[0]) => {
+      const y = new Date(invoice.invoiceDate).getFullYear()
+      return y === yearParam
+    })
+  }
+
+  // Sorteren
+  filteredInvoices = [...filteredInvoices].sort((a: typeof invoices[0], b: typeof invoices[0]) => {
+    let cmp = 0
+    switch (sortBy) {
+      case "invoiceNumber":
+        cmp = a.invoiceNumber.localeCompare(b.invoiceNumber)
+        break
+      case "customerName":
+        cmp = (a.customer.companyName || a.customer.name).localeCompare(b.customer.companyName || b.customer.name)
+        break
+      case "invoiceDate":
+        cmp = new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime()
+        break
+      case "dueDate":
+        cmp = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+        break
+      case "total":
+        cmp = a.total - b.total
+        break
+      default:
+        cmp = new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime()
+    }
+    return sortOrder === "asc" ? cmp : -cmp
+  })
 
   // Bereken status counts
   const allInvoices = await getInvoices()
@@ -108,18 +152,27 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
               </TabsList>
             </Tabs>
 
-            <SearchForm currentStatus={status} />
+            <div className="flex flex-wrap items-center gap-2">
+              <SearchForm currentStatus={status} />
+              <YearFilterSelect
+                years={(() => {
+                  const years = new Set(allInvoices.map((i: typeof allInvoices[0]) => new Date(i.invoiceDate).getFullYear()))
+                  return Array.from(years).sort((a, b) => b - a)
+                })()}
+                currentYear={params.year ?? null}
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Factuur</TableHead>
-                <TableHead>Klant</TableHead>
-                <TableHead>Datum</TableHead>
-                <TableHead>Vervaldatum</TableHead>
-                <TableHead className="text-right">Bedrag</TableHead>
+                <SortableTableHead sortKey="invoiceNumber">Factuur</SortableTableHead>
+                <SortableTableHead sortKey="customerName">Klant</SortableTableHead>
+                <SortableTableHead sortKey="invoiceDate">Datum</SortableTableHead>
+                <SortableTableHead sortKey="dueDate">Vervaldatum</SortableTableHead>
+                <SortableTableHead sortKey="total" className="text-right">Bedrag</SortableTableHead>
                 <TableHead className="text-center">Status</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>

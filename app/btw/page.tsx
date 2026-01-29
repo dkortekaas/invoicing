@@ -3,7 +3,8 @@ import { db, clearPrismaCache } from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { VATDashboard } from '@/components/vat/vat-dashboard';
 import { Button } from '@/components/ui/button';
-import { Plus, FileSpreadsheet } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Plus, FileSpreadsheet, Info } from 'lucide-react';
 import Link from 'next/link';
 import { getCurrentQuarter, getPreviousQuarter } from '@/lib/vat/calculations';
 
@@ -18,6 +19,13 @@ export default async function BTWPage() {
   if (process.env.NODE_ENV !== 'production') {
     clearPrismaCache();
   }
+
+  // Check if user has KOR enabled
+  const fiscalSettings = await db.fiscalSettings.findUnique({
+    where: { userId: session.user.id },
+    select: { useKOR: true },
+  });
+  const useKOR = fiscalSettings?.useKOR ?? false;
 
   const current = getCurrentQuarter();
   const prev1 = getPreviousQuarter(current.year, current.quarter);
@@ -88,6 +96,18 @@ export default async function BTWPage() {
           </Button>
         </div>
       </div>
+
+      {useKOR && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>Kleineondernemersregeling (KOR)</AlertTitle>
+          <AlertDescription>
+            Je maakt gebruik van de KOR. Dit betekent dat je geen BTW-aangifte hoeft te doen
+            en geen BTW in rekening brengt of terugvraagt. De onderstaande overzichten zijn
+            alleen ter informatie.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Suspense fallback={<div>Laden...</div>}>
         <VATDashboard quarters={reports} currentQuarter={current} />

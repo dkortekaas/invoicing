@@ -1,8 +1,9 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { Search } from "lucide-react"
+import { Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 
 interface SearchFormProps {
@@ -42,10 +43,22 @@ export function SearchForm({ currentStatus }: SearchFormProps) {
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         placeholder="Zoek facturen..."
-        className="pl-9"
+        className={searchTerm ? "pl-9 pr-9" : "pl-9"}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
+      {searchTerm ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="absolute right-0 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          onClick={() => setSearchTerm("")}
+          aria-label="Zoekterm wissen"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      ) : null}
     </div>
   )
 }

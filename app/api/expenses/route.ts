@@ -96,6 +96,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if user has KOR enabled - if so, VAT is never deductible
+    const fiscalSettings = await db.fiscalSettings.findUnique({
+      where: { userId: session.user.id },
+      select: { useKOR: true },
+    });
+    const useKOR = fiscalSettings?.useKOR ?? false;
+
     // Calculate net amount and VAT
     const netAmount = calculateNetFromGross(amount, vatRate);
     const vatAmount = calculateVATFromGross(amount, vatRate);
@@ -112,8 +119,8 @@ export async function POST(request: NextRequest) {
         netAmount,
         supplier,
         invoiceNumber,
-        deductible,
-        deductiblePerc,
+        deductible: useKOR ? false : deductible,
+        deductiblePerc: useKOR ? 0 : deductiblePerc,
         receipt,
         customerId,
         projectId,

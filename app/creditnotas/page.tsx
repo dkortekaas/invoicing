@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { SortableTableHead } from "@/components/ui/sortable-table-head"
 import {
   Card,
   CardContent,
@@ -22,20 +23,30 @@ import { CreditNoteStatusBadge } from "@/components/creditnotes/credit-note-stat
 import { getCreditNotes } from "./actions"
 import { CreditNoteActions } from "./credit-note-actions"
 import { SearchForm } from "./search-form"
+import { YearFilterSelect } from "@/components/year-filter-select"
+
+const CREDIT_NOTE_SORT_KEYS = ["creditNoteNumber", "customerName", "creditNoteDate", "reason", "total"] as const
+type CreditNoteSortKey = (typeof CREDIT_NOTE_SORT_KEYS)[number]
+function isCreditNoteSortKey(s: string | null): s is CreditNoteSortKey {
+  return s != null && CREDIT_NOTE_SORT_KEYS.includes(s as CreditNoteSortKey)
+}
 
 interface CreditNotasPageProps {
-  searchParams: Promise<{ status?: string; search?: string }>
+  searchParams: Promise<{ status?: string; search?: string; year?: string; sortBy?: string; sortOrder?: string }>
 }
 
 export default async function CreditNotasPage({ searchParams }: CreditNotasPageProps) {
   const params = await searchParams
   const status = params.status || "ALL"
   const search = params.search || ""
+  const yearParam = params.year ? parseInt(params.year, 10) : null
+  const sortBy = isCreditNoteSortKey(params.sortBy) ? params.sortBy : "creditNoteDate"
+  const sortOrder = params.sortOrder === "asc" ? "asc" : "desc"
 
   const creditNotes = await getCreditNotes(status === "ALL" ? undefined : status)
 
-  // Filter op search term als die bestaat
-  const filteredCreditNotes = search
+  // Filter op search term
+  let filteredCreditNotes = search
     ? creditNotes.filter(
         (cn: typeof creditNotes[0]) =>
           cn.creditNoteNumber.toLowerCase().includes(search.toLowerCase()) ||
@@ -43,6 +54,39 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
           cn.customer.companyName?.toLowerCase().includes(search.toLowerCase())
       )
     : creditNotes
+
+  // Filter op jaar
+  if (yearParam && !Number.isNaN(yearParam)) {
+    filteredCreditNotes = filteredCreditNotes.filter((cn: typeof creditNotes[0]) => {
+      const y = new Date(cn.creditNoteDate).getFullYear()
+      return y === yearParam
+    })
+  }
+
+  // Sorteren
+  filteredCreditNotes = [...filteredCreditNotes].sort((a: typeof creditNotes[0], b: typeof creditNotes[0]) => {
+    let cmp = 0
+    switch (sortBy) {
+      case "creditNoteNumber":
+        cmp = a.creditNoteNumber.localeCompare(b.creditNoteNumber)
+        break
+      case "customerName":
+        cmp = (a.customer.companyName || a.customer.name).localeCompare(b.customer.companyName || b.customer.name)
+        break
+      case "creditNoteDate":
+        cmp = new Date(a.creditNoteDate).getTime() - new Date(b.creditNoteDate).getTime()
+        break
+      case "reason":
+        cmp = (CREDIT_NOTE_REASON_LABELS[a.reason] ?? a.reason).localeCompare(CREDIT_NOTE_REASON_LABELS[b.reason] ?? b.reason)
+        break
+      case "total":
+        cmp = a.total - b.total
+        break
+      default:
+        cmp = new Date(a.creditNoteDate).getTime() - new Date(b.creditNoteDate).getTime()
+    }
+    return sortOrder === "asc" ? cmp : -cmp
+  })
 
   // Bereken status counts
   const allCreditNotes = await getCreditNotes()
@@ -105,18 +149,27 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
               </TabsList>
             </Tabs>
 
-            <SearchForm currentStatus={status} />
+            <div className="flex flex-wrap items-center gap-2">
+              <SearchForm currentStatus={status} />
+              <YearFilterSelect
+                years={(() => {
+                  const years = new Set(allCreditNotes.map((cn: typeof allCreditNotes[0]) => new Date(cn.creditNoteDate).getFullYear()))
+                  return Array.from(years).sort((a, b) => b - a)
+                })()}
+                currentYear={params.year ?? null}
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Credit Nota</TableHead>
-                <TableHead>Klant</TableHead>
-                <TableHead>Datum</TableHead>
-                <TableHead>Reden</TableHead>
-                <TableHead className="text-right">Bedrag</TableHead>
+                <SortableTableHead sortKey="creditNoteNumber">Credit Nota</SortableTableHead>
+                <SortableTableHead sortKey="customerName">Klant</SortableTableHead>
+                <SortableTableHead sortKey="creditNoteDate">Datum</SortableTableHead>
+                <SortableTableHead sortKey="reason">Reden</SortableTableHead>
+                <SortableTableHead sortKey="total" className="text-right">Bedrag</SortableTableHead>
                 <TableHead className="text-center">Status</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>

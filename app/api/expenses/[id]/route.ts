@@ -89,6 +89,13 @@ export async function PATCH(
       );
     }
 
+    // Check if user has KOR enabled - if so, VAT is never deductible
+    const fiscalSettings = await db.fiscalSettings.findUnique({
+      where: { userId: session.user.id },
+      select: { useKOR: true },
+    });
+    const useKOR = fiscalSettings?.useKOR ?? false;
+
     // Recalculate amounts if amount or vatRate changed
     const updateData: Prisma.ExpenseUpdateInput = {};
     if (date) updateData.date = new Date(date);
@@ -96,8 +103,8 @@ export async function PATCH(
     if (category) updateData.category = category;
     if (supplier !== undefined) updateData.supplier = supplier;
     if (invoiceNumber !== undefined) updateData.invoiceNumber = invoiceNumber;
-    if (deductible !== undefined) updateData.deductible = deductible;
-    if (deductiblePerc !== undefined) updateData.deductiblePerc = deductiblePerc;
+    if (deductible !== undefined) updateData.deductible = useKOR ? false : deductible;
+    if (deductiblePerc !== undefined) updateData.deductiblePerc = useKOR ? 0 : deductiblePerc;
     if (receipt !== undefined) updateData.receipt = receipt;
     if (customerId !== undefined) {
       updateData.customer = customerId 

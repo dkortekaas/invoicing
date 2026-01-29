@@ -436,9 +436,8 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           {/* Credit Notes */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
-              <div>
+              <div className="space-y-2">
                 <CardTitle className="flex items-center gap-2">
-                  <FileX className="h-4 w-4" />
                   Credit Nota&apos;s
                 </CardTitle>
                 <CardDescription>

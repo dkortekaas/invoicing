@@ -394,7 +394,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Categorie *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecteer categorie" />
@@ -459,7 +459,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
                 <FormLabel>BTW% *</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(parseFloat(value))}
-                  defaultValue={field.value.toString()}
+                  value={field.value.toString()}
                 >
                   <FormControl>
                     <SelectTrigger>

@@ -1,17 +1,16 @@
-import Hero from '@/components/marketing/hero';
-import ProblemSolution from '@/components/marketing/problem-solution';
-import Features from '@/components/marketing/features';
-import HowItWorks from '@/components/marketing/how-it-works';
-import CTA from '@/components/marketing/call-to-action';
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import MarketingContentLoader from '@/components/marketing/marketing-content-loader';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await auth();
+  if (session?.user) {
+    redirect('/dashboard');
+  }
+
   return (
-    <>
-      <Hero />
-      <ProblemSolution />
-      <Features />
-      <HowItWorks />
-      <CTA />
-    </>
+    <main id="main-content" className="min-h-[50vh]">
+      <MarketingContentLoader />
+    </main>
   );
 }

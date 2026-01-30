@@ -7,6 +7,7 @@ import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import Link from "next/link"
+import Logo from "@/components/marketing/logo";
 
 import { Button } from "@/components/ui/button"
 import {
@@ -108,7 +109,8 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gray-50 px-4">
+      <Logo />
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Inloggen</CardTitle>

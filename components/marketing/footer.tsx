@@ -1,116 +1,120 @@
 import Link from "next/link";
+import Logo from "./logo";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
+  const footerLinks = {
+    product: [
+      { label: "Features", href: "/features" },
+      { label: "Prijzen", href: "/pricing" },
+      { label: "Koppelingen", href: "/features/integrations" },
+    ],
+    resources: [
+      { label: "Blog", href: "/blog" },
+      { label: "Help Center", href: "/help" },
+    ],
+    company: [
+      { label: "Over ons", href: "/about" },
+      { label: "Contact", href: "/contact" },
+    ],
+    legal: [
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Algemene Voorwaarden", href: "/terms" },
+      { label: "Cookies", href: "/cookies" },
+    ],
+  };
+
   return (
-    <footer className="bg-foreground text-background/80" role="contentinfo">
-      <div className="container-tight section-padding !py-12">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4" aria-label="Declair - Naar homepage">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center" aria-hidden="true">
-                <span className="text-primary-foreground font-bold text-lg">B</span>
-              </div>
-              <span className="font-bold text-xl text-background">Declair</span>
-            </Link>
-            <p className="text-sm text-background/60 leading-relaxed">
-              Factureren zonder gedoe voor zzp&apos;ers en eenmanszaken. Jouw administratie. Helder geregeld.
+    <footer className="bg-muted/50 border-t border-border">
+      <div className="container mx-auto py-12 md:py-16">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-12">
+          {/* Logo & Description */}
+          <div className="col-span-2 md:col-span-1">
+            <Logo />
+            <p className="mt-4 text-sm text-muted-foreground max-w-xs">
+              Factureren zonder gedoe
             </p>
           </div>
 
           {/* Product */}
-          <nav aria-label="Product links">
-            <h2 className="font-semibold text-background mb-4">Product</h2>
-            <ul className="space-y-2 list-none">
-              <li>
-                <Link
-                  href="/#features"
-                  className="text-sm text-background/60 hover:text-background transition-colors"
-                >
-                  Features
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/prijzen"
-                  className="text-sm text-background/60 hover:text-background transition-colors"
-                >
-                  Prijzen
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#how-it-works"
-                  className="text-sm text-background/60 hover:text-background transition-colors"
-                >
-                  Hoe het werkt
-                </Link>
-              </li>
+          <div>
+            <h4 className="font-semibold text-foreground mb-4">Product</h4>
+            <ul className="space-y-3">
+              {footerLinks.product.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </nav>
+          </div>
 
-          {/* Bedrijf */}
-          <nav aria-label="Bedrijf links">
-            <h2 className="font-semibold text-background mb-4">Bedrijf</h2>
-            <ul className="space-y-2 list-none">
-              <li>
-                <Link
-                  href="/over-ons"
-                  className="text-sm text-background/60 hover:text-background transition-colors"
-                >
-                  Over ons
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-sm text-background/60 hover:text-background transition-colors"
-                >
-                  Contact
-                </Link>
-              </li>
+          {/* Resources */}
+          <div>
+            <h4 className="font-semibold text-foreground mb-4">Resources</h4>
+            <ul className="space-y-3">
+              {footerLinks.resources.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </nav>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h4 className="font-semibold text-foreground mb-4">Bedrijf</h4>
+            <ul className="space-y-3">
+              {footerLinks.company.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           {/* Legal */}
-          <nav aria-label="Juridische links">
-            <h2 className="font-semibold text-background mb-4">Juridisch</h2>
-            <ul className="space-y-2 list-none">
-              <li>
-                <Link
-                  href="/privacy"
-                  className="text-sm text-background/60 hover:text-background transition-colors"
-                >
-                  Privacy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/voorwaarden"
-                  className="text-sm text-background/60 hover:text-background transition-colors"
-                >
-                  Algemene voorwaarden
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/cookies"
-                  className="text-sm text-background/60 hover:text-background transition-colors"
-                >
-                  Cookies
-                </Link>
-              </li>
+          <div>
+            <h4 className="font-semibold text-foreground mb-4">Juridisch</h4>
+            <ul className="space-y-3">
+              {footerLinks.legal.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </nav>
+          </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-background/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-background/50">
-            © {new Date().getFullYear()} Declair.nl. Alle rechten voorbehouden.
+        {/* Bottom Bar */}
+        <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-muted-foreground">
+            © {currentYear} Declair. Alle rechten voorbehouden.
           </p>
-          <p className="text-sm text-background/50">
-            Shortcheese Solutions
-          </p>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <span>KvK: 12345678</span>
+            <span>BTW: NL123456789B01</span>
+          </div>
         </div>
       </div>
     </footer>

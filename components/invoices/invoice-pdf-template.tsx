@@ -301,6 +301,7 @@ export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: In
           <View style={styles.companyInfo}>
             {invoice.company.companyLogo && (
               <View style={styles.logoContainer}>
+                {/* eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf/renderer Image does not support alt */}
                 <Image
                   src={invoice.company.companyLogo.startsWith("http") 
                     ? invoice.company.companyLogo 

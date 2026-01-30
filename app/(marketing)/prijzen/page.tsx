@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check, X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   Accordion,
   AccordionContent,

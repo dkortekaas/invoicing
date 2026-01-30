@@ -125,7 +125,7 @@ export function ImportWizard({
     onOpenChange(false);
   };
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = useCallback(async (file: File) => {
     setIsLoading(true);
 
     try {
@@ -153,7 +153,7 @@ export function ImportWizard({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [entityType]);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -165,7 +165,7 @@ export function ImportWizard({
         handleFileUpload(file);
       }
     },
-    [entityType]
+    [handleFileUpload]
   );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -5,7 +5,7 @@ import { getUserId } from "./get-session"
 export async function getCurrentUserId() {
   try {
     return await getUserId()
-  } catch (error) {
+  } catch (_error) {
     throw new Error("Niet ingelogd")
   }
 }

@@ -65,7 +65,7 @@ export function PaymentForm({ token, invoiceId, amount, pendingPayment }: Paymen
         setError(result.error)
         setIsSubmitting(false)
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Er is een fout opgetreden. Probeer het opnieuw.")
       setIsSubmitting(false)
     }
@@ -125,11 +125,14 @@ export function PaymentForm({ token, invoiceId, amount, pendingPayment }: Paymen
                   className="flex items-center gap-3 rounded-lg border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary cursor-pointer transition-colors"
                 >
                   {issuer.image?.svg && (
-                    <img
-                      src={issuer.image.svg}
-                      alt={issuer.name}
-                      className="h-6 w-6 object-contain"
-                    />
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={issuer.image.svg}
+                        alt={issuer.name}
+                        className="h-6 w-6 object-contain"
+                      />
+                    </>
                   )}
                   <span className="text-sm font-medium">{issuer.name}</span>
                 </Label>

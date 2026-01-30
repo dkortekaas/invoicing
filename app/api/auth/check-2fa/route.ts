@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       requires2FA: user.twoFactorEnabled,
     })
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       { error: "Server error" },
       { status: 500 }

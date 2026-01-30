@@ -50,7 +50,7 @@ const HeroSection = () => {
 
             {/* Subheading */}
             <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0">
-              De complete administratie-app voor Nederlandse ZZP'ers en freelancers.
+              De complete administratie-app voor Nederlandse ZZP&apos;ers en freelancers.
               Van offerte tot betaling, van bonnetje tot belastingaangifte.
             </p>
 

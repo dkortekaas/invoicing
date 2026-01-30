@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -32,7 +32,7 @@ export function AuditAlerts({ days = 7 }: { days?: number }) {
     byReason: Array<{ reason: string; count: number }>
   } | null>(null)
 
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch(`/api/audit-logs/alerts?days=${days}&limit=50`)
@@ -44,14 +44,14 @@ export function AuditAlerts({ days = 7 }: { days?: number }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [days])
 
   useEffect(() => {
     fetchAlerts()
     // Refresh every 60 seconds
     const interval = setInterval(fetchAlerts, 60000)
     return () => clearInterval(interval)
-  }, [days])
+  }, [fetchAlerts])
 
   if (loading) {
     return (

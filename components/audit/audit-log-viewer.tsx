@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Fragment } from "react"
+import { useState, useEffect, useCallback, Fragment } from "react"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
 import { Prisma } from "@prisma/client"
@@ -79,7 +79,7 @@ export function AuditLogViewer({
     endDate: "",
   })
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({
@@ -115,11 +115,11 @@ export function AuditLogViewer({
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, limit, filters, entityType, entityId, userId])
 
   useEffect(() => {
     fetchLogs()
-  }, [page, filters, entityType, entityId, userId])
+  }, [fetchLogs])
 
   const handleExport = async () => {
     try {

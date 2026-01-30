@@ -28,7 +28,7 @@ function createPrismaClient(): PrismaClient {
     params.set('sslmode', 'verify-full')
     url.search = params.toString()
     connectionString = url.toString()
-  } catch (error) {
+  } catch (_error) {
     // If URL parsing fails, try to append sslmode if it's a simple connection string
     // This handles cases where the connection string might not be a standard URL
     if (connectionString && !connectionString.includes('sslmode=')) {

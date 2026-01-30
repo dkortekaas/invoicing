@@ -331,6 +331,7 @@ export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE'
           <View style={styles.companyInfo}>
             {creditNote.company.companyLogo && (
               <View style={styles.logoContainer}>
+                {/* eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf/renderer Image does not support alt */}
                 <Image
                   src={creditNote.company.companyLogo.startsWith("http")
                     ? creditNote.company.companyLogo

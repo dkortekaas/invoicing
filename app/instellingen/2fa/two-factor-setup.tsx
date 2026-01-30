@@ -183,6 +183,7 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
 
           {qrCode && (
             <div className="flex justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element -- QR code is a data URL, next/image does not support */}
               <img src={qrCode} alt="QR Code" className="rounded border" />
             </div>
           )}

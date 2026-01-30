@@ -1,5 +1,3 @@
-import * as fs from 'fs/promises';
-import * as path from 'path';
 import { anthropic } from './client';
 import { RECEIPT_EXTRACTION_PROMPT } from './prompts';
 import { convertPdfToImage, isPdf, getImageMimeType } from './pdf-converter';
@@ -8,36 +6,36 @@ import type { OcrResult, OcrExtractedData } from './types';
 
 /**
  * Extracts receipt data from an image or PDF using Claude's vision API
+ * @param receiptUrl - URL to the receipt file (Vercel Blob or other remote URL)
  */
-export async function extractReceiptData(filePath: string): Promise<OcrResult> {
+export async function extractReceiptData(receiptUrl: string): Promise<OcrResult> {
   try {
-    // Get the full file path
-    const fullPath = path.join(process.cwd(), 'public', filePath);
+    // Fetch the file from URL
+    const fetchResponse = await fetch(receiptUrl);
 
-    // Check if file exists
-    try {
-      await fs.access(fullPath);
-    } catch {
+    if (!fetchResponse.ok) {
       return {
         success: false,
         confidence: 0,
-        error: 'Bestand niet gevonden',
+        error: 'Kon bestand niet ophalen',
       };
     }
+
+    const arrayBuffer = await fetchResponse.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
     // Prepare image data for Claude
     let imageData: string;
     let mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif';
 
-    if (isPdf(fullPath)) {
+    if (isPdf(receiptUrl)) {
       // Convert PDF to image
-      imageData = await convertPdfToImage(fullPath);
+      imageData = await convertPdfToImage(buffer);
       mediaType = 'image/png';
     } else {
-      // Read image file directly
-      const buffer = await fs.readFile(fullPath);
+      // Use image directly
       imageData = buffer.toString('base64');
-      mediaType = getImageMimeType(fullPath);
+      mediaType = getImageMimeType(receiptUrl);
     }
 
     // Call Claude vision API

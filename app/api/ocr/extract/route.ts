@@ -34,8 +34,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file path (must be in uploads/receipts)
-    if (!receiptUrl.startsWith('/uploads/receipts/')) {
+    // Validate URL (must be a Vercel Blob URL or local uploads path)
+    const isVercelBlob = receiptUrl.includes('blob.vercel-storage.com');
+    const isLocalUploads = receiptUrl.startsWith('/uploads/receipts/');
+
+    if (!isVercelBlob && !isLocalUploads) {
       return NextResponse.json(
         { error: 'Ongeldig bestandspad' },
         { status: 400 }

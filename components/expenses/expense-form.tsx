@@ -137,11 +137,13 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
     // Only process if user has OCR access and file is PDF or image
     if (!hasOcrAccess) return;
 
-    const isOcrSupported = url.endsWith('.pdf') ||
-      url.endsWith('.png') ||
-      url.endsWith('.jpg') ||
-      url.endsWith('.jpeg') ||
-      url.endsWith('.webp');
+    // Remove query parameters for extension check
+    const urlPath = (url.split('?')[0] ?? url).toLowerCase();
+    const isOcrSupported = urlPath.endsWith('.pdf') ||
+      urlPath.endsWith('.png') ||
+      urlPath.endsWith('.jpg') ||
+      urlPath.endsWith('.jpeg') ||
+      urlPath.endsWith('.webp');
 
     if (!isOcrSupported) return;
 

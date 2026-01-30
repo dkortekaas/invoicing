@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { writeFile, mkdir, unlink } from "fs/promises"
-import { join } from "path"
+import { put, del } from "@vercel/blob"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { db } from "@/lib/db"
 
@@ -40,23 +39,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), "public", "uploads", "receipts")
-    await mkdir(uploadsDir, { recursive: true })
-
     // Generate unique filename
     const timestamp = Date.now()
     const extension = file.name.split(".").pop()
-    const filename = `${userId}-${timestamp}.${extension}`
-    const filepath = join(uploadsDir, filename)
+    const filename = `receipts/${userId}-${timestamp}.${extension}`
 
-    // Save file
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    await writeFile(filepath, buffer)
+    // Upload to Vercel Blob
+    const blob = await put(filename, file, {
+      access: "public",
+      addRandomSuffix: false,
+    })
 
-    // Get relative URL path
-    const receiptUrl = `/uploads/receipts/${filename}`
+    // The blob.url is the full URL to the uploaded file
+    const receiptUrl = blob.url
 
     // If expenseId is provided, update the expense with the receipt
     if (expenseId) {
@@ -69,11 +64,10 @@ export async function POST(request: NextRequest) {
       })
 
       if (expense) {
-        // Delete old receipt file if it exists
-        if (expense.receipt) {
+        // Delete old receipt from Vercel Blob if it exists
+        if (expense.receipt && expense.receipt.includes("blob.vercel-storage.com")) {
           try {
-            const oldFilePath = join(process.cwd(), "public", expense.receipt)
-            await unlink(oldFilePath)
+            await del(expense.receipt)
           } catch (error) {
             // Ignore errors if file doesn't exist
             console.error("Error deleting old receipt:", error)

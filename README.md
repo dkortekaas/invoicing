@@ -47,6 +47,7 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - **Data Fetching**: Server Actions
 - **Payments**: Stripe voor subscription management
 - **OCR**: Anthropic Claude Vision API voor bonnetjes herkenning
+- **File Storage**: Vercel Blob voor bestandsuploads (productie)
 
 ## 📋 Vereisten
 
@@ -225,6 +226,8 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
       /email             # Credit nota email verzenden
     /ocr                 # OCR API endpoints
       /extract           # Bonnetjes/facturen uitlezen (PRO)
+    /upload              # File upload endpoints
+      /receipt           # Bon/factuur upload (Vercel Blob)
 /components
   /ui                    # shadcn/ui components
   /marketing             # Marketing components
@@ -839,6 +842,21 @@ Voeg de Anthropic API key toe aan je environment variables:
 ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
+### Vercel Blob Storage (Productie)
+Op Vercel worden geüploade bestanden opgeslagen in Vercel Blob Storage. Dit is vereist omdat het Vercel bestandssysteem read-only is.
+
+1. Ga naar je Vercel project dashboard
+2. Klik op "Storage" → "Create Database"
+3. Selecteer "Blob" en klik "Continue"
+4. Geef je blob store een naam (bijv. "declair-uploads")
+5. Kopieer het `BLOB_READ_WRITE_TOKEN` naar je environment variables
+
+```env
+BLOB_READ_WRITE_TOKEN="vercel_blob_..."
+```
+
+Bestanden worden automatisch naar Vercel Blob geüpload wanneer dit token geconfigureerd is.
+
 ## 🔐 Authenticatie
 
 De applicatie gebruikt **NextAuth.js v5** met:
@@ -991,6 +1009,9 @@ MOLLIE_ENCRYPTION_KEY="generate-a-64-hex-character-key-here"
 # OCR Bonnetjes Herkenning (optioneel, PRO feature)
 ANTHROPIC_API_KEY="sk-ant-..."
 
+# Vercel Blob Storage (voor productie)
+BLOB_READ_WRITE_TOKEN="vercel_blob_..."
+
 # App URL
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
@@ -1026,6 +1047,9 @@ MOLLIE_ENCRYPTION_KEY="your-64-hex-character-encryption-key"
 
 # OCR Bonnetjes Herkenning
 ANTHROPIC_API_KEY="sk-ant-..."
+
+# Vercel Blob Storage
+BLOB_READ_WRITE_TOKEN="vercel_blob_..."
 
 NEXT_PUBLIC_APP_URL="https://your-domain.com"
 NODE_ENV="production"

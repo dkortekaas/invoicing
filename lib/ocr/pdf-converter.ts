@@ -1,22 +1,21 @@
-import * as fs from 'fs/promises';
-import * as path from 'path';
-
 /**
  * Converts the first page of a PDF to a PNG image buffer
  * Returns base64 encoded image data
  *
  * Note: Uses dynamic import to avoid build-time errors with native modules
  */
-export async function convertPdfToImage(pdfPath: string): Promise<string> {
+export async function convertPdfToImage(pdfBuffer: Buffer | ArrayBuffer): Promise<string> {
   try {
     // Dynamic import to avoid build-time canvas issues
     const { pdf } = await import('pdf-to-img');
 
-    // Read PDF file
-    const pdfBuffer = await fs.readFile(pdfPath);
+    // Ensure we have a Buffer
+    const buffer = pdfBuffer instanceof ArrayBuffer
+      ? Buffer.from(pdfBuffer)
+      : pdfBuffer;
 
     // Convert to images (only first page for receipts)
-    const document = await pdf(pdfBuffer, { scale: 2.0 });
+    const document = await pdf(buffer, { scale: 2.0 });
 
     // Get the first page
     for await (const image of document) {
@@ -35,30 +34,34 @@ export async function convertPdfToImage(pdfPath: string): Promise<string> {
 }
 
 /**
- * Checks if a file is a PDF based on extension
+ * Checks if a URL or filename is a PDF based on extension
  */
-export function isPdf(filePath: string): boolean {
-  return path.extname(filePath).toLowerCase() === '.pdf';
+export function isPdf(urlOrPath: string): boolean {
+  // Remove query parameters if present
+  const pathPart = urlOrPath.split('?')[0] ?? urlOrPath;
+  return pathPart.toLowerCase().endsWith('.pdf');
 }
 
 /**
- * Gets the MIME type of an image file
+ * Gets the MIME type of an image file from URL or filename
  */
 export function getImageMimeType(
-  filePath: string
+  urlOrPath: string
 ): 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif' {
-  const ext = path.extname(filePath).toLowerCase();
-  switch (ext) {
-    case '.jpg':
-    case '.jpeg':
-      return 'image/jpeg';
-    case '.png':
-      return 'image/png';
-    case '.webp':
-      return 'image/webp';
-    case '.gif':
-      return 'image/gif';
-    default:
-      return 'image/jpeg';
+  // Remove query parameters if present
+  const pathPart = (urlOrPath.split('?')[0] ?? urlOrPath).toLowerCase();
+
+  if (pathPart.endsWith('.jpg') || pathPart.endsWith('.jpeg')) {
+    return 'image/jpeg';
   }
+  if (pathPart.endsWith('.png')) {
+    return 'image/png';
+  }
+  if (pathPart.endsWith('.webp')) {
+    return 'image/webp';
+  }
+  if (pathPart.endsWith('.gif')) {
+    return 'image/gif';
+  }
+  return 'image/jpeg';
 }

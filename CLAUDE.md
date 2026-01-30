@@ -31,6 +31,7 @@ npx prisma studio        # Open database GUI
 - **Email**: Resend API
 - **Forms**: React Hook Form + Zod validation
 - **OCR**: Anthropic Claude Vision API for receipt extraction (PRO feature)
+- **File Storage**: Vercel Blob for receipt uploads (production)
 
 ## Architecture
 
@@ -135,4 +136,9 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 For OCR (receipt extraction):
 ```env
 ANTHROPIC_API_KEY="sk-ant-..."
+```
+
+For Vercel Blob (file uploads in production):
+```env
+BLOB_READ_WRITE_TOKEN="vercel_blob_..."
 ```

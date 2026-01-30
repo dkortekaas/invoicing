@@ -1,11 +1,9 @@
 "use client"
 
-import { useSession } from "next-auth/react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Header } from "./header"
-import { Loader2 } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 
 interface DashboardLayoutProps {
@@ -13,11 +11,10 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { status } = useSession()
-  const router = useRouter()
   const pathname = usePathname()
 
   // Don't show dashboard layout for auth pages, marketing pages, and payment pages
+  // Auth is handled by middleware - no client-side check needed
   if (
     pathname?.startsWith("/login") ||
     pathname?.startsWith("/register") ||
@@ -27,21 +24,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     pathname?.startsWith("/pay")
   ) {
     return <>{children}</>
-  }
-
-  // Show loading while checking session
-  if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    )
-  }
-
-  // Redirect to login if not authenticated
-  if (status === "unauthenticated") {
-    router.push(`/login?callbackUrl=${encodeURIComponent(pathname || "/")}`)
-    return null
   }
 
   return (

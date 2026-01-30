@@ -120,43 +120,13 @@ export const authOptions = {
     strategy: "jwt" as const,
   },
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
-  debug: false, // Set to false to reduce console noise
+  debug: process.env.NODE_ENV === "development",
   // Required for Vercel deployments
   trustHost: true,
-  cookies: {
-    // Fix for mobile browsers (iOS Safari, Chrome on iOS)
-    // PKCE code verifier cookie needs sameSite: "none" and secure: true for cross-site requests
-    pkceCodeVerifier: {
-      name: "next-auth.pkce.code_verifier",
-      options: {
-        httpOnly: true,
-        sameSite: "none" as const,
-        path: "/",
-        secure: process.env.NODE_ENV === "production" || process.env.NEXTAUTH_URL?.startsWith("https://"),
-      },
-    },
-    // Session token cookie
-    sessionToken: {
-      name: "next-auth.session_token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax" as const,
-        path: "/",
-        secure: process.env.NODE_ENV === "production" || process.env.NEXTAUTH_URL?.startsWith("https://"),
-      },
-    },
-    // CSRF token cookie
-    csrfToken: {
-      name: "next-auth.csrf_token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax" as const,
-        path: "/",
-        secure: process.env.NODE_ENV === "production" || process.env.NEXTAUTH_URL?.startsWith("https://"),
-      },
-    },
-  },
 }
 
-// Export auth function for use in server components
-export const { auth } = NextAuth(authOptions)
+// Single NextAuth instance - export all from here to avoid multiple instances
+const nextAuth = NextAuth(authOptions)
+
+export const { auth, signIn, signOut } = nextAuth
+export const { handlers } = nextAuth

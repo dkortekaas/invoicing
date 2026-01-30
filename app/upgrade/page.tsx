@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { toast } from 'sonner';
 import { PricingCard } from '@/components/subscription/pricing-card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useSearchParams } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
 const FREE_FEATURES = [
   'Basis facturen maken en versturen',
@@ -28,7 +29,7 @@ const PRO_FEATURES = [
   'Prioriteit support',
 ];
 
-export default function UpgradePage() {
+function UpgradePageContent() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const searchParams = useSearchParams();
   const feature = searchParams.get('feature');
@@ -119,5 +120,17 @@ export default function UpgradePage() {
         <p className="mt-2">Je kunt je abonnement op elk moment opzeggen</p>
       </div>
     </div>
+  );
+}
+
+export default function UpgradePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    }>
+      <UpgradePageContent />
+    </Suspense>
   );
 }

@@ -3,10 +3,21 @@ import { getToken } from "next-auth/jwt"
 import { db } from "@/lib/db"
 
 export async function proxy(request: NextRequest) {
-  const token = await getToken({ 
+  // Get JWT token from cookie
+  // NextAuth v5 beta uses the same secret as v4
+  const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET
+
+  // Try to get token - NextAuth v5 beta 30 still uses next-auth prefix
+  let token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET 
+    secret,
   })
+
+  // Debug logging for production issues (temporary)
+  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
+    console.log('[Auth Debug] No token found for:', request.nextUrl.pathname)
+    console.log('[Auth Debug] Cookies:', request.cookies.getAll().map(c => c.name))
+  }
 
   const { pathname } = request.nextUrl
 

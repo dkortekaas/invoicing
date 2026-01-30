@@ -1,8 +1,9 @@
 import { anthropic } from './client';
 import { RECEIPT_EXTRACTION_PROMPT } from './prompts';
-import { convertPdfToImage, isPdf, getImageMimeType } from './pdf-converter';
+import { isPdf, getImageMimeType } from './pdf-converter';
 import { suggestCategory } from './category-mapper';
 import type { OcrResult, OcrExtractedData } from './types';
+import type { ImageBlockParam, DocumentBlockParam, TextBlockParam } from '@anthropic-ai/sdk/resources/messages';
 
 /**
  * Extracts receipt data from an image or PDF using Claude's vision API
@@ -23,20 +24,38 @@ export async function extractReceiptData(receiptUrl: string): Promise<OcrResult>
 
     const arrayBuffer = await fetchResponse.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+    const base64Data = buffer.toString('base64');
 
-    // Prepare image data for Claude
-    let imageData: string;
-    let mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif';
+    // Build content blocks for Claude API
+    const contentBlocks: (ImageBlockParam | DocumentBlockParam | TextBlockParam)[] = [];
 
     if (isPdf(receiptUrl)) {
-      // Convert PDF to image
-      imageData = await convertPdfToImage(buffer);
-      mediaType = 'image/png';
+      // Use document type for PDFs (native PDF support)
+      contentBlocks.push({
+        type: 'document',
+        source: {
+          type: 'base64',
+          media_type: 'application/pdf',
+          data: base64Data,
+        },
+      });
     } else {
-      // Use image directly
-      imageData = buffer.toString('base64');
-      mediaType = getImageMimeType(receiptUrl);
+      // Use image type for images
+      contentBlocks.push({
+        type: 'image',
+        source: {
+          type: 'base64',
+          media_type: getImageMimeType(receiptUrl),
+          data: base64Data,
+        },
+      });
     }
+
+    // Add the extraction prompt
+    contentBlocks.push({
+      type: 'text',
+      text: RECEIPT_EXTRACTION_PROMPT,
+    });
 
     // Call Claude vision API
     const response = await anthropic.messages.create({
@@ -45,20 +64,7 @@ export async function extractReceiptData(receiptUrl: string): Promise<OcrResult>
       messages: [
         {
           role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: mediaType,
-                data: imageData,
-              },
-            },
-            {
-              type: 'text',
-              text: RECEIPT_EXTRACTION_PROMPT,
-            },
-          ],
+          content: contentBlocks,
         },
       ],
     });

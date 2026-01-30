@@ -4,20 +4,23 @@ import { db } from "@/lib/db"
 
 export async function proxy(request: NextRequest) {
   // Get JWT token from cookie
-  // NextAuth v5 beta uses the same secret as v4
   const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET
 
-  // Try to get token - NextAuth v5 beta 30 still uses next-auth prefix
-  let token = await getToken({
+  // Determine if we're on HTTPS (production)
+  const isSecure = request.url.startsWith('https://')
+
+  // NextAuth v5 (Auth.js) uses different cookie names than v4
+  // In production (HTTPS): __Secure-authjs.session-token
+  // In development (HTTP): authjs.session-token
+  const cookieName = isSecure
+    ? "__Secure-authjs.session-token"
+    : "authjs.session-token"
+
+  const token = await getToken({
     req: request,
     secret,
+    cookieName,
   })
-
-  // Debug logging for production issues (temporary)
-  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
-    console.log('[Auth Debug] No token found for:', request.nextUrl.pathname)
-    console.log('[Auth Debug] Cookies:', request.cookies.getAll().map(c => c.name))
-  }
 
   const { pathname } = request.nextUrl
 

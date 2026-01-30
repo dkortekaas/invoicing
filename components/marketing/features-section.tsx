@@ -18,42 +18,42 @@ const features = [
     title: "Facturen & Offertes",
     description:
       "Maak professionele facturen en offertes in seconden. Automatische omzetting, terugkerende facturen en credit nota's.",
-    href: "/features/invoices",
+    href: "/functies/facturen-en-offertes",
   },
   {
     icon: CreditCard,
     title: "Sneller Betaald",
     description:
       "iDEAL betaallinks, automatische herinneringen en real-time notificaties. Gemiddeld 11 dagen sneller betaald.",
-    href: "/features/payments",
+    href: "/functies/betalingen",
   },
   {
     icon: Receipt,
     title: "Onkosten & Bonnetjes",
     description:
       "Scan bonnetjes met je telefoon. AI herkent bedragen, BTW en leveranciers automatisch.",
-    href: "/features/expenses",
+    href: "/functies/onkosten-en-bonnetjes",
   },
   {
     icon: Clock,
     title: "Projecten & Uren",
     description:
       "Urenregistratie, projectbudgetten en winstgevendheid. Factureer direct vanuit je tijdregistratie.",
-    href: "/features/projects",
+    href: "/functies/projecten-en-uren",
   },
   {
     icon: BarChart3,
     title: "Rapportages & Belasting",
     description:
       "BTW-overzichten, inkomstenbelasting en cashflow voorspellingen. Alles klaar voor je aangifte.",
-    href: "/features/reports",
+    href: "/functies/rapportages-en-belasting",
   },
   {
     icon: Plug,
     title: "Koppelingen",
     description:
       "Sync met je boekhouder, bank en favoriete tools. Open API en webhooks voor eigen integraties.",
-    href: "/features/integrations",
+    href: "/functies/koppelingen",
   },
 ];
 
@@ -84,7 +84,7 @@ const FeaturesSection = () => {
           transition={{ duration: 0.5 }}
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <span className="text-primary font-medium">Features</span>
+          <span className="text-primary font-medium">Functies</span>
           <h2 className="mt-4 text-3xl md:text-4xl font-bold text-foreground">
             Alles wat je nodig hebt,
             <br />

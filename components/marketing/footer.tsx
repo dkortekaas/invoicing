@@ -1,27 +1,27 @@
 import Link from "next/link";
-import Logo from "./logo";
+import Logo from "@/components/marketing/logo";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     product: [
-      { label: "Features", href: "/features" },
-      { label: "Prijzen", href: "/pricing" },
-      { label: "Koppelingen", href: "/features/integrations" },
+      { label: "Functies", href: "/functies" },
+      { label: "Prijzen", href: "/prijzen" },
+      { label: "Koppelingen", href: "/functies/koppelingen" },
     ],
     resources: [
       { label: "Blog", href: "/blog" },
       { label: "Help Center", href: "/help" },
     ],
     company: [
-      { label: "Over ons", href: "/about" },
+      { label: "Over ons", href: "/over-ons" },
       { label: "Contact", href: "/contact" },
     ],
     legal: [
       { label: "Privacy Policy", href: "/privacy" },
-      { label: "Algemene Voorwaarden", href: "/terms" },
-      { label: "Cookies", href: "/cookies" },
+      { label: "Algemene Voorwaarden", href: "/algemene-voorwaarden" },
+      { label: "Cookies", href: "/cookie-beleid" },
     ],
   };
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Logo from "./logo";
+import Logo from "@/components/marketing/logo";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -16,12 +16,12 @@ import {
 } from "@/components/ui/navigation-menu";
 
 const features = [
-  { title: "Facturen & Offertes", href: "/features/invoices", description: "Professionele documenten in seconden" },
-  { title: "Betalingen", href: "/features/payments", description: "Sneller betaald met iDEAL" },
-  { title: "Onkosten & Bonnetjes", href: "/features/expenses", description: "Scan en categoriseer automatisch" },
-  { title: "Projecten & Uren", href: "/features/projects", description: "Urenregistratie en facturatie" },
-  { title: "Rapportages & Belasting", href: "/features/reports", description: "BTW en belastingoverzichten" },
-  { title: "Koppelingen", href: "/features/integrations", description: "Sync met je boekhouder" },
+  { title: "Facturen & Offertes", href: "/functies/facturen-en-offertes", description: "Professionele documenten in seconden" },
+  { title: "Betalingen", href: "/functies/betalingen", description: "Sneller betaald met iDEAL" },
+  { title: "Onkosten & Bonnetjes", href: "/functies/onkosten-en-bonnetjes", description: "Scan en categoriseer automatisch" },
+  { title: "Projecten & Uren", href: "/functies/projecten-en-uren", description: "Urenregistratie en facturatie" },
+  { title: "Rapportages & Belasting", href: "/functies/rapportages-en-belasting", description: "BTW en belastingoverzichten" },
+  { title: "Koppelingen", href: "/functies/koppelingen", description: "Sync met je boekhouder" },
 ];
 
 const Header = () => {
@@ -54,7 +54,7 @@ const Header = () => {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="bg-transparent hover:bg-muted/50">
-                    Features
+                    Functies
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[500px] gap-1 p-4 md:grid-cols-2">
@@ -93,10 +93,10 @@ const Header = () => {
               Blog
             </Link>
             <Link
-              href="/help"
+              href="/contact"
               className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
-              Help
+              Contact
             </Link>
           </nav>
 
@@ -139,7 +139,7 @@ const Header = () => {
             <div className="container py-4 space-y-4">
               <div className="space-y-1">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 py-2">
-                  Features
+                  Functies
                 </p>
                 {features.map((feature) => (
                   <Link
@@ -168,11 +168,11 @@ const Header = () => {
                   Blog
                 </Link>
                 <Link
-                  href="/help"
+                  href="/contact"
                   className="block px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Help
+                  Contact
                 </Link>
               </div>
               <div className="border-t border-border pt-4 flex flex-col gap-2">

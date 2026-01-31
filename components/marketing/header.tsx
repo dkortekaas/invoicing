@@ -53,12 +53,15 @@ const Header = () => {
           : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto">
-        <div className="flex items-center justify-between h-16 px-6 md:px-0 md:h-[72px]">
-          <Logo />
+      <div className="container mx-auto relative">
+        <div className="flex items-center h-16 px-6 md:px-0 md:h-[72px]">
+          {/* Left: Logo */}
+          <div className="flex-1 flex items-center min-w-0">
+            <Logo />
+          </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
+          {/* Center: Desktop Navigation (exact middle) */}
+          <nav className="hidden lg:flex items-center gap-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
@@ -109,31 +112,31 @@ const Header = () => {
             </Link>
           </nav>
 
-          {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-2">
-            <LanguageSwitcher />
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                {t("login")}
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button size="sm">{t("startFree")}</Button>
-            </Link>
+          {/* Right: Desktop Actions + Mobile Menu Button */}
+          <div className="flex flex-1 items-center justify-end gap-2 min-w-0">
+            <div className="hidden lg:flex items-center gap-2">
+              <LanguageSwitcher />
+              <Link href="/login">
+                <Button variant="ghost" size="sm">
+                  {t("login")}
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button size="sm">{t("startFree")}</Button>
+              </Link>
+            </div>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 -mr-2"
+              aria-label={t("toggleMenu")}
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 -mr-2"
-            aria-label={t("toggleMenu")}
-          >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
         </div>
       </div>
 

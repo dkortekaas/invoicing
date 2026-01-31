@@ -8,31 +8,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
-const faqs = [
-  {
-    question: "Kan ik Declair gratis proberen?",
-    answer:
-      "Ja! Je krijgt 14 dagen gratis toegang tot alle Professional functies. Geen creditcard nodig. Na de proefperiode kies je zelf of en welk abonnement bij je past.",
-  },
-  {
-    question: "Wat zijn de transactiekosten voor betalingen?",
-    answer:
-      "Declair rekent geen transactiekosten. Je betaalt alleen de kosten van de betaalprovider (Mollie): €0,29 per iDEAL transactie.",
-  },
-  {
-    question: "Kan ik mijn data exporteren?",
-    answer:
-      "Ja, je kunt al je gegevens exporteren naar CSV of Excel. Je data is altijd van jou.",
-  },
-  {
-    question: "Werkt Declair met mijn boekhouder?",
-    answer:
-      "Ja! Declair koppelt met populaire boekhoudpakketten zoals Moneybird, Exact Online, e-Boekhouden en Yuki. Je boekhouder kan ook een eigen inlog krijgen.",
-  },
-];
+import { useTranslations } from "@/components/providers/locale-provider";
 
 const FAQSection = () => {
+  const { t } = useTranslations("faq");
+  
+  const faqs = [
+    { question: t("question1"), answer: t("answer1") },
+    { question: t("question2"), answer: t("answer2") },
+    { question: t("question3"), answer: t("answer3") },
+    { question: t("question4"), answer: t("answer4") },
+  ];
+
   return (
     <section className="py-20 px-6 md:px-0 md:py-28 bg-muted/30">
       <div className="container">
@@ -45,7 +32,7 @@ const FAQSection = () => {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Veelgestelde vragen
+            {t("title")}
           </h2>
         </motion.div>
 
@@ -79,7 +66,7 @@ const FAQSection = () => {
               href="/help"
               className="text-primary hover:underline font-medium"
             >
-              Bekijk alle veelgestelde vragen →
+              {t("viewAllFaqs")} →
             </Link>
           </div>
         </motion.div>

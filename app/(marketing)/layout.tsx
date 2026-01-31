@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
 import Header from '@/components/marketing/header';
 import Footer from '@/components/marketing/footer';
+import { SkipToContentLink } from '@/components/marketing/skip-to-content';
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://declair.app';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Declair - Facturatie Software voor ZZP\'ers | Snel Betaald Worden',
+    default: 'Declair - Factureren zonder gedoe | Facturatie voor ZZP\'ers',
     template: '%s | Declair',
   },
-  description: 'Professionele facturatiesoftware voor ZZP\'ers en kleine bedrijven. Maak facturen in 1 minuut, automatische betaalherinneringen, iDEAL-betaallink. Gratis starten.',
+  description: 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
   keywords: [
     'facturatie software',
     'factuur programma',
@@ -44,8 +45,8 @@ export const metadata: Metadata = {
     locale: 'nl_NL',
     url: siteUrl,
     siteName: 'Declair',
-    title: 'Declair - Facturatie Software voor ZZP\'ers',
-    description: 'Professionele facturatiesoftware voor ZZP\'ers. Maak facturen in 1 minuut, automatische betaalherinneringen, iDEAL-betaallink. Gratis starten.',
+    title: 'Declair - Factureren zonder gedoe | Facturatie voor ZZP\'ers',
+    description: 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
     images: [
       {
         url: '/og-image.png',
@@ -57,8 +58,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Declair - Facturatie Software voor ZZP\'ers',
-    description: 'Professionele facturatiesoftware voor ZZP\'ers. Maak facturen in 1 minuut. Gratis starten.',
+    title: 'Declair - Factureren zonder gedoe | Facturatie voor ZZP\'ers',
+    description: 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
     images: ['/og-image.png'],
   },
   alternates: {
@@ -122,12 +123,7 @@ export default function MarketingLayout({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md"
-      >
-        Ga naar hoofdinhoud
-      </a>
+      <SkipToContentLink />
       <Header />
         {children}
       <Footer />

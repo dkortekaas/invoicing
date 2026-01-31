@@ -14,19 +14,28 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useTranslations } from "@/components/providers/locale-provider";
 
-const features = [
-  { title: "Facturen & Offertes", href: "/functies/facturen-en-offertes", description: "Professionele documenten in seconden" },
-  { title: "Betalingen", href: "/functies/betalingen", description: "Sneller betaald met iDEAL" },
-  { title: "Onkosten & Bonnetjes", href: "/functies/onkosten-en-bonnetjes", description: "Scan en categoriseer automatisch" },
-  { title: "Projecten & Uren", href: "/functies/projecten-en-uren", description: "Urenregistratie en facturatie" },
-  { title: "Rapportages & Belasting", href: "/functies/rapportages-en-belasting", description: "BTW en belastingoverzichten" },
-  { title: "Koppelingen", href: "/functies/koppelingen", description: "Sync met je boekhouder" },
-];
+const featureKeys = [
+  { key: "invoices", href: "/functies/facturen-en-offertes" },
+  { key: "payments", href: "/functies/betalingen" },
+  { key: "expenses", href: "/functies/onkosten-en-bonnetjes" },
+  { key: "projects", href: "/functies/projecten-en-uren" },
+  { key: "reports", href: "/functies/rapportages-en-belasting" },
+  { key: "integrations", href: "/functies/koppelingen" },
+] as const;
 
 const Header = () => {
+  const { t } = useTranslations("header");
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const features = featureKeys.map(({ key, href }) => ({
+    title: t(`featuresList.${key}.title`),
+    description: t(`featuresList.${key}.description`),
+    href,
+  }));
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,12 +63,12 @@ const Header = () => {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="bg-transparent hover:bg-muted/50">
-                    Functies
+                    {t("features")}
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[500px] gap-1 p-4 md:grid-cols-2">
                       {features.map((feature) => (
-                        <li key={feature.title}>
+                        <li key={feature.href}>
                           <NavigationMenuLink asChild>
                             <Link
                               href={feature.href}
@@ -84,31 +93,32 @@ const Header = () => {
               href="/prijzen"
               className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
-              Prijzen
+              {t("pricing")}
             </Link>
             <Link
               href="/blog"
               className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
-              Blog
+              {t("blog")}
             </Link>
             <Link
               href="/contact"
               className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
-              Contact
+              {t("contact")}
             </Link>
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2">
+            <LanguageSwitcher />
             <Link href="/login">
               <Button variant="ghost" size="sm">
-                Inloggen
+                {t("login")}
               </Button>
             </Link>
             <Link href="/register">
-              <Button size="sm">Start gratis</Button>
+              <Button size="sm">{t("startFree")}</Button>
             </Link>
           </div>
 
@@ -116,7 +126,7 @@ const Header = () => {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden p-2 -mr-2"
-            aria-label="Toggle menu"
+            aria-label={t("toggleMenu")}
           >
             {mobileMenuOpen ? (
               <X className="w-6 h-6" />
@@ -139,11 +149,11 @@ const Header = () => {
             <div className="container px-4 md:px-0 py-4 space-y-4">
               <div className="space-y-1">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 py-2">
-                  Functies
+                  {t("features")}
                 </p>
                 {features.map((feature) => (
                   <Link
-                    key={feature.title}
+                    key={feature.href}
                     href={feature.href}
                     className="block px-3 py-2 text-sm text-foreground hover:bg-accent rounded-md"
                     onClick={() => setMobileMenuOpen(false)}
@@ -158,31 +168,32 @@ const Header = () => {
                   className="block px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Prijzen
+                  {t("pricing")}
                 </Link>
                 <Link
                   href="/blog"
                   className="block px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Blog
+                  {t("blog")}
                 </Link>
                 <Link
                   href="/contact"
                   className="block px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Contact
+                  {t("contact")}
                 </Link>
               </div>
-              <div className="border-t border-border pt-4 flex gap-2">
-                <Link href="/login" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+              <div className="border-t border-border pt-4 flex flex-wrap items-center gap-2">
+                <LanguageSwitcher />
+                <Link href="/login" className="flex-1 min-w-0" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" className="w-full">
-                    Inloggen
+                    {t("login")}
                   </Button>
                 </Link>
-                <Link href="/register" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full">Start gratis</Button>
+                <Link href="/register" className="flex-1 min-w-0" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full">{t("startFree")}</Button>
                 </Link>
               </div>
             </div>

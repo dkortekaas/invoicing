@@ -2,30 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
-
-const testimonials = [
-  {
-    content:
-      "Eindelijk een app die snapt hoe Nederlandse ondernemers werken. Mijn BTW-aangifte kost me nu 5 minuten in plaats van een hele avond.",
-    author: "Marieke de V.",
-    role: "Grafisch ontwerper",
-    rating: 5,
-  },
-  {
-    content:
-      "Sinds ik Declair gebruik worden mijn facturen gemiddeld 2 weken sneller betaald. Die iDEAL-link is goud waard.",
-    author: "Thomas K.",
-    role: "Marketing consultant",
-    rating: 5,
-  },
-  {
-    content:
-      "Ik haat administratie. Maar met Declair merk ik er bijna niets meer van. Bonnetje scannen, klaar.",
-    author: "Sophie B.",
-    role: "Fotograaf",
-    rating: 5,
-  },
-];
+import { useTranslations } from "@/components/providers/locale-provider";
 
 const container = {
   hidden: { opacity: 0 },
@@ -43,6 +20,28 @@ const item = {
 };
 
 const TestimonialsSection = () => {
+  const { t } = useTranslations("testimonialsSection");
+  const testimonials = [
+    {
+      content: t("testimonialsList.1.content"),
+      author: t("testimonialsList.1.author"),
+      role: t("testimonialsList.1.role"),
+      rating: 5,
+    },
+    {
+      content: t("testimonialsList.2.content"),
+      author: t("testimonialsList.2.author"),
+      role: t("testimonialsList.2.role"),
+      rating: 5,
+    },
+    {
+      content: t("testimonialsList.3.content"),
+      author: t("testimonialsList.3.author"),
+      role: t("testimonialsList.3.role"),
+      rating: 5,
+    },
+  ];
+
   return (
     <section className="py-20 px-6 md:px-0 md:py-28 bg-background">
       <div className="container">
@@ -55,7 +54,7 @@ const TestimonialsSection = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Wat ondernemers zeggen
+            {t("title")}
           </h2>
         </motion.div>
 

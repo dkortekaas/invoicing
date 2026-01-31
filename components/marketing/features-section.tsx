@@ -11,51 +11,7 @@ import {
   Plug,
   ArrowRight,
 } from "lucide-react";
-
-const features = [
-  {
-    icon: FileText,
-    title: "Facturen & Offertes",
-    description:
-      "Maak professionele facturen en offertes in seconden. Automatische omzetting, terugkerende facturen en credit nota's.",
-    href: "/functies/facturen-en-offertes",
-  },
-  {
-    icon: CreditCard,
-    title: "Sneller Betaald",
-    description:
-      "iDEAL betaallinks, automatische herinneringen en real-time notificaties. Gemiddeld 11 dagen sneller betaald.",
-    href: "/functies/betalingen",
-  },
-  {
-    icon: Receipt,
-    title: "Onkosten & Bonnetjes",
-    description:
-      "Scan bonnetjes met je telefoon. AI herkent bedragen, BTW en leveranciers automatisch.",
-    href: "/functies/onkosten-en-bonnetjes",
-  },
-  {
-    icon: Clock,
-    title: "Projecten & Uren",
-    description:
-      "Urenregistratie, projectbudgetten en winstgevendheid. Factureer direct vanuit je tijdregistratie.",
-    href: "/functies/projecten-en-uren",
-  },
-  {
-    icon: BarChart3,
-    title: "Rapportages & Belasting",
-    description:
-      "BTW-overzichten, inkomstenbelasting en cashflow voorspellingen. Alles klaar voor je aangifte.",
-    href: "/functies/rapportages-en-belasting",
-  },
-  {
-    icon: Plug,
-    title: "Koppelingen",
-    description:
-      "Sync met je boekhouder, bank en favoriete tools. Open API en webhooks voor eigen integraties.",
-    href: "/functies/koppelingen",
-  },
-];
+import { useTranslations } from "@/components/providers/locale-provider";
 
 const container = {
   hidden: { opacity: 0 },
@@ -73,6 +29,47 @@ const item = {
 };
 
 const FeaturesSection = () => {
+  const { t } = useTranslations("featuresSection");
+  
+  const features = [
+    {
+      icon: FileText,
+      title: t("featuresList.invoices.title"),
+      description: t("featuresList.invoices.description"),
+      href: "/functies/facturen-en-offertes",
+    },
+    {
+      icon: CreditCard,
+      title: t("featuresList.payments.title"),
+      description: t("featuresList.payments.description"),
+      href: "/functies/betalingen",
+    },
+    {
+      icon: Receipt,
+      title: t("featuresList.expenses.title"),
+      description: t("featuresList.expenses.description"),
+      href: "/functies/onkosten-en-bonnetjes",
+    },
+    {
+      icon: Clock,
+      title: t("featuresList.projects.title"),
+      description: t("featuresList.projects.description"),
+      href: "/functies/projecten-en-uren",
+    },
+    {
+      icon: BarChart3,
+      title: t("featuresList.reports.title"),
+      description: t("featuresList.reports.description"),
+      href: "/functies/rapportages-en-belasting",
+    },
+    {
+      icon: Plug,
+      title: t("featuresList.integrations.title"),
+      description: t("featuresList.integrations.description"),
+      href: "/functies/koppelingen",
+    },
+  ];
+
   return (
     <section className="py-20 px-6 md:px-0 md:py-28 bg-background">
       <div className="container">
@@ -84,15 +81,14 @@ const FeaturesSection = () => {
           transition={{ duration: 0.5 }}
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <span className="text-primary font-medium">Functies</span>
+          <span className="text-primary font-medium">{t("title")}</span>
           <h2 className="mt-4 text-3xl md:text-4xl font-bold text-foreground">
-            Alles wat je nodig hebt,
+            {t("description")}
             <br />
-            <span className="text-muted-foreground">niets wat je niet nodig hebt</span>
+            <span className="text-muted-foreground">{t("description2")}</span>
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Gebouwd door ondernemers, voor ondernemers. We weten hoe frustrerend
-            administratie kan zijn.
+            {t("description3")}
           </p>
         </motion.div>
 
@@ -120,7 +116,7 @@ const FeaturesSection = () => {
                   {feature.description}
                 </p>
                 <span className="inline-flex items-center gap-1 text-sm font-medium text-primary group-hover:gap-2 transition-all">
-                  Meer info
+                  {t("moreInfo")}
                   <ArrowRight className="w-4 h-4" />
                 </span>
               </Link>

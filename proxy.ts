@@ -24,13 +24,17 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Allow access to auth pages, marketing pages, and API routes
+  // Allow access to auth pages, marketing pages, legal pages, payment pages, and API routes
   if (
     pathname === "/" ||
     pathname === "/prijzen" ||
+    pathname === "/privacy" ||
+    pathname === "/cookie-beleid" ||
+    pathname === "/algemene-voorwaarden" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/uitnodiging") ||
+    pathname.startsWith("/pay") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/upload") ||
     pathname.startsWith("/api/stripe/webhook") ||
@@ -42,8 +46,31 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Require authentication for all other pages
-  if (!token) {
+  // Known protected app routes that require authentication
+  const protectedRoutePrefixes = [
+    "/dashboard",
+    "/facturen",
+    "/klanten",
+    "/producten",
+    "/kosten",
+    "/abonnementen",
+    "/abonnement",
+    "/btw",
+    "/belasting",
+    "/tijd",
+    "/activa",
+    "/admin",
+    "/instellingen",
+    "/creditnotas",
+    "/upgrade",
+    "/audit-logs",
+  ]
+  const isProtectedRoute = protectedRoutePrefixes.some((prefix) =>
+    pathname.startsWith(prefix)
+  )
+
+  // Only require auth for known protected routes; unknown paths get 404
+  if (isProtectedRoute && !token) {
     const loginUrl = new URL("/login", request.url)
     loginUrl.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(loginUrl)
@@ -61,7 +88,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith(route)
   )
 
-  if (requiresPremium && token.id) {
+  if (requiresPremium && token?.id) {
     try {
       const user = await db.user.findUnique({
         where: { id: token.id as string },
@@ -99,7 +126,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // Vereis bedrijfsgegevens voor app-pagina's (niet voor API of instellingen)
-  if (token.id && !pathname.startsWith('/api') && !pathname.startsWith('/instellingen')) {
+  if (token?.id && !pathname.startsWith('/api') && !pathname.startsWith('/instellingen')) {
     try {
       const { hasCompanyDetails } = await import('@/lib/company-guard')
       const user = await db.user.findUnique({

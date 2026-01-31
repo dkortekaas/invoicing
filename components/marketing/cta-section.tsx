@@ -5,7 +5,19 @@ import { motion } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const CTASection = () => {
+interface CTASectionProps {
+  title?: string;
+  description?: string;
+  linkHref1?: string;
+  linkText1?: string;
+  linkHref2?: string;
+  linkText2?: string;
+  checkText1?: string;
+  checkText2?: string;
+  checkText3?: string;
+}
+
+const CTASection = ({ title = "", description = "", linkHref1 = "", linkText1 = "", linkHref2 = "", linkText2 = "", checkText1 = "", checkText2 = "", checkText3 = "" }: CTASectionProps) => {
   return (
     <section className="py-20 px-6 md:px-0 md:py-28 bg-gradient-cta relative overflow-hidden">
       {/* Background Pattern */}
@@ -28,40 +40,55 @@ const CTASection = () => {
           className="text-center max-w-3xl mx-auto"
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground">
-            Klaar om slimmer te factureren?
+            {title}
           </h2>
           <p className="mt-6 text-lg text-primary-foreground/80 max-w-xl mx-auto">
-            Start vandaag nog met Declair en ontdek hoeveel tijd je kunt besparen
-            op je administratie. 14 dagen gratis, geen creditcard nodig.
+            {description}
           </p>
-
-          <div className="mt-8">
-            <Link href="/register">
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+          {linkHref1 && linkText1 && (
+            <Link href={linkHref1}>
               <Button
                 size="lg"
                 variant="secondary"
                 className="gap-2 shadow-lg"
               >
-                Start gratis proefperiode
+                {linkText1}
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
+          )}
+
+          {linkHref2 && linkText2 && (
+            <Link href={linkHref2}>
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              >
+                {linkText2}
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          )}
           </div>
 
+        {checkText1 && checkText2 && checkText3 ? (
           <div className="mt-8 flex flex-wrap gap-6 justify-center text-sm text-primary-foreground/80">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4" />
-              <span>14 dagen gratis</span>
+              <span>{checkText1}</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4" />
-              <span>Geen creditcard nodig</span>
+              <span>{checkText2}</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4" />
-              <span>Opzeggen wanneer je wilt</span>
+              <span>{checkText3}</span>
             </div>
           </div>
+          ) : null}
         </motion.div>
       </div>
     </section>

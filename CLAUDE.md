@@ -142,3 +142,8 @@ For Vercel Blob (file uploads in production):
 ```env
 BLOB_READ_WRITE_TOKEN="vercel_blob_..."
 ```
+
+For Google Analytics (optional; only loaded when user accepts cookies):
+```env
+NEXT_PUBLIC_GA_MEASUREMENT_ID="G-..."
+```

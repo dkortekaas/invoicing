@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLocale } from "@/components/providers/locale-provider";
 
 const MarketingContent = dynamic(
   () => import("./marketing-content").then((m) => m.default),
@@ -15,5 +16,7 @@ const MarketingContent = dynamic(
 );
 
 export default function MarketingContentLoader() {
-  return <MarketingContent />;
+  const { locale } = useLocale();
+  // Key forces remount when locale changes so dynamic content picks up new translations
+  return <MarketingContent key={locale} />;
 }

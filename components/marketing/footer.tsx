@@ -1,45 +1,49 @@
+"use client";
+
 import Link from "next/link";
 import Logo from "@/components/marketing/logo";
+import { useTranslations } from "@/components/providers/locale-provider";
 
 const Footer = () => {
+  const { t } = useTranslations("footer");
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     product: [
-      { label: "Functies", href: "/functies" },
-      { label: "Prijzen", href: "/prijzen" },
-      { label: "Koppelingen", href: "/functies/koppelingen" },
+      { labelKey: "features" as const, href: "/functies" },
+      { labelKey: "pricing" as const, href: "/prijzen" },
+      { labelKey: "integrations" as const, href: "/functies/koppelingen" },
     ],
     resources: [
-      { label: "Blog", href: "/blog" },
-      { label: "Help Center", href: "/help" },
+      { labelKey: "blog" as const, href: "/blog" },
+      { labelKey: "helpCenter" as const, href: "/help" },
     ],
     company: [
-      { label: "Over ons", href: "/over-ons" },
-      { label: "Contact", href: "/contact" },
+      { labelKey: "about" as const, href: "/over-ons" },
+      { labelKey: "contact" as const, href: "/contact" },
     ],
     legal: [
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Algemene Voorwaarden", href: "/algemene-voorwaarden" },
-      { label: "Cookies", href: "/cookie-beleid" },
+      { labelKey: "privacy" as const, href: "/privacy" },
+      { labelKey: "terms" as const, href: "/algemene-voorwaarden" },
+      { labelKey: "cookies" as const, href: "/cookie-beleid" },
     ],
   };
 
   return (
     <footer className="bg-muted/50 border-t border-border">
-      <div className="container mx-auto py-12 md:py-16">
+      <div className="container mx-auto pt-12 pb-4 md:pt-16 md:pb-8">
         <div className="grid grid-cols-2 px-6 md:px-0 md:grid-cols-5 gap-8 md:gap-12">
           {/* Logo & Description */}
           <div className="col-span-2 md:col-span-1">
             <Logo />
             <p className="mt-4 text-sm text-muted-foreground max-w-xs">
-              Factureren zonder gedoe
+              {t("tagline")}
             </p>
           </div>
 
           {/* Product */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Product</h4>
+            <h4 className="font-semibold text-foreground mb-4">{t("product")}</h4>
             <ul className="space-y-3">
               {footerLinks.product.map((link) => (
                 <li key={link.href}>
@@ -47,7 +51,7 @@ const Footer = () => {
                     href={link.href}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {link.label}
+                    {t(`links.${link.labelKey}`)}
                   </Link>
                 </li>
               ))}
@@ -56,7 +60,7 @@ const Footer = () => {
 
           {/* Resources */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Resources</h4>
+            <h4 className="font-semibold text-foreground mb-4">{t("resources")}</h4>
             <ul className="space-y-3">
               {footerLinks.resources.map((link) => (
                 <li key={link.href}>
@@ -64,7 +68,7 @@ const Footer = () => {
                     href={link.href}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {link.label}
+                    {t(`links.${link.labelKey}`)}
                   </Link>
                 </li>
               ))}
@@ -73,7 +77,7 @@ const Footer = () => {
 
           {/* Company */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Bedrijf</h4>
+            <h4 className="font-semibold text-foreground mb-4">{t("company")}</h4>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
@@ -81,7 +85,7 @@ const Footer = () => {
                     href={link.href}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {link.label}
+                    {t(`links.${link.labelKey}`)}
                   </Link>
                 </li>
               ))}
@@ -90,7 +94,7 @@ const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">Juridisch</h4>
+            <h4 className="font-semibold text-foreground mb-4">{t("legal")}</h4>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.href}>
@@ -98,7 +102,7 @@ const Footer = () => {
                     href={link.href}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {link.label}
+                    {t(`links.${link.labelKey}`)}
                   </Link>
                 </li>
               ))}
@@ -109,11 +113,11 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} Declair. Alle rechten voorbehouden.
+            © {currentYear} Declair. {t("copyright")}
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>Shortcheese Solutions</span>
-            <span>BTW: NL123456789B01</span>
+            <span>{t("shortcheeseSolutions")}</span>
+            <span>{t("kvk")}</span>
           </div>
         </div>
       </div>

@@ -4,51 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const plans = [
-  {
-    name: "Starter",
-    price: "€9,95",
-    period: "/maand",
-    description: "excl. BTW",
-    features: [
-      "Tot 10 facturen per maand",
-      "Onbeperkt offertes",
-      "Onkosten bijhouden",
-      "BTW-overzichten",
-    ],
-    popular: false,
-  },
-  {
-    name: "Professional",
-    price: "€19,95",
-    period: "/maand",
-    description: "excl. BTW",
-    features: [
-      "Onbeperkt facturen",
-      "iDEAL betaallinks",
-      "Slimme herinneringen",
-      "Projecten & urenregistratie",
-      "Kilometerregistratie",
-      "Boekhoudkoppelingen",
-    ],
-    popular: true,
-  },
-  {
-    name: "Business",
-    price: "€39,95",
-    period: "/maand",
-    description: "excl. BTW",
-    features: [
-      "Alles van Professional",
-      "Multi-valuta",
-      "Contractbeheer",
-      "Cashflow voorspellingen",
-      "API toegang",
-    ],
-    popular: false,
-  },
-];
+import { useTranslations } from "@/components/providers/locale-provider";
 
 const container = {
   hidden: { opacity: 0 },
@@ -66,6 +22,53 @@ const item = {
 };
 
 const PricingSection = () => {
+  const { t } = useTranslations("pricingSection");
+
+  const plans = [
+    {
+      name: t("starter"),
+      price: "€9,95",
+      period: t("perMonth"),
+      description: t("exclVAT"),
+      features: [
+        t("starterFeatures1"),
+        t("starterFeatures2"),
+        t("starterFeatures3"),
+        t("starterFeatures4"),
+      ],
+      popular: false,
+    },
+    {
+      name: t("professional"),
+      price: "€19,95",
+      period: t("perMonth"),
+      description: t("exclVAT"),
+      features: [
+        t("professionalFeatures1"),
+        t("professionalFeatures2"),
+        t("professionalFeatures3"),
+        t("professionalFeatures4"),
+        t("professionalFeatures5"),
+        t("professionalFeatures6"),
+      ],
+      popular: true,
+    },
+    {
+      name: t("business"),
+      price: "€39,95",
+      period: t("perMonth"),
+      description: t("exclVAT"),
+      features: [
+        t("businessFeatures1"),
+        t("businessFeatures2"),
+        t("businessFeatures3"),
+        t("businessFeatures4"),
+        t("businessFeatures5"),
+      ],
+      popular: false,
+    },
+  ];
+
   return (
     <section className="py-20 px-6 md:px-0 md:py-28 bg-background">
       <div className="container">
@@ -78,11 +81,10 @@ const PricingSection = () => {
           className="text-center max-w-3xl mx-auto mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Eerlijke prijzen, geen verrassingen
+            {t("title")}
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Alle functies inbegrepen. Geen verborgen kosten.
-            Start gratis en upgrade wanneer je wilt.
+            {t("description")}
           </p>
         </motion.div>
 
@@ -106,7 +108,7 @@ const PricingSection = () => {
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
-                  Meest gekozen
+                  {t("mostPopular")}
                 </div>
               )}
               <div>
@@ -166,7 +168,7 @@ const PricingSection = () => {
                   variant={plan.popular ? "secondary" : "outline"}
                   className="w-full"
                 >
-                  Start gratis
+                  {t("startFree")}
                 </Button>
               </Link>
             </motion.div>
@@ -181,12 +183,12 @@ const PricingSection = () => {
           transition={{ delay: 0.4 }}
           className="text-center text-sm text-muted-foreground mt-12"
         >
-          Alle prijzen zijn exclusief BTW. 14 dagen gratis proberen.{" "}
+          {t("allPricesAreExclVAT")} {t("freeTrial")}.{" "}
           <Link
             href="/prijzen"
             className="text-primary hover:underline font-medium"
           >
-            Bekijk volledige vergelijking →
+            {t("viewFullComparison")} →
           </Link>
         </motion.p>
       </div>

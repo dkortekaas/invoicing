@@ -1,0 +1,341 @@
+{
+    "common": {
+        "language": "Language",
+        "skipToContent": "Skip to main content"
+    },
+    "features": {
+        "title": "Features",
+        "description": "Choose the features you need",
+        "feature1": "Create invoices",
+        "feature2": "Customer management",
+        "feature3": "Product catalog",
+        "feature4": "PDF generation",
+        "feature5": "Max 50 invoices per month"
+    },
+    "pricing": {
+        "title": "Pricing",
+        "description": "Choose the plan that best suits your needs",
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "2monthsfree": "2 months free",
+        "mostpopular": "Most popular",
+        "perMonth": "per month",
+        "yearlyInvoiced": "Yearly invoiced",
+        "exclVAT": "excl. VAT",
+        "startFree": "Start free",
+        "starter": "Starter",
+        "professional": "Professional",
+        "business": "Business",
+        "starterDescription": "For starters and small businesses",
+        "professionalDescription": "For growing businesses",
+        "businessDescription": "For professionals and teams",
+        "compareFeatures": "Compare features",
+        "facturation": "Facturation",
+        "invoicesPerMonth": "Invoices per month",
+        "quotes": "Quotes",
+        "creditNotes": "Credit notes",
+        "recurringInvoices": "Recurring invoices",
+        "customBranding": "Custom branding",
+        "multipleTemplates": "Multiple templates",
+        "digitalSigning": "Digital signing",
+        "payments": "Payments",
+        "idealPaymentLinks": "iDEAL payment links",
+        "creditCardPayments": "Credit card payments",
+        "automaticReminders": "Automatic reminders",
+        "smartReminders": "Smart reminders",
+        "customerPortal": "Customer portal",
+        "expensesAndAdministration": "Expenses & Administration",
+        "trackExpenses": "Track expenses",
+        "ocrReceipts": "OCR receipts",
+        "mileageRegistration": "Mileage registration",
+        "categoriesManagement": "Categories management",
+        "projectsAndTime": "Projects & Time",
+        "createProjects": "Create projects",
+        "timeRegistration": "Time registration",
+        "invoicingFromHours": "Invoicing from hours",
+        "budgetMonitoring": "Budget monitoring",
+        "reportsAndTax": "Reports & Tax",
+        "vatSummaries": "VAT summaries",
+        "incomeTaxSummary": "Income tax summary",
+        "cashflowForecasting": "Cashflow forecasting",
+        "exportToExcelCsv": "Export to Excel/CSV",
+        "integrationsAndExtra": "Integrations & Extra",
+        "apiAccess": "API access",
+        "contractManagement": "Contract management",
+        "multiCurrency": "Multi-currency",
+        "bookkeepingIntegrations": "Bookkeeping integrations",
+        "support": "Support",
+        "emailSupport": "Email support",
+        "prioritySupport": "Priority support",
+        "dedicatedAccountManager": "Dedicated account manager",
+        "faqTitle": "Frequently asked questions about pricing",
+        "question1": "Can I try Declair for free?",
+        "answer1": "Yes! You get 14 days free access to all Professional features. No credit card needed. After the trial period, you can choose which plan suits you best.",
+        "question2": "Can I upgrade or downgrade at any time?",
+        "answer2": "Yes, you can anytime adjust your plan. Upgrading gives you immediate access to new features. Downgrading keeps your current plan active until the end of the period.",
+        "question3": "What are the transaction costs for payments?",
+        "answer3": "Declair does not charge any transaction costs. You only pay the costs of the payment provider (Mollie): €0.29 per iDEAL transaction and 1.8% + €0.25 for credit card.",
+        "question4": "Can I cancel monthly?",
+        "answer4": "Yes, you can cancel at any time. You keep access to your account until the end of your payment period. You can always export your data.",
+        "question5": "Do I get a discount for yearly payment?",
+        "answer5": "Yes! With yearly payment you get 2 months free. That's a savings of more than 16%.",
+        "question6": "Are the prices inclusive or exclusive of VAT?",
+        "answer6": "All prices mentioned are exclusive of 21% VAT. As a business owner you can often deduct the VAT.",
+        "notSureWhichPlan": "Not sure which plan suits you best?",
+        "startFreeTrialDescription": "Start with 14 days free and see for yourself which plan suits you best. No credit card needed, cancel anytime.",
+        "startFreeTrial": "Start free trial",
+        "contactUs": "Contact us"
+    },
+    "pricingSection": {
+        "title": "Fair prices, no surprises",
+        "description": "All features included. No hidden costs. Start free and upgrade when you want.",
+        "startFree": "Start free",
+        "allPricesAreExclVAT": "All prices are excl. VAT",
+        "freeTrial": "14 days free trial",
+        "viewFullComparison": "View full comparison",
+        "upgrade": "Upgrade",
+        "mostPopular": "Most popular",
+        "starter": "Starter",
+        "professional": "Professional",
+        "business": "Business",
+        "perMonth": "per month",
+        "exclVAT": "excl. VAT",
+        "starterFeatures1": "Up to 10 invoices per month",
+        "starterFeatures2": "Unlimited quotes",
+        "starterFeatures3": "Track expenses",
+        "starterFeatures4": "VAT summaries",
+        "professionalFeatures1": "Unlimited invoices",
+        "professionalFeatures2": "iDEAL payment links",
+        "professionalFeatures3": "Smart reminders",
+        "professionalFeatures4": "Projects & time tracking",
+        "professionalFeatures5": "Mileage tracking",
+        "professionalFeatures6": "Bookkeeping integrations",
+        "businessFeatures1": "All features of Professional",
+        "businessFeatures2": "Multi-currency",
+        "businessFeatures3": "Contract management",
+        "businessFeatures4": "Cashflow forecasting",
+        "businessFeatures5": "API access"
+    },
+    "faq": {
+        "title": "Frequently asked questions about pricing",
+        "question1": "Can I try Declair for free?",
+        "answer1": "Yes! You get 14 days free access to all Professional features. No credit card needed. After the trial period, you can choose which plan suits you best.",
+        "question2": "Can I upgrade or downgrade at any time?",
+        "answer2": "Yes, you can anytime adjust your plan. Upgrading gives you immediate access to new features. Downgrading keeps your current plan active until the end of the period.",
+        "question3": "What are the transaction costs for payments?",
+        "answer3": "Declair does not charge any transaction costs. You only pay the costs of the payment provider (Mollie): €0.29 per iDEAL transaction and 1.8% + €0.25 for credit card.",
+        "question4": "Can I cancel monthly?",
+        "answer4": "Yes, you can cancel at any time. You keep access to your account until the end of your payment period. You can always export your data.",
+        "viewAllFaqs": "View all frequently asked questions"
+    },
+    "cta": {
+        "title": "Ready to invoice smarter?",
+        "description": "Start today with Declair and discover how much time you can save on your administration. 14 days free, no credit card needed.",
+        "startFree": "Start free",
+        "viewAllFeatures": "View all features",
+        "14daysfree": "14 days free",
+        "noCreditCardNeeded": "No credit card needed",
+        "cancelAnytime": "Cancel anytime"
+    },
+    "benefitsSection": {
+        "title": "Why Declair?",
+        "benefitsList": {
+            "100%Nederlands": "100% Dutch",
+            "100%NederlandsDescription": "Built in the Netherlands, fully aligned with the Dutch market and regulations.",
+            "factuurInSeconden": "Invoice in seconds",
+            "factuurInSecondenDescription": "From blank page to sent invoice in less than a minute.",
+            "snellerBetaald": "Get paid faster",
+            "snellerBetaaldDescription": "Get paid on average 11 days faster with payment links and reminders.",
+            "altijdInzicht": "Always in sight",
+            "altijdInzichtDescription": "Real-time dashboards and reports, accessible 24/7."
+        }
+    },
+    "testimonialsSection": {
+        "title": "What entrepreneurs say",
+        "testimonialsList": {
+            "1": {
+                "content": "Finally an app that understands how Dutch entrepreneurs work. My VAT return now takes me 5 minutes instead of an entire evening.",
+                "author": "Marieke de V.",
+                "role": "Graphic designer",
+                "rating": 5
+            },
+            "2": {
+                "content": "Since I started using Declair, my invoices are on average 2 weeks faster paid. The iDEAL link is worth its weight in gold.",
+                "author": "Thomas K.",
+                "role": "Marketing consultant",
+                "rating": 5
+            },
+            "3": {
+                "content": "I hate administration. But with Declair I hardly notice it anymore. Scan the receipt, done.",
+                "author": "Sophie B.",
+                "role": "Photographer",
+                "rating": 5
+            }
+        }
+    },
+    "heroSection": {
+        "badge": "New: Automatic receipt scanner",
+        "heading": "Invoice",
+        "heading2": "without hassle",
+        "subheading": "The complete administration app for Dutch ZZP&apos;ers and freelancers. From quote to payment, from receipt to tax return.",
+        "cta1": "Start free",
+        "cta2": "View features",
+        "trustIndicator1": "14 days free",
+        "trustIndicator2": "No credit card needed",
+        "trustIndicator3": "Direct a to action",
+        "appName": "declair.app",
+        "paid": "Paid",
+        "ideal": "iDEAL",
+        "monthlyRevenue": "Monthly revenue",
+        "outstanding": "Outstanding",
+        "invoicePaid": "Invoice paid",
+        "invoicePaidAmount": "€1.250,00 received",
+        "receiptScanned": "Receipt scanned",
+        "receiptScannedAmount": "Shell - €85,00"
+    },
+    "featuresSection": {
+        "title": "All you need",
+        "description": "All you need,",
+        "description2": "nothing you don't need",
+        "description3": "Built by entrepreneurs, for entrepreneurs. We know how frustrating administration can be.",
+        "moreInfo": "More info",
+        "featuresList": {
+            "invoices": {
+                "title": "Invoices",
+                "description": "Create invoices and send them to your customers"
+            },
+            "payments": {
+                "title": "Payments",
+                "description": "Receive payments from your customers"
+            },
+            "expenses": {
+                "title": "Expenses",
+                "description": "Track your expenses and create receipts"
+            },
+            "projects": {
+                "title": "Projects",
+                "description": "Track your projects and tasks"
+            },
+            "reports": {
+                "title": "Reports",
+                "description": "Generate reports and insights"
+            },
+            "integrations": {
+                "title": "Integrations",
+                "description": "Integrate with your favorite tools"
+            }
+        }
+    },
+    "header": {
+        "features": "Features",
+        "pricing": "Pricing",
+        "blog": "Blog",
+        "helpCenter": "Help Center",
+        "about": "About",
+        "contact": "Contact",
+        "login": "Login",
+        "startFree": "Start free",
+        "toggleMenu": "Toggle menu",
+        "featuresList": {
+            "invoices": {
+                "title": "Invoices",
+                "description": "Create invoices and send them to your customers"
+            },
+            "payments": {
+                "title": "Payments",
+                "description": "Receive payments from your customers"
+            },
+            "expenses": {
+                "title": "Expenses",
+                "description": "Track your expenses and create receipts"
+            },
+            "projects": {
+                "title": "Projects",
+                "description": "Track your projects and tasks"
+            },
+            "reports": {
+                "title": "Reports",
+                "description": "Generate reports and insights"
+            },
+            "integrations": {
+                "title": "Integrations",
+                "description": "Integrate with your favorite tools"
+            }
+        }
+    },
+    "footer": {
+        "tagline": "Invoice without hassle",
+        "copyright": "All rights reserved.",
+        "shortcheeseSolutions": "Shortcheese Solutions",
+        "kvk": "KvK: 30220287",
+        "product": "Product",
+        "resources": "Resources",
+        "company": "Company",
+        "legal": "Legal",
+        "links": {
+            "features": "Features",
+            "pricing": "Pricing",
+            "integrations": "Integrations",
+            "blog": "Blog",
+            "helpCenter": "Help Center",
+            "about": "About",
+            "contact": "Contact",
+            "privacy": "Privacy",
+            "terms": "Terms",
+            "cookies": "Cookie policy"
+        }
+    },
+    "dashboard": {
+        "notifications": "Notifications",
+        "userMenu": "User menu",
+        "settings": "Settings",
+        "twoFactor": "2FA Security",
+        "logout": "Log out",
+        "user": "User",
+        "pages": {
+            "dashboard": "Dashboard",
+            "invoices": "Invoices",
+            "newInvoice": "New Invoice",
+            "invoice": "Invoice",
+            "time": "Time tracking",
+            "timeEntries": "Time Entries",
+            "projects": "Projects",
+            "customers": "Customers",
+            "newCustomer": "New Customer",
+            "customer": "Customer",
+            "products": "Products",
+            "settings": "Settings"
+        }
+    },
+    "cookiePolicy": {
+        "title": "Cookie policy",
+        "description": "Cookie policy of Declair – which cookies we use and why.",
+        "lastUpdated": "Last updated: January 2026",
+        "title1": "1. What are cookies?",
+        "description1": "Cookies are small text files that are stored on your computer, tablet or phone when you visit our website. They help us make the website work well, remember your preferences and understand how visitors use our website.",
+        "title2": "2. What cookies do we use?",
+        "description2": "We use a limited number of cookies, divided into two categories:",
+        "title3": "2.1 Necessary cookies (always active)",
+        "description3": "These cookies are essential for the functioning of the website. Without these cookies, certain functions do not work. You cannot disable these cookies.",
+        "title4": "2.2 Analytical cookies (only with permission)",
+        "description4": "These cookies help us understand how visitors use the website, so we can improve it. We use this for Google Analytics.",
+        "title5": "3. Cookies of third parties",
+        "description5": "We do not place any marketing or advertising cookies. The only external service that places cookies is Google Analytics, and only if you give us permission for that.",
+        "title6": "4. Manage your cookie preferences",
+        "description6": "When you visit our website for the first time, we ask you for permission to use analytical cookies. You can choose for:",
+        "title7": "4.1 On your first visit",
+        "description7": "When you visit our website for the first time, we ask you for permission to use analytical cookies. You can choose for:",
+        "title8": "4.2 Change your preferences",
+        "description8": "You can change your cookie preferences at any time via the link 'Cookie settings' in the footer of our website.",
+        "title9": "4.3 Through your browser",
+        "description9": "You can also manage or delete cookies through your browser settings:",
+        "description9a": "Blocking necessary cookies can cause the website to not work properly.",
+        "title10": "5. More information",
+        "description10": "For more information about how we handle your data, see our <a href='/privacy' className='text-primary underline'>Privacy statement</a>.",
+        "description10a": "Have you any questions about our cookie policy? Contact us:",
+        "title11": "6. Changes",
+        "description11": "We can update this cookie policy from time to time, for example when we add new features or the law changes. In case of major changes, we will inform you via the website.",
+        "email": "Email",
+        "note": "Note"
+    }
+}

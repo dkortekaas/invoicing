@@ -7,6 +7,7 @@ import TestimonialsSection from "@/components/marketing/testimonial-section";
 import PricingSection from "@/components/marketing/pricing-section";
 import FAQSection from "@/components/marketing/faq-section";
 import CTASection from "@/components/marketing/cta-section";
+import { useTranslations } from "@/components/providers/locale-provider";
 
 /**
  * Client-only wrapper for all marketing sections that use framer-motion.
@@ -14,6 +15,8 @@ import CTASection from "@/components/marketing/cta-section";
  * and prevent "createContext is not a function" / hydration issues.
  */
 export default function MarketingContent() {
+  const { t } = useTranslations("cta");
+  
   return (
     <>
       <HeroSection />
@@ -24,7 +27,15 @@ export default function MarketingContent() {
         <PricingSection />
         <FAQSection />
       </div>
-      <CTASection />
+      <CTASection
+        title={t("title")}
+        description={t("description")}
+        linkHref1={t("linkHref1")}
+        linkText1={t("linkText1")}
+        checkText1={t("checkText1")}
+        checkText2={t("checkText2")}
+        checkText3={t("checkText3")}
+      />
     </>
   );
 }

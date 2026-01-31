@@ -11,136 +11,115 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
-const plans = [
-  {
-    name: "Starter",
-    monthlyPrice: 9.95,
-    yearlyPrice: 7.95,
-    description: "Voor starters en kleine ondernemers",
-    popular: false,
-  },
-  {
-    name: "Professional",
-    monthlyPrice: 19.95,
-    yearlyPrice: 15.95,
-    description: "Voor groeiende ondernemers",
-    popular: true,
-  },
-  {
-    name: "Business",
-    monthlyPrice: 39.95,
-    yearlyPrice: 31.95,
-    description: "Voor professionals en teams",
-    popular: false,
-  },
-];
-
-const featureCategories = [
-  {
-    name: "Facturatie",
-    features: [
-      { name: "Facturen per maand", starter: "10", professional: "Onbeperkt", business: "Onbeperkt" },
-      { name: "Offertes", starter: true, professional: true, business: true },
-      { name: "Credit nota's", starter: true, professional: true, business: true },
-      { name: "Terugkerende facturen", starter: false, professional: true, business: true },
-      { name: "Eigen huisstijl & logo", starter: true, professional: true, business: true },
-      { name: "Meerdere templates", starter: false, professional: true, business: true },
-      { name: "Digitale ondertekening", starter: false, professional: true, business: true },
-    ],
-  },
-  {
-    name: "Betalingen",
-    features: [
-      { name: "iDEAL betaallinks", starter: false, professional: true, business: true },
-      { name: "Creditcard betalingen", starter: false, professional: true, business: true },
-      { name: "Automatische herinneringen", starter: false, professional: true, business: true },
-      { name: "Slimme AI herinneringen", starter: false, professional: true, business: true },
-      { name: "Klantportaal", starter: false, professional: false, business: true },
-    ],
-  },
-  {
-    name: "Onkosten & Administratie",
-    features: [
-      { name: "Onkosten bijhouden", starter: true, professional: true, business: true },
-      { name: "OCR bonnetjes scannen", starter: false, professional: true, business: true },
-      { name: "Kilometerregistratie", starter: false, professional: true, business: true },
-      { name: "Categorieën beheer", starter: true, professional: true, business: true },
-    ],
-  },
-  {
-    name: "Projecten & Tijd",
-    features: [
-      { name: "Projecten aanmaken", starter: false, professional: true, business: true },
-      { name: "Urenregistratie", starter: false, professional: true, business: true },
-      { name: "Factureren vanuit uren", starter: false, professional: true, business: true },
-      { name: "Budgetbewaking", starter: false, professional: false, business: true },
-    ],
-  },
-  {
-    name: "Rapportages & Belasting",
-    features: [
-      { name: "BTW-overzichten", starter: true, professional: true, business: true },
-      { name: "Inkomstenbelasting overzicht", starter: false, professional: true, business: true },
-      { name: "Cashflow voorspellingen", starter: false, professional: false, business: true },
-      { name: "Export naar Excel/CSV", starter: true, professional: true, business: true },
-    ],
-  },
-  {
-    name: "Integraties & Extra",
-    features: [
-      { name: "Boekhoudkoppelingen", starter: false, professional: true, business: true },
-      { name: "Multi-valuta", starter: false, professional: false, business: true },
-      { name: "Contractbeheer", starter: false, professional: false, business: true },
-      { name: "API toegang", starter: false, professional: false, business: true },
-      { name: "Webhooks", starter: false, professional: false, business: true },
-    ],
-  },
-  {
-    name: "Support",
-    features: [
-      { name: "Email support", starter: true, professional: true, business: true },
-      { name: "Prioriteit support", starter: false, professional: true, business: true },
-      { name: "Dedicated accountmanager", starter: false, professional: false, business: true },
-    ],
-  },
-];
-
-const pricingFaqs = [
-  {
-    question: "Kan ik Declair gratis proberen?",
-    answer:
-      "Ja! Je krijgt 14 dagen gratis toegang tot alle Professional functies. Geen creditcard nodig. Na de proefperiode kies je zelf of en welk abonnement bij je past.",
-  },
-  {
-    question: "Kan ik op elk moment upgraden of downgraden?",
-    answer:
-      "Ja, je kunt op elk moment je abonnement aanpassen. Bij een upgrade krijg je direct toegang tot de nieuwe functies. Bij een downgrade blijft je huidige abonnement actief tot het einde van de periode.",
-  },
-  {
-    question: "Wat zijn de transactiekosten voor betalingen?",
-    answer:
-      "Declair rekent geen transactiekosten. Je betaalt alleen de kosten van de betaalprovider (Mollie): €0,29 per iDEAL transactie en 1,8% + €0,25 voor creditcard.",
-  },
-  {
-    question: "Kan ik maandelijks opzeggen?",
-    answer:
-      "Ja, je kunt op elk moment opzeggen. Je houdt toegang tot je account tot het einde van je betaalperiode. Je data kun je altijd exporteren.",
-  },
-  {
-    question: "Krijg ik korting bij jaarlijkse betaling?",
-    answer:
-      "Ja! Bij jaarlijkse betaling krijg je 2 maanden gratis. Dat is een besparing van meer dan 16%.",
-  },
-  {
-    question: "Zijn de prijzen inclusief of exclusief BTW?",
-    answer:
-      "Alle genoemde prijzen zijn exclusief 21% BTW. Als ondernemer kun je de BTW vaak aftrekken.",
-  },
-];
+import { useTranslations } from "@/components/providers/locale-provider";
+import CallToActionSection from "@/components/marketing/cta-section";
 
 const Pricing = () => {
+  const { t } = useTranslations("pricing");
   const [isYearly, setIsYearly] = useState(false);
+
+  const pricingFaqs = [
+    { question: t("question1"), answer: t("answer1") },
+    { question: t("question2"), answer: t("answer2") },
+    { question: t("question3"), answer: t("answer3") },
+    { question: t("question4"), answer: t("answer4") },
+    { question: t("question5"), answer: t("answer5") },
+    { question: t("question6"), answer: t("answer6") },
+  ];
+
+  const featureCategories = [
+    {
+      name: t("facturation"),
+      features: [
+        { name: t("invoicesPerMonth"), starter: "10", professional: "Onbeperkt", business: "Onbeperkt" },
+        { name: t("quotes"), starter: true, professional: true, business: true },
+        { name: t("creditNotes"), starter: true, professional: true, business: true },
+        { name: t("recurringInvoices"), starter: false, professional: true, business: true },
+        { name: t("customBranding"), starter: true, professional: true, business: true },
+        { name: t("multipleTemplates"), starter: false, professional: true, business: true },
+        { name: t("digitalSigning"), starter: false, professional: true, business: true },
+      ],
+    },
+    {
+      name: t("payments"),
+      features: [
+        { name: t("idealPaymentLinks"), starter: false, professional: true, business: true },
+        { name: t("creditCardPayments"), starter: false, professional: true, business: true },
+        { name: t("automaticReminders"), starter: false, professional: true, business: true },
+        { name: t("smartReminders"), starter: false, professional: true, business: true },
+        { name: t("customerPortal"), starter: false, professional: false, business: true },
+      ],
+    },
+    {
+      name: t("expensesAndAdministration"),
+      features: [
+        { name: t("trackExpenses"), starter: true, professional: true, business: true },
+        { name: t("ocrReceipts"), starter: false, professional: true, business: true },
+        { name: t("mileageRegistration"), starter: false, professional: true, business: true },
+        { name: t("categoriesManagement"), starter: true, professional: true, business: true },
+      ],
+    },
+    {
+      name: t("projectsAndTime"),
+      features: [
+        { name: t("createProjects"), starter: false, professional: true, business: true },
+        { name: t("timeRegistration"), starter: false, professional: true, business: true },
+        { name: t("invoicingFromHours"), starter: false, professional: true, business: true },
+        { name: t("budgetMonitoring"), starter: false, professional: false, business: true },
+      ],
+    },
+    {
+      name: t("reportsAndTax"),
+      features: [
+        { name: t("vatSummaries"), starter: true, professional: true, business: true },
+        { name: t("incomeTaxSummary"), starter: false, professional: true, business: true },
+        { name: t("cashflowForecasting"), starter: false, professional: false, business: true },
+        { name: t("exportToExcelCsv"), starter: true, professional: true, business: true },
+      ],
+    },
+    {
+      name: t("integrationsAndExtra"),
+      features: [
+        { name: t("bookkeepingIntegrations"), starter: false, professional: true, business: true },
+        { name: t("multiCurrency"), starter: false, professional: false, business: true },
+        { name: t("contractManagement"), starter: false, professional: false, business: true },
+        { name: t("apiAccess"), starter: false, professional: false, business: true },
+        { name: "Webhooks", starter: false, professional: false, business: true },
+      ],
+    },
+    {
+      name: t("support"),
+      features: [
+        { name: t("emailSupport"), starter: true, professional: true, business: true },
+        { name: t("prioritySupport"), starter: false, professional: true, business: true },
+        { name: t("dedicatedAccountManager"), starter: false, professional: false, business: true },
+      ],
+    },
+  ];
+
+  const plans = [
+    {
+      name: t("starter"),
+      monthlyPrice: 9.95,
+      yearlyPrice: 7.95,
+      description: t("starterDescription"),
+      popular: false,
+    },
+    {
+      name: t("professional"),
+      monthlyPrice: 19.95,
+      yearlyPrice: 15.95,
+      description: t("professionalDescription"),
+      popular: true,
+    },
+    {
+      name: t("business"),
+      monthlyPrice: 39.95,
+      yearlyPrice: 31.95,
+      description: t("businessDescription"),
+      popular: false,
+    },
+  ];
 
   const renderFeatureValue = (value: boolean | string) => {
     if (typeof value === "string") {
@@ -154,21 +133,20 @@ const Pricing = () => {
   };
 
   return (
-      <main>
+      <main id="main-content">
         {/* Hero Section */}
         <section className="pt-28 pb-16 md:pt-36 md:pb-20 bg-gradient-hero">
-          <div className="container">
+          <div className="container mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center max-w-3xl mx-auto"
             >
               <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-                Eerlijke prijzen, geen verrassingen
+                {t("title")}
               </h1>
               <p className="mt-4 text-lg text-muted-foreground">
-                Alle functies inbegrepen. Geen verborgen kosten.
-                Groeit mee met je onderneming.
+                {t("description")}
               </p>
 
               {/* Billing Toggle */}
@@ -181,7 +159,7 @@ const Pricing = () => {
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  Maandelijks
+                  {t("monthly")}
                 </button>
                 <button
                   onClick={() => setIsYearly(true)}
@@ -191,9 +169,9 @@ const Pricing = () => {
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  Jaarlijks
+                  {t("yearly")}
                   <span className="px-2 py-0.5 bg-success/10 text-success text-xs rounded-full">
-                    2 maanden gratis
+                    {t("2monthsfree")}
                   </span>
                 </button>
               </div>
@@ -203,7 +181,7 @@ const Pricing = () => {
 
         {/* Pricing Cards */}
         <section className="py-12 md:py-16">
-          <div className="container">
+          <div className="container mx-auto">
             <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {plans.map((plan, index) => (
                 <motion.div
@@ -219,7 +197,7 @@ const Pricing = () => {
                 >
                   {plan.popular && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
-                      Meest gekozen
+                      {t("mostpopular")}
                     </div>
                   )}
                   <div>
@@ -250,7 +228,7 @@ const Pricing = () => {
                           plan.popular ? "text-background/70" : "text-muted-foreground"
                         }
                       >
-                        /maand
+                        {t("perMonth")}
                       </span>
                     </div>
                     {isYearly && (
@@ -259,7 +237,7 @@ const Pricing = () => {
                           plan.popular ? "text-background/70" : "text-muted-foreground"
                         }`}
                       >
-                        Jaarlijks gefactureerd (€{(plan.yearlyPrice * 12).toFixed(2).replace(".", ",")}/jaar)
+                        {t("yearlyInvoiced")} (€{(plan.yearlyPrice * 12).toFixed(2).replace(".", ",")}/{t("yearly")})
                       </p>
                     )}
                     <p
@@ -267,7 +245,7 @@ const Pricing = () => {
                         plan.popular ? "text-background/50" : "text-muted-foreground"
                       }`}
                     >
-                      excl. BTW
+                      {t("exclVAT")}
                     </p>
                   </div>
 
@@ -276,7 +254,7 @@ const Pricing = () => {
                       variant={plan.popular ? "secondary" : "outline"}
                       className="w-full gap-2"
                     >
-                      Start gratis
+                      {t("startFree")}
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
@@ -288,7 +266,7 @@ const Pricing = () => {
 
         {/* Feature Comparison Table */}
         <section className="py-16 md:py-24 bg-muted/30">
-          <div className="container">
+          <div className="container mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -296,7 +274,7 @@ const Pricing = () => {
               className="text-center mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Vergelijk alle features
+                {t("compareFeatures")}
               </h2>
             </motion.div>
 
@@ -310,16 +288,16 @@ const Pricing = () => {
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left py-4 px-4 font-semibold text-foreground">
-                      Feature
+                      {t("feature")}
                     </th>
                     <th className="text-center py-4 px-4 font-semibold text-foreground w-32">
-                      Starter
+                      {t("starter")}
                     </th>
                     <th className="text-center py-4 px-4 font-semibold text-foreground w-32 bg-primary/5">
-                      Professional
+                      {t("professional")}
                     </th>
                     <th className="text-center py-4 px-4 font-semibold text-foreground w-32">
-                      Business
+                      {t("business")}
                     </th>
                   </tr>
                 </thead>
@@ -363,7 +341,7 @@ const Pricing = () => {
 
         {/* FAQ Section */}
         <section className="py-16 md:py-24 bg-background">
-          <div className="container">
+          <div className="container mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -371,7 +349,7 @@ const Pricing = () => {
               className="text-center mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Veelgestelde vragen over prijzen
+                {t("faqTitle")}
               </h2>
             </motion.div>
 
@@ -403,51 +381,15 @@ const Pricing = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-gradient-cta relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-                backgroundSize: "32px 32px",
-              }}
-            />
-          </div>
+        <CallToActionSection 
+          title={t("notSureWhichPlan")} 
+          description={t("startFreeTrialDescription")} 
+          linkHref1="/register"
+          linkText1={t("startFreeTrial")} 
+          linkHref2="/contact"
+          linkText2={t("contactUs")} 
+          />
 
-          <div className="container relative">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center max-w-2xl mx-auto"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground">
-                Nog niet zeker welk plan?
-              </h2>
-              <p className="mt-4 text-lg text-primary-foreground/80">
-                Start met 14 dagen gratis en ontdek welk plan het beste bij je past.
-                Geen creditcard nodig, opzeggen wanneer je wilt.
-              </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/register">
-                  <Button size="lg" variant="secondary" className="gap-2">
-                    Start gratis proefperiode
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </Link>
-                <Link href="/contact">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
-                  >
-                    Contact opnemen
-                  </Button>
-                </Link>
-              </div>
-            </motion.div>
-          </div>
-        </section>
       </main>
   );
 };

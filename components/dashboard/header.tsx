@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import { Bell, User, LogOut, Settings } from "lucide-react"
 import { RunningTimerIndicator } from "@/components/time/running-timer-indicator"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -15,32 +16,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useTranslations } from "@/components/providers/locale-provider"
 
-const pageTitle: Record<string, string> = {
-  "/": "Dashboard",
-  "/facturen": "Facturen",
-  "/facturen/nieuw": "Nieuwe Factuur",
-  "/tijd": "Tijdregistratie",
-  "/tijd/entries": "Time Entries",
-  "/tijd/projecten": "Projecten",
-  "/klanten": "Klanten",
-  "/klanten/nieuw": "Nieuwe Klant",
-  "/producten": "Producten",
-  "/instellingen": "Instellingen",
+const pathToPageKey: Record<string, string> = {
+  "/": "dashboard",
+  "/facturen": "invoices",
+  "/facturen/nieuw": "newInvoice",
+  "/tijd": "time",
+  "/tijd/entries": "timeEntries",
+  "/tijd/projecten": "projects",
+  "/klanten": "customers",
+  "/klanten/nieuw": "newCustomer",
+  "/producten": "products",
+  "/instellingen": "settings",
 }
 
 export function Header() {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const { t } = useTranslations("dashboard")
 
-  // Bepaal de pagina titel
-  let title = pageTitle[pathname]
-  if (!title) {
-    if (pathname.startsWith("/facturen/")) title = "Factuur"
-    else if (pathname.startsWith("/klanten/")) title = "Klant"
-    else if (pathname.startsWith("/tijd/")) title = "Tijdregistratie"
-    else title = "Dashboard"
+  let pageKey = pathToPageKey[pathname]
+  if (!pageKey) {
+    if (pathname.startsWith("/facturen/")) pageKey = "invoice"
+    else if (pathname.startsWith("/klanten/")) pageKey = "customer"
+    else if (pathname.startsWith("/tijd/")) pageKey = "time"
+    else pageKey = "dashboard"
   }
+  const title = t(`pages.${pageKey}`)
 
   const handleLogout = async () => {
     // Log logout action before signing out
@@ -65,11 +68,11 @@ export function Header() {
       <div className="flex items-center gap-2">
         {/* Running Timer Indicator */}
         <RunningTimerIndicator />
-        
+        <LanguageSwitcher />
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
-          <span className="sr-only">Notificaties</span>
+          <span className="sr-only">{t("notifications")}</span>
         </Button>
 
         {/* User menu */}
@@ -77,13 +80,13 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
               <User className="h-5 w-5" />
-              <span className="sr-only">Gebruikersmenu</span>
+              <span className="sr-only">{t("userMenu")}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span>{session?.user?.name || "Gebruiker"}</span>
+                <span>{session?.user?.name || t("user")}</span>
                 <span className="text-xs font-normal text-muted-foreground">
                   {session?.user?.email}
                 </span>
@@ -93,19 +96,19 @@ export function Header() {
             <DropdownMenuItem asChild>
               <Link href="/instellingen">
                 <Settings className="mr-2 h-4 w-4" />
-                Instellingen
+                {t("settings")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/instellingen?tab=2fa">
                 <Settings className="mr-2 h-4 w-4" />
-                2FA Beveiliging
+                {t("twoFactor")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
-              Uitloggen
+              {t("logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

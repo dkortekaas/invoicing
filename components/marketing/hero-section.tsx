@@ -4,8 +4,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/components/providers/locale-provider";
 
 const HeroSection = () => {
+  const { t } = useTranslations("heroSection");
+  
   return (
     <section className="relative pt-28 pb-20 px-6 md:px-0 md:pt-36 md:pb-28 overflow-hidden bg-gradient-hero">
       {/* Background Pattern */}
@@ -37,34 +40,33 @@ const HeroSection = () => {
             >
               <Sparkles className="w-4 h-4" />
               <span className="text-sm font-medium">
-                Nieuw: Automatische bonnetjes scanner
+                {t("badge")}
               </span>
             </motion.div>
 
             {/* Heading */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-              Factureren
+              {t("heading")}
               <br />
-              <span className="text-gradient">zonder gedoe</span>
+              <span className="text-gradient">{t("heading2")}</span>
             </h1>
 
             {/* Subheading */}
             <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0">
-              De complete administratie-app voor Nederlandse ZZP&apos;ers en freelancers.
-              Van offerte tot betaling, van bonnetje tot belastingaangifte.
+              {t("subheading")}
             </p>
 
             {/* CTA Buttons */}
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link href="/register">
                 <Button size="lg" className="w-full sm:w-auto gap-2 shadow-glow">
-                  Start gratis
+                  {t("cta1")}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
               <Link href="/features">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  Bekijk features
+                  {t("cta2")}
                 </Button>
               </Link>
             </div>
@@ -73,15 +75,15 @@ const HeroSection = () => {
             <div className="mt-8 flex flex-wrap gap-6 justify-center lg:justify-start text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-success" />
-                <span>14 dagen gratis</span>
+                <span>{t("trustIndicator1")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-success" />
-                <span>Geen creditcard nodig</span>
+                <span>{t("trustIndicator2")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-success" />
-                <span>Direct aan de slag</span>
+                <span>{t("trustIndicator3")}</span>
               </div>
             </div>
           </motion.div>
@@ -104,7 +106,7 @@ const HeroSection = () => {
                 </div>
                 <div className="flex-1 flex justify-center">
                   <div className="px-4 py-1 rounded-md bg-background text-xs text-muted-foreground">
-                    declair.app
+                    {t("appName")}
                   </div>
                 </div>
               </div>
@@ -126,10 +128,10 @@ const HeroSection = () => {
                     </div>
                     <div className="flex gap-2">
                       <div className="px-2 py-1 rounded bg-success/10 text-success text-xs font-medium">
-                        Betaald
+                        {t("paid")}
                       </div>
                       <div className="px-2 py-1 rounded bg-primary/10 text-primary text-xs font-medium">
-                        iDEAL
+                        {t("ideal")}
                       </div>
                     </div>
                   </div>
@@ -137,11 +139,11 @@ const HeroSection = () => {
                   {/* Stats */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-card rounded-lg shadow-sm border border-border p-3">
-                      <div className="text-xs text-muted-foreground">Omzet deze maand</div>
+                      <div className="text-xs text-muted-foreground">{t("monthlyRevenue")}</div>
                       <div className="text-xl font-bold text-foreground">€8.650</div>
                     </div>
                     <div className="bg-card rounded-lg shadow-sm border border-border p-3">
-                      <div className="text-xs text-muted-foreground">Openstaand</div>
+                      <div className="text-xs text-muted-foreground">{t("outstanding")}</div>
                       <div className="text-xl font-bold text-foreground">€1.200</div>
                     </div>
                   </div>
@@ -161,8 +163,8 @@ const HeroSection = () => {
                   <Check className="w-4 h-4 text-success" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-foreground">Factuur betaald</div>
-                  <div className="text-xs text-muted-foreground">€1.250,00 ontvangen</div>
+                  <div className="text-sm font-medium text-foreground">{t("invoicePaid")}</div>
+                  <div className="text-xs text-muted-foreground">{t("invoicePaidAmount")}</div>
                 </div>
               </div>
             </motion.div>
@@ -178,8 +180,8 @@ const HeroSection = () => {
                   <Sparkles className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-foreground">Bonnetje gescand</div>
-                  <div className="text-xs text-muted-foreground">Shell - €85,00</div>
+                  <div className="text-sm font-medium text-foreground">{t("receiptScanned")}</div>
+                  <div className="text-xs text-muted-foreground">{t("receiptScannedAmount")}</div>
                 </div>
               </div>
             </motion.div>

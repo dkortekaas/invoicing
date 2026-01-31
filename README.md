@@ -31,6 +31,8 @@ Een professionele facturatie web applicatie voor Nederlandse ZZP-ers en kleine b
 - 🇳🇱 **Nederlandse standaarden**: Volledig aangepast aan Nederlandse factuurvereisten
 - 📥 **Import/Export**: Importeer en exporteer klanten, facturen, producten, onkosten en tijdregistraties via CSV/Excel
 - 🔍 **OCR Bonnetjes Herkenning**: Automatische herkenning van facturen en bonnetjes met AI (PRO feature)
+- 🏷️ **Auto-Categorisatie**: Intelligente automatische categorisatie van onkosten op basis van leveranciers en sleutelwoorden
+- 🏢 **Leveranciersbeheer**: Beheer leveranciers met standaard categorieën en aliassen voor automatische herkenning
 - 🎨 **Modern UI**: Gebouwd met Next.js 16, React 19, Tailwind CSS en shadcn/ui
 
 ## 🛠️ Technische Stack
@@ -172,6 +174,8 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
   /klanten               # Klanten beheer
   /producten             # Producten beheer
   /instellingen          # Bedrijfsinstellingen
+  /kosten                # Onkostenbeheer met OCR en auto-categorisatie
+  /leveranciers          # Leveranciersbeheer voor auto-categorisatie
   /tijd                  # Time tracking
   /abonnementen          # Recurring invoices
   /abonnement            # Subscription management
@@ -295,6 +299,11 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     pdf-converter.ts     # PDF naar image conversie
     category-mapper.ts   # Leverancier naar categorie mapping
     extract-receipt.ts   # Hoofdlogica voor extractie
+  /categorization        # Auto-categorisatie systeem
+    vendor-matcher.ts    # Leverancier matching (exact, alias, partial)
+    classifier.ts        # Hybride classificatie pipeline
+    learning-service.ts  # Leren van gebruiker correcties
+    index.ts             # Module exports
   db.ts                  # Prisma client
   validations.ts         # Zod schemas
   utils.ts              # Helper functions
@@ -310,6 +319,11 @@ Open [http://localhost:3000](http://localhost:3000) in je browser.
     feature-locked.tsx           # Locked feature modal
     usage-meter.tsx              # Usage tracking display
     billing-portal-button.tsx    # Manage subscription button
+  /vendors                 # Leverancier components
+    vendor-form.tsx              # Leverancier formulier
+  /expenses                # Onkosten components
+    expense-form.tsx             # Onkosten formulier met OCR
+    ocr-preview.tsx              # OCR preview dialog met classificatie info
 /prisma
   schema.prisma          # Database schema
 ```
@@ -343,6 +357,9 @@ De applicatie gebruikt de volgende hoofdmodellen:
 - **ImportExportJob**: Import/export jobs met progress tracking
 - **ImportTemplate**: Opgeslagen kolom mappings voor hergebruik
 - **ImportExportJobStatus**: Job status (PENDING, VALIDATING, PROCESSING, COMPLETED, FAILED, CANCELLED)
+- **Vendor**: Leveranciers met standaard categorieën en aliassen voor auto-categorisatie
+- **ExpenseTrainingData**: Correctie geschiedenis voor leren van gebruiker feedback
+- **CategorySource**: Bron van categorisatie (MANUAL, VENDOR_MATCH, KEYWORD_MATCH, AI_PREDICTION)
 
 Zie `prisma/schema.prisma` voor het volledige schema.
 
@@ -857,6 +874,53 @@ BLOB_READ_WRITE_TOKEN="vercel_blob_..."
 
 Bestanden worden automatisch naar Vercel Blob geüpload wanneer dit token geconfigureerd is.
 
+## 🏷️ Auto-Categorisatie Onkosten
+
+De applicatie categoriseert onkosten automatisch op basis van een hybride classificatie systeem.
+
+### Hoe het werkt
+
+Wanneer je een bon uploadt of handmatig een leverancier invoert, wordt de categorie automatisch bepaald via een pipeline:
+
+1. **Leverancier Match** (hoogste prioriteit)
+   - Exacte naam match met bekende leveranciers
+   - Alias match (alternatieve namen)
+   - Partial match (gedeeltelijke naam overeenkomst)
+
+2. **Sleutelwoord Match**
+   - Herkent categorieën op basis van bekende sleutelwoorden
+   - Bijv. "Shell", "BP" → Reiskosten; "Adobe", "Microsoft" → Software
+
+3. **AI Suggestie**
+   - OCR-gebaseerde categoriesuggestie uit factuurinhoud
+   - Alleen bij PRO accounts met OCR feature
+
+4. **Fallback**
+   - Standaard categorie "Overig" indien geen match
+
+### Leveranciersbeheer
+
+Ga naar **Leveranciers** (`/leveranciers`) om:
+- Bekende leveranciers toe te voegen
+- Standaard categorieën per leverancier in te stellen
+- Aliassen toe te voegen (alternatieve namen)
+- Website en BTW-nummer vast te leggen
+
+### Leren van Correcties
+
+Het systeem leert automatisch van je correcties:
+- Als je een categorie aanpast op een uitgave, wordt dit opgeslagen
+- Na meerdere correcties voor dezelfde leverancier wordt de standaard categorie aangepast
+- Nieuwe bonnen van dezelfde leverancier krijgen automatisch de juiste categorie
+
+### Classificatie Bron
+
+Bij elke uitgave wordt de bron van de categorisatie getoond:
+- **Bekende leverancier**: Match met een opgeslagen leverancier
+- **Sleutelwoord match**: Herkend via sleutelwoorden in naam/omschrijving
+- **AI herkenning**: Gesuggereerd door OCR analyse
+- **Handmatig**: Door gebruiker geselecteerd
+
 ## 🔐 Authenticatie
 
 De applicatie gebruikt **NextAuth.js v5** met:
@@ -1176,6 +1240,7 @@ Het audit trail systeem biedt volledige traceerbaarheid en compliance:
 - [x] Credit nota's met volledige workflow ✅
 - [x] Import/Export functionaliteit voor klanten, facturen, producten, onkosten en tijdregistraties ✅
 - [x] OCR bonnetjes herkenning met AI (Claude Vision API) ✅
+- [x] Auto-categorisatie onkosten met leveranciersbeheer en leren van correcties ✅
 - [ ] Klantportaal voor factuur inzage en betaling
 - [ ] Forecasting & predictive analytics
 - [ ] Benchmarking tegen industrie gemiddeldes

@@ -80,9 +80,11 @@ model User {
   recurringInvoices RecurringInvoice[]
 
   // BTW relations
-  expenses   Expense[]
-  vatReports VATReport[]
-  icpEntries ICPEntry[]
+  expenses            Expense[]
+  vatReports          VATReport[]
+  icpEntries          ICPEntry[]
+  vendors             Vendor[]
+  expenseTrainingData ExpenseTrainingData[]
 
   // Credit notes
   creditNotes CreditNote[]
@@ -855,6 +857,16 @@ model Expense {
   supplier      String?
   invoiceNumber String?
 
+  // Vendor relation (for auto-categorization)
+  vendorId          String?
+  vendor            Vendor?         @relation(fields: [vendorId], references: [id])
+
+  // Categorization tracking
+  predictedCategory   ExpenseCategory?
+  categorySource      CategorySource?
+  wasAutoCategorized  Boolean         @default(false)
+  wasCorrected        Boolean         @default(false)
+
   // Deductibility
   deductible     Boolean @default(true)
   deductiblePerc Decimal @default(100) @db.Decimal(5, 2) // Percentage aftrekbaar
@@ -891,6 +903,51 @@ model Expense {
   @@index([date])
   @@index([category])
   @@index([deductible])
+  @@index([vendorId])
+}
+
+model Vendor {
+  id              String          @id @default(cuid())
+  userId          String?         // null = global vendor
+  user            User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name            String          // Display name
+  normalizedName  String          // Lowercase for matching
+  aliases         String[]        // Alternative names
+  defaultCategory ExpenseCategory
+
+  website         String?
+  vatNumber       String?
+
+  useCount        Int             @default(0)
+  lastUsedAt      DateTime?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  expenses        Expense[]
+
+  @@unique([userId, normalizedName])
+  @@index([userId])
+  @@index([normalizedName])
+}
+
+model ExpenseTrainingData {
+  id                 String          @id @default(cuid())
+  userId             String
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  supplierName       String?
+  normalizedSupplier String?
+
+  predictedCategory  ExpenseCategory
+  actualCategory     ExpenseCategory
+
+  expenseId          String?
+  createdAt          DateTime        @default(now())
+
+  @@index([userId])
+  @@index([normalizedSupplier])
 }
 
 enum ExpenseCategory {
@@ -916,6 +973,13 @@ enum OcrStatus {
   COMPLETED
   FAILED
   SKIPPED
+}
+
+enum CategorySource {
+  MANUAL
+  VENDOR_MATCH
+  KEYWORD_MATCH
+  AI_PREDICTION
 }
 
 model VATReport {

@@ -3,7 +3,8 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calculateNetFromGross, calculateVATFromGross } from '@/lib/vat/calculations';
 import { ensureCompanyDetails } from '@/lib/company-guard';
-import { Prisma, ExpenseCategory } from '@prisma/client';
+import { Prisma, ExpenseCategory, CategorySource } from '@prisma/client';
+import { updateVendorUsage } from '@/lib/categorization';
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -87,6 +88,11 @@ export async function POST(request: NextRequest) {
       projectId,
       notes,
       tags,
+      // Categorization fields
+      vendorId,
+      predictedCategory,
+      categorySource,
+      wasAutoCategorized = false,
     } = body;
 
     if (!date || !description || !category || amount === undefined || vatRate === undefined) {
@@ -107,6 +113,9 @@ export async function POST(request: NextRequest) {
     const netAmount = calculateNetFromGross(amount, vatRate);
     const vatAmount = calculateVATFromGross(amount, vatRate);
 
+    // Determine if the category was corrected (different from predicted)
+    const wasCorrected = wasAutoCategorized && predictedCategory && category !== predictedCategory;
+
     const expense = await db.expense.create({
       data: {
         userId: session.user.id,
@@ -126,12 +135,24 @@ export async function POST(request: NextRequest) {
         projectId,
         notes,
         tags: tags || [],
+        // Categorization fields
+        vendorId: vendorId || null,
+        predictedCategory: predictedCategory || null,
+        categorySource: (categorySource as CategorySource) || null,
+        wasAutoCategorized,
+        wasCorrected: wasCorrected || false,
       },
       include: {
         customer: true,
         project: true,
+        vendor: true,
       },
     });
+
+    // Update vendor usage statistics if a vendor was matched
+    if (vendorId) {
+      await updateVendorUsage(vendorId);
+    }
 
     return NextResponse.json(expense);
   } catch (error) {

@@ -18,7 +18,8 @@
       "Bash(npx prisma migrate:*)",
       "Bash(npm run lint:*)",
       "Bash(npx eslint:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(findstr:*)"
     ]
   }
 }

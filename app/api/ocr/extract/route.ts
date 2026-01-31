@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUserId } from '@/lib/server-utils';
 import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
 import { extractReceiptData } from '@/lib/ocr';
+import { classifyExpense } from '@/lib/categorization';
+import type { ClassificationInfo } from '@/lib/ocr/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,6 +49,34 @@ export async function POST(request: NextRequest) {
 
     // Extract data using OCR
     const result = await extractReceiptData(receiptUrl);
+
+    // If extraction was successful, run classification
+    if (result.success && result.data) {
+      const classificationResult = await classifyExpense({
+        userId,
+        supplier: result.data.supplier,
+        description: result.data.description,
+        ocrSuggestedCategory: result.data.suggestedCategory,
+      });
+
+      // Build classification info
+      const classification: ClassificationInfo = {
+        category: classificationResult.category,
+        source: classificationResult.source,
+        confidence: classificationResult.confidence,
+        explanation: classificationResult.explanation,
+      };
+
+      // Include vendor info if matched
+      if (classificationResult.vendorMatch) {
+        classification.vendorId = classificationResult.vendorMatch.vendor.id;
+        classification.vendorName = classificationResult.vendorMatch.vendor.name;
+      }
+
+      // Update the suggested category with the classification result
+      result.data.suggestedCategory = classificationResult.category;
+      result.classification = classification;
+    }
 
     return NextResponse.json(result);
   } catch (error) {

@@ -13,14 +13,15 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { Check, X, AlertTriangle, Sparkles } from 'lucide-react';
-import type { OcrExtractedData } from '@/lib/ocr/types';
+import { Check, X, AlertTriangle, Sparkles, Building2, Search, Brain, User } from 'lucide-react';
+import type { OcrExtractedData, ClassificationInfo } from '@/lib/ocr/types';
 
 interface OcrPreviewProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   data: OcrExtractedData;
   confidence: number;
+  classification?: ClassificationInfo;
   onApply: () => void;
   onSkip: () => void;
 }
@@ -67,6 +68,40 @@ function ConfidenceBadge({ confidence }: { confidence: number }) {
   );
 }
 
+function CategorySourceBadge({ source }: { source: ClassificationInfo['source'] }) {
+  switch (source) {
+    case 'VENDOR_MATCH':
+      return (
+        <Badge variant="default" className="bg-blue-600">
+          <Building2 className="mr-1 h-3 w-3" />
+          Bekende leverancier
+        </Badge>
+      );
+    case 'KEYWORD_MATCH':
+      return (
+        <Badge variant="secondary" className="bg-purple-600 text-white">
+          <Search className="mr-1 h-3 w-3" />
+          Sleutelwoord match
+        </Badge>
+      );
+    case 'AI_PREDICTION':
+      return (
+        <Badge variant="secondary" className="bg-orange-500 text-white">
+          <Brain className="mr-1 h-3 w-3" />
+          AI herkenning
+        </Badge>
+      );
+    case 'MANUAL':
+    default:
+      return (
+        <Badge variant="outline">
+          <User className="mr-1 h-3 w-3" />
+          Handmatig
+        </Badge>
+      );
+  }
+}
+
 function DataRow({
   label,
   value,
@@ -91,6 +126,7 @@ export function OcrPreview({
   onOpenChange,
   data,
   confidence,
+  classification,
   onApply,
   onSkip,
 }: OcrPreviewProps) {
@@ -192,10 +228,30 @@ export function OcrPreview({
               {data.suggestedCategory && (
                 <>
                   <Separator />
-                  <DataRow
-                    label="Categorie suggestie"
-                    value={CATEGORY_LABELS[data.suggestedCategory] || data.suggestedCategory}
-                  />
+                  <div className="py-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Categorie suggestie</span>
+                      <span className="font-medium">
+                        {CATEGORY_LABELS[data.suggestedCategory] || data.suggestedCategory}
+                      </span>
+                    </div>
+                    {classification && (
+                      <div className="mt-2 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-muted-foreground">Bron:</span>
+                          <CategorySourceBadge source={classification.source} />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {classification.explanation}
+                        </p>
+                        {classification.vendorName && (
+                          <p className="text-xs text-blue-600">
+                            Gekoppeld aan leverancier: {classification.vendorName}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
             </div>

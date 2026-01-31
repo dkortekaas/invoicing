@@ -40,6 +40,8 @@ npx prisma studio        # Open database GUI
 - `app/(marketing)/` - Marketing homepage and pricing (public)
 - `app/admin/` - Admin dashboard (SUPERUSER only)
 - `app/facturen/`, `app/klanten/`, `app/producten/` - Main CRUD modules
+- `app/kosten/` - Expense tracking with OCR and auto-categorization
+- `app/leveranciers/` - Vendor management for auto-categorization
 - `app/tijd/` - Time tracking (PRO feature)
 - `app/btw/` - VAT reporting (PRO feature)
 - `app/abonnementen/` - Recurring invoices (PRO feature)
@@ -47,7 +49,7 @@ npx prisma studio        # Open database GUI
 - `app/instellingen/import-export/` - Import/export hub
 - `app/api/export/` - Export endpoints (customers, invoices, products, expenses, time-entries)
 - `app/api/import/` - Import endpoints (upload, validate, execute, status)
-- `app/api/ocr/` - OCR extraction endpoint for receipts (PRO feature)
+- `app/api/ocr/` - OCR extraction endpoint for receipts with auto-categorization (PRO feature)
 
 ### Server Actions Pattern
 Data mutations use Next.js Server Actions in `actions.ts` files colocated with their routes:
@@ -60,6 +62,17 @@ Each action:
 2. Validates input with Zod schemas from `lib/validations.ts`
 3. Performs database operations with `db` from `lib/db.ts`
 4. Calls `revalidatePath()` to refresh cached data
+
+### Auto-Categorization System
+Expenses are automatically categorized using a hybrid pipeline in `lib/categorization/`:
+- `vendor-matcher.ts` - Matches supplier names to known vendors (exact, alias, partial)
+- `classifier.ts` - Pipeline: Vendor match → Keyword match → AI prediction → fallback
+- `learning-service.ts` - Learns from user corrections, updates vendor defaults
+
+Database models:
+- `Vendor` - Known vendors with default categories and aliases
+- `ExpenseTrainingData` - Correction history for learning
+- `Expense` fields: `vendorId`, `predictedCategory`, `categorySource`, `wasAutoCategorized`, `wasCorrected`
 
 ### Authentication & Authorization
 - `lib/auth.ts` - NextAuth configuration with credentials + 2FA
@@ -81,10 +94,13 @@ Premium features are controlled via `lib/stripe/subscriptions.ts`:
 - `lib/pdf/watermark.ts` - PDF watermark for FREE users
 - `lib/import-export/` - Import/export services with field definitions per entity
 - `lib/ocr/` - OCR service for receipt extraction using Claude Vision API
+- `lib/categorization/` - Auto-categorization for expenses (vendor matching, classification, learning)
 
 ### Component Organization
 - `components/ui/` - shadcn/ui base components
 - `components/invoices/`, `components/customers/`, etc. - Domain-specific components
+- `components/vendors/` - Vendor management form component
+- `components/expenses/` - Expense form with OCR preview and auto-categorization
 - `components/admin/` - Admin dashboard components
 - `components/subscription/` - Feature gating UI components
 - `components/analytics/` - Charts and KPI cards

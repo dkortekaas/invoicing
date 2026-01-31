@@ -45,7 +45,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import type { Expense } from '@prisma/client';
 import { OcrPreview } from './ocr-preview';
-import type { OcrResult, OcrExtractedData } from '@/lib/ocr/types';
+import type { OcrResult, OcrExtractedData, ClassificationInfo } from '@/lib/ocr/types';
 
 const expenseSchema = z.object({
   date: z.date(),
@@ -107,6 +107,11 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
   const [isOcrProcessing, setIsOcrProcessing] = useState(false);
   const [ocrResult, setOcrResult] = useState<OcrResult | null>(null);
   const [showOcrPreview, setShowOcrPreview] = useState(false);
+
+  // Categorization state
+  const [classificationInfo, setClassificationInfo] = useState<ClassificationInfo | null>(null);
+  const [predictedCategory, setPredictedCategory] = useState<string | null>(null);
+  const [wasAutoCategorized, setWasAutoCategorized] = useState(false);
 
   const form = useForm<ExpenseFormData>({
     resolver: zodResolver(expenseSchema),
@@ -193,6 +198,13 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
     }
     if (data.suggestedCategory) {
       form.setValue('category', data.suggestedCategory);
+      setPredictedCategory(data.suggestedCategory);
+      setWasAutoCategorized(true);
+    }
+
+    // Store classification info for submission
+    if (ocrResult?.classification) {
+      setClassificationInfo(ocrResult.classification);
     }
 
     setShowOcrPreview(false);
@@ -294,13 +306,24 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
       const url = expense ? `/api/expenses/${expense.id}` : '/api/expenses';
       const method = expense ? 'PATCH' : 'POST';
 
+      // Build request body with categorization data
+      const requestBody: Record<string, unknown> = {
+        ...data,
+        receipt: receiptUrl,
+      };
+
+      // Include categorization info for new expenses
+      if (!expense && wasAutoCategorized) {
+        requestBody.wasAutoCategorized = true;
+        requestBody.predictedCategory = predictedCategory;
+        requestBody.categorySource = classificationInfo?.source || null;
+        requestBody.vendorId = classificationInfo?.vendorId || null;
+      }
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          receipt: receiptUrl,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -697,6 +720,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
             onOpenChange={setShowOcrPreview}
             data={ocrResult.data}
             confidence={ocrResult.confidence}
+            classification={ocrResult.classification}
             onApply={() => applyOcrData(ocrResult.data!)}
             onSkip={() => setShowOcrPreview(false)}
           />

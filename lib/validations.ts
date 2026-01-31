@@ -379,3 +379,40 @@ export const assetSchema = z.object({
 })
 
 export type AssetFormData = z.infer<typeof assetSchema>
+
+// ========== Expense Categories Enum ==========
+export const expenseCategories = [
+  'OFFICE',
+  'TRAVEL',
+  'EQUIPMENT',
+  'SOFTWARE',
+  'MARKETING',
+  'EDUCATION',
+  'INSURANCE',
+  'ACCOUNTANT',
+  'TELECOM',
+  'UTILITIES',
+  'RENT',
+  'MAINTENANCE',
+  'PROFESSIONAL',
+  'OTHER',
+] as const
+export type ExpenseCategoryType = typeof expenseCategories[number]
+
+// ========== Vendor Schema ==========
+export const vendorSchema = z.object({
+  name: z.string().min(1, "Naam is verplicht"),
+  aliases: z.array(z.string()).default([]),
+  defaultCategory: z.enum(expenseCategories, { message: "Selecteer een categorie" }),
+  website: z.string().url("Ongeldig URL formaat").optional().nullable().or(z.literal('')),
+  vatNumber: z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (val) => !val || vatNumberRegex.test(val),
+      "Ongeldig BTW-nummer formaat (bijv. NL123456789B01)"
+    ),
+})
+
+export type VendorFormData = z.infer<typeof vendorSchema>

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calculateNetFromGross, calculateVATFromGross } from '@/lib/vat/calculations';
-import { Prisma } from '@prisma/client';
+import { Prisma, ExpenseCategory } from '@prisma/client';
+import { recordCorrection } from '@/lib/categorization';
 
 export async function GET(
   _request: NextRequest,
@@ -122,11 +123,20 @@ export async function PATCH(
     if (amount !== undefined || vatRate !== undefined) {
       const finalAmount = amount !== undefined ? amount : Number(existing.amount);
       const finalVatRate = vatRate !== undefined ? vatRate : Number(existing.vatRate);
-      
+
       updateData.amount = finalAmount;
       updateData.vatRate = finalVatRate;
       updateData.netAmount = calculateNetFromGross(finalAmount, finalVatRate);
       updateData.vatAmount = calculateVATFromGross(finalAmount, finalVatRate);
+    }
+
+    // Track category corrections for learning
+    const categoryChanged = category && category !== existing.category;
+    const wasAutoCategorized = existing.wasAutoCategorized;
+    const hadPrediction = existing.predictedCategory !== null;
+
+    if (categoryChanged) {
+      updateData.wasCorrected = true;
     }
 
     const expense = await db.expense.update({
@@ -135,8 +145,22 @@ export async function PATCH(
       include: {
         customer: true,
         project: true,
+        vendor: true,
       },
     });
+
+    // Record correction for learning if category was changed on an auto-categorized expense
+    if (categoryChanged && (wasAutoCategorized || hadPrediction)) {
+      const predictedCategory = existing.predictedCategory || existing.category;
+      await recordCorrection({
+        userId: session.user.id,
+        expenseId: id,
+        predictedCategory: predictedCategory as ExpenseCategory,
+        actualCategory: category as ExpenseCategory,
+        supplierName: existing.supplier || undefined,
+        vendorId: existing.vendorId || undefined,
+      });
+    }
 
     return NextResponse.json(expense);
   } catch (error) {

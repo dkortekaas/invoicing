@@ -34,7 +34,7 @@ const faqs = [
 
 const FAQSection = () => {
   return (
-    <section className="py-20 md:py-28 bg-muted/30">
+    <section className="py-20 px-6 md:px-0 md:py-28 bg-muted/30">
       <div className="container">
         {/* Header */}
         <motion.div

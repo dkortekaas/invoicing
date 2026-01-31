@@ -28,7 +28,7 @@ const Footer = () => {
   return (
     <footer className="bg-muted/50 border-t border-border">
       <div className="container mx-auto py-12 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-12">
+        <div className="grid grid-cols-2 px-6 md:px-0 md:grid-cols-5 gap-8 md:gap-12">
           {/* Logo & Description */}
           <div className="col-span-2 md:col-span-1">
             <Logo />
@@ -112,7 +112,7 @@ const Footer = () => {
             © {currentYear} Declair. Alle rechten voorbehouden.
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>KvK: 12345678</span>
+            <span>Shortcheese Solutions</span>
             <span>BTW: NL123456789B01</span>
           </div>
         </div>

@@ -42,7 +42,7 @@ const item = {
 
 const BenefitsSection = () => {
   return (
-    <section className="py-20 md:py-28 bg-muted/30">
+    <section className="py-20 mx-4 md:mx-0 md:py-28 bg-muted/30">
       <div className="container">
         {/* Header */}
         <motion.div

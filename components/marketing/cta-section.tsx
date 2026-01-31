@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 const CTASection = () => {
   return (
-    <section className="py-20 md:py-28 bg-gradient-cta relative overflow-hidden">
+    <section className="py-20 px-6 md:px-0 md:py-28 bg-gradient-cta relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div

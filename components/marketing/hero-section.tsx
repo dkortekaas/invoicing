@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
   return (
-    <section className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden bg-gradient-hero">
+    <section className="relative pt-28 pb-20 px-6 md:px-0 md:pt-36 md:pb-28 overflow-hidden bg-gradient-hero">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-40">
         <div
@@ -91,7 +91,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative"
+            className="relative px-4 md:px-0"
           >
             {/* Browser Mockup */}
             <div className="relative bg-card rounded-xl shadow-xl border border-border overflow-hidden">

@@ -45,7 +45,7 @@ const Header = () => {
       }`}
     >
       <div className="container mx-auto">
-        <div className="flex items-center justify-between h-16 md:h-[72px]">
+        <div className="flex items-center justify-between h-16 px-6 md:px-0 md:h-[72px]">
           <Logo />
 
           {/* Desktop Navigation */}
@@ -136,7 +136,7 @@ const Header = () => {
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden bg-background border-b border-border overflow-hidden"
           >
-            <div className="container py-4 space-y-4">
+            <div className="container px-4 md:px-0 py-4 space-y-4">
               <div className="space-y-1">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 py-2">
                   Functies
@@ -175,13 +175,13 @@ const Header = () => {
                   Contact
                 </Link>
               </div>
-              <div className="border-t border-border pt-4 flex flex-col gap-2">
-                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+              <div className="border-t border-border pt-4 flex gap-2">
+                <Link href="/login" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" className="w-full">
                     Inloggen
                   </Button>
                 </Link>
-                <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/register" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
                   <Button className="w-full">Start gratis</Button>
                 </Link>
               </div>

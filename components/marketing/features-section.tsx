@@ -74,7 +74,7 @@ const item = {
 
 const FeaturesSection = () => {
   return (
-    <section className="py-20 md:py-28 bg-background">
+    <section className="py-20 px-6 md:px-0 md:py-28 bg-background">
       <div className="container">
         {/* Header */}
         <motion.div

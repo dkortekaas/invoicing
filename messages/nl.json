@@ -828,6 +828,108 @@
             }
         }
     },
+    "help": {
+        "title": "Hulpcentrum",
+        "description": "Vind antwoorden op je vragen en leer alles over Declair.",
+        "searchPlaceholder": "Zoek in het hulpcentrum...",
+        "searchHint": "Bijv. 'factuur maken', 'BTW-aangifte', 'bonnetje scannen'",
+        "categoriesTitle": "Onderwerpen",
+        "categoriesDescription": "Blader door onze hulpartikelen per categorie.",
+        "articles": "artikelen",
+        "categories": {
+            "invoices": {
+                "title": "Facturen & Offertes",
+                "description": "Leer facturen en offertes maken, versturen en beheren."
+            },
+            "payments": {
+                "title": "Betalingen",
+                "description": "Alles over betaallinks, herinneringen en betalingsstatus."
+            },
+            "expenses": {
+                "title": "Onkosten & Bonnetjes",
+                "description": "Bonnetjes scannen, onkosten categoriseren en beheren."
+            },
+            "time": {
+                "title": "Urenregistratie",
+                "description": "Uren bijhouden, projecten beheren en factureren."
+            },
+            "reports": {
+                "title": "Rapportages & BTW",
+                "description": "BTW-overzichten, rapportages en exports maken."
+            },
+            "settings": {
+                "title": "Instellingen",
+                "description": "Account, bedrijfsgegevens en voorkeuren instellen."
+            }
+        },
+        "gettingStartedTitle": "Aan de slag",
+        "gettingStartedDescription": "Begin in 4 stappen met Declair.",
+        "gettingStarted": {
+            "step1": {
+                "title": "Account aanmaken",
+                "description": "Maak gratis een account aan en vul je bedrijfsgegevens in."
+            },
+            "step2": {
+                "title": "Klanten toevoegen",
+                "description": "Voeg je klanten toe om snel facturen te kunnen maken."
+            },
+            "step3": {
+                "title": "Eerste factuur",
+                "description": "Maak je eerste factuur en verstuur deze per e-mail."
+            },
+            "step4": {
+                "title": "Betaling ontvangen",
+                "description": "Ontvang betalingen via iDEAL of andere betaalmethodes."
+            }
+        },
+        "viewFullGuide": "Bekijk volledige handleiding",
+        "popularArticlesTitle": "Populaire artikelen",
+        "popularArticles": {
+            "article1": "Hoe maak ik mijn eerste factuur?",
+            "article2": "iDEAL betaallink instellen",
+            "article3": "Bonnetje scannen met OCR",
+            "article4": "Bedrijfsgegevens wijzigen",
+            "article5": "Terugkerende facturen instellen",
+            "article6": "BTW-aangifte voorbereiden"
+        },
+        "faqTitle": "Veelgestelde vragen",
+        "faq1Question": "Kan ik Declair gratis proberen?",
+        "faq1Answer": "Ja! Je krijgt 14 dagen gratis toegang tot alle Professional functies. Geen creditcard nodig. Na de proefperiode kies je zelf of en welk abonnement bij je past.",
+        "faq2Question": "Hoe kan ik mijn abonnement upgraden?",
+        "faq2Answer": "Ga naar Instellingen > Abonnement en kies je nieuwe plan. De wijziging gaat direct in en je krijgt toegang tot alle nieuwe functies.",
+        "faq3Question": "Kan ik mijn data exporteren?",
+        "faq3Answer": "Ja, via Instellingen > Import/Export kun je al je data downloaden in Excel of CSV formaat. Dit werkt voor klanten, facturen, producten en onkosten.",
+        "faq4Question": "Hoe werkt de BTW-berekening?",
+        "faq4Answer": "Declair berekent automatisch de BTW op basis van de tarieven die je instelt per product. Je kunt kiezen uit 0%, 9% en 21% BTW.",
+        "faq5Question": "Kan ik facturen automatisch laten versturen?",
+        "faq5Answer": "Ja, met terugkerende facturen kun je automatisch facturen laten aanmaken en versturen. Ideaal voor abonnementen en vaste klanten.",
+        "faq6Question": "Hoe scan ik een bonnetje?",
+        "faq6Answer": "Ga naar Onkosten > Nieuw en klik op 'Bonnetje scannen'. Maak een foto met je telefoon en de gegevens worden automatisch herkend.",
+        "faq7Question": "Kan ik meerdere gebruikers toevoegen?",
+        "faq7Answer": "Met het Business abonnement kun je meerdere gebruikers toevoegen aan je account, elk met eigen rechten en toegangsniveaus.",
+        "faq8Question": "Hoe neem ik contact op met support?",
+        "faq8Answer": "Je kunt ons bereiken via e-mail (support@declair.nl), live chat of het contactformulier. We reageren meestal binnen 24 uur.",
+        "contactTitle": "Nog steeds hulp nodig?",
+        "contactDescription": "Ons team staat klaar om je te helpen.",
+        "contactEmail": {
+            "title": "E-mail support",
+            "description": "Stuur ons een e-mail en we reageren binnen 24 uur."
+        },
+        "contactChat": {
+            "title": "Live chat",
+            "description": "Chat direct met ons support team.",
+            "button": "Start chat"
+        },
+        "contactVideo": {
+            "title": "Video tutorials",
+            "description": "Bekijk onze stap-voor-stap video's.",
+            "button": "Bekijk video's"
+        },
+        "ctaTitle": "Klaar om te beginnen?",
+        "ctaDescription": "Start vandaag nog met Declair en bespaar uren op je administratie.",
+        "ctaButton1": "Start gratis",
+        "ctaButton2": "Neem contact op"
+    },
     "contact": {
         "subtitle": "Contact",
         "title": "Neem contact met ons op",

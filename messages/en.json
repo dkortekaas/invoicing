@@ -826,6 +826,108 @@
             }
         }
     },
+    "help": {
+        "title": "Help Center",
+        "description": "Find answers to your questions and learn everything about Declair.",
+        "searchPlaceholder": "Search the help center...",
+        "searchHint": "E.g. 'create invoice', 'VAT return', 'scan receipt'",
+        "categoriesTitle": "Topics",
+        "categoriesDescription": "Browse our help articles by category.",
+        "articles": "articles",
+        "categories": {
+            "invoices": {
+                "title": "Invoices & Quotes",
+                "description": "Learn how to create, send and manage invoices and quotes."
+            },
+            "payments": {
+                "title": "Payments",
+                "description": "Everything about payment links, reminders and payment status."
+            },
+            "expenses": {
+                "title": "Expenses & Receipts",
+                "description": "Scan receipts, categorize and manage expenses."
+            },
+            "time": {
+                "title": "Time Tracking",
+                "description": "Track hours, manage projects and invoice."
+            },
+            "reports": {
+                "title": "Reports & VAT",
+                "description": "Create VAT overviews, reports and exports."
+            },
+            "settings": {
+                "title": "Settings",
+                "description": "Set up account, company details and preferences."
+            }
+        },
+        "gettingStartedTitle": "Getting Started",
+        "gettingStartedDescription": "Get started with Declair in 4 steps.",
+        "gettingStarted": {
+            "step1": {
+                "title": "Create account",
+                "description": "Create a free account and fill in your company details."
+            },
+            "step2": {
+                "title": "Add customers",
+                "description": "Add your customers to quickly create invoices."
+            },
+            "step3": {
+                "title": "First invoice",
+                "description": "Create your first invoice and send it by email."
+            },
+            "step4": {
+                "title": "Receive payment",
+                "description": "Receive payments via iDEAL or other payment methods."
+            }
+        },
+        "viewFullGuide": "View full guide",
+        "popularArticlesTitle": "Popular articles",
+        "popularArticles": {
+            "article1": "How do I create my first invoice?",
+            "article2": "Set up iDEAL payment link",
+            "article3": "Scan receipt with OCR",
+            "article4": "Change company details",
+            "article5": "Set up recurring invoices",
+            "article6": "Prepare VAT return"
+        },
+        "faqTitle": "Frequently asked questions",
+        "faq1Question": "Can I try Declair for free?",
+        "faq1Answer": "Yes! You get 14 days free access to all Professional features. No credit card needed. After the trial period, you can choose which plan suits you best.",
+        "faq2Question": "How can I upgrade my subscription?",
+        "faq2Answer": "Go to Settings > Subscription and choose your new plan. The change takes effect immediately and you get access to all new features.",
+        "faq3Question": "Can I export my data?",
+        "faq3Answer": "Yes, via Settings > Import/Export you can download all your data in Excel or CSV format. This works for customers, invoices, products and expenses.",
+        "faq4Question": "How does VAT calculation work?",
+        "faq4Answer": "Declair automatically calculates VAT based on the rates you set per product. You can choose from 0%, 9% and 21% VAT.",
+        "faq5Question": "Can I have invoices sent automatically?",
+        "faq5Answer": "Yes, with recurring invoices you can have invoices automatically created and sent. Ideal for subscriptions and regular customers.",
+        "faq6Question": "How do I scan a receipt?",
+        "faq6Answer": "Go to Expenses > New and click 'Scan receipt'. Take a photo with your phone and the data will be automatically recognized.",
+        "faq7Question": "Can I add multiple users?",
+        "faq7Answer": "With the Business plan you can add multiple users to your account, each with their own permissions and access levels.",
+        "faq8Question": "How do I contact support?",
+        "faq8Answer": "You can reach us via email (support@declair.nl), live chat or the contact form. We usually respond within 24 hours.",
+        "contactTitle": "Still need help?",
+        "contactDescription": "Our team is ready to help you.",
+        "contactEmail": {
+            "title": "Email support",
+            "description": "Send us an email and we'll respond within 24 hours."
+        },
+        "contactChat": {
+            "title": "Live chat",
+            "description": "Chat directly with our support team.",
+            "button": "Start chat"
+        },
+        "contactVideo": {
+            "title": "Video tutorials",
+            "description": "Watch our step-by-step videos.",
+            "button": "Watch videos"
+        },
+        "ctaTitle": "Ready to get started?",
+        "ctaDescription": "Start today with Declair and save hours on your administration.",
+        "ctaButton1": "Start free",
+        "ctaButton2": "Contact us"
+    },
     "contact": {
         "subtitle": "Contact",
         "title": "Get in touch with us",

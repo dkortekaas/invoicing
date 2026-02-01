@@ -676,7 +676,11 @@
             "tips": "Tips",
             "belasting": "Belasting",
             "productiviteit": "Productiviteit",
-            "betalingen": "Betalingen"
+            "betalingen": "Betalingen",
+            "onkosten": "Onkosten",
+            "urenregistratie": "Urenregistratie",
+            "facturatie": "Facturatie",
+            "vergelijkingen": "Vergelijkingen"
         },
         "posts": {
             "btw-aangifte-tips-zzp": {

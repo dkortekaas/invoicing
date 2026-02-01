@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -41,6 +42,10 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
     if (category === "belasting") return "📋";
     if (category === "productiviteit") return "⚡";
     if (category === "betalingen") return "💳";
+    if (category === "onkosten") return "💸";
+    if (category === "urenregistratie") return "⏰";
+    if (category === "facturatie") return "📄";
+    if (category === "vergelijkingen") return "🔍";
     return "📄";
   };
 
@@ -123,10 +128,21 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
             viewport={{ once: true }}
             className="max-w-3xl mx-auto"
           >
-            <div className="aspect-[2/1] rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-12">
-              <div className="text-8xl">
-                {categoryEmoji(frontmatter.category)}
-              </div>
+            <div className="aspect-[2/1] rounded-2xl bg-muted/50 flex items-center justify-center overflow-hidden relative mb-12">
+              {frontmatter.image ? (
+                <Image
+                  src={`/${frontmatter.image}`}
+                  alt={frontmatter.seoTitle ?? frontmatter.title}
+                  fill
+                  className="object-contain rounded-2xl"
+                  sizes="(max-width: 1024px) 100vw, 1024px"
+                  priority
+                />
+              ) : (
+                <div className="text-8xl">
+                  {categoryEmoji(frontmatter.category)}
+                </div>
+              )}
             </div>
 
             <MarkdownContent content={content} className="prose prose-lg max-w-none" />
@@ -137,9 +153,9 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="max-w-3xl mx-auto mt-12 p-8 rounded-2xl bg-muted/50 border border-border"
+            className="max-w-3xl mx-auto mt-12 p-4 rounded-2xl bg-muted/50 border border-border"
           >
-            <div className="flex items-start gap-4">
+            <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 <User className="w-8 h-8 text-primary" />
               </div>
@@ -149,9 +165,6 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
                 </h3>
                 <p className="text-sm text-muted-foreground mb-2">
                   {frontmatter.authorRole}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t("authorBio")}
                 </p>
               </div>
             </div>
@@ -186,10 +199,20 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
                   href={`/blog/${related.slug}`}
                   className="group block h-full rounded-xl overflow-hidden bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all"
                 >
-                  <div className="aspect-[16/10] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                    <div className="text-4xl">
-                      {categoryEmoji(related.frontmatter.category)}
-                    </div>
+                  <div className="aspect-[16/10] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center overflow-hidden relative">
+                    {related.frontmatter.image ? (
+                      <Image
+                        src={`/${related.frontmatter.image}`}
+                        alt={related.frontmatter.seoTitle ?? related.frontmatter.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                    ) : (
+                      <div className="text-4xl">
+                        {categoryEmoji(related.frontmatter.category)}
+                      </div>
+                    )}
                   </div>
                   <div className="p-6">
                     <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">

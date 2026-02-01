@@ -10,6 +10,17 @@ export function generateStaticParams() {
   return getPostSlugs().map((slug) => ({ slug }));
 }
 
+export async function generateMetadata({ params }: BlogPostPageProps) {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+  if (!post) return {};
+  const { title, seoTitle, excerpt, metaDescription } = post.frontmatter;
+  return {
+    title: seoTitle ?? title,
+    description: metaDescription ?? excerpt,
+  };
+}
+
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
   const post = getPostBySlug(slug);

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,10 @@ export function BlogClient({ posts }: BlogClientProps) {
     if (category === "belasting") return "📋";
     if (category === "productiviteit") return "⚡";
     if (category === "betalingen") return "💳";
+    if (category === "onkosten") return "💸";
+    if (category === "urenregistratie") return "⏰";
+    if (category === "facturatie") return "📄";
+    if (category === "vergelijkingen") return "🔍";
     return "📄";
   };
 
@@ -126,10 +131,20 @@ export function BlogClient({ posts }: BlogClientProps) {
               className="group block rounded-2xl overflow-hidden bg-card border border-border hover:border-primary/30 hover:shadow-xl transition-all"
             >
               <div className="grid md:grid-cols-2 gap-0">
-                <div className="aspect-[16/9] md:aspect-auto bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                  <div className="text-6xl">
-                    {categoryEmoji(featuredPost.frontmatter.category)}
-                  </div>
+                <div className="aspect-[16/9] md:aspect-auto bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center overflow-hidden relative">
+                  {featuredPost.frontmatter.image ? (
+                    <Image
+                      src={`/${featuredPost.frontmatter.image}`}
+                      alt={featuredPost.frontmatter.seoTitle ?? featuredPost.frontmatter.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  ) : (
+                    <div className="text-6xl">
+                      {categoryEmoji(featuredPost.frontmatter.category)}
+                    </div>
+                  )}
                 </div>
                 <div className="p-8 md:p-12 flex flex-col justify-center">
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
@@ -198,10 +213,20 @@ export function BlogClient({ posts }: BlogClientProps) {
                   href={`/blog/${post.slug}`}
                   className="group block h-full rounded-xl overflow-hidden bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all"
                 >
-                  <div className="aspect-[16/10] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                    <div className="text-4xl">
-                      {categoryEmoji(post.frontmatter.category)}
-                    </div>
+                  <div className="aspect-[16/10] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center overflow-hidden relative">
+                    {post.frontmatter.image ? (
+                      <Image
+                        src={`/${post.frontmatter.image}`}
+                        alt={post.frontmatter.seoTitle ?? post.frontmatter.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                    ) : (
+                      <div className="text-4xl">
+                        {categoryEmoji(post.frontmatter.category)}
+                      </div>
+                    )}
                   </div>
                   <div className="p-6">
                     <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">

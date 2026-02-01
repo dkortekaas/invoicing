@@ -6,7 +6,13 @@ const BLOG_DIR = path.join(process.cwd(), "content", "blog");
 
 export interface BlogPostFrontmatter {
   title: string;
+  /** SEO title for meta tags (falls back to title) */
+  seoTitle?: string;
+  /** Meta description for SEO (falls back to excerpt) */
+  metaDescription?: string;
   excerpt: string;
+  /** Optional hero/cover image path under public/ (e.g. blog/post.PNG). Falls back to categoryEmoji when absent. */
+  image?: string;
   date: string;
   category: string;
   readTime: number;

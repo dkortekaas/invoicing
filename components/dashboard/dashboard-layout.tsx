@@ -38,10 +38,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   if (
     pathname?.startsWith("/login") ||
     pathname?.startsWith("/register") ||
+    pathname.startsWith("/blog") ||
     pathname === "/" ||
     pathname === "/prijzen" ||
-    pathname === "/blog" ||
-    pathname === "/blog/[slug]" ||
     pathname === "/contact" ||
     pathname === "/help" ||
     pathname === "/help/videos" ||

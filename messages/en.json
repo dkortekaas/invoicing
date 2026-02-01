@@ -307,6 +307,575 @@
             "settings": "Settings"
         }
     },
+    "featuresPage": {
+        "subtitle": "Features",
+        "title": "Everything you need for your administration",
+        "description": "From invoices to VAT returns. Discover all the features Declair has to offer.",
+        "learnMore": "Learn more",
+        "allFeaturesTitle": "All features at a glance",
+        "allFeaturesDescription": "Discover all the possibilities Declair has to offer for your business.",
+        "viewPricing": "View pricing",
+        "ctaTitle": "Ready to get started?",
+        "ctaDescription": "Start today with Declair and save hours on your administration.",
+        "ctaButton1": "Start free",
+        "ctaButton2": "View pricing",
+        "ctaCheck1": "14 days free",
+        "ctaCheck2": "No credit card needed",
+        "ctaCheck3": "Cancel anytime",
+        "features": {
+            "invoices": {
+                "title": "Invoices & Quotes",
+                "description": "Create professional invoices and quotes in seconds.",
+                "invoicesHighlight1": "Unlimited invoices",
+                "invoicesHighlight2": "Professional PDF templates",
+                "invoicesHighlight3": "Automatic invoice numbers"
+            },
+            "payments": {
+                "title": "Payments",
+                "description": "Get paid faster with iDEAL and credit card.",
+                "paymentsHighlight1": "iDEAL payment links",
+                "paymentsHighlight2": "Automatic reminders",
+                "paymentsHighlight3": "Real-time payment status"
+            },
+            "expenses": {
+                "title": "Expenses & Receipts",
+                "description": "Scan receipts and track all your business expenses.",
+                "expensesHighlight1": "OCR receipt scanning",
+                "expensesHighlight2": "Automatic categorization",
+                "expensesHighlight3": "Mileage tracking"
+            },
+            "projects": {
+                "title": "Projects & Time",
+                "description": "Track hours and invoice directly from projects.",
+                "projectsHighlight1": "Time tracking",
+                "projectsHighlight2": "Project management",
+                "projectsHighlight3": "Invoice from hours"
+            },
+            "reports": {
+                "title": "Reports & Tax",
+                "description": "Always have insight into your revenue, costs and VAT.",
+                "reportsHighlight1": "VAT overviews",
+                "reportsHighlight2": "Income tax overview",
+                "reportsHighlight3": "Export to Excel"
+            },
+            "integrations": {
+                "title": "Integrations",
+                "description": "Connect Declair with your favorite tools and accounting software.",
+                "integrationsHighlight1": "Accounting integrations",
+                "integrationsHighlight2": "API access",
+                "integrationsHighlight3": "Webhooks"
+            }
+        },
+        "allFeatures": {
+            "unlimitedInvoices": "Unlimited invoices",
+            "quotes": "Create quotes",
+            "creditNotes": "Credit notes",
+            "recurringInvoices": "Recurring invoices",
+            "idealPayments": "iDEAL payment links",
+            "creditCardPayments": "Credit card payments",
+            "automaticReminders": "Automatic reminders",
+            "ocrScanning": "OCR receipt scanning",
+            "expenseTracking": "Expense tracking",
+            "mileageTracking": "Mileage tracking",
+            "timeTracking": "Time tracking",
+            "projectManagement": "Project management",
+            "vatReports": "VAT overviews",
+            "incomeTaxReports": "Income tax overview",
+            "exportExcel": "Export to Excel/CSV",
+            "bookkeepingIntegrations": "Accounting integrations"
+        }
+    },
+    "featurePages": {
+        "backToFeatures": "Back to features",
+        "startFree": "Start free",
+        "viewPricing": "View pricing",
+        "howItWorks": "How it works",
+        "otherFeatures": "Other features",
+        "learnMore": "Learn more",
+        "ctaTitle": "Ready to get started?",
+        "ctaDescription": "Start today with Declair and save hours on your administration.",
+        "ctaButton1": "Start free",
+        "ctaButton2": "View pricing",
+        "ctaCheck1": "14 days free",
+        "ctaCheck2": "No credit card needed",
+        "ctaCheck3": "Cancel anytime",
+        "invoices": {
+            "title": "Invoices & Quotes",
+            "description": "Create professional invoices and quotes in seconds. Send them directly by email and get paid faster.",
+            "featuresTitle": "What can you do?",
+            "features": {
+                "feature1": {
+                    "title": "Professional templates",
+                    "description": "Choose from multiple professional templates or customize them to your own style."
+                },
+                "feature2": {
+                    "title": "Automatic numbering",
+                    "description": "Invoice numbers are automatically generated according to your preferences."
+                },
+                "feature3": {
+                    "title": "Send directly",
+                    "description": "Send invoices directly by email from Declair with tracking."
+                },
+                "feature4": {
+                    "title": "Convert quotes",
+                    "description": "Convert approved quotes to invoices with one click."
+                },
+                "feature5": {
+                    "title": "Credit notes",
+                    "description": "Easily create credit notes for corrections or returns."
+                },
+                "feature6": {
+                    "title": "Recurring invoices",
+                    "description": "Set up recurring invoices for regular customers and subscriptions."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Select customer",
+                    "description": "Choose an existing customer or quickly add a new one."
+                },
+                "step2": {
+                    "title": "Add products",
+                    "description": "Add products or services with automatic VAT calculation."
+                },
+                "step3": {
+                    "title": "Send",
+                    "description": "Send the invoice by email or download as PDF."
+                }
+            }
+        },
+        "payments": {
+            "title": "Payments",
+            "description": "Get paid faster with integrated payment links. iDEAL, credit card and more.",
+            "featuresTitle": "Payment options",
+            "features": {
+                "feature1": {
+                    "title": "iDEAL payment links",
+                    "description": "Add an iDEAL payment link to your invoices for instant payment."
+                },
+                "feature2": {
+                    "title": "Credit card payments",
+                    "description": "Accept credit card payments from international customers."
+                },
+                "feature3": {
+                    "title": "Automatic reminders",
+                    "description": "Send automatic reminders for outstanding invoices."
+                },
+                "feature4": {
+                    "title": "Real-time status",
+                    "description": "See immediately when an invoice is viewed or paid."
+                },
+                "feature5": {
+                    "title": "Smart reminders",
+                    "description": "AI-powered reminders at the right time."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Add payment link",
+                    "description": "Enable the payment link option when creating an invoice."
+                },
+                "step2": {
+                    "title": "Customer pays",
+                    "description": "Your customer clicks the link and pays directly via iDEAL."
+                },
+                "step3": {
+                    "title": "Automatically processed",
+                    "description": "The payment is automatically linked to the invoice."
+                }
+            }
+        },
+        "expenses": {
+            "title": "Expenses & Receipts",
+            "description": "Scan receipts with your phone and let AI automatically recognize the data. Never lose receipts again.",
+            "featuresTitle": "Smart expense management",
+            "features": {
+                "feature1": {
+                    "title": "OCR receipt scanning",
+                    "description": "Scan receipts with your phone, AI automatically recognizes amount and supplier."
+                },
+                "feature2": {
+                    "title": "Automatic categorization",
+                    "description": "Expenses are automatically placed in the correct category."
+                },
+                "feature3": {
+                    "title": "Mileage tracking",
+                    "description": "Track business miles for tax deductions."
+                },
+                "feature4": {
+                    "title": "Supplier management",
+                    "description": "Link expenses to suppliers for better overview."
+                },
+                "feature5": {
+                    "title": "Export for tax",
+                    "description": "Export all expenses for your tax return."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Scan receipt",
+                    "description": "Take a photo of your receipt with your phone."
+                },
+                "step2": {
+                    "title": "AI recognizes data",
+                    "description": "Amount, date and supplier are automatically recognized."
+                },
+                "step3": {
+                    "title": "Check and save",
+                    "description": "Check the data and save. Done!"
+                }
+            }
+        },
+        "projects": {
+            "title": "Projects & Time",
+            "description": "Manage projects, track hours and invoice directly from your time tracking.",
+            "featuresTitle": "Project management features",
+            "features": {
+                "feature1": {
+                    "title": "Create projects",
+                    "description": "Create projects with budgets and deadlines."
+                },
+                "feature2": {
+                    "title": "Time tracking",
+                    "description": "Track hours per project with start/stop timer."
+                },
+                "feature3": {
+                    "title": "Invoice from hours",
+                    "description": "Convert tracked hours into invoices."
+                },
+                "feature4": {
+                    "title": "Budget monitoring",
+                    "description": "Monitor budgets and get warnings."
+                },
+                "feature5": {
+                    "title": "Reports",
+                    "description": "Insight into time spent per project and customer."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Create project",
+                    "description": "Create a project and link it to a customer."
+                },
+                "step2": {
+                    "title": "Track hours",
+                    "description": "Track your hours with the timer or manually."
+                },
+                "step3": {
+                    "title": "Invoice",
+                    "description": "Select hours and create an invoice directly."
+                }
+            }
+        },
+        "reports": {
+            "title": "Reports & Tax",
+            "description": "Always have insight into your revenue, costs and VAT. Complete your VAT return in minutes.",
+            "featuresTitle": "Reporting options",
+            "features": {
+                "feature1": {
+                    "title": "VAT overviews",
+                    "description": "Automatic VAT calculation per quarter or month."
+                },
+                "feature2": {
+                    "title": "Income tax",
+                    "description": "Overview of income and deductible costs."
+                },
+                "feature3": {
+                    "title": "Revenue dashboards",
+                    "description": "Real-time insight into your revenue and outstanding invoices."
+                },
+                "feature4": {
+                    "title": "Cash flow forecasts",
+                    "description": "Predict your cash flow based on invoices and costs."
+                },
+                "feature5": {
+                    "title": "Export options",
+                    "description": "Export all data to Excel, CSV or PDF."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Select period",
+                    "description": "Choose the period for which you want an overview."
+                },
+                "step2": {
+                    "title": "View report",
+                    "description": "View your VAT, revenue or cost overview."
+                },
+                "step3": {
+                    "title": "Export",
+                    "description": "Download the report or send it to your accountant."
+                }
+            }
+        },
+        "integrations": {
+            "title": "Integrations",
+            "description": "Connect Declair with your favorite tools and accounting software for a seamless workflow.",
+            "featuresTitle": "Available integrations",
+            "features": {
+                "feature1": {
+                    "title": "Accounting integrations",
+                    "description": "Connect with popular accounting software like Exact and Moneybird."
+                },
+                "feature2": {
+                    "title": "Bank integration",
+                    "description": "Import bank transactions automatically."
+                },
+                "feature3": {
+                    "title": "API access",
+                    "description": "Build your own integrations with our REST API."
+                },
+                "feature4": {
+                    "title": "Webhooks",
+                    "description": "Receive real-time notifications for events."
+                },
+                "feature5": {
+                    "title": "Zapier integration",
+                    "description": "Connect with 5000+ apps via Zapier."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Choose integration",
+                    "description": "Select the app you want to connect."
+                },
+                "step2": {
+                    "title": "Authorize",
+                    "description": "Log in to the external app and grant permission."
+                },
+                "step3": {
+                    "title": "Synchronize",
+                    "description": "Your data is automatically synchronized."
+                }
+            }
+        }
+    },
+    "blog": {
+        "subtitle": "Blog",
+        "title": "Tips & News for Entrepreneurs",
+        "description": "Practical tips, guides and news to simplify your administration.",
+        "latestArticles": "Latest articles",
+        "readMore": "Read more",
+        "loadMore": "Load more articles",
+        "backToBlog": "Back to blog",
+        "relatedArticles": "Related articles",
+        "authorBio": "Writes about entrepreneurship, administration and finance for freelancers and self-employed professionals.",
+        "newsletterTitle": "Stay informed",
+        "newsletterDescription": "Receive the best tips and updates in your inbox monthly.",
+        "emailPlaceholder": "Your email address",
+        "subscribe": "Subscribe",
+        "newsletterDisclaimer": "We send a maximum of 2 emails per month. You can unsubscribe at any time.",
+        "ctaTitle": "Ready to get started?",
+        "ctaDescription": "Start today with Declair and save hours on your administration.",
+        "ctaButton1": "Start free",
+        "ctaButton2": "View features",
+        "categories": {
+            "all": "All",
+            "tips": "Tips",
+            "belasting": "Tax",
+            "productiviteit": "Productivity",
+            "betalingen": "Payments"
+        },
+        "posts": {
+            "btw-aangifte-tips-zzp": {
+                "title": "VAT Return as a Freelancer: 7 Tips to Avoid Mistakes",
+                "excerpt": "VAT returns can be tricky. With these 7 practical tips you avoid common mistakes and save time.",
+                "author": "Jan de Boer",
+                "authorRole": "Financial advisor",
+                "category": "Tax",
+                "date": "2026-01-15",
+                "readTime": "8",
+                "content": {
+                    "intro": "As a freelancer, you are responsible for your own VAT return. This can be quite stressful, especially when you're just starting out. In this article we share 7 practical tips to avoid common mistakes.",
+                    "heading1": "1. Keep your administration up to date",
+                    "paragraph1": "The basis of a correct VAT return is good administration. Save all invoices and receipts immediately and categorize them. With Declair you can scan receipts and they are automatically processed.",
+                    "heading2": "2. Know the VAT rates",
+                    "paragraph2": "In the Netherlands we have three VAT rates: 0%, 9% and 21%. Make sure you know which rate applies to your products or services. Incorrect rates can lead to additional assessments.",
+                    "tipTitle": "Pro tip",
+                    "tipContent": "Set automatic reminders for your VAT return deadlines. That way you never forget a return.",
+                    "heading3": "3. Check your calculations",
+                    "paragraph3": "Before you submit the return, always check your calculations. Add up the amounts again and compare with your bank statements. Small errors can have big consequences.",
+                    "conclusion": "With these tips you are well prepared for your next VAT return. Want to make it even easier? Declair automatically calculates your VAT and prepares your return."
+                }
+            },
+            "factureren-beginners-gids": {
+                "title": "Invoicing for Beginners: The Complete Guide",
+                "excerpt": "Everything you need to know about professional invoicing as a starter. From required information to smart tips.",
+                "author": "Lisa Jansen",
+                "authorRole": "Entrepreneur & consultant",
+                "category": "Tips",
+                "date": "2026-01-10",
+                "readTime": "6",
+                "content": {
+                    "intro": "Just started as an entrepreneur? Then invoicing is one of the first things you need to learn. In this complete guide we explain everything.",
+                    "heading1": "What should be on an invoice?",
+                    "paragraph1": "An invoice must meet legal requirements. Think of your company name, Chamber of Commerce number, VAT number, invoice number, date, and of course the amount including VAT specification.",
+                    "heading2": "When do you send an invoice?",
+                    "paragraph2": "Send your invoice as soon as possible after delivery of your product or service. The faster you invoice, the faster you get paid.",
+                    "tipTitle": "Smart invoicing",
+                    "tipContent": "Use an invoicing program like Declair to create professional invoices. That way you never forget required information.",
+                    "heading3": "How do you make sure you get paid?",
+                    "paragraph3": "Add a payment link to your invoice, set clear payment terms and send timely reminders. With Declair this all happens automatically.",
+                    "conclusion": "Professional invoicing is essential for your business. With the right tools and knowledge you make it a lot easier for yourself."
+                }
+            },
+            "bonnetjes-scannen-ocr": {
+                "title": "Scanning Receipts with OCR: How It Works",
+                "excerpt": "Never lose receipts again. Discover how OCR technology simplifies your administration.",
+                "author": "Mark Peters",
+                "authorRole": "Tech specialist",
+                "category": "Productivity",
+                "date": "2026-01-05",
+                "readTime": "5",
+                "content": {
+                    "intro": "OCR stands for Optical Character Recognition. This technology recognizes text on images, such as receipts. But how does it work exactly?",
+                    "heading1": "What is OCR?",
+                    "paragraph1": "OCR technology analyzes an image and recognizes the text on it. Modern AI makes this increasingly accurate, even with curled or faded receipts.",
+                    "heading2": "Benefits of scanning receipts",
+                    "paragraph2": "You always have a digital backup, receipts are searchable, and the data is automatically processed in your administration. No more manual retyping.",
+                    "tipTitle": "Best practice",
+                    "tipContent": "Scan receipts immediately after purchase. This prevents them from fading or getting lost.",
+                    "heading3": "How Declair uses OCR",
+                    "paragraph3": "Declair uses advanced AI to analyze receipts. Amount, date, supplier and VAT are automatically recognized and filled in.",
+                    "conclusion": "With OCR technology you save hours on your administration. Try it yourself and experience the convenience."
+                }
+            },
+            "sneller-betaald-krijgen": {
+                "title": "5 Ways to Get Paid Faster",
+                "excerpt": "Late payments are frustrating. With these 5 strategies you get your money faster.",
+                "author": "Jan de Boer",
+                "authorRole": "Financial advisor",
+                "category": "Payments",
+                "date": "2025-12-28",
+                "readTime": "7",
+                "content": {
+                    "intro": "Waiting for payments is one of the biggest frustrations of entrepreneurs. Fortunately, there are strategies to improve this.",
+                    "heading1": "1. Add payment links",
+                    "paragraph1": "With an iDEAL payment link your customer can pay directly from the invoice. This greatly lowers the threshold and speeds up payments by an average of 11 days.",
+                    "heading2": "2. Set short payment terms",
+                    "paragraph2": "A payment term of 14 days often works better than 30 days. Customers tend to pay faster with shorter terms.",
+                    "tipTitle": "Did you know",
+                    "tipContent": "Invoices with a payment link are paid on average 11 days faster than invoices without.",
+                    "heading3": "3. Send automatic reminders",
+                    "paragraph3": "Set automatic reminders on day 7, 14 and 21 after the due date. Friendly but clear.",
+                    "conclusion": "With these strategies you significantly improve your cash flow. Declair helps you with automatic payment links and reminders."
+                }
+            },
+            "urenregistratie-freelancers": {
+                "title": "Time Tracking for Freelancers: Best Practices",
+                "excerpt": "Effective time tracking is essential for freelancers. Discover the best methods and tools.",
+                "author": "Lisa Jansen",
+                "authorRole": "Entrepreneur & consultant",
+                "category": "Productivity",
+                "date": "2025-12-20",
+                "readTime": "5",
+                "content": {
+                    "intro": "As a freelancer, your time is literally worth money. That's why it's crucial to keep track of your hours properly.",
+                    "heading1": "Why time tracking is important",
+                    "paragraph1": "Accurate time tracking ensures that you invoice correctly, have insight into your productivity, and have proof in discussions with customers.",
+                    "heading2": "Manual vs. automatic",
+                    "paragraph2": "Manual tracking in Excel works, but is error-prone. A tool with timer function is more accurate and less work.",
+                    "tipTitle": "Timer tip",
+                    "tipContent": "Start your timer at the beginning of each task. That way you never forget to track hours.",
+                    "heading3": "Invoice directly from hours",
+                    "paragraph3": "With Declair you can convert tracked hours directly into invoices. Select the hours, click invoice, done.",
+                    "conclusion": "Good time tracking is the basis of a healthy freelance business. Invest in a good tool and make it a habit."
+                }
+            },
+            "boekhouding-uitbesteden-of-zelf-doen": {
+                "title": "Outsource Accounting or Do It Yourself?",
+                "excerpt": "The pros and cons of doing your own accounting versus outsourcing to a professional.",
+                "author": "Mark Peters",
+                "authorRole": "Tech specialist",
+                "category": "Tips",
+                "date": "2025-12-15",
+                "readTime": "10",
+                "content": {
+                    "intro": "A question many entrepreneurs ask themselves: should I outsource my accounting or can I do it myself? We list the pros and cons.",
+                    "heading1": "Benefits of doing it yourself",
+                    "paragraph1": "You save costs, have direct insight into your finances, and get to know your business better. With modern tools it's also getting easier.",
+                    "heading2": "Benefits of outsourcing",
+                    "paragraph2": "A professional knows all the rules, saves you time, and can advise on tax optimizations. Ideal when your business grows.",
+                    "tipTitle": "The golden middle",
+                    "tipContent": "Do your daily administration yourself with a tool like Declair, and let an accountant handle your annual accounts and complex matters.",
+                    "heading3": "What suits you?",
+                    "paragraph3": "The choice depends on your time investment, complexity of your business, and budget. Many freelancers choose a hybrid approach.",
+                    "conclusion": "There is no right or wrong answer. Choose what fits your situation and evaluate regularly if it still works."
+                }
+            },
+            "kilometerregistratie-belastingvoordeel": {
+                "title": "Mileage Tracking: Maximum Tax Benefit",
+                "excerpt": "Business miles are deductible. Learn how to register this correctly and benefit maximally.",
+                "author": "Jan de Boer",
+                "authorRole": "Financial advisor",
+                "category": "Tax",
+                "date": "2025-12-10",
+                "readTime": "6",
+                "content": {
+                    "intro": "Do you regularly drive for business? Then you can deduct these miles from your taxes. But how do you do that correctly?",
+                    "heading1": "Which miles are business?",
+                    "paragraph1": "Trips to customers, suppliers, meetings and trade fairs are business. Commuting usually doesn't count if you have a fixed workplace.",
+                    "heading2": "How do you register miles?",
+                    "paragraph2": "Note date, start and end address, purpose of the trip, and the number of miles. A digital registration is most convenient and is accepted by the Tax Authority.",
+                    "tipTitle": "Mileage allowance 2026",
+                    "tipContent": "The tax-free mileage allowance is €0.23 per kilometer. With your own car you can also calculate the actual costs.",
+                    "heading3": "Register automatically",
+                    "paragraph3": "With the Declair app you can automatically register trips via GPS. Afterwards you indicate which trips were business.",
+                    "conclusion": "Good mileage tracking can save you hundreds of euros per year in tax benefits. It's worth it!"
+                }
+            }
+        }
+    },
+    "contact": {
+        "subtitle": "Contact",
+        "title": "Get in touch with us",
+        "description": "Have a question or want to know more about Declair? We're happy to help.",
+        "emailTitle": "Email",
+        "emailDescription": "Send us an email",
+        "chatTitle": "Live chat",
+        "chatDescription": "Chat with our team",
+        "chatValue": "Start a chat",
+        "hoursTitle": "Opening hours",
+        "hoursDescription": "When are we available?",
+        "hoursValue": "Mon-Fri: 9:00 - 17:00",
+        "formTitle": "Send us a message",
+        "formDescription": "Fill out the form and we'll respond within 24 hours.",
+        "labelName": "Name",
+        "labelEmail": "Email address",
+        "labelCompany": "Company name",
+        "labelSubject": "Subject",
+        "labelMessage": "Message",
+        "placeholderName": "Your name",
+        "placeholderEmail": "you@email.com",
+        "placeholderCompany": "Your company name (optional)",
+        "placeholderSubject": "Select a subject",
+        "placeholderMessage": "How can we help you?",
+        "subjectGeneral": "General question",
+        "subjectSales": "Sales & Demo",
+        "subjectSupport": "Technical support",
+        "subjectBilling": "Billing & Payments",
+        "subjectPartnership": "Partnership",
+        "subjectPress": "Press & Media",
+        "submitButton": "Send message",
+        "successTitle": "Message sent!",
+        "successDescription": "Thank you for your message. We'll respond as soon as possible, usually within 24 hours.",
+        "quickLinksTitle": "Quick links",
+        "quickLink1Title": "Help Center",
+        "quickLink1Description": "Find answers to frequently asked questions",
+        "quickLink2Title": "Features",
+        "quickLink2Description": "Discover what Declair has to offer",
+        "quickLink3Title": "Pricing",
+        "quickLink3Description": "View our subscriptions",
+        "faqTitle": "Frequently asked questions",
+        "faq1Question": "Can I try Declair for free?",
+        "faq1Answer": "Yes! You get 14 days free access to all features. No credit card needed.",
+        "faq2Question": "How can I upgrade to a different plan?",
+        "faq2Answer": "Go to Settings > Subscription and choose your new plan. The change takes effect immediately.",
+        "faq3Question": "How can I export my data?",
+        "faq3Answer": "Via Settings > Import/Export you can download all your data in Excel or CSV format.",
+        "viewAllFaq": "View all frequently asked questions",
+        "companyInfoTitle": "Company information"
+    },
     "cookiePolicy": {
         "title": "Cookie policy",
         "description": "Cookie policy of Declair – which cookies we use and why.",

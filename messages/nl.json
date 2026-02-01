@@ -309,6 +309,575 @@
             "settings": "Instellingen"
         }
     },
+    "featuresPage": {
+        "subtitle": "Functies",
+        "title": "Alles wat je nodig hebt voor je administratie",
+        "description": "Van facturen tot BTW-aangifte. Ontdek alle functies die Declair te bieden heeft.",
+        "learnMore": "Meer info",
+        "allFeaturesTitle": "Alle functies op een rij",
+        "allFeaturesDescription": "Ontdek alle mogelijkheden die Declair te bieden heeft voor jouw onderneming.",
+        "viewPricing": "Bekijk prijzen",
+        "ctaTitle": "Klaar om te beginnen?",
+        "ctaDescription": "Start vandaag nog met Declair en bespaar uren op je administratie.",
+        "ctaButton1": "Start gratis",
+        "ctaButton2": "Bekijk prijzen",
+        "ctaCheck1": "14 dagen gratis",
+        "ctaCheck2": "Geen creditcard nodig",
+        "ctaCheck3": "Opzeggen wanneer je wilt",
+        "features": {
+            "invoices": {
+                "title": "Facturen & Offertes",
+                "description": "Professionele facturen en offertes maken in enkele seconden.",
+                "invoicesHighlight1": "Onbeperkt facturen versturen",
+                "invoicesHighlight2": "Professionele PDF templates",
+                "invoicesHighlight3": "Automatisch factuurnummers"
+            },
+            "payments": {
+                "title": "Betalingen",
+                "description": "Ontvang betalingen sneller met iDEAL en creditcard.",
+                "paymentsHighlight1": "iDEAL betaallinks",
+                "paymentsHighlight2": "Automatische herinneringen",
+                "paymentsHighlight3": "Real-time betalingsstatus"
+            },
+            "expenses": {
+                "title": "Onkosten & Bonnetjes",
+                "description": "Scan bonnetjes en houd al je zakelijke kosten bij.",
+                "expensesHighlight1": "OCR bonnetjes scannen",
+                "expensesHighlight2": "Automatische categorisering",
+                "expensesHighlight3": "Kilometerregistratie"
+            },
+            "projects": {
+                "title": "Projecten & Uren",
+                "description": "Registreer uren en factureer direct vanuit projecten.",
+                "projectsHighlight1": "Urenregistratie",
+                "projectsHighlight2": "Projectbeheer",
+                "projectsHighlight3": "Factureren vanuit uren"
+            },
+            "reports": {
+                "title": "Rapportages & Belasting",
+                "description": "Altijd inzicht in je omzet, kosten en BTW.",
+                "reportsHighlight1": "BTW-overzichten",
+                "reportsHighlight2": "Inkomstenbelasting overzicht",
+                "reportsHighlight3": "Export naar Excel"
+            },
+            "integrations": {
+                "title": "Koppelingen",
+                "description": "Verbind Declair met je favoriete tools en boekhoudpakketten.",
+                "integrationsHighlight1": "Boekhoudkoppelingen",
+                "integrationsHighlight2": "API toegang",
+                "integrationsHighlight3": "Webhooks"
+            }
+        },
+        "allFeatures": {
+            "unlimitedInvoices": "Onbeperkt facturen",
+            "quotes": "Offertes maken",
+            "creditNotes": "Credit nota's",
+            "recurringInvoices": "Terugkerende facturen",
+            "idealPayments": "iDEAL betaallinks",
+            "creditCardPayments": "Creditcard betalingen",
+            "automaticReminders": "Automatische herinneringen",
+            "ocrScanning": "OCR bonnetjes scannen",
+            "expenseTracking": "Onkosten bijhouden",
+            "mileageTracking": "Kilometerregistratie",
+            "timeTracking": "Urenregistratie",
+            "projectManagement": "Projectbeheer",
+            "vatReports": "BTW-overzichten",
+            "incomeTaxReports": "Inkomstenbelasting overzicht",
+            "exportExcel": "Export naar Excel/CSV",
+            "bookkeepingIntegrations": "Boekhoudkoppelingen"
+        }
+    },
+    "featurePages": {
+        "backToFeatures": "Terug naar functies",
+        "startFree": "Start gratis",
+        "viewPricing": "Bekijk prijzen",
+        "howItWorks": "Hoe werkt het?",
+        "otherFeatures": "Andere functies",
+        "learnMore": "Meer info",
+        "ctaTitle": "Klaar om te beginnen?",
+        "ctaDescription": "Start vandaag nog met Declair en bespaar uren op je administratie.",
+        "ctaButton1": "Start gratis",
+        "ctaButton2": "Bekijk prijzen",
+        "ctaCheck1": "14 dagen gratis",
+        "ctaCheck2": "Geen creditcard nodig",
+        "ctaCheck3": "Opzeggen wanneer je wilt",
+        "invoices": {
+            "title": "Facturen & Offertes",
+            "description": "Maak professionele facturen en offertes in enkele seconden. Verstuur ze direct per e-mail en ontvang sneller je geld.",
+            "featuresTitle": "Wat kun je allemaal?",
+            "features": {
+                "feature1": {
+                    "title": "Professionele templates",
+                    "description": "Kies uit meerdere professionele templates of pas ze aan naar je eigen huisstijl."
+                },
+                "feature2": {
+                    "title": "Automatische nummering",
+                    "description": "Factuurnummers worden automatisch gegenereerd volgens je voorkeuren."
+                },
+                "feature3": {
+                    "title": "Direct versturen",
+                    "description": "Verstuur facturen direct per e-mail vanuit Declair met tracking."
+                },
+                "feature4": {
+                    "title": "Offertes omzetten",
+                    "description": "Zet goedgekeurde offertes met één klik om naar facturen."
+                },
+                "feature5": {
+                    "title": "Credit nota's",
+                    "description": "Maak eenvoudig credit nota's aan voor correcties of retouren."
+                },
+                "feature6": {
+                    "title": "Terugkerende facturen",
+                    "description": "Stel terugkerende facturen in voor vaste klanten en abonnementen."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Klant selecteren",
+                    "description": "Kies een bestaande klant of voeg snel een nieuwe toe."
+                },
+                "step2": {
+                    "title": "Producten toevoegen",
+                    "description": "Voeg producten of diensten toe met automatische BTW-berekening."
+                },
+                "step3": {
+                    "title": "Versturen",
+                    "description": "Verstuur de factuur per e-mail of download als PDF."
+                }
+            }
+        },
+        "payments": {
+            "title": "Betalingen",
+            "description": "Ontvang betalingen sneller met geïntegreerde betaallinks. iDEAL, creditcard en meer.",
+            "featuresTitle": "Betalingsmogelijkheden",
+            "features": {
+                "feature1": {
+                    "title": "iDEAL betaallinks",
+                    "description": "Voeg een iDEAL betaallink toe aan je facturen voor directe betaling."
+                },
+                "feature2": {
+                    "title": "Creditcard betalingen",
+                    "description": "Accepteer creditcard betalingen van internationale klanten."
+                },
+                "feature3": {
+                    "title": "Automatische herinneringen",
+                    "description": "Stuur automatisch herinneringen bij openstaande facturen."
+                },
+                "feature4": {
+                    "title": "Real-time status",
+                    "description": "Zie direct wanneer een factuur is bekeken of betaald."
+                },
+                "feature5": {
+                    "title": "Slimme herinneringen",
+                    "description": "AI-gestuurde herinneringen op het juiste moment."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Betaallink toevoegen",
+                    "description": "Activeer de betaallink optie bij het maken van een factuur."
+                },
+                "step2": {
+                    "title": "Klant betaalt",
+                    "description": "Je klant klikt op de link en betaalt direct via iDEAL."
+                },
+                "step3": {
+                    "title": "Automatisch verwerkt",
+                    "description": "De betaling wordt automatisch gekoppeld aan de factuur."
+                }
+            }
+        },
+        "expenses": {
+            "title": "Onkosten & Bonnetjes",
+            "description": "Scan bonnetjes met je telefoon en laat AI automatisch de gegevens herkennen. Nooit meer bonnetjes kwijt.",
+            "featuresTitle": "Slim onkosten beheer",
+            "features": {
+                "feature1": {
+                    "title": "OCR bonnetjes scannen",
+                    "description": "Scan bonnetjes met je telefoon, AI herkent automatisch bedrag en leverancier."
+                },
+                "feature2": {
+                    "title": "Automatische categorisering",
+                    "description": "Onkosten worden automatisch in de juiste categorie geplaatst."
+                },
+                "feature3": {
+                    "title": "Kilometerregistratie",
+                    "description": "Registreer zakelijke kilometers voor belastingaftrek."
+                },
+                "feature4": {
+                    "title": "Leveranciersbeheer",
+                    "description": "Koppel onkosten aan leveranciers voor beter overzicht."
+                },
+                "feature5": {
+                    "title": "Export voor belasting",
+                    "description": "Exporteer alle onkosten voor je belastingaangifte."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Bonnetje scannen",
+                    "description": "Maak een foto van je bonnetje met je telefoon."
+                },
+                "step2": {
+                    "title": "AI herkent gegevens",
+                    "description": "Bedrag, datum en leverancier worden automatisch herkend."
+                },
+                "step3": {
+                    "title": "Controleren en opslaan",
+                    "description": "Controleer de gegevens en sla op. Klaar!"
+                }
+            }
+        },
+        "projects": {
+            "title": "Projecten & Uren",
+            "description": "Beheer projecten, registreer uren en factureer direct vanuit je tijdregistratie.",
+            "featuresTitle": "Projectbeheer functies",
+            "features": {
+                "feature1": {
+                    "title": "Projecten aanmaken",
+                    "description": "Maak projecten aan met budgetten en deadlines."
+                },
+                "feature2": {
+                    "title": "Urenregistratie",
+                    "description": "Registreer uren per project met start/stop timer."
+                },
+                "feature3": {
+                    "title": "Factureren vanuit uren",
+                    "description": "Zet geregistreerde uren om naar facturen."
+                },
+                "feature4": {
+                    "title": "Budgetbewaking",
+                    "description": "Houd budgetten in de gaten en krijg waarschuwingen."
+                },
+                "feature5": {
+                    "title": "Rapportages",
+                    "description": "Inzicht in bestede tijd per project en klant."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Project aanmaken",
+                    "description": "Maak een project aan en koppel het aan een klant."
+                },
+                "step2": {
+                    "title": "Uren registreren",
+                    "description": "Registreer je uren met de timer of handmatig."
+                },
+                "step3": {
+                    "title": "Factureren",
+                    "description": "Selecteer uren en maak direct een factuur."
+                }
+            }
+        },
+        "reports": {
+            "title": "Rapportages & Belasting",
+            "description": "Altijd inzicht in je omzet, kosten en BTW. Maak je BTW-aangifte in minuten.",
+            "featuresTitle": "Rapportage mogelijkheden",
+            "features": {
+                "feature1": {
+                    "title": "BTW-overzichten",
+                    "description": "Automatische BTW-berekening per kwartaal of maand."
+                },
+                "feature2": {
+                    "title": "Inkomstenbelasting",
+                    "description": "Overzicht van inkomsten en aftrekbare kosten."
+                },
+                "feature3": {
+                    "title": "Omzet dashboards",
+                    "description": "Real-time inzicht in je omzet en openstaande facturen."
+                },
+                "feature4": {
+                    "title": "Cashflow voorspellingen",
+                    "description": "Voorspel je cashflow op basis van facturen en kosten."
+                },
+                "feature5": {
+                    "title": "Export mogelijkheden",
+                    "description": "Exporteer alle data naar Excel, CSV of PDF."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Periode selecteren",
+                    "description": "Kies de periode waarvoor je een overzicht wilt."
+                },
+                "step2": {
+                    "title": "Rapport bekijken",
+                    "description": "Bekijk je BTW, omzet of kosten overzicht."
+                },
+                "step3": {
+                    "title": "Exporteren",
+                    "description": "Download het rapport of stuur naar je boekhouder."
+                }
+            }
+        },
+        "integrations": {
+            "title": "Koppelingen",
+            "description": "Verbind Declair met je favoriete tools en boekhoudpakketten voor een naadloze workflow.",
+            "featuresTitle": "Beschikbare koppelingen",
+            "features": {
+                "feature1": {
+                    "title": "Boekhoudkoppelingen",
+                    "description": "Koppel met populaire boekhoudpakketten zoals Exact en Moneybird."
+                },
+                "feature2": {
+                    "title": "Bankintegratie",
+                    "description": "Importeer banktransacties automatisch."
+                },
+                "feature3": {
+                    "title": "API toegang",
+                    "description": "Bouw eigen integraties met onze REST API."
+                },
+                "feature4": {
+                    "title": "Webhooks",
+                    "description": "Ontvang real-time notificaties bij events."
+                },
+                "feature5": {
+                    "title": "Zapier integratie",
+                    "description": "Verbind met 5000+ apps via Zapier."
+                }
+            },
+            "steps": {
+                "step1": {
+                    "title": "Koppeling kiezen",
+                    "description": "Selecteer de app die je wilt koppelen."
+                },
+                "step2": {
+                    "title": "Autoriseren",
+                    "description": "Log in bij de externe app en geef toestemming."
+                },
+                "step3": {
+                    "title": "Synchroniseren",
+                    "description": "Je data wordt automatisch gesynchroniseerd."
+                }
+            }
+        }
+    },
+    "blog": {
+        "subtitle": "Blog",
+        "title": "Tips & Nieuws voor Ondernemers",
+        "description": "Praktische tips, handleidingen en nieuws om je administratie te vereenvoudigen.",
+        "latestArticles": "Laatste artikelen",
+        "readMore": "Lees meer",
+        "loadMore": "Meer artikelen laden",
+        "backToBlog": "Terug naar blog",
+        "relatedArticles": "Gerelateerde artikelen",
+        "authorBio": "Schrijft over ondernemerschap, administratie en financiën voor ZZP'ers en freelancers.",
+        "newsletterTitle": "Blijf op de hoogte",
+        "newsletterDescription": "Ontvang maandelijks de beste tips en updates in je inbox.",
+        "emailPlaceholder": "Je e-mailadres",
+        "subscribe": "Aanmelden",
+        "newsletterDisclaimer": "We versturen maximaal 2 e-mails per maand. Afmelden kan altijd.",
+        "ctaTitle": "Klaar om te beginnen?",
+        "ctaDescription": "Start vandaag nog met Declair en bespaar uren op je administratie.",
+        "ctaButton1": "Start gratis",
+        "ctaButton2": "Bekijk functies",
+        "categories": {
+            "all": "Alles",
+            "tips": "Tips",
+            "belasting": "Belasting",
+            "productiviteit": "Productiviteit",
+            "betalingen": "Betalingen"
+        },
+        "posts": {
+            "btw-aangifte-tips-zzp": {
+                "title": "BTW-aangifte als ZZP'er: 7 Tips om Fouten te Voorkomen",
+                "excerpt": "De BTW-aangifte kan lastig zijn. Met deze 7 praktische tips voorkom je veelgemaakte fouten en bespaar je tijd.",
+                "author": "Jan de Boer",
+                "authorRole": "Financieel adviseur",
+                "category": "Belasting",
+                "date": "2026-01-15",
+                "readTime": "8",
+                "content": {
+                    "intro": "Als ZZP'er ben je zelf verantwoordelijk voor je BTW-aangifte. Dit kan best spannend zijn, vooral als je net begint. In dit artikel delen we 7 praktische tips om veelgemaakte fouten te voorkomen.",
+                    "heading1": "1. Houd je administratie bij",
+                    "paragraph1": "De basis van een correcte BTW-aangifte is een goede administratie. Bewaar alle facturen en bonnetjes direct en categoriseer ze. Met Declair kun je bonnetjes scannen en worden ze automatisch verwerkt.",
+                    "heading2": "2. Ken de BTW-tarieven",
+                    "paragraph2": "In Nederland kennen we drie BTW-tarieven: 0%, 9% en 21%. Zorg dat je weet welk tarief van toepassing is op jouw producten of diensten. Verkeerde tarieven kunnen leiden tot naheffingen.",
+                    "tipTitle": "Pro tip",
+                    "tipContent": "Stel automatische herinneringen in voor je BTW-aangifte deadlines. Zo vergeet je nooit meer een aangifte.",
+                    "heading3": "3. Controleer je berekeningen",
+                    "paragraph3": "Voor je de aangifte indient, controleer altijd je berekeningen. Tel de bedragen nog een keer op en vergelijk met je bankafschriften. Kleine fouten kunnen grote gevolgen hebben.",
+                    "conclusion": "Met deze tips ben je goed voorbereid op je volgende BTW-aangifte. Wil je het nog makkelijker maken? Declair berekent automatisch je BTW en maakt je aangifte klaar."
+                }
+            },
+            "factureren-beginners-gids": {
+                "title": "Factureren voor Beginners: De Complete Gids",
+                "excerpt": "Alles wat je moet weten over professioneel factureren als starter. Van verplichte gegevens tot slimme tips.",
+                "author": "Lisa Jansen",
+                "authorRole": "Ondernemer & consultant",
+                "category": "Tips",
+                "date": "2026-01-10",
+                "readTime": "6",
+                "content": {
+                    "intro": "Net gestart als ondernemer? Dan is factureren een van de eerste dingen die je moet leren. In deze complete gids leggen we alles uit.",
+                    "heading1": "Wat moet er op een factuur staan?",
+                    "paragraph1": "Een factuur moet aan wettelijke eisen voldoen. Denk aan je bedrijfsnaam, KvK-nummer, BTW-nummer, factuurnummer, datum, en natuurlijk het bedrag inclusief BTW-specificatie.",
+                    "heading2": "Wanneer verstuur je een factuur?",
+                    "paragraph2": "Verstuur je factuur zo snel mogelijk na levering van je product of dienst. Hoe sneller je factureert, hoe sneller je betaald wordt.",
+                    "tipTitle": "Slim factureren",
+                    "tipContent": "Gebruik een facturatieprogramma zoals Declair om professionele facturen te maken. Zo vergeet je nooit verplichte gegevens.",
+                    "heading3": "Hoe zorg je dat je betaald wordt?",
+                    "paragraph3": "Voeg een betaallink toe aan je factuur, stel heldere betalingstermijnen en stuur tijdig herinneringen. Met Declair gaat dit allemaal automatisch.",
+                    "conclusion": "Professioneel factureren is essentieel voor je onderneming. Met de juiste tools en kennis maak je het jezelf een stuk makkelijker."
+                }
+            },
+            "bonnetjes-scannen-ocr": {
+                "title": "Bonnetjes Scannen met OCR: Zo Werkt Het",
+                "excerpt": "Nooit meer bonnetjes kwijt. Ontdek hoe OCR-technologie je administratie vereenvoudigt.",
+                "author": "Mark Peters",
+                "authorRole": "Tech specialist",
+                "category": "Productiviteit",
+                "date": "2026-01-05",
+                "readTime": "5",
+                "content": {
+                    "intro": "OCR staat voor Optical Character Recognition. Deze technologie herkent tekst op afbeeldingen, zoals bonnetjes. Maar hoe werkt het precies?",
+                    "heading1": "Wat is OCR?",
+                    "paragraph1": "OCR-technologie analyseert een afbeelding en herkent de tekst erop. Moderne AI maakt dit steeds nauwkeuriger, zelfs bij gekrulde of vervaagde bonnetjes.",
+                    "heading2": "Voordelen van bonnetjes scannen",
+                    "paragraph2": "Je hebt altijd een digitale backup, bonnetjes zijn doorzoekbaar, en de gegevens worden automatisch in je administratie verwerkt. Geen handmatig overtypen meer.",
+                    "tipTitle": "Beste praktijk",
+                    "tipContent": "Scan bonnetjes direct na aankoop. Zo voorkom je dat ze vervagen of kwijtraken.",
+                    "heading3": "Hoe Declair OCR gebruikt",
+                    "paragraph3": "Declair gebruikt geavanceerde AI om bonnetjes te analyseren. Bedrag, datum, leverancier en BTW worden automatisch herkend en ingevuld.",
+                    "conclusion": "Met OCR-technologie bespaar je uren op je administratie. Probeer het zelf en ervaar het gemak."
+                }
+            },
+            "sneller-betaald-krijgen": {
+                "title": "5 Manieren om Sneller Betaald te Krijgen",
+                "excerpt": "Late betalingen zijn frustrerend. Met deze 5 strategieën krijg je je geld sneller binnen.",
+                "author": "Jan de Boer",
+                "authorRole": "Financieel adviseur",
+                "category": "Betalingen",
+                "date": "2025-12-28",
+                "readTime": "7",
+                "content": {
+                    "intro": "Wachten op betalingen is een van de grootste frustraties van ondernemers. Gelukkig zijn er strategieën om dit te verbeteren.",
+                    "heading1": "1. Voeg betaallinks toe",
+                    "paragraph1": "Met een iDEAL betaallink kan je klant direct betalen vanuit de factuur. Dit verlaagt de drempel enorm en versnelt betalingen gemiddeld met 11 dagen.",
+                    "heading2": "2. Stel korte betalingstermijnen",
+                    "paragraph2": "Een betalingstermijn van 14 dagen werkt vaak beter dan 30 dagen. Klanten zijn geneigd sneller te betalen bij kortere termijnen.",
+                    "tipTitle": "Wist je dat",
+                    "tipContent": "Facturen met een betaallink worden gemiddeld 11 dagen sneller betaald dan facturen zonder.",
+                    "heading3": "3. Stuur automatische herinneringen",
+                    "paragraph3": "Stel automatische herinneringen in op dag 7, 14 en 21 na de vervaldatum. Vriendelijk maar duidelijk.",
+                    "conclusion": "Met deze strategieën verbeter je je cashflow significant. Declair helpt je met automatische betaallinks en herinneringen."
+                }
+            },
+            "urenregistratie-freelancers": {
+                "title": "Urenregistratie voor Freelancers: Best Practices",
+                "excerpt": "Effectief uren registreren is essentieel voor freelancers. Ontdek de beste methoden en tools.",
+                "author": "Lisa Jansen",
+                "authorRole": "Ondernemer & consultant",
+                "category": "Productiviteit",
+                "date": "2025-12-20",
+                "readTime": "5",
+                "content": {
+                    "intro": "Als freelancer is je tijd letterlijk geld waard. Daarom is het cruciaal om je uren goed bij te houden.",
+                    "heading1": "Waarom urenregistratie belangrijk is",
+                    "paragraph1": "Nauwkeurige urenregistratie zorgt dat je correct factureert, inzicht hebt in je productiviteit, en bewijs hebt bij discussies met klanten.",
+                    "heading2": "Handmatig vs. automatisch",
+                    "paragraph2": "Handmatig bijhouden in Excel werkt, maar is foutgevoelig. Een tool met timer-functie is nauwkeuriger en minder werk.",
+                    "tipTitle": "Timer tip",
+                    "tipContent": "Start je timer aan het begin van elke taak. Zo vergeet je nooit uren te registreren.",
+                    "heading3": "Direct factureren vanuit uren",
+                    "paragraph3": "Met Declair kun je geregistreerde uren direct omzetten naar facturen. Selecteer de uren, klik op factureren, klaar.",
+                    "conclusion": "Goede urenregistratie is de basis van een gezonde freelance business. Investeer in een goede tool en maak er een gewoonte van."
+                }
+            },
+            "boekhouding-uitbesteden-of-zelf-doen": {
+                "title": "Boekhouding Uitbesteden of Zelf Doen?",
+                "excerpt": "De voor- en nadelen van zelf je boekhouding doen versus uitbesteden aan een professional.",
+                "author": "Mark Peters",
+                "authorRole": "Tech specialist",
+                "category": "Tips",
+                "date": "2025-12-15",
+                "readTime": "10",
+                "content": {
+                    "intro": "Een vraag die veel ondernemers zich stellen: moet ik mijn boekhouding uitbesteden of kan ik het zelf? We zetten de voor- en nadelen op een rij.",
+                    "heading1": "Voordelen van zelf doen",
+                    "paragraph1": "Je bespaart kosten, hebt direct inzicht in je financiën, en leert je bedrijf beter kennen. Met moderne tools is het ook steeds makkelijker.",
+                    "heading2": "Voordelen van uitbesteden",
+                    "paragraph2": "Een professional kent alle regels, bespaart je tijd, en kan adviseren over fiscale optimalisaties. Ideaal als je bedrijf groeit.",
+                    "tipTitle": "De gulden middenweg",
+                    "tipContent": "Doe je dagelijkse administratie zelf met een tool als Declair, en laat een boekhouder je jaarrekening en complexe zaken afhandelen.",
+                    "heading3": "Wat past bij jou?",
+                    "paragraph3": "De keuze hangt af van je tijdsbesteding, complexiteit van je bedrijf, en budget. Veel ZZP'ers kiezen voor een hybride aanpak.",
+                    "conclusion": "Er is geen goed of fout antwoord. Kies wat bij jouw situatie past en evalueer regelmatig of het nog werkt."
+                }
+            },
+            "kilometerregistratie-belastingvoordeel": {
+                "title": "Kilometerregistratie: Maximaal Belastingvoordeel",
+                "excerpt": "Zakelijke kilometers zijn aftrekbaar. Leer hoe je dit correct registreert en maximaal profiteert.",
+                "author": "Jan de Boer",
+                "authorRole": "Financieel adviseur",
+                "category": "Belasting",
+                "date": "2025-12-10",
+                "readTime": "6",
+                "content": {
+                    "intro": "Rij je regelmatig zakelijk? Dan kun je deze kilometers aftrekken van je belasting. Maar hoe doe je dat correct?",
+                    "heading1": "Welke kilometers zijn zakelijk?",
+                    "paragraph1": "Ritten naar klanten, leveranciers, vergaderingen en beurzen zijn zakelijk. Woon-werkverkeer telt meestal niet mee als je een vaste werkplek hebt.",
+                    "heading2": "Hoe registreer je kilometers?",
+                    "paragraph2": "Noteer datum, begin- en eindadres, doel van de rit, en het aantal kilometers. Een digitale registratie is het handigst en wordt door de Belastingdienst geaccepteerd.",
+                    "tipTitle": "Kilometervergoeding 2026",
+                    "tipContent": "De belastingvrije kilometervergoeding is €0,23 per kilometer. Bij een eigen auto mag je de werkelijke kosten ook berekenen.",
+                    "heading3": "Automatisch registreren",
+                    "paragraph3": "Met de Declair app kun je ritten automatisch registreren via GPS. Achteraf geef je aan welke ritten zakelijk waren.",
+                    "conclusion": "Een goede kilometerregistratie kan je honderden euro's per jaar aan belastingvoordeel opleveren. Het is de moeite waard!"
+                }
+            }
+        }
+    },
+    "contact": {
+        "subtitle": "Contact",
+        "title": "Neem contact met ons op",
+        "description": "Heb je een vraag of wil je meer weten over Declair? We helpen je graag.",
+        "emailTitle": "E-mail",
+        "emailDescription": "Stuur ons een e-mail",
+        "chatTitle": "Live chat",
+        "chatDescription": "Chat met ons team",
+        "chatValue": "Start een chat",
+        "hoursTitle": "Openingstijden",
+        "hoursDescription": "Wanneer zijn we bereikbaar?",
+        "hoursValue": "Ma-Vr: 9:00 - 17:00",
+        "formTitle": "Stuur ons een bericht",
+        "formDescription": "Vul het formulier in en we reageren binnen 24 uur.",
+        "labelName": "Naam",
+        "labelEmail": "E-mailadres",
+        "labelCompany": "Bedrijfsnaam",
+        "labelSubject": "Onderwerp",
+        "labelMessage": "Bericht",
+        "placeholderName": "Je naam",
+        "placeholderEmail": "je@email.nl",
+        "placeholderCompany": "Je bedrijfsnaam (optioneel)",
+        "placeholderSubject": "Selecteer een onderwerp",
+        "placeholderMessage": "Hoe kunnen we je helpen?",
+        "subjectGeneral": "Algemene vraag",
+        "subjectSales": "Sales & Demo",
+        "subjectSupport": "Technische ondersteuning",
+        "subjectBilling": "Facturatie & Betalingen",
+        "subjectPartnership": "Samenwerking",
+        "subjectPress": "Pers & Media",
+        "submitButton": "Verstuur bericht",
+        "successTitle": "Bericht verzonden!",
+        "successDescription": "Bedankt voor je bericht. We reageren zo snel mogelijk, meestal binnen 24 uur.",
+        "quickLinksTitle": "Snelle links",
+        "quickLink1Title": "Hulpcentrum",
+        "quickLink1Description": "Vind antwoorden op veelgestelde vragen",
+        "quickLink2Title": "Functies",
+        "quickLink2Description": "Ontdek wat Declair te bieden heeft",
+        "quickLink3Title": "Prijzen",
+        "quickLink3Description": "Bekijk onze abonnementen",
+        "faqTitle": "Veelgestelde vragen",
+        "faq1Question": "Kan ik Declair gratis proberen?",
+        "faq1Answer": "Ja! Je krijgt 14 dagen gratis toegang tot alle functies. Geen creditcard nodig.",
+        "faq2Question": "Hoe kan ik upgraden naar een ander abonnement?",
+        "faq2Answer": "Ga naar Instellingen > Abonnement en kies je nieuwe plan. De wijziging gaat direct in.",
+        "faq3Question": "Hoe kan ik mijn data exporteren?",
+        "faq3Answer": "Via Instellingen > Import/Export kun je al je data downloaden in Excel of CSV formaat.",
+        "viewAllFaq": "Bekijk alle veelgestelde vragen",
+        "companyInfoTitle": "Bedrijfsgegevens"
+    },
     "cookiePolicy": {
         "title": "Cookiebeleid",
         "description": "Cookiebeleid van Declair – welke cookies we gebruiken en waarom.",

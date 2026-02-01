@@ -28,6 +28,8 @@ export async function proxy(request: NextRequest) {
   if (
     pathname === "/" ||
     pathname === "/prijzen" ||
+    pathname === "/blog" ||
+    pathname === "/blog/[slug]" ||
     pathname === "/privacy" ||
     pathname === "/cookie-beleid" ||
     pathname === "/algemene-voorwaarden" ||

@@ -40,6 +40,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     pathname?.startsWith("/register") ||
     pathname === "/" ||
     pathname === "/prijzen" ||
+    pathname === "/blog" ||
+    pathname === "/blog/[slug]" ||
+    pathname === "/contact" ||
+    pathname === "/help" ||
+    pathname === "/help/videos" ||
+    pathname === "/over-ons" ||
+    pathname === "/functies" ||
+    pathname === "/functies/koppelingen" ||
+    pathname === "/functies/koppelingen/[slug]" ||
     pathname?.startsWith("/uitnodiging") ||
     pathname?.startsWith("/pay")
   ) {

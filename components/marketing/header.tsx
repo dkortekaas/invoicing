@@ -56,9 +56,11 @@ const Header = () => {
       <div className="container mx-auto relative">
         <div className="flex items-center h-16 px-6 md:px-0 md:h-[72px]">
           {/* Left: Logo */}
-          <div className="flex-1 flex items-center min-w-0">
-            <Logo />
-          </div>
+          <Link href="/">
+            <div className="flex-1 flex items-center min-w-0">
+              <Logo />
+            </div>
+          </Link>
 
           {/* Center: Desktop Navigation (exact middle) */}
           <nav className="hidden lg:flex items-center gap-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">

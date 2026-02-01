@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer"
-import { formatDate, formatCurrency, formatNumber } from "@/lib/utils"
+import { formatDate, formatCurrency, formatCurrencyWithCode, formatNumber, formatExchangeRate, formatDateLong } from "@/lib/utils"
 import { getWatermarkContainerStyles, getWatermarkTextStyles, shouldShowWatermark } from "@/lib/pdf/watermark"
 import type { SystemSettings } from "@prisma/client"
 
@@ -53,6 +53,14 @@ interface InvoiceData {
   subtotal: number
   vatAmount: number
   total: number
+  // Currency support
+  currencyCode?: string
+  exchangeRate?: number | null
+  exchangeRateDate?: Date | null
+  exchangeRateSource?: "ECB" | "MANUAL" | null
+  subtotalEur?: number | null
+  vatAmountEur?: number | null
+  totalEur?: number | null
   customer: Customer
   items: InvoiceItem[]
   company: Company
@@ -260,6 +268,36 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: "#4b5563",
   },
+  eurEquivalent: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: "#f0f9ff",
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#bae6fd",
+  },
+  eurEquivalentLabel: {
+    fontSize: 8,
+    color: "#0369a1",
+    marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  eurEquivalentRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 2,
+  },
+  eurEquivalentText: {
+    fontSize: 9,
+    color: "#0c4a6e",
+  },
+  eurEquivalentNote: {
+    fontSize: 8,
+    color: "#64748b",
+    marginTop: 6,
+    fontStyle: "italic",
+  },
 })
 
 interface InvoicePDFProps {
@@ -269,6 +307,18 @@ interface InvoicePDFProps {
 }
 
 export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: InvoicePDFProps) {
+  // Get currency code, default to EUR
+  const currencyCode = invoice.currencyCode || "EUR"
+  const isNonEur = currencyCode !== "EUR"
+  const hasEurEquivalent = isNonEur && invoice.totalEur != null
+
+  // Helper to format amounts in invoice currency
+  const formatAmount = (amount: number) => {
+    return currencyCode === "EUR"
+      ? formatCurrency(amount)
+      : formatCurrencyWithCode(amount, currencyCode)
+  }
+
   // Group VAT by rate
   const vatByRate = invoice.items.reduce((acc, item) => {
     const rate = item.vatRate.toString()
@@ -399,13 +449,13 @@ export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: In
                 {formatNumber(item.quantity, 2)} {item.unit}
               </Text>
               <Text style={[styles.tableCell, styles.colPrice]}>
-                {formatCurrency(item.unitPrice)}
+                {formatAmount(item.unitPrice)}
               </Text>
               <Text style={[styles.tableCell, styles.colVat]}>
                 {item.vatRate}%
               </Text>
               <Text style={[styles.tableCell, styles.colTotal]}>
-                {formatCurrency(item.subtotal)}
+                {formatAmount(item.subtotal)}
               </Text>
             </View>
           ))}
@@ -416,17 +466,17 @@ export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: In
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotaal</Text>
             <Text style={styles.totalValue}>
-              {formatCurrency(invoice.subtotal)}
+              {formatAmount(invoice.subtotal)}
             </Text>
           </View>
 
           {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
             <View key={rate} style={styles.totalRow}>
               <Text style={styles.totalLabel}>
-                BTW {rate}% over {formatCurrency(subtotal)}
+                BTW {rate}% over {formatAmount(subtotal)}
               </Text>
               <Text style={styles.totalValue}>
-                {formatCurrency(vatAmount)}
+                {formatAmount(vatAmount)}
               </Text>
             </View>
           ))}
@@ -434,10 +484,42 @@ export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: In
           <View style={styles.totalRowFinal}>
             <Text style={styles.totalLabelFinal}>Totaal</Text>
             <Text style={styles.totalValueFinal}>
-              {formatCurrency(invoice.total)}
+              {formatAmount(invoice.total)}
             </Text>
           </View>
         </View>
+
+        {/* EUR Equivalent for non-EUR invoices */}
+        {hasEurEquivalent && (
+          <View style={styles.eurEquivalent}>
+            <Text style={styles.eurEquivalentLabel}>EUR Equivalent</Text>
+            <View style={styles.eurEquivalentRow}>
+              <Text style={styles.eurEquivalentText}>Subtotaal</Text>
+              <Text style={styles.eurEquivalentText}>
+                {formatCurrency(invoice.subtotalEur!)}
+              </Text>
+            </View>
+            <View style={styles.eurEquivalentRow}>
+              <Text style={styles.eurEquivalentText}>BTW</Text>
+              <Text style={styles.eurEquivalentText}>
+                {formatCurrency(invoice.vatAmountEur!)}
+              </Text>
+            </View>
+            <View style={styles.eurEquivalentRow}>
+              <Text style={[styles.eurEquivalentText, { fontWeight: "bold" }]}>Totaal</Text>
+              <Text style={[styles.eurEquivalentText, { fontWeight: "bold" }]}>
+                {formatCurrency(invoice.totalEur!)}
+              </Text>
+            </View>
+            <Text style={styles.eurEquivalentNote}>
+              Koers: 1 EUR = {formatExchangeRate(invoice.exchangeRate!, 4)} {currencyCode}
+              {invoice.exchangeRateSource === "ECB" && invoice.exchangeRateDate && (
+                ` (ECB, ${formatDateLong(invoice.exchangeRateDate)})`
+              )}
+              {invoice.exchangeRateSource === "MANUAL" && " (Handmatig)"}
+            </Text>
+          </View>
+        )}
 
         {/* Notes */}
         {invoice.notes && (

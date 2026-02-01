@@ -33,7 +33,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import Image from "next/image"
+import Logo from "@/components/marketing/logo"
 
 const navigation = [
   {
@@ -115,10 +115,9 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
-                <Image src="/logo.png" alt="Declair" width={50} height={50} />
-                <div className="grid flex-1 text-left text-xl leading-tight">
-                  <span className="truncate font-semibold">Declair</span>
+              <Link href="/dashboard">
+                <div className="flex-1 flex items-center min-w-0">
+                  <Logo asLink={false} />
                 </div>
               </Link>
             </SidebarMenuButton>

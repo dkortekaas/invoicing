@@ -388,10 +388,10 @@ const HelpPage = () => {
                 {t("contactEmail.description")}
               </p>
               <a
-                href="mailto:support@declair.nl"
+                href="mailto:support@declair.app"
                 className="text-primary font-medium hover:underline"
               >
-                support@declair.nl
+                support@declair.app
               </a>
             </motion.div>
 

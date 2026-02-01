@@ -20,6 +20,8 @@ import { useTranslations } from "@/components/providers/locale-provider";
 const ContactPage = () => {
   const { t } = useTranslations("contact");
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,10 +30,32 @@ const ContactPage = () => {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would send the form data to an API
-    setFormSubmitted(true);
+    setSubmitError(null);
+    setIsSubmitting(true);
+    try {
+      const subjectOption = subjects.find((s) => s.value === formData.subject);
+      const subjectLabel = subjectOption ? t(subjectOption.labelKey) : formData.subject;
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          subjectLabel,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSubmitError(data.error ?? t("errorGeneric"));
+        return;
+      }
+      setFormSubmitted(true);
+    } catch {
+      setSubmitError(t("errorGeneric"));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (
@@ -48,8 +72,8 @@ const ContactPage = () => {
       icon: Mail,
       titleKey: "emailTitle",
       descriptionKey: "emailDescription",
-      value: "support@declair.nl",
-      href: "mailto:support@declair.nl",
+      value: "support@declair.app",
+      href: "mailto:support@declair.app",
     },
     {
       icon: MessageSquare,
@@ -278,8 +302,19 @@ const ContactPage = () => {
                       />
                     </div>
 
-                    <Button type="submit" size="lg" className="w-full gap-2">
-                      {t("submitButton")}
+                    {submitError && (
+                      <p className="text-sm text-destructive" role="alert">
+                        {submitError}
+                      </p>
+                    )}
+
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full gap-2"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? t("submitButtonSending") : t("submitButton")}
                       <Send className="w-4 h-4" />
                     </Button>
                   </form>
@@ -392,8 +427,8 @@ const ContactPage = () => {
                   </div>
                   <div className="flex items-center gap-3">
                     <Mail className="w-5 h-5 text-muted-foreground" />
-                    <a href="mailto:info@declair.nl" className="text-primary hover:underline">
-                      info@declair.nl
+                    <a href="mailto:info@declair.app" className="text-primary hover:underline">
+                      info@declair.app
                     </a>
                   </div>
                   <div className="flex items-center gap-3">

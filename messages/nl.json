@@ -908,7 +908,7 @@
         "faq7Question": "Kan ik meerdere gebruikers toevoegen?",
         "faq7Answer": "Met het Business abonnement kun je meerdere gebruikers toevoegen aan je account, elk met eigen rechten en toegangsniveaus.",
         "faq8Question": "Hoe neem ik contact op met support?",
-        "faq8Answer": "Je kunt ons bereiken via e-mail (support@declair.nl), live chat of het contactformulier. We reageren meestal binnen 24 uur.",
+        "faq8Answer": "Je kunt ons bereiken via e-mail (support@declair.app), live chat of het contactformulier. We reageren meestal binnen 24 uur.",
         "contactTitle": "Nog steeds hulp nodig?",
         "contactDescription": "Ons team staat klaar om je te helpen.",
         "contactEmail": {
@@ -961,6 +961,8 @@
         "subjectPartnership": "Samenwerking",
         "subjectPress": "Pers & Media",
         "submitButton": "Verstuur bericht",
+        "submitButtonSending": "Versturen…",
+        "errorGeneric": "Het bericht kon niet worden verzonden. Probeer het later opnieuw.",
         "successTitle": "Bericht verzonden!",
         "successDescription": "Bedankt voor je bericht. We reageren zo snel mogelijk, meestal binnen 24 uur.",
         "quickLinksTitle": "Snelle links",

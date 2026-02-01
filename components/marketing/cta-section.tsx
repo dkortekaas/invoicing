@@ -31,7 +31,7 @@ const CTASection = ({ title = "", description = "", linkHref1 = "", linkText1 = 
         />
       </div>
 
-      <div className="container relative">
+      <div className="container mx-auto relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

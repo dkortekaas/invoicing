@@ -49,6 +49,7 @@ export default async function FactuurBewerkenPage({ params }: FactuurBewerkenPag
     reference: invoice.reference || "",
     notes: invoice.notes || "",
     internalNotes: invoice.internalNotes || "",
+    currencyCode: invoice.currencyCode || "EUR",
     items: invoice.items.map((item: typeof invoice.items[0]) => ({
       description: item.description,
       quantity: item.quantity,

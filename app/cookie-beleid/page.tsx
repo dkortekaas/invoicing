@@ -196,7 +196,7 @@ export default async function CookieBeleidPage() {
           <div className="mt-3 p-4 bg-muted rounded-md">
             <p><strong>{t("email")}:</strong> <a href="mailto:privacy@declair.app">privacy@declair.app</a></p>
             <p>&nbsp;</p>
-            <p><strong>Shortcheese</strong></p>
+            <p><strong>Shortcheese Solutions</strong></p>
             <p>Ballastwater 18</p>
             <p>3991 HL Houten</p>
             <p>KvK: 30220287</p>

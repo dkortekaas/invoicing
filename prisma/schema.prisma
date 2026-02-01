@@ -122,6 +122,9 @@ model User {
   fiscalSettings    FiscalSettings?
   assets            Asset[]
   taxReports        TaxReport[]
+
+  // Currency settings
+  currencySettings  CurrencySettings?
 }
 
 model Customer {
@@ -143,6 +146,10 @@ model Customer {
 
   paymentTermDays Int     @default(30)
   notes           String?
+
+  // Currency preference
+  currencyId String?
+  currency   Currency? @relation(fields: [currencyId], references: [id])
 
   invoices          Invoice[]
   projects          Project[]
@@ -201,6 +208,22 @@ model Invoice {
   subtotal  Decimal @db.Decimal(10, 2)
   vatAmount Decimal @db.Decimal(10, 2)
   total     Decimal @db.Decimal(10, 2)
+
+  // Currency (multi-currency support)
+  currencyId         String?
+  currency           Currency?   @relation(fields: [currencyId], references: [id])
+  currencyCode       String      @default("EUR")
+
+  // Exchange rate info (locked on send)
+  exchangeRate       Decimal?    @db.Decimal(12, 6)
+  exchangeRateDate   DateTime?   @db.Date
+  exchangeRateSource RateSource?
+  exchangeRateLocked Boolean     @default(false)
+
+  // EUR equivalents (for bookkeeping/VAT reporting)
+  subtotalEur        Decimal?    @db.Decimal(10, 2)
+  vatAmountEur       Decimal?    @db.Decimal(10, 2)
+  totalEur           Decimal?    @db.Decimal(10, 2)
 
   // Extra velden
   reference     String? // Referentie klant
@@ -453,6 +476,21 @@ model CreditNote {
   subtotal  Decimal @db.Decimal(10, 2)
   vatAmount Decimal @db.Decimal(10, 2)
   total     Decimal @db.Decimal(10, 2)
+
+  // Currency (multi-currency support)
+  currencyId         String?
+  currency           Currency?   @relation(fields: [currencyId], references: [id])
+  currencyCode       String      @default("EUR")
+
+  // Exchange rate info
+  exchangeRate       Decimal?    @db.Decimal(12, 6)
+  exchangeRateDate   DateTime?   @db.Date
+  exchangeRateSource RateSource?
+
+  // EUR equivalents (for bookkeeping/VAT reporting)
+  subtotalEur        Decimal?    @db.Decimal(10, 2)
+  vatAmountEur       Decimal?    @db.Decimal(10, 2)
+  totalEur           Decimal?    @db.Decimal(10, 2)
 
   // Extra velden
   description   String?
@@ -1630,4 +1668,81 @@ enum TaxReportStatus {
   PROVISIONAL // Voorlopig
   FINAL       // Definitief
   FILED       // Ingediend bij Belastingdienst
+}
+
+// ========== Multi-Currency Models ==========
+
+model Currency {
+  id              String         @id @default(cuid())
+  code            String         @unique // EUR, USD, GBP
+  name            String         // Euro, US Dollar
+  nameDutch       String         // Euro, Amerikaanse Dollar
+  symbol          String         // €, $, £
+  symbolPosition  SymbolPosition @default(BEFORE)
+  decimalPlaces   Int            @default(2) // 0 for JPY
+  isActive        Boolean        @default(true)
+  isDefault       Boolean        @default(false) // EUR
+  sortOrder       Int            @default(0)
+
+  exchangeRates   ExchangeRate[]
+  customers       Customer[]
+  invoices        Invoice[]
+  creditNotes     CreditNote[]
+  userSettings    CurrencySettings[] @relation("EnabledCurrencies")
+  baseSettings    CurrencySettings[] @relation("BaseCurrency")
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+enum SymbolPosition {
+  BEFORE // € 100
+  AFTER  // 100 kr
+}
+
+model ExchangeRate {
+  id           String     @id @default(cuid())
+  currencyId   String
+  currency     Currency   @relation(fields: [currencyId], references: [id])
+  currencyCode String     // Denormalized for queries
+
+  date         DateTime   @db.Date
+  rate         Decimal    @db.Decimal(12, 6) // 1 EUR = X foreign
+  inverseRate  Decimal    @db.Decimal(12, 6) // 1 foreign = X EUR
+  source       RateSource @default(ECB)
+
+  createdAt    DateTime   @default(now())
+
+  @@unique([currencyCode, date])
+  @@index([currencyCode])
+  @@index([date])
+}
+
+enum RateSource {
+  ECB    // European Central Bank
+  MANUAL // Manual override
+}
+
+model CurrencySettings {
+  id                String          @id @default(cuid())
+  userId            String          @unique
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  baseCurrencyId    String
+  baseCurrency      Currency        @relation("BaseCurrency", fields: [baseCurrencyId], references: [id])
+
+  enabledCurrencies Currency[]      @relation("EnabledCurrencies")
+
+  autoFetchRates    Boolean         @default(true)
+  lockRateOn        RateLockTiming  @default(SEND)
+  showBaseEquivalent Boolean        @default(true)
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+enum RateLockTiming {
+  CREATE // When invoice is created
+  SEND   // When invoice is sent (default)
+  MANUAL // Only manually
 }

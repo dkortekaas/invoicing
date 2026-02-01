@@ -2,11 +2,17 @@
 
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
+import { Prisma } from "@prisma/client"
 import { invoiceSchema, type InvoiceFormData } from "@/lib/validations"
 import { generateInvoiceNumber, roundToTwo } from "@/lib/utils"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { logCreate, logUpdate, logDelete, logPaymentRecorded } from "@/lib/audit/helpers"
 import { requireCompanyDetails } from "@/lib/company-guard"
+import {
+  getExchangeRate,
+  calculateEurEquivalents,
+  lockInvoiceExchangeRate,
+} from "@/lib/currency"
 
 export async function getInvoices(status?: string) {
   const userId = await getCurrentUserId()
@@ -48,6 +54,7 @@ export async function getInvoice(id: string) {
     where: { id },
     include: {
       customer: true,
+      currency: true,
       items: {
         orderBy: { sortOrder: "asc" },
       },
@@ -57,18 +64,22 @@ export async function getInvoice(id: string) {
       },
     },
   })
-  
+
   // Verify invoice belongs to user
   if (!invoice || invoice.userId !== userId) {
     return null
   }
-  
+
   // Convert Decimal fields to numbers for serialization
   return {
     ...invoice,
     subtotal: invoice.subtotal.toNumber(),
     vatAmount: invoice.vatAmount.toNumber(),
     total: invoice.total.toNumber(),
+    exchangeRate: invoice.exchangeRate?.toNumber() ?? null,
+    subtotalEur: invoice.subtotalEur?.toNumber() ?? null,
+    vatAmountEur: invoice.vatAmountEur?.toNumber() ?? null,
+    totalEur: invoice.totalEur?.toNumber() ?? null,
     items: invoice.items.map((item) => ({
       ...item,
       quantity: item.quantity.toNumber(),
@@ -153,6 +164,57 @@ export async function createInvoice(
 
   const invoiceNumber = await getNextInvoiceNumber()
 
+  // Handle currency - default to EUR if not specified
+  const currencyCode = validated.currencyCode || "EUR"
+
+  // Get currency ID
+  const currency = await db.currency.findUnique({
+    where: { code: currencyCode },
+    select: { id: true },
+  })
+
+  // Calculate EUR equivalents if not EUR
+  let currencyData: {
+    currencyId?: string
+    currencyCode: string
+    exchangeRate?: Prisma.Decimal
+    exchangeRateDate?: Date
+    exchangeRateSource?: "ECB" | "MANUAL"
+    subtotalEur?: Prisma.Decimal
+    vatAmountEur?: Prisma.Decimal
+    totalEur?: Prisma.Decimal
+  } = {
+    currencyCode,
+    currencyId: currency?.id,
+  }
+
+  if (currencyCode !== "EUR") {
+    try {
+      const rateInfo = await getExchangeRate({
+        from: currencyCode,
+        to: "EUR",
+      })
+
+      const eurEquivalents = calculateEurEquivalents(
+        { subtotal: roundToTwo(subtotal), vatAmount: roundToTwo(vatAmount), total: roundToTwo(total) },
+        rateInfo.rate
+      )
+
+      currencyData = {
+        ...currencyData,
+        exchangeRate: new Prisma.Decimal(rateInfo.inverseRate.toFixed(6)),
+        exchangeRateDate: rateInfo.date,
+        exchangeRateSource: rateInfo.source,
+        subtotalEur: new Prisma.Decimal(eurEquivalents.subtotalEur.toFixed(2)),
+        vatAmountEur: new Prisma.Decimal(eurEquivalents.vatAmountEur.toFixed(2)),
+        totalEur: new Prisma.Decimal(eurEquivalents.totalEur.toFixed(2)),
+      }
+    } catch {
+      // No rate available, leave EUR fields null
+      console.warn(`No exchange rate available for ${currencyCode}`)
+    }
+  }
+
   const invoice = await db.invoice.create({
     data: {
       userId,
@@ -164,6 +226,7 @@ export async function createInvoice(
       subtotal: roundToTwo(subtotal),
       vatAmount: roundToTwo(vatAmount),
       total: roundToTwo(total),
+      ...currencyData,
       reference: validated.reference,
       notes: validated.notes,
       internalNotes: validated.internalNotes,
@@ -176,6 +239,11 @@ export async function createInvoice(
       items: true,
     },
   })
+
+  // Lock exchange rate if sending immediately
+  if (status === "SENT" && currencyCode !== "EUR") {
+    await lockInvoiceExchangeRate(invoice.id)
+  }
 
   // Increment counter for free users
   await incrementInvoiceCount(userId)
@@ -323,21 +391,26 @@ export async function updateInvoiceStatus(
   }
 
   const userId = await getCurrentUserId()
-  
-  // Get current invoice for audit logging
+
+  // Get current invoice for audit logging and currency handling
   const currentInvoice = await db.invoice.findUnique({
     where: { id },
-    select: { userId: true, status: true, total: true },
+    select: { userId: true, status: true, total: true, currencyCode: true, exchangeRateLocked: true },
   })
-  
+
   if (!currentInvoice || currentInvoice.userId !== userId) {
     throw new Error("Factuur niet gevonden")
   }
-  
+
   const invoice = await db.invoice.update({
     where: { id },
     data: updateData,
   })
+
+  // Lock exchange rate when sending a non-EUR invoice
+  if (status === "SENT" && currentInvoice.currencyCode !== "EUR" && !currentInvoice.exchangeRateLocked) {
+    await lockInvoiceExchangeRate(id)
+  }
 
   // Log audit trail for status change
   if (currentInvoice) {
@@ -348,7 +421,7 @@ export async function updateInvoiceStatus(
       { status: invoice.status },
       userId
     )
-    
+
     // Log payment if status changed to PAID
     if (status === "PAID" && currentInvoice.status !== "PAID") {
       await logPaymentRecorded(id, currentInvoice.total.toNumber(), userId)
@@ -358,7 +431,7 @@ export async function updateInvoiceStatus(
   revalidatePath("/facturen")
   revalidatePath(`/facturen/${id}`)
   revalidatePath("/")
-  
+
   // Convert Decimal fields to numbers for serialization
   return {
     ...invoice,

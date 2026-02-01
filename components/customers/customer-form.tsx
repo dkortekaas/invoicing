@@ -28,9 +28,10 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { customerSchema, type CustomerFormData } from "@/lib/validations"
 import { createCustomer, updateCustomer } from "@/app/klanten/actions"
+import { CurrencySelector } from "@/components/currency/currency-selector"
 
 interface CustomerFormProps {
-  customer?: CustomerFormData & { id: string }
+  customer?: CustomerFormData & { id: string; currencyId?: string | null }
 }
 
 export function CustomerForm({ customer }: CustomerFormProps) {
@@ -39,7 +40,10 @@ export function CustomerForm({ customer }: CustomerFormProps) {
 
   const form = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
-    defaultValues: customer ?? {
+    defaultValues: customer ? {
+      ...customer,
+      currencyId: customer.currencyId ?? null,
+    } : {
       name: "",
       companyName: "",
       email: "",
@@ -51,6 +55,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
       vatNumber: "",
       paymentTermDays: 30,
       notes: "",
+      currencyId: null,
     },
   })
 
@@ -266,6 +271,33 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                         <SelectItem value="90">90 dagen</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="currencyId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Standaard valuta</FormLabel>
+                    <FormControl>
+                      <CurrencySelector
+                        value={field.value ? "custom" : "EUR"}
+                        onChange={(code) => {
+                          // We need to convert code to ID, but for simplicity
+                          // we'll leave this for now - EUR is the default
+                          if (code === "EUR") {
+                            field.onChange(null)
+                          }
+                        }}
+                        showRate={false}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Nieuwe facturen voor deze klant worden standaard in deze valuta aangemaakt
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

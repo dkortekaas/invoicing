@@ -31,6 +31,8 @@ export const customerSchema = z.object({
     ),
   paymentTermDays: z.number().int().min(0),
   notes: z.string().optional().nullable(),
+  // Multi-currency support - default currency for this customer
+  currencyId: z.string().optional().nullable(),
 })
 
 export type CustomerFormData = z.infer<typeof customerSchema>
@@ -74,6 +76,8 @@ export const invoiceSchema = z.object({
   reference: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
   internalNotes: z.string().optional().nullable(),
+  // Multi-currency support (optional, defaults to EUR in server action)
+  currencyCode: z.string().length(3, "Valutacode moet 3 tekens zijn").optional(),
   items: z
     .array(invoiceItemSchema)
     .min(1, "Voeg minimaal één regel toe"),
@@ -416,3 +420,15 @@ export const vendorSchema = z.object({
 })
 
 export type VendorFormData = z.infer<typeof vendorSchema>
+
+// ========== Contact Form Schema ==========
+export const contactFormSchema = z.object({
+  name: z.string().min(1, "Naam is verplicht").max(200, "Naam is te lang"),
+  email: z.string().email("Ongeldig e-mailadres"),
+  company: z.string().max(200).optional(),
+  subject: z.string().min(1, "Onderwerp is verplicht").max(100),
+  subjectLabel: z.string().max(200).optional(),
+  message: z.string().min(1, "Bericht is verplicht").max(5000, "Bericht is te lang"),
+})
+
+export type ContactFormData = z.infer<typeof contactFormSchema>

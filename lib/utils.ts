@@ -43,6 +43,45 @@ export function formatCurrency(amount: number | { toNumber: () => number } | str
   }).format(num)
 }
 
+// Currency decimal places (0 for JPY, 2 for most others)
+const CURRENCY_DECIMALS: Record<string, number> = {
+  JPY: 0,
+  KRW: 0,
+  BHD: 3,
+  KWD: 3,
+  OMR: 3,
+}
+
+// Format amount with any currency code
+export function formatCurrencyWithCode(
+  amount: number | { toNumber: () => number } | string,
+  currencyCode: string = "EUR"
+): string {
+  const num = typeof amount === "string"
+    ? parseFloat(amount)
+    : isDecimalLike(amount)
+      ? amount.toNumber()
+      : amount
+
+  return new Intl.NumberFormat("nl-NL", {
+    style: "currency",
+    currency: currencyCode,
+  }).format(num)
+}
+
+// Get decimal places for a currency
+export function getCurrencyDecimals(currencyCode: string): number {
+  return CURRENCY_DECIMALS[currencyCode] ?? 2
+}
+
+// Format exchange rate (1 EUR = X foreign)
+export function formatExchangeRate(rate: number, decimals: number = 4): string {
+  return new Intl.NumberFormat("nl-NL", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(rate)
+}
+
 // Format number met Nederlandse notatie (1.234,56)
 export function formatNumber(num: number | { toNumber: () => number } | string, decimals = 2): string {
   const value = typeof num === "string"

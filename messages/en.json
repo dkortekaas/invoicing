@@ -906,7 +906,7 @@
         "faq7Question": "Can I add multiple users?",
         "faq7Answer": "With the Business plan you can add multiple users to your account, each with their own permissions and access levels.",
         "faq8Question": "How do I contact support?",
-        "faq8Answer": "You can reach us via email (support@declair.nl), live chat or the contact form. We usually respond within 24 hours.",
+        "faq8Answer": "You can reach us via email (support@declair.app), live chat or the contact form. We usually respond within 24 hours.",
         "contactTitle": "Still need help?",
         "contactDescription": "Our team is ready to help you.",
         "contactEmail": {
@@ -959,6 +959,8 @@
         "subjectPartnership": "Partnership",
         "subjectPress": "Press & Media",
         "submitButton": "Send message",
+        "submitButtonSending": "Sending…",
+        "errorGeneric": "The message could not be sent. Please try again later.",
         "successTitle": "Message sent!",
         "successDescription": "Thank you for your message. We'll respond as soon as possible, usually within 24 hours.",
         "quickLinksTitle": "Quick links",

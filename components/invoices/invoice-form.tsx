@@ -36,14 +36,18 @@ import {
 } from "@/components/ui/popover"
 import { invoiceSchema, type InvoiceFormData } from "@/lib/validations"
 import {
-  formatCurrency,
+  formatCurrencyWithCode,
   VAT_RATES,
   UNITS,
   calculateDueDate,
   roundToTwo,
   cn,
+  getCurrencyDecimals,
 } from "@/lib/utils"
+import { getCurrencySymbol } from "@/lib/currency/formatting"
 import { createInvoice, updateInvoice } from "@/app/facturen/actions"
+import { CurrencySelector } from "@/components/currency/currency-selector"
+import { ExchangeRateDisplay } from "@/components/currency/exchange-rate-display"
 
 // Types
 interface Customer {
@@ -62,7 +66,7 @@ interface Product {
 }
 
 interface InvoiceFormProps {
-  invoice?: InvoiceFormData & { id: string; invoiceNumber: string }
+  invoice?: InvoiceFormData & { id: string; invoiceNumber: string; currencyCode?: string }
   customers: Customer[]
   products: Product[]
 }
@@ -77,13 +81,17 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
 
   const form = useForm<InvoiceFormData>({
     resolver: zodResolver(invoiceSchema),
-    defaultValues: invoice ?? {
+    defaultValues: invoice ? {
+      ...invoice,
+      currencyCode: invoice.currencyCode ?? "EUR",
+    } : {
       customerId: "",
       invoiceDate: today,
       dueDate: defaultDueDate,
       reference: "",
       notes: "",
       internalNotes: "",
+      currencyCode: "EUR",
       items: [
         {
           description: "",
@@ -104,6 +112,8 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
   // Watch all items for calculations
   const watchedItems = form.watch("items")
   const watchedCustomerId = form.watch("customerId")
+  const watchedCurrencyCode = form.watch("currencyCode") || "EUR"
+  const currencySymbol = getCurrencySymbol(watchedCurrencyCode)
 
   // Update due date when customer changes
   useEffect(() => {
@@ -302,23 +312,51 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
                   />
                 </div>
 
-                <FormField
-                  control={form.control}
-                  name="reference"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Referentie klant</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Bijv. PO-12345"
-                          {...field}
-                          value={field.value ?? ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="reference"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Referentie klant</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Bijv. PO-12345"
+                            {...field}
+                            value={field.value ?? ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="currencyCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Valuta</FormLabel>
+                        <FormControl>
+                          <CurrencySelector
+                            value={field.value || "EUR"}
+                            onChange={field.onChange}
+                            showRate={true}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Exchange rate info for non-EUR currencies */}
+                {watchedCurrencyCode && watchedCurrencyCode !== "EUR" && (
+                  <ExchangeRateDisplay
+                    toCurrency={watchedCurrencyCode}
+                    className="mt-4"
+                  />
+                )}
               </CardContent>
             </Card>
 
@@ -334,7 +372,7 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
                     <SelectContent>
                       {products.map((product) => (
                         <SelectItem key={product.id} value={product.id}>
-                          {product.name} - {formatCurrency(product.unitPrice)}
+                          {product.name} - {formatCurrencyWithCode(product.unitPrice, watchedCurrencyCode)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -435,11 +473,11 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
                               <FormControl>
                                 <div className="relative">
                                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                                    €
+                                    {currencySymbol}
                                   </span>
                                   <Input
                                     type="number"
-                                    step="0.01"
+                                    step={getCurrencyDecimals(watchedCurrencyCode) === 0 ? "1" : "0.01"}
                                     min="0"
                                     className="pl-8"
                                     {...field}
@@ -485,7 +523,7 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
                         <div>
                           <FormLabel>Totaal</FormLabel>
                           <div className="flex h-10 items-center font-medium">
-                            {formatCurrency(itemTotals.subtotal)}
+                            {formatCurrencyWithCode(itemTotals.subtotal, watchedCurrencyCode)}
                           </div>
                         </div>
                       </div>
@@ -568,7 +606,7 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotaal</span>
-                  <span>{formatCurrency(totals.subtotal)}</span>
+                  <span>{formatCurrencyWithCode(totals.subtotal, watchedCurrencyCode)}</span>
                 </div>
 
                 <Separator />
@@ -577,22 +615,22 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
                 {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
                   <div key={rate} className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
-                      BTW {rate}% over {formatCurrency(subtotal)}
+                      BTW {rate}% over {formatCurrencyWithCode(subtotal, watchedCurrencyCode)}
                     </span>
-                    <span>{formatCurrency(vatAmount)}</span>
+                    <span>{formatCurrencyWithCode(vatAmount, watchedCurrencyCode)}</span>
                   </div>
                 ))}
 
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Totaal BTW</span>
-                  <span>{formatCurrency(totals.vatAmount)}</span>
+                  <span>{formatCurrencyWithCode(totals.vatAmount, watchedCurrencyCode)}</span>
                 </div>
 
                 <Separator />
 
                 <div className="flex justify-between text-lg font-bold">
                   <span>Totaal</span>
-                  <span>{formatCurrency(totals.total)}</span>
+                  <span>{formatCurrencyWithCode(totals.total, watchedCurrencyCode)}</span>
                 </div>
 
                 <Separator />

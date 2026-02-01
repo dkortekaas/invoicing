@@ -178,6 +178,7 @@ export async function createCreditNote(
       description: validated.description,
       notes: validated.notes,
       internalNotes: validated.internalNotes,
+      currencyCode: validated.currencyCode || "EUR",
       finalizedAt: status === "FINAL" ? new Date() : null,
       items: {
         create: itemsWithTotals,
@@ -292,6 +293,7 @@ export async function updateCreditNote(
     description: validated.description,
     notes: validated.notes,
     internalNotes: validated.internalNotes,
+    currencyCode: validated.currencyCode || "EUR",
     items: {
       create: itemsWithTotals,
     },
@@ -516,6 +518,7 @@ export async function createCreditNoteFromInvoice(
     description: `Credit nota voor factuur ${invoice.invoiceNumber}`,
     notes: null,
     internalNotes: null,
+    currencyCode: invoice.currencyCode || "EUR",
     items: itemsToCredit.map((item) => ({
       description: item.description,
       quantity: item.quantity.toNumber(),

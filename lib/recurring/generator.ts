@@ -140,6 +140,7 @@ export async function generateRecurringInvoice({
       total,
       reference: recurring.reference,
       notes: recurring.description,
+      currencyCode: recurring.currencyCode || 'EUR',
       items: {
         create: items.map((item, index) => ({
           description: item.description,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { isInvitationExpired } from '@/lib/invitations/utils';
 import { hashPassword } from '@/lib/auth-utils';
+import { addMonths } from 'date-fns';
 
 /**
  * POST - Accept an invitation and create user account
@@ -71,16 +72,31 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await hashPassword(password);
 
-    // Create user account; bedrijfsgegevens van sender (uit Company-tabel) indien aanwezig
-    // Note: New users start with FREE tier, they don't inherit subscription
+    // Determine subscription settings
+    // If invitation has a subscription tier, set it up as manual subscription
+    const hasManualSubscription = !!invitation.subscriptionTier;
+    let manualSubscriptionExpiresAt: Date | null = null;
+
+    if (hasManualSubscription && invitation.subscriptionDuration) {
+      // Duration is in months, calculate expiration date
+      manualSubscriptionExpiresAt = addMonths(new Date(), invitation.subscriptionDuration);
+    }
+    // If duration is null/0, subscription is unlimited (no expiration)
+
+    // Create user account with subscription tier if provided
     const user = await db.user.create({
       data: {
         email: invitation.email,
         name,
         passwordHash,
         role: invitation.role,
-        subscriptionTier: 'FREE',
-        subscriptionStatus: 'FREE',
+        subscriptionTier: invitation.subscriptionTier || 'FREE',
+        subscriptionStatus: hasManualSubscription ? 'ACTIVE' : 'FREE',
+        isManualSubscription: hasManualSubscription,
+        manualSubscriptionExpiresAt,
+        manualSubscriptionNote: hasManualSubscription
+          ? `Toegewezen via uitnodiging door admin`
+          : null,
       },
     });
 

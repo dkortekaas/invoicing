@@ -127,6 +127,8 @@ export const creditNoteSchema = z.object({
   description: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
   internalNotes: z.string().optional().nullable(),
+  // Multi-currency support (optional, defaults to EUR in server action)
+  currencyCode: z.string().length(3, "Valutacode moet 3 tekens zijn").optional(),
   items: z
     .array(creditNoteItemSchema)
     .min(1, "Voeg minimaal één regel toe"),

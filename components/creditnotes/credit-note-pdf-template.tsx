@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer"
-import { formatDate, formatCurrency, formatNumber, CREDIT_NOTE_REASON_LABELS } from "@/lib/utils"
+import { formatDate, formatCurrencyWithCode, formatNumber, CREDIT_NOTE_REASON_LABELS } from "@/lib/utils"
 import { getWatermarkContainerStyles, getWatermarkTextStyles, shouldShowWatermark } from "@/lib/pdf/watermark"
 import type { SystemSettings } from "@prisma/client"
 
@@ -54,6 +54,7 @@ interface CreditNoteData {
   subtotal: number
   vatAmount: number
   total: number
+  currencyCode?: string
   customer: Customer
   items: CreditNoteItem[]
   company: Company
@@ -299,6 +300,8 @@ interface CreditNotePDFProps {
 }
 
 export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE' }: CreditNotePDFProps) {
+  const currencyCode = creditNote.currencyCode || "EUR"
+
   // Group VAT by rate
   const vatByRate = creditNote.items.reduce((acc, item) => {
     const rate = item.vatRate.toString()
@@ -436,13 +439,13 @@ export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE'
                 {formatNumber(item.quantity, 2)} {item.unit}
               </Text>
               <Text style={[styles.tableCell, styles.colPrice]}>
-                {formatCurrency(item.unitPrice)}
+                {formatCurrencyWithCode(item.unitPrice, currencyCode)}
               </Text>
               <Text style={[styles.tableCell, styles.colVat]}>
                 {item.vatRate}%
               </Text>
               <Text style={[styles.tableCell, styles.colTotal, styles.creditAmount]}>
-                -{formatCurrency(item.subtotal)}
+                -{formatCurrencyWithCode(item.subtotal, currencyCode)}
               </Text>
             </View>
           ))}
@@ -453,17 +456,17 @@ export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE'
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotaal</Text>
             <Text style={styles.totalValue}>
-              -{formatCurrency(creditNote.subtotal)}
+              -{formatCurrencyWithCode(creditNote.subtotal, currencyCode)}
             </Text>
           </View>
 
           {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
             <View key={rate} style={styles.totalRow}>
               <Text style={styles.totalLabel}>
-                BTW {rate}% over {formatCurrency(subtotal)}
+                BTW {rate}% over {formatCurrencyWithCode(subtotal, currencyCode)}
               </Text>
               <Text style={styles.totalValue}>
-                -{formatCurrency(vatAmount)}
+                -{formatCurrencyWithCode(vatAmount, currencyCode)}
               </Text>
             </View>
           ))}
@@ -471,7 +474,7 @@ export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE'
           <View style={styles.totalRowFinal}>
             <Text style={styles.totalLabelFinal}>Credit Totaal</Text>
             <Text style={styles.totalValueFinal}>
-              -{formatCurrency(creditNote.total)}
+              -{formatCurrencyWithCode(creditNote.total, currencyCode)}
             </Text>
           </View>
         </View>

@@ -10,7 +10,7 @@ export function ProductFormButton() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}className="mt-4">
+      <Button onClick={() => setOpen(true)}>
         <Plus className="mr-2 h-4 w-4" />
         Nieuw Product
       </Button>

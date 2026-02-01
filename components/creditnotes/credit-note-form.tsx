@@ -36,14 +36,16 @@ import {
 } from "@/components/ui/popover"
 import { creditNoteSchema, type CreditNoteFormData, type CreditNoteReason } from "@/lib/validations"
 import {
-  formatCurrency,
+  formatCurrencyWithCode,
   VAT_RATES,
   UNITS,
   CREDIT_NOTE_REASONS,
   roundToTwo,
   cn,
 } from "@/lib/utils"
+import { getCurrencySymbol } from "@/lib/currency/formatting"
 import { createCreditNote, updateCreditNote } from "@/app/creditnotas/actions"
+import { CurrencySelector } from "@/components/currency/currency-selector"
 
 interface Customer {
   id: string
@@ -55,10 +57,11 @@ interface Invoice {
   id: string
   invoiceNumber: string
   total: number
+  currencyCode?: string
 }
 
 interface CreditNoteFormProps {
-  creditNote?: CreditNoteFormData & { id: string; creditNoteNumber: string }
+  creditNote?: CreditNoteFormData & { id: string; creditNoteNumber: string; currencyCode?: string }
   customers: Customer[]
   invoices?: Invoice[]
   preselectedCustomerId?: string
@@ -81,7 +84,10 @@ export function CreditNoteForm({
 
   const form = useForm<CreditNoteFormData>({
     resolver: zodResolver(creditNoteSchema),
-    defaultValues: creditNote ?? {
+    defaultValues: creditNote ? {
+      ...creditNote,
+      currencyCode: creditNote.currencyCode ?? preselectedInvoice?.currencyCode ?? "EUR",
+    } : {
       customerId: preselectedCustomerId || "",
       creditNoteDate: today,
       reason: preselectedInvoice ? "CANCELLATION" : ("PRICE_CORRECTION" as CreditNoteReason),
@@ -92,6 +98,7 @@ export function CreditNoteForm({
         : "",
       notes: "",
       internalNotes: "",
+      currencyCode: preselectedInvoice?.currencyCode ?? "EUR",
       items: defaultItems || [
         {
           description: "",
@@ -114,6 +121,8 @@ export function CreditNoteForm({
   const watchedItems = form.watch("items")
   const watchedReason = form.watch("reason")
   const watchedCustomerId = form.watch("customerId")
+  const watchedCurrencyCode = form.watch("currencyCode") || "EUR"
+  const currencySymbol = getCurrencySymbol(watchedCurrencyCode)
 
   // Filter invoices by selected customer
   const customerInvoices = invoices.filter(
@@ -255,6 +264,24 @@ export function CreditNoteForm({
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
+                    name="currencyCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Valuta</FormLabel>
+                        <FormControl>
+                          <CurrencySelector
+                            value={field.value || "EUR"}
+                            onChange={field.onChange}
+                            showRate={field.value !== "EUR"}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
                     name="reason"
                     render={({ field }) => (
                       <FormItem>
@@ -280,6 +307,9 @@ export function CreditNoteForm({
                       </FormItem>
                     )}
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
 
                   {customerInvoices.length > 0 && (
                     <FormField
@@ -307,7 +337,7 @@ export function CreditNoteForm({
                             <SelectContent>
                               {customerInvoices.map((invoice) => (
                                 <SelectItem key={invoice.id} value={invoice.id}>
-                                  {invoice.invoiceNumber} - {formatCurrency(invoice.total)}
+                                  {invoice.invoiceNumber} - {formatCurrencyWithCode(invoice.total, invoice.currencyCode || "EUR")}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -440,7 +470,7 @@ export function CreditNoteForm({
                               <FormControl>
                                 <div className="relative">
                                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                                    €
+                                    {currencySymbol}
                                   </span>
                                   <Input
                                     type="number"
@@ -490,7 +520,7 @@ export function CreditNoteForm({
                         <div>
                           <FormLabel>Totaal</FormLabel>
                           <div className="flex h-10 items-center font-medium">
-                            {formatCurrency(itemTotals.subtotal)}
+                            {formatCurrencyWithCode(itemTotals.subtotal, watchedCurrencyCode)}
                           </div>
                         </div>
                       </div>
@@ -574,7 +604,7 @@ export function CreditNoteForm({
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotaal</span>
-                  <span className="text-red-600">-{formatCurrency(totals.subtotal)}</span>
+                  <span className="text-red-600">-{formatCurrencyWithCode(totals.subtotal, watchedCurrencyCode)}</span>
                 </div>
 
                 <Separator />
@@ -583,22 +613,22 @@ export function CreditNoteForm({
                 {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
                   <div key={rate} className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
-                      BTW {rate}% over {formatCurrency(subtotal)}
+                      BTW {rate}% over {formatCurrencyWithCode(subtotal, watchedCurrencyCode)}
                     </span>
-                    <span className="text-red-600">-{formatCurrency(vatAmount)}</span>
+                    <span className="text-red-600">-{formatCurrencyWithCode(vatAmount, watchedCurrencyCode)}</span>
                   </div>
                 ))}
 
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Totaal BTW</span>
-                  <span className="text-red-600">-{formatCurrency(totals.vatAmount)}</span>
+                  <span className="text-red-600">-{formatCurrencyWithCode(totals.vatAmount, watchedCurrencyCode)}</span>
                 </div>
 
                 <Separator />
 
                 <div className="flex justify-between text-lg font-bold">
                   <span>Credit Totaal</span>
-                  <span className="text-red-600">-{formatCurrency(totals.total)}</span>
+                  <span className="text-red-600">-{formatCurrencyWithCode(totals.total, watchedCurrencyCode)}</span>
                 </div>
 
                 <Separator />

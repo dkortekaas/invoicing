@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
       reference,
       items,
       notes,
+      currencyCode = 'EUR',
     } = body;
 
     if (!name || !customerId || !frequency || !startDate || !items?.length) {
@@ -116,6 +117,7 @@ export async function POST(request: NextRequest) {
         sendDays,
         reference,
         notes,
+        currencyCode,
         status: 'ACTIVE',
         items: {
           create: items.map((item: { description: string; quantity: number; unitPrice: number; vatRate: number }, index: number) => ({

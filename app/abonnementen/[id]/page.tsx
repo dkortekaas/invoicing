@@ -110,6 +110,7 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
                 sendDays: recurring.sendDays,
                 reference: recurring.reference || undefined,
                 notes: recurring.notes || undefined,
+                currencyCode: recurring.currencyCode || 'EUR',
                 items: recurring.items.map(item => ({
                   description: item.description,
                   quantity: Number(item.quantity),
@@ -136,7 +137,7 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
                 <div className="font-medium">
                   {new Intl.NumberFormat('nl-NL', {
                     style: 'currency',
-                    currency: 'EUR',
+                    currency: recurring.currencyCode || 'EUR',
                   }).format(total)}
                 </div>
               </div>
@@ -145,7 +146,7 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
                 <div className="font-medium">
                   {new Intl.NumberFormat('nl-NL', {
                     style: 'currency',
-                    currency: 'EUR',
+                    currency: recurring.currencyCode || 'EUR',
                   }).format(mrr)}
                 </div>
               </div>

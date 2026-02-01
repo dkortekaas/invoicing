@@ -32,6 +32,8 @@ import { CalendarIcon, Plus, Trash } from 'lucide-react';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { getCurrencySymbol } from '@/lib/currency/formatting';
+import { CurrencySelector } from '@/components/currency/currency-selector';
 
 const recurringSchema = z.object({
   name: z.string().min(1, 'Naam is verplicht'),
@@ -46,6 +48,7 @@ const recurringSchema = z.object({
   sendDays: z.number().min(0),
   reference: z.string().optional(),
   notes: z.string().optional(),
+  currencyCode: z.string().length(3, 'Valutacode moet 3 tekens zijn').optional(),
   items: z.array(z.object({
     description: z.string().min(1),
     quantity: z.number().min(0.01),
@@ -81,6 +84,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
       sendDays: initialData?.sendDays ?? 0,
       reference: initialData?.reference || '',
       notes: initialData?.notes || '',
+      currencyCode: initialData?.currencyCode || 'EUR',
       items: initialData?.items || [
         { description: '', quantity: 1, unitPrice: 0, vatRate: 21 },
       ],
@@ -89,6 +93,8 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
 
   const items = form.watch('items');
   const frequency = form.watch('frequency');
+  const currencyCode = form.watch('currencyCode') || 'EUR';
+  const currencySymbol = getCurrencySymbol(currencyCode);
 
   const addItem = () => {
     const currentItems = form.getValues('items');
@@ -182,32 +188,52 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="customerId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Klant *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="customerId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Klant *</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecteer een klant" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {customers.map((customer) => (
+                      <SelectItem key={customer.id} value={customer.id}>
+                        {customer.companyName
+                          ? `${customer.companyName} (${customer.name})`
+                          : customer.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="currencyCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Valuta</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecteer een klant" />
-                  </SelectTrigger>
+                  <CurrencySelector
+                    value={field.value || 'EUR'}
+                    onChange={field.onChange}
+                    showRate={field.value !== 'EUR'}
+                  />
                 </FormControl>
-                <SelectContent>
-                  {customers.map((customer) => (
-                    <SelectItem key={customer.id} value={customer.id}>
-                      {customer.companyName
-                        ? `${customer.companyName} (${customer.name})`
-                        : customer.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FormField
@@ -415,12 +441,18 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
                   <FormItem className="w-32">
                     {index === 0 && <FormLabel>Prijs</FormLabel>}
                     <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                      />
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          {currencySymbol}
+                        </span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          className="pl-8"
+                          {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

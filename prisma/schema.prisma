@@ -57,7 +57,12 @@ model User {
   
   subscriptionStatus     SubscriptionStatus @default(FREE)
   subscriptionTier        SubscriptionTier   @default(FREE)
-  
+
+  // Manual subscription (admin assigned, bypasses Stripe)
+  isManualSubscription      Boolean   @default(false)
+  manualSubscriptionExpiresAt DateTime?
+  manualSubscriptionNote    String?   // Admin note (e.g., "Influencer deal - @username")
+
   // Usage tracking
   invoiceCount           Int       @default(0)
   invoiceCountResetAt    DateTime  @default(now())
@@ -113,6 +118,9 @@ model User {
   
   // Audit logs
   auditLogs          AuditLog[]
+
+  // Discount codes created by this user (admin)
+  createdDiscountCodes DiscountCode[]
 
   // Import/Export
   importExportJobs   ImportExportJob[]
@@ -766,6 +774,9 @@ model RecurringInvoice {
   autoSend Boolean @default(false)
   sendDays Int     @default(0) // Dagen na generatie voor verzending
 
+  // Currency
+  currencyCode String @default("EUR")
+
   // Items template
   items RecurringInvoiceItem[]
 
@@ -1232,7 +1243,10 @@ enum SubscriptionStatus {
 
 enum SubscriptionTier {
   FREE
-  PRO
+  PRO          // Legacy - mapped to PROFESSIONAL
+  STARTER
+  PROFESSIONAL
+  BUSINESS
 }
 
 enum BillingCycle {
@@ -1312,36 +1326,111 @@ enum InvitationStatus {
 
 model Invitation {
   id          String   @id @default(cuid())
-  
+
   // Sender (admin/owner)
   senderId    String
   sender      User     @relation("InvitationSender", fields: [senderId], references: [id], onDelete: Cascade)
-  
+
   // Receiver (invited user)
   receiverId  String?  @unique
   receiver    User?    @relation("InvitationReceiver", fields: [receiverId], references: [id], onDelete: SetNull)
-  
+
   // Invitation details
   email       String
   token       String   @unique // Unique token for invitation link
   status      InvitationStatus @default(PENDING)
-  
+
   // Role for the invited user
   role        UserRole @default(USER)
-  
+
+  // Subscription tier to assign (admin feature)
+  subscriptionTier       SubscriptionTier?
+  subscriptionDuration   Int?      // Duration in months (null = unlimited)
+
   // Expiration
   expiresAt   DateTime
   acceptedAt  DateTime?
-  
+
   // Metadata
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@index([senderId])
   @@index([email])
   @@index([token])
   @@index([status])
   @@index([expiresAt])
+}
+
+// Discount Codes for promotions (influencers, campaigns)
+model DiscountCode {
+  id          String   @id @default(cuid())
+
+  // Code details
+  code        String   @unique // e.g., "INFLUENCER20", "LAUNCH50"
+  description String?           // Internal description
+
+  // Discount configuration
+  discountType    DiscountType
+  discountValue   Int              // Percentage (10 = 10%) or fixed amount in cents (1000 = €10)
+
+  // Restrictions
+  maxUses         Int?             // null = unlimited
+  usedCount       Int      @default(0)
+  minTier         SubscriptionTier @default(STARTER) // Minimum tier required
+  validForTiers   String?          // JSON array of valid tiers, null = all
+
+  // Validity period
+  validFrom       DateTime @default(now())
+  validUntil      DateTime?        // null = no expiration
+  isActive        Boolean  @default(true)
+
+  // Tracking
+  createdById     String
+  createdBy       User     @relation(fields: [createdById], references: [id])
+
+  // Campaign/source tracking
+  campaign        String?          // e.g., "instagram_q1_2025"
+  source          String?          // e.g., "@influencer_username"
+
+  // Usage records
+  usages          DiscountCodeUsage[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([code])
+  @@index([isActive])
+  @@index([validFrom])
+  @@index([validUntil])
+  @@index([campaign])
+}
+
+model DiscountCodeUsage {
+  id              String   @id @default(cuid())
+
+  discountCodeId  String
+  discountCode    DiscountCode @relation(fields: [discountCodeId], references: [id], onDelete: Cascade)
+
+  userId          String
+  appliedAt       DateTime @default(now())
+
+  // Snapshot of discount applied
+  discountAmount  Int      // Amount in cents that was discounted
+  originalAmount  Int      // Original amount before discount
+  finalAmount     Int      // Final amount after discount
+
+  // Stripe reference
+  stripeInvoiceId String?
+
+  @@index([discountCodeId])
+  @@index([userId])
+  @@index([appliedAt])
+}
+
+enum DiscountType {
+  PERCENTAGE    // e.g., 20% off
+  FIXED_AMOUNT  // e.g., €10 off
 }
 
 // Audit Trail Model

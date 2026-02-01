@@ -40,6 +40,8 @@ interface Invitation {
   token: string;
   status: 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'CANCELLED';
   role: 'USER' | 'ADMIN';
+  subscriptionTier: 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'BUSINESS' | null;
+  subscriptionDuration: number | null;
   expiresAt: string;
   acceptedAt: string | null;
   createdAt: string;
@@ -50,12 +52,29 @@ interface Invitation {
   } | null;
 }
 
+const SUBSCRIPTION_TIERS = [
+  { value: '', label: 'Geen (gratis)', description: 'Standaard gratis account' },
+  { value: 'STARTER', label: 'Starter', description: '€9/maand waarde' },
+  { value: 'PROFESSIONAL', label: 'Professional', description: '€19/maand waarde' },
+  { value: 'BUSINESS', label: 'Business', description: '€39/maand waarde' },
+] as const;
+
+const DURATION_OPTIONS = [
+  { value: '1', label: '1 maand' },
+  { value: '3', label: '3 maanden' },
+  { value: '6', label: '6 maanden' },
+  { value: '12', label: '1 jaar' },
+  { value: '0', label: 'Onbeperkt' },
+] as const;
+
 export function InvitationManager() {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'USER' | 'ADMIN'>('USER');
+  const [subscriptionTier, setSubscriptionTier] = useState<string>('');
+  const [subscriptionDuration, setSubscriptionDuration] = useState<string>('12');
   const [cancelDialogOpen, setCancelDialogOpen] = useState<string | null>(null);
 
   useEffect(() => {
@@ -86,10 +105,18 @@ export function InvitationManager() {
 
     setSending(true);
     try {
+      const payload: Record<string, unknown> = { email, role };
+
+      // Add subscription tier if selected (not empty or 'none')
+      if (subscriptionTier && subscriptionTier !== 'none') {
+        payload.subscriptionTier = subscriptionTier;
+        payload.subscriptionDuration = subscriptionDuration === '0' ? null : parseInt(subscriptionDuration);
+      }
+
       const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, role }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -99,6 +126,8 @@ export function InvitationManager() {
 
       toast.success('Uitnodiging verstuurd');
       setEmail('');
+      setSubscriptionTier('');
+      setSubscriptionDuration('12');
       loadInvitations();
     } catch (error) {
       console.error('Send invitation error:', error);
@@ -170,7 +199,7 @@ export function InvitationManager() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="md:col-span-2">
               <Label htmlFor="email">E-mailadres</Label>
               <Input
@@ -193,7 +222,50 @@ export function InvitationManager() {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label htmlFor="subscriptionTier">Abonnement</Label>
+              <Select value={subscriptionTier} onValueChange={setSubscriptionTier}>
+                <SelectTrigger id="subscriptionTier">
+                  <SelectValue placeholder="Geen (gratis)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUBSCRIPTION_TIERS.map((tier) => (
+                    <SelectItem key={tier.value} value={tier.value || 'none'}>
+                      {tier.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          {subscriptionTier && subscriptionTier !== 'none' && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="md:col-span-2">
+                <Label htmlFor="subscriptionDuration">Looptijd abonnement</Label>
+                <Select value={subscriptionDuration} onValueChange={setSubscriptionDuration}>
+                  <SelectTrigger id="subscriptionDuration">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DURATION_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="md:col-span-2 flex items-end">
+                <p className="text-sm text-muted-foreground">
+                  Deze gebruiker krijgt een {SUBSCRIPTION_TIERS.find(t => t.value === subscriptionTier)?.label} abonnement
+                  {subscriptionDuration === '0' ? ' voor onbepaalde tijd' : ` voor ${DURATION_OPTIONS.find(d => d.value === subscriptionDuration)?.label}`}
+                  , zonder Stripe betaling.
+                </p>
+              </div>
+            </div>
+          )}
+
           <Button onClick={handleSendInvitation} disabled={sending || !email}>
             {sending ? (
               <>
@@ -229,6 +301,7 @@ export function InvitationManager() {
                 <TableRow>
                   <TableHead>E-mailadres</TableHead>
                   <TableHead>Rol</TableHead>
+                  <TableHead>Abonnement</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Verloopt op</TableHead>
                   <TableHead>Acties</TableHead>
@@ -242,6 +315,22 @@ export function InvitationManager() {
                       <Badge variant="outline">
                         {invitation.role === 'ADMIN' ? 'Beheerder' : 'Gebruiker'}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {invitation.subscriptionTier ? (
+                        <div className="flex flex-col gap-1">
+                          <Badge className="bg-blue-100 text-blue-800 w-fit">
+                            {invitation.subscriptionTier}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {invitation.subscriptionDuration
+                              ? `${invitation.subscriptionDuration} maand${invitation.subscriptionDuration > 1 ? 'en' : ''}`
+                              : 'Onbeperkt'}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell>{getStatusBadge(invitation.status)}</TableCell>
                     <TableCell>

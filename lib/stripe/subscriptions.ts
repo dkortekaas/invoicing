@@ -11,17 +11,62 @@ export type Feature =
   | 'tax_reporting'
   | 'ocr_extraction';
 
-const FEATURE_ACCESS: Record<Feature, ('FREE' | 'PRO')[]> = {
-  recurring_invoices: ['PRO'],
-  vat_reporting: ['PRO'],
-  time_tracking: ['PRO'],
-  analytics: ['PRO'],
-  unlimited_invoices: ['PRO'],
-  unlimited_emails: ['PRO'],
-  export: ['PRO'],
-  tax_reporting: ['PRO'],
-  ocr_extraction: ['PRO'],
+// Subscription tiers in order of capability (higher = more features)
+export type SubscriptionTier = 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'BUSINESS';
+
+// Feature access by tier - all paid tiers have access to all features
+const PAID_TIERS: SubscriptionTier[] = ['STARTER', 'PROFESSIONAL', 'BUSINESS'];
+
+const FEATURE_ACCESS: Record<Feature, SubscriptionTier[]> = {
+  recurring_invoices: PAID_TIERS,
+  vat_reporting: PAID_TIERS,
+  time_tracking: PAID_TIERS,
+  analytics: PAID_TIERS,
+  unlimited_invoices: PAID_TIERS,
+  unlimited_emails: PAID_TIERS,
+  export: PAID_TIERS,
+  tax_reporting: PAID_TIERS,
+  ocr_extraction: PAID_TIERS,
 };
+
+/**
+ * Check if user has an active paid subscription (either Stripe or manual)
+ */
+async function hasActiveSubscription(userId: string): Promise<boolean> {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      subscriptionTier: true,
+      subscriptionStatus: true,
+      stripeCurrentPeriodEnd: true,
+      isManualSubscription: true,
+      manualSubscriptionExpiresAt: true,
+    },
+  });
+
+  if (!user) return false;
+
+  // Check if user has a paid tier
+  if (!PAID_TIERS.includes(user.subscriptionTier as SubscriptionTier)) {
+    return false;
+  }
+
+  // Manual subscription check
+  if (user.isManualSubscription) {
+    // If no expiration date, subscription is unlimited
+    if (!user.manualSubscriptionExpiresAt) return true;
+    // Check if not expired
+    return new Date(user.manualSubscriptionExpiresAt) > new Date();
+  }
+
+  // Stripe subscription check
+  const isActive = ['ACTIVE', 'TRIALING'].includes(user.subscriptionStatus);
+  const notExpired = user.stripeCurrentPeriodEnd
+    ? new Date(user.stripeCurrentPeriodEnd) > new Date()
+    : false;
+
+  return isActive && notExpired;
+}
 
 export async function hasFeatureAccess(
   userId: string,
@@ -32,8 +77,6 @@ export async function hasFeatureAccess(
     select: {
       role: true,
       subscriptionTier: true,
-      subscriptionStatus: true,
-      stripeCurrentPeriodEnd: true,
     },
   });
 
@@ -44,20 +87,18 @@ export async function hasFeatureAccess(
     return true;
   }
 
-  // Check if subscription is active
-  if (user.subscriptionTier === 'PRO') {
-    const isActive = ['ACTIVE', 'TRIALING'].includes(user.subscriptionStatus);
-    const notExpired = user.stripeCurrentPeriodEnd 
-      ? new Date(user.stripeCurrentPeriodEnd) > new Date()
-      : false;
-
-    if (isActive && notExpired) {
-      return true;
-    }
+  // Check if feature is available on free tier
+  if (FEATURE_ACCESS[feature].includes('FREE' as SubscriptionTier)) {
+    return true;
   }
 
-  // Check if feature is available on free tier
-  return FEATURE_ACCESS[feature].includes('FREE');
+  // Check if user has active paid subscription
+  const isActive = await hasActiveSubscription(userId);
+  if (isActive) {
+    return FEATURE_ACCESS[feature].includes(user.subscriptionTier as SubscriptionTier);
+  }
+
+  return false;
 }
 
 export async function canCreateInvoice(userId: string): Promise<{
@@ -71,7 +112,6 @@ export async function canCreateInvoice(userId: string): Promise<{
     select: {
       role: true,
       subscriptionTier: true,
-      subscriptionStatus: true,
       invoiceCount: true,
       invoiceCountResetAt: true,
     },
@@ -86,15 +126,15 @@ export async function canCreateInvoice(userId: string): Promise<{
     return { allowed: true };
   }
 
-  // Pro users have unlimited
-  if (user.subscriptionTier === 'PRO' && 
-      ['ACTIVE', 'TRIALING'].includes(user.subscriptionStatus)) {
+  // Check if user has active paid subscription (includes manual subscriptions)
+  const isActive = await hasActiveSubscription(userId);
+  if (isActive && PAID_TIERS.includes(user.subscriptionTier as SubscriptionTier)) {
     return { allowed: true };
   }
 
   // Free users: 50 per month
   const FREE_LIMIT = 50;
-  
+
   // Check if we need to reset counter (monthly)
   const now = new Date();
   const resetDate = new Date(user.invoiceCountResetAt);
@@ -112,7 +152,7 @@ export async function canCreateInvoice(userId: string): Promise<{
       },
     });
 
-    return { 
+    return {
       allowed: true,
       current: 0,
       limit: FREE_LIMIT,

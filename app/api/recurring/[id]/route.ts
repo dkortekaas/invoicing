@@ -87,6 +87,7 @@ export async function PUT(
       reference,
       items,
       notes,
+      currencyCode,
     } = body;
 
     // Check if recurring invoice exists and belongs to user
@@ -132,6 +133,7 @@ export async function PUT(
         sendDays,
         reference,
         notes,
+        currencyCode,
         nextDate,
         ...(items && {
           items: {

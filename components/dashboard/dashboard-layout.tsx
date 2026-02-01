@@ -39,15 +39,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     pathname?.startsWith("/login") ||
     pathname?.startsWith("/register") ||
     pathname.startsWith("/blog") ||
+    pathname.startsWith("/functies") ||
     pathname === "/" ||
     pathname === "/prijzen" ||
     pathname === "/contact" ||
     pathname === "/help" ||
     pathname === "/help/videos" ||
     pathname === "/over-ons" ||
-    pathname === "/functies" ||
-    pathname === "/functies/koppelingen" ||
-    pathname === "/functies/koppelingen/[slug]" ||
     pathname?.startsWith("/uitnodiging") ||
     pathname?.startsWith("/pay")
   ) {

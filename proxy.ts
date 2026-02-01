@@ -32,6 +32,7 @@ export async function proxy(request: NextRequest) {
     pathname === "/cookie-beleid" ||
     pathname === "/algemene-voorwaarden" ||
     pathname.startsWith("/blog") ||
+    pathname.startsWith("/functies") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/uitnodiging") ||

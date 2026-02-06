@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, FileCheck, FileX } from 'lucide-react';
 import Link from 'next/link';
 import { ExportButton } from '@/components/import-export';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -176,13 +176,14 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
                 <SortableTableHead sortKey="vatAmount" className="text-right">
                   BTW
                 </SortableTableHead>
+                <TableHead className="text-center">Factuur</TableHead>
                 <TableHead>Aftrekbaar</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {expenses.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     <p className="text-muted-foreground">
                       Nog geen uitgaven geregistreerd
                     </p>
@@ -210,6 +211,19 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
                     </TableCell>
                     <TableCell className="text-right">{formatCurrency(Number(expense.amount))}</TableCell>
                     <TableCell className="text-right">{formatCurrency(Number(expense.vatAmount))}</TableCell>
+                    <TableCell className="text-center">
+                      {expense.receipt ? (
+                        <span className="inline-flex items-center gap-1 text-green-600" title="Factuur/bon aanwezig">
+                          <FileCheck className="h-4 w-4" />
+                          <span className="sr-only md:not-sr-only md:inline">Ja</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-amber-600" title="Geen factuur geüpload – bewaar de bon">
+                          <FileX className="h-4 w-4" />
+                          <span className="sr-only md:not-sr-only md:inline">Nee</span>
+                        </span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       {expense.deductible ? (
                         <Badge variant="default">{Number(expense.deductiblePerc)}%</Badge>

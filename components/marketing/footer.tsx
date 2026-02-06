@@ -19,7 +19,7 @@ const Footer = () => {
       { labelKey: "helpCenter" as const, href: "/help" },
     ],
     company: [
-      { labelKey: "about" as const, href: "/over-ons" },
+      //{ labelKey: "about" as const, href: "/over-ons" },
       { labelKey: "contact" as const, href: "/contact" },
     ],
     legal: [

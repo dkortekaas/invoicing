@@ -64,7 +64,7 @@ const HeroSection = () => {
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
-              <Link href="/features">
+              <Link href="/functies">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   {t("cta2")}
                 </Button>

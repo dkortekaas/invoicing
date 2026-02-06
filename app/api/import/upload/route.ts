@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { parseFile, detectColumnMapping } from '@/lib/import-export/import-service';
@@ -96,16 +94,10 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Save file temporarily
-    const uploadsDir = join(process.cwd(), 'tmp', 'imports');
-    await mkdir(uploadsDir, { recursive: true });
-
-    const filePath = join(uploadsDir, `${job.id}-${file.name}`);
-    await writeFile(filePath, buffer);
-
+    // Store file content in DB (no temp file on disk; removed after upload)
     await db.importExportJob.update({
       where: { id: job.id },
-      data: { filePath },
+      data: { fileContent: buffer },
     });
 
     // Auto-detect column mapping

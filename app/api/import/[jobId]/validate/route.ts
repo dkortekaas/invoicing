@@ -6,6 +6,16 @@ import { db } from '@/lib/db';
 import { parseFile, validateImport } from '@/lib/import-export/import-service';
 import type { EntityType } from '@/lib/import-export/fields';
 
+async function getFileBuffer(job: { fileContent: Buffer | null; filePath: string | null }): Promise<Buffer> {
+  if (job.fileContent && job.fileContent.length > 0) {
+    return Buffer.isBuffer(job.fileContent) ? job.fileContent : Buffer.from(job.fileContent);
+  }
+  if (job.filePath) {
+    return readFile(job.filePath);
+  }
+  throw new Error('Bestand niet gevonden');
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ jobId: string }> }
@@ -28,7 +38,7 @@ export async function POST(
       return NextResponse.json({ error: 'Import taak niet gevonden' }, { status: 404 });
     }
 
-    if (!job.filePath) {
+    if (!job.fileContent?.length && !job.filePath) {
       return NextResponse.json({ error: 'Bestand niet gevonden' }, { status: 404 });
     }
 
@@ -55,8 +65,8 @@ export async function POST(
       },
     });
 
-    // Read and parse file
-    const fileBuffer = await readFile(job.filePath);
+    // Read and parse file (from DB or legacy temp file)
+    const fileBuffer = await getFileBuffer(job);
     const { rows } = await parseFile(fileBuffer, job.mimeType!);
 
     // Validate

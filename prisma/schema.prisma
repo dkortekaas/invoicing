@@ -1536,11 +1536,12 @@ model ImportExportJob {
   // Status
   status ImportExportJobStatus @default(PENDING)
 
-  // File info
-  fileName String?
-  filePath String?
-  fileSize Int?
-  mimeType String?
+  // File info (fileContent preferred; filePath only for legacy temp files)
+  fileName    String?
+  filePath    String?
+  fileContent Bytes?  // Stored in DB so no temp file on disk after upload
+  fileSize    Int?
+  mimeType    String?
 
   // Import specifiek
   columnMapping Json? // { fileColumn: systemField }

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getPostSlugs } from "@/lib/blog";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://declair.nl";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://declair.app";
 
 /** Slug-pagina’s onder /functies (zelfde set als in featureConfig) */
 const FUNCTIE_SLUGS = [

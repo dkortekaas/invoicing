@@ -5,6 +5,16 @@ import { db } from '@/lib/db';
 import { parseFile, executeImport } from '@/lib/import-export/import-service';
 import type { EntityType } from '@/lib/import-export/fields';
 
+async function getFileBuffer(job: { fileContent: Buffer | null; filePath: string | null }): Promise<Buffer> {
+  if (job.fileContent && job.fileContent.length > 0) {
+    return Buffer.isBuffer(job.fileContent) ? job.fileContent : Buffer.from(job.fileContent);
+  }
+  if (job.filePath) {
+    return readFile(job.filePath);
+  }
+  throw new Error('Bestand niet gevonden');
+}
+
 export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ jobId: string }> }
@@ -27,7 +37,7 @@ export async function POST(
       return NextResponse.json({ error: 'Import taak niet gevonden' }, { status: 404 });
     }
 
-    if (!job.filePath) {
+    if (!job.fileContent?.length && !job.filePath) {
       return NextResponse.json({ error: 'Bestand niet gevonden' }, { status: 404 });
     }
 
@@ -47,8 +57,8 @@ export async function POST(
       },
     });
 
-    // Read and parse file
-    const fileBuffer = await readFile(job.filePath);
+    // Read and parse file (from DB or legacy temp file)
+    const fileBuffer = await getFileBuffer(job);
     const { rows } = await parseFile(fileBuffer, job.mimeType!);
 
     // Execute import
@@ -60,7 +70,7 @@ export async function POST(
       (job.importOptions as Record<string, unknown>) || {}
     );
 
-    // Update job with results
+    // Update job with results and clear file content (no longer needed)
     await db.importExportJob.update({
       where: { id: jobId },
       data: {
@@ -70,14 +80,17 @@ export async function POST(
         successRows: result.success,
         errorRows: result.errors,
         skippedRows: result.skipped,
+        fileContent: null, // Free storage after successful import
       },
     });
 
-    // Clean up temp file
-    try {
-      await unlink(job.filePath);
-    } catch {
-      console.warn('Could not delete temp file:', job.filePath);
+    // Clean up legacy temp file (only when stored on disk)
+    if (job.filePath) {
+      try {
+        await unlink(job.filePath);
+      } catch {
+        console.warn('Could not delete temp file:', job.filePath);
+      }
     }
 
     return NextResponse.json(result);

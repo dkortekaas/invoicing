@@ -6,8 +6,8 @@ const postcodeRegex = /^\d{4}\s?[A-Z]{2}$/
 // BTW-nummer validatie (NL123456789B01)
 const vatNumberRegex = /^NL\d{9}B\d{2}$/
 
-// IBAN validatie (NL + 2 cijfers + 4 letters + 10 cijfers)
-const ibanRegex = /^NL\d{2}[A-Z]{4}\d{10}$/
+// IBAN validatie (ISO 13616: landcode + 2 cijfers + 11–30 alfanumeriek; o.a. NL, DE, BE)
+const ibanRegex = /^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/
 
 // ========== Customer Schema ==========
 export const customerSchema = z.object({
@@ -195,7 +195,7 @@ export const financialInfoSchema = z.object({
     .optional()
     .nullable()
     .refine(
-      (val) => !val || ibanRegex.test(val.replace(/\s/g, "")),
+      (val) => !val || ibanRegex.test(val.replace(/\s/g, "").toUpperCase()),
       "Ongeldig IBAN formaat"
     ),
   invoicePrefix: z.string().min(1, "Prefix is verplicht"),
@@ -235,7 +235,7 @@ export const companySettingsSchema = z.object({
     .optional()
     .nullable()
     .refine(
-      (val) => !val || ibanRegex.test(val.replace(/\s/g, "")),
+      (val) => !val || ibanRegex.test(val.replace(/\s/g, "").toUpperCase()),
       "Ongeldig IBAN formaat"
     ),
   invoicePrefix: z.string().min(1, "Prefix is verplicht"),

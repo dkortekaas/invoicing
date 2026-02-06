@@ -8,7 +8,6 @@ import {
   Receipt,
   Clock,
   BarChart3,
-  Plug,
   ArrowRight,
 } from "lucide-react";
 import { useTranslations } from "@/components/providers/locale-provider";

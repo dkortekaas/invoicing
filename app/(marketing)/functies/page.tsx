@@ -8,7 +8,6 @@ import {
   Receipt,
   Clock,
   BarChart3,
-  Plug,
   ArrowRight,
   Check,
 } from "lucide-react";

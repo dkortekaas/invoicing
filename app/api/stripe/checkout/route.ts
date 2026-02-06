@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { stripe, STRIPE_PLANS } from '@/lib/stripe/client';
+import { stripe, getAllValidPriceIds } from '@/lib/stripe/client';
 import { db } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
@@ -14,11 +14,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { priceId } = body;
 
-    // Validate price ID
-    const validPriceIds = [
-      STRIPE_PLANS.monthly.priceId,
-      STRIPE_PLANS.yearly.priceId,
-    ];
+    // Validate price ID against all tier plans
+    const validPriceIds = getAllValidPriceIds();
 
     if (!validPriceIds.includes(priceId)) {
       return NextResponse.json(

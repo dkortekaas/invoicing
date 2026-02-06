@@ -9,24 +9,43 @@ import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 const FREE_FEATURES = [
-  'Basis facturen maken en versturen',
+  'Tot 5 facturen per maand',
   'Klantenbeheer',
   'Productencatalogus',
-  'PDF generatie',
-  'Maximaal 50 facturen per maand',
+  'PDF generatie met watermark',
+  'Tot 10 onkosten per maand',
 ];
 
-const PRO_FEATURES = [
-  'Alles van Free',
+const STARTER_FEATURES = [
   'Onbeperkt facturen',
-  'Recurring invoices & abonnementen',
-  'Volledige BTW rapportage',
-  'Tijdregistratie & project tracking',
-  'Analytics dashboard & rapporten',
-  'Onbeperkte email verzending',
+  'Eigen huisstijl & logo',
+  'Credit nota\'s',
+  'Terugkerende facturen',
+  'OCR bonnetjes scannen',
+  'BTW-overzichten',
+  'Export naar Excel/CSV',
+];
+
+const PROFESSIONAL_FEATURES = [
+  'Alles van Starter',
+  'iDEAL betaallinks',
   'Automatische herinneringen',
-  'Export functionaliteit (Excel/PDF)',
-  'Prioriteit support',
+  'Projecten & urenregistratie',
+  'Kilometerregistratie',
+  'Boekhoudkoppelingen',
+  'Analytics dashboard',
+  'Inkomstenbelasting overzicht',
+];
+
+const BUSINESS_FEATURES = [
+  'Alles van Professional',
+  'Multi-valuta',
+  'Klantportaal',
+  'Cashflow voorspellingen',
+  'Contractbeheer',
+  'API toegang & Webhooks',
+  'Multi-gebruiker',
+  'Dedicated accountmanager',
 ];
 
 function UpgradePageContent() {
@@ -39,14 +58,14 @@ function UpgradePageContent() {
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           priceId,
           billingCycle,
         }),
       });
 
       const { url } = await response.json();
-      
+
       if (url) {
         window.location.href = url;
       }
@@ -56,8 +75,23 @@ function UpgradePageContent() {
     }
   };
 
+  const getStarterPriceId = () =>
+    billingCycle === 'monthly'
+      ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STARTER_MONTHLY || ''
+      : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STARTER_YEARLY || '';
+
+  const getProfessionalPriceId = () =>
+    billingCycle === 'monthly'
+      ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL_MONTHLY || process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY || ''
+      : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL_YEARLY || process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY || '';
+
+  const getBusinessPriceId = () =>
+    billingCycle === 'monthly'
+      ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_BUSINESS_MONTHLY || ''
+      : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_BUSINESS_YEARLY || '';
+
   return (
-    <div className="container max-w-6xl py-12">
+    <div className="container max-w-7xl py-12">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">
           Kies het plan dat bij je past
@@ -69,7 +103,7 @@ function UpgradePageContent() {
         {feature && (
           <div className="bg-primary/10 border border-primary rounded-lg p-4 max-w-2xl mx-auto mb-8">
             <p className="text-sm">
-              <strong>Let op:</strong> Deze feature vereist een Pro abonnement
+              <strong>Let op:</strong> Deze feature vereist een betaald abonnement
             </p>
           </div>
         )}
@@ -90,9 +124,9 @@ function UpgradePageContent() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
         <PricingCard
-          name="Free"
+          name="Gratis"
           price={0}
           interval="month"
           priceId=""
@@ -101,16 +135,30 @@ function UpgradePageContent() {
         />
 
         <PricingCard
-          name="Pro"
-          price={billingCycle === 'monthly' ? 1900 : 19000}
+          name="Starter"
+          price={billingCycle === 'monthly' ? 995 : 9900}
           interval={billingCycle === 'monthly' ? 'month' : 'year'}
-          priceId={
-            billingCycle === 'monthly'
-              ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY || ''
-              : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY || ''
-          }
-          features={PRO_FEATURES}
+          priceId={getStarterPriceId()}
+          features={STARTER_FEATURES}
+          onSubscribe={handleSubscribe}
+        />
+
+        <PricingCard
+          name="Professional"
+          price={billingCycle === 'monthly' ? 1995 : 19900}
+          interval={billingCycle === 'monthly' ? 'month' : 'year'}
+          priceId={getProfessionalPriceId()}
+          features={PROFESSIONAL_FEATURES}
           popular={true}
+          onSubscribe={handleSubscribe}
+        />
+
+        <PricingCard
+          name="Business"
+          price={billingCycle === 'monthly' ? 3495 : 34900}
+          interval={billingCycle === 'monthly' ? 'month' : 'year'}
+          priceId={getBusinessPriceId()}
+          features={BUSINESS_FEATURES}
           onSubscribe={handleSubscribe}
         />
       </div>

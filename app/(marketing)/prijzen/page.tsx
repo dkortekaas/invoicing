@@ -31,95 +31,112 @@ const Pricing = () => {
     {
       name: t("facturation"),
       features: [
-        { name: t("invoicesPerMonth"), starter: "10", professional: "Onbeperkt", business: "Onbeperkt" },
-        { name: t("quotes"), starter: true, professional: true, business: true },
-        { name: t("creditNotes"), starter: true, professional: true, business: true },
-        { name: t("recurringInvoices"), starter: false, professional: true, business: true },
-        { name: t("customBranding"), starter: true, professional: true, business: true },
-        { name: t("multipleTemplates"), starter: false, professional: true, business: true },
-        { name: t("digitalSigning"), starter: false, professional: true, business: true },
+        { name: t("invoicesPerMonth"), free: "5", starter: "Onbeperkt", professional: "Onbeperkt", business: "Onbeperkt" },
+        { name: t("quotes"), free: true, starter: true, professional: true, business: true },
+        { name: t("creditNotes"), free: false, starter: true, professional: true, business: true },
+        { name: t("recurringInvoices"), free: false, starter: true, professional: true, business: true },
+        { name: t("watermark"), free: true, starter: false, professional: false, business: false },
+        { name: t("customBranding"), free: false, starter: true, professional: true, business: true },
+        { name: t("multipleTemplates"), free: false, starter: false, professional: true, business: true },
+        { name: t("digitalSigning"), free: false, starter: false, professional: true, business: true },
       ],
     },
     {
       name: t("payments"),
       features: [
-        { name: t("idealPaymentLinks"), starter: false, professional: true, business: true },
-        { name: t("creditCardPayments"), starter: false, professional: true, business: true },
-        { name: t("automaticReminders"), starter: false, professional: true, business: true },
-        { name: t("smartReminders"), starter: false, professional: true, business: true },
-        { name: t("customerPortal"), starter: false, professional: false, business: true },
+        { name: t("idealPaymentLinks"), free: false, starter: false, professional: true, business: true },
+        { name: t("creditCardPayments"), free: false, starter: false, professional: true, business: true },
+        { name: t("automaticReminders"), free: false, starter: false, professional: true, business: true },
+        { name: t("smartReminders"), free: false, starter: false, professional: true, business: true },
+        { name: t("customerPortal"), free: false, starter: false, professional: false, business: true },
       ],
     },
     {
       name: t("expensesAndAdministration"),
       features: [
-        { name: t("trackExpenses"), starter: true, professional: true, business: true },
-        { name: t("ocrReceipts"), starter: false, professional: true, business: true },
-        { name: t("mileageRegistration"), starter: false, professional: true, business: true },
-        { name: t("categoriesManagement"), starter: true, professional: true, business: true },
+        { name: t("expensesPerMonth"), free: "10", starter: "Onbeperkt", professional: "Onbeperkt", business: "Onbeperkt" },
+        { name: t("trackExpenses"), free: true, starter: true, professional: true, business: true },
+        { name: t("ocrReceipts"), free: false, starter: true, professional: true, business: true },
+        { name: t("mileageRegistration"), free: false, starter: false, professional: true, business: true },
+        { name: t("categoriesManagement"), free: true, starter: true, professional: true, business: true },
       ],
     },
     {
       name: t("projectsAndTime"),
       features: [
-        { name: t("createProjects"), starter: false, professional: true, business: true },
-        { name: t("timeRegistration"), starter: false, professional: true, business: true },
-        { name: t("invoicingFromHours"), starter: false, professional: true, business: true },
-        { name: t("budgetMonitoring"), starter: false, professional: false, business: true },
+        { name: t("createProjects"), free: false, starter: false, professional: true, business: true },
+        { name: t("timeRegistration"), free: false, starter: false, professional: true, business: true },
+        { name: t("invoicingFromHours"), free: false, starter: false, professional: true, business: true },
+        { name: t("budgetMonitoring"), free: false, starter: false, professional: false, business: true },
       ],
     },
     {
       name: t("reportsAndTax"),
       features: [
-        { name: t("vatSummaries"), starter: true, professional: true, business: true },
-        { name: t("incomeTaxSummary"), starter: false, professional: true, business: true },
-        { name: t("cashflowForecasting"), starter: false, professional: false, business: true },
-        { name: t("exportToExcelCsv"), starter: true, professional: true, business: true },
+        { name: t("vatSummaries"), free: false, starter: true, professional: true, business: true },
+        { name: t("incomeTaxSummary"), free: false, starter: false, professional: true, business: true },
+        { name: t("cashflowForecasting"), free: false, starter: false, professional: false, business: true },
+        { name: t("exportToExcelCsv"), free: false, starter: true, professional: true, business: true },
       ],
     },
     {
       name: t("integrationsAndExtra"),
       features: [
-        { name: t("bookkeepingIntegrations"), starter: false, professional: true, business: true },
-        { name: t("multiCurrency"), starter: false, professional: false, business: true },
-        { name: t("contractManagement"), starter: false, professional: false, business: true },
-        { name: t("apiAccess"), starter: false, professional: false, business: true },
-        { name: "Webhooks", starter: false, professional: false, business: true },
+        { name: t("bookkeepingIntegrations"), free: false, starter: false, professional: true, business: true },
+        { name: t("multiCurrency"), free: false, starter: false, professional: false, business: true },
+        { name: t("multiUser"), free: false, starter: false, professional: false, business: true },
+        { name: t("contractManagement"), free: false, starter: false, professional: false, business: true },
+        { name: t("apiAccess"), free: false, starter: false, professional: false, business: true },
+        { name: "Webhooks", free: false, starter: false, professional: false, business: true },
       ],
     },
     {
       name: t("support"),
       features: [
-        { name: t("emailSupport"), starter: true, professional: true, business: true },
-        { name: t("prioritySupport"), starter: false, professional: true, business: true },
-        { name: t("dedicatedAccountManager"), starter: false, professional: false, business: true },
+        { name: t("emailSupport"), free: true, starter: true, professional: true, business: true },
+        { name: t("prioritySupport"), free: false, starter: false, professional: true, business: true },
+        { name: t("dedicatedAccountManager"), free: false, starter: false, professional: false, business: true },
       ],
     },
   ];
 
   const plans = [
     {
+      name: t("free"),
+      monthlyPrice: 0,
+      yearlyPrice: 0,
+      description: t("freeDescription"),
+      popular: false,
+    },
+    {
       name: t("starter"),
       monthlyPrice: 9.95,
-      yearlyPrice: 7.95,
+      yearlyPrice: 8.25,
       description: t("starterDescription"),
       popular: false,
     },
     {
       name: t("professional"),
       monthlyPrice: 19.95,
-      yearlyPrice: 15.95,
+      yearlyPrice: 16.58,
       description: t("professionalDescription"),
       popular: true,
     },
     {
       name: t("business"),
-      monthlyPrice: 39.95,
-      yearlyPrice: 31.95,
+      monthlyPrice: 34.95,
+      yearlyPrice: 29.08,
       description: t("businessDescription"),
       popular: false,
     },
   ];
+
+  const yearlyTotals: Record<string, number> = {
+    [t("free")]: 0,
+    [t("starter")]: 99,
+    [t("professional")]: 199,
+    [t("business")]: 349,
+  };
 
   const renderFeatureValue = (value: boolean | string) => {
     if (typeof value === "string") {
@@ -182,7 +199,7 @@ const Pricing = () => {
         {/* Pricing Cards */}
         <section className="py-12 md:py-16">
           <div className="container mx-auto">
-            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {plans.map((plan, index) => (
                 <motion.div
                   key={plan.name}
@@ -191,7 +208,7 @@ const Pricing = () => {
                   transition={{ delay: index * 0.1 }}
                   className={`relative rounded-2xl p-8 ${
                     plan.popular
-                      ? "bg-foreground text-background border-2 border-foreground shadow-xl md:scale-105"
+                      ? "bg-foreground text-background border-2 border-foreground shadow-xl lg:scale-105"
                       : "bg-card border border-border"
                   }`}
                 >
@@ -221,32 +238,36 @@ const Pricing = () => {
                           plan.popular ? "text-background" : "text-foreground"
                         }`}
                       >
-                        €{isYearly ? plan.yearlyPrice.toFixed(2).replace(".", ",") : plan.monthlyPrice.toFixed(2).replace(".", ",")}
+                        {plan.monthlyPrice === 0
+                          ? "€0"
+                          : `€${isYearly ? plan.yearlyPrice.toFixed(2).replace(".", ",") : plan.monthlyPrice.toFixed(2).replace(".", ",")}`}
                       </span>
                       <span
                         className={
                           plan.popular ? "text-background/70" : "text-muted-foreground"
                         }
                       >
-                        {t("perMonth")}
+                        {plan.monthlyPrice === 0 ? "" : t("perMonth")}
                       </span>
                     </div>
-                    {isYearly && (
+                    {isYearly && plan.monthlyPrice > 0 && (
                       <p
                         className={`text-sm mt-1 ${
                           plan.popular ? "text-background/70" : "text-muted-foreground"
                         }`}
                       >
-                        {t("yearlyInvoiced")} (€{(plan.yearlyPrice * 12).toFixed(2).replace(".", ",")}/{t("yearly")})
+                        {t("yearlyInvoiced")} (€{yearlyTotals[plan.name]?.toFixed(2).replace(".", ",")}/{t("yearly")})
                       </p>
                     )}
-                    <p
-                      className={`text-xs mt-1 ${
-                        plan.popular ? "text-background/50" : "text-muted-foreground"
-                      }`}
-                    >
-                      {t("exclVAT")}
-                    </p>
+                    {plan.monthlyPrice > 0 && (
+                      <p
+                        className={`text-xs mt-1 ${
+                          plan.popular ? "text-background/50" : "text-muted-foreground"
+                        }`}
+                      >
+                        {t("exclVAT")}
+                      </p>
+                    )}
                   </div>
 
                   <Link href="/register" className="block mt-8">
@@ -254,7 +275,7 @@ const Pricing = () => {
                       variant={plan.popular ? "secondary" : "outline"}
                       className="w-full gap-2"
                     >
-                      {t("startFree")}
+                      {plan.monthlyPrice === 0 ? t("startFree") : t("startFree")}
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
@@ -282,21 +303,24 @@ const Pricing = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="max-w-5xl mx-auto overflow-x-auto"
+              className="max-w-6xl mx-auto overflow-x-auto"
             >
-              <table className="w-full min-w-[600px]">
+              <table className="w-full min-w-[700px]">
                 <thead>
                   <tr className="border-b border-border">
                     <th className="text-left py-4 px-4 font-semibold text-foreground">
                       {t("feature")}
                     </th>
-                    <th className="text-center py-4 px-4 font-semibold text-foreground w-32">
+                    <th className="text-center py-4 px-4 font-semibold text-foreground w-28">
+                      {t("free")}
+                    </th>
+                    <th className="text-center py-4 px-4 font-semibold text-foreground w-28">
                       {t("starter")}
                     </th>
-                    <th className="text-center py-4 px-4 font-semibold text-foreground w-32 bg-primary/5">
+                    <th className="text-center py-4 px-4 font-semibold text-foreground w-28 bg-primary/5">
                       {t("professional")}
                     </th>
-                    <th className="text-center py-4 px-4 font-semibold text-foreground w-32">
+                    <th className="text-center py-4 px-4 font-semibold text-foreground w-28">
                       {t("business")}
                     </th>
                   </tr>
@@ -306,7 +330,7 @@ const Pricing = () => {
                     <Fragment key={category.name}>
                       <tr className="bg-muted/50">
                         <td
-                          colSpan={4}
+                          colSpan={5}
                           className="py-3 px-4 font-semibold text-foreground text-sm"
                         >
                           {category.name}
@@ -319,6 +343,9 @@ const Pricing = () => {
                         >
                           <td className="py-3 px-4 text-sm text-muted-foreground">
                             {feature.name}
+                          </td>
+                          <td className="py-3 px-4 text-center text-sm">
+                            {renderFeatureValue(feature.free)}
                           </td>
                           <td className="py-3 px-4 text-center text-sm">
                             {renderFeatureValue(feature.starter)}
@@ -381,13 +408,13 @@ const Pricing = () => {
         </section>
 
         {/* CTA Section */}
-        <CallToActionSection 
-          title={t("notSureWhichPlan")} 
-          description={t("startFreeTrialDescription")} 
+        <CallToActionSection
+          title={t("notSureWhichPlan")}
+          description={t("startFreeTrialDescription")}
           linkHref1="/register"
-          linkText1={t("startFreeTrial")} 
+          linkText1={t("startFreeTrial")}
           linkHref2="/contact"
-          linkText2={t("contactUs")} 
+          linkText2={t("contactUs")}
           />
 
       </main>

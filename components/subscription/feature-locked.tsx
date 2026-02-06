@@ -17,6 +17,7 @@ interface FeatureLockedProps {
   onOpenChange: (open: boolean) => void;
   featureName: string;
   description?: string;
+  requiredTier?: string;
 }
 
 export function FeatureLocked({
@@ -24,8 +25,11 @@ export function FeatureLocked({
   onOpenChange,
   featureName,
   description,
+  requiredTier,
 }: FeatureLockedProps) {
   const router = useRouter();
+
+  const tierLabel = requiredTier || 'betaald';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -35,11 +39,11 @@ export function FeatureLocked({
             <Lock className="h-6 w-6 text-primary" />
           </div>
           <DialogTitle className="text-center">
-            {featureName} is een Pro feature
+            {featureName} vereist een {tierLabel} abonnement
           </DialogTitle>
           <DialogDescription className="text-center">
-            {description || 
-              `Upgrade naar Pro om toegang te krijgen tot ${featureName} en alle andere premium features.`}
+            {description ||
+              `Upgrade naar ${tierLabel} of hoger om toegang te krijgen tot ${featureName} en andere premium features.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -48,7 +52,7 @@ export function FeatureLocked({
             Annuleren
           </Button>
           <Button onClick={() => router.push('/upgrade')}>
-            Bekijk Pro Plan
+            Bekijk abonnementen
           </Button>
         </DialogFooter>
       </DialogContent>

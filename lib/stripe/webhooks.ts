@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import Stripe from 'stripe';
+import { getTierFromPriceId } from './client';
 
 export async function handleSubscriptionCreated(
   subscription: Stripe.Subscription
@@ -19,7 +20,7 @@ export async function handleSubscriptionCreated(
       stripePriceId: firstItem.price.id,
       stripeCurrentPeriodEnd: new Date((subscription as Stripe.Subscription & { current_period_end: number }).current_period_end * 1000),
       subscriptionStatus: mapStripeStatus(subscription.status),
-      subscriptionTier: 'PRO',
+      subscriptionTier: getTierFromPriceId(firstItem.price.id),
       billingCycle: firstItem.price.recurring?.interval === 'year' 
         ? 'YEARLY' 
         : 'MONTHLY',
@@ -63,6 +64,7 @@ export async function handleSubscriptionUpdated(
       stripePriceId: firstItem.price.id,
       stripeCurrentPeriodEnd: new Date((subscription as Stripe.Subscription & { current_period_end: number }).current_period_end * 1000),
       subscriptionStatus: mapStripeStatus(subscription.status),
+      subscriptionTier: getTierFromPriceId(firstItem.price.id),
       billingCycle: firstItem.price.recurring?.interval === 'year'
         ? 'YEARLY'
         : 'MONTHLY',

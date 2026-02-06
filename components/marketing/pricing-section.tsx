@@ -26,6 +26,19 @@ const PricingSection = () => {
 
   const plans = [
     {
+      name: t("free"),
+      price: "€0",
+      period: "",
+      description: "",
+      features: [
+        t("freeFeatures1"),
+        t("freeFeatures2"),
+        t("freeFeatures3"),
+        t("freeFeatures4"),
+      ],
+      popular: false,
+    },
+    {
       name: t("starter"),
       price: "€9,95",
       period: t("perMonth"),
@@ -55,7 +68,7 @@ const PricingSection = () => {
     },
     {
       name: t("business"),
-      price: "€39,95",
+      price: "€34,95",
       period: t("perMonth"),
       description: t("exclVAT"),
       features: [
@@ -94,7 +107,7 @@ const PricingSection = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto"
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto"
         >
           {plans.map((plan) => (
             <motion.div
@@ -102,7 +115,7 @@ const PricingSection = () => {
               variants={item}
               className={`relative rounded-2xl p-8 ${
                 plan.popular
-                  ? "bg-foreground text-background border-2 border-foreground shadow-xl scale-105"
+                  ? "bg-foreground text-background border-2 border-foreground shadow-xl lg:scale-105"
                   : "bg-card border border-border"
               }`}
             >
@@ -127,21 +140,25 @@ const PricingSection = () => {
                   >
                     {plan.price}
                   </span>
-                  <span
-                    className={
-                      plan.popular ? "text-background/70" : "text-muted-foreground"
-                    }
-                  >
-                    {plan.period}
-                  </span>
+                  {plan.period && (
+                    <span
+                      className={
+                        plan.popular ? "text-background/70" : "text-muted-foreground"
+                      }
+                    >
+                      {plan.period}
+                    </span>
+                  )}
                 </div>
-                <p
-                  className={`text-sm mt-1 ${
-                    plan.popular ? "text-background/70" : "text-muted-foreground"
-                  }`}
-                >
-                  {plan.description}
-                </p>
+                {plan.description && (
+                  <p
+                    className={`text-sm mt-1 ${
+                      plan.popular ? "text-background/70" : "text-muted-foreground"
+                    }`}
+                  >
+                    {plan.description}
+                  </p>
+                )}
               </div>
 
               <ul className="mt-8 space-y-4">

@@ -204,7 +204,7 @@ model Invoice {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  invoiceNumber String   @unique
+  invoiceNumber String // Uniek per user (zie @@unique hieronder)
   customerId    String
   customer      Customer @relation(fields: [customerId], references: [id])
 
@@ -266,6 +266,7 @@ model Invoice {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, invoiceNumber])
   @@index([userId])
   @@index([customerId])
   @@index([status])

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
-import { Prisma } from "@prisma/client"
+import { Prisma, type Invoice, type InvoiceItem } from "@prisma/client"
 import { invoiceSchema, type InvoiceFormData } from "@/lib/validations"
 import { generateInvoiceNumber, roundToTwo } from "@/lib/utils"
 import { getCurrentUserId } from "@/lib/server-utils"
@@ -102,22 +102,18 @@ export async function getNextInvoiceNumber() {
   const year = new Date().getFullYear()
   const prefix = `${year}-`
 
-  const lastInvoice = await db.invoice.findFirst({
-    where: {
-      userId,
-      invoiceNumber: {
-        startsWith: prefix,
-      },
-    },
-    orderBy: { invoiceNumber: "desc" },
-  })
-
-  let sequence = 1
-  if (lastInvoice) {
-    const parts = lastInvoice.invoiceNumber.split("-")
-    const lastNumber = parts[1] ? parseInt(parts[1]) : 0
-    sequence = lastNumber + 1
-  }
+  // Numerieke max sequence (string-sorteer zou 2025-0009 > 2025-0010 geven)
+  const result = await db.$queryRaw<[{ max_seq: number | null }]>(
+    Prisma.sql`
+      SELECT MAX(
+        CAST(SUBSTRING("invoiceNumber" FROM POSITION('-' IN "invoiceNumber") + 1) AS INTEGER)
+      ) AS max_seq
+      FROM "Invoice"
+      WHERE "userId" = ${userId} AND "invoiceNumber" LIKE ${prefix + "%"}
+    `
+  )
+  const maxSeq = result[0]?.max_seq ?? 0
+  const sequence = maxSeq + 1
 
   return generateInvoiceNumber(year, sequence)
 }
@@ -176,8 +172,6 @@ export async function createInvoice(
     }
   })
 
-  const invoiceNumber = await getNextInvoiceNumber()
-
   // Handle currency - default to EUR if not specified
   const currencyCode = validated.currencyCode || "EUR"
 
@@ -229,30 +223,53 @@ export async function createInvoice(
     }
   }
 
-  const invoice = await db.invoice.create({
-    data: {
-      userId,
-      invoiceNumber,
-      customerId: validated.customerId,
-      invoiceDate: validated.invoiceDate,
-      dueDate: validated.dueDate,
-      status,
-      subtotal: roundToTwo(subtotal),
-      vatAmount: roundToTwo(vatAmount),
-      total: roundToTwo(total),
-      ...currencyData,
-      reference: validated.reference,
-      notes: validated.notes,
-      internalNotes: validated.internalNotes,
-      sentAt: status === "SENT" ? new Date() : null,
-      items: {
-        create: itemsWithTotals,
-      },
-    },
-    include: {
-      items: true,
-    },
-  })
+  const maxAttempts = 3
+  let invoice: (Invoice & { items: InvoiceItem[] }) | undefined
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const invoiceNumber = await getNextInvoiceNumber()
+    try {
+      invoice = await db.invoice.create({
+        data: {
+          userId,
+          invoiceNumber,
+          customerId: validated.customerId,
+          invoiceDate: validated.invoiceDate,
+          dueDate: validated.dueDate,
+          status,
+          subtotal: roundToTwo(subtotal),
+          vatAmount: roundToTwo(vatAmount),
+          total: roundToTwo(total),
+          ...currencyData,
+          reference: validated.reference,
+          notes: validated.notes,
+          internalNotes: validated.internalNotes,
+          sentAt: status === "SENT" ? new Date() : null,
+          items: {
+            create: itemsWithTotals,
+          },
+        },
+        include: {
+          items: true,
+        },
+      })
+      break
+    } catch (err) {
+      const isP2002 =
+        typeof err === "object" && err !== null && "code" in err && (err as { code?: string }).code === "P2002"
+      const isInvoiceNumberConflict =
+        isP2002 &&
+        (!(err as { meta?: { target?: unknown } }).meta?.target ||
+          (Array.isArray((err as { meta?: { target?: string[] } }).meta?.target) &&
+            (err as { meta?: { target?: string[] } }).meta?.target?.includes("invoiceNumber")))
+      if (!isInvoiceNumberConflict || attempt === maxAttempts - 1) throw err
+      // Korte pauze zodat een concurrerende insert kan committen; daarna haalt getNextInvoiceNumber() een nieuw nummer op
+      await new Promise((r) => setTimeout(r, 80))
+    }
+  }
+
+  if (!invoice) {
+    throw new Error("Factuur aanmaken mislukt")
+  }
 
   // Lock exchange rate if sending immediately
   if (status === "SENT" && currencyCode !== "EUR") {
@@ -272,7 +289,27 @@ export async function createInvoice(
 
   revalidatePath("/facturen")
   revalidatePath("/")
-  return invoice
+
+  // Convert Decimal to number so the return value is serializable for Client Components
+  return {
+    ...invoice,
+    subtotal: invoice.subtotal.toNumber(),
+    vatAmount: invoice.vatAmount.toNumber(),
+    total: invoice.total.toNumber(),
+    exchangeRate: invoice.exchangeRate?.toNumber() ?? null,
+    subtotalEur: invoice.subtotalEur?.toNumber() ?? null,
+    vatAmountEur: invoice.vatAmountEur?.toNumber() ?? null,
+    totalEur: invoice.totalEur?.toNumber() ?? null,
+    items: invoice.items.map((item) => ({
+      ...item,
+      quantity: item.quantity.toNumber(),
+      unitPrice: item.unitPrice.toNumber(),
+      vatRate: item.vatRate.toNumber(),
+      subtotal: item.subtotal.toNumber(),
+      vatAmount: item.vatAmount.toNumber(),
+      total: item.total.toNumber(),
+    })),
+  }
 }
 
 export async function updateInvoice(
@@ -398,7 +435,27 @@ export async function updateInvoice(
   revalidatePath("/facturen")
   revalidatePath(`/facturen/${id}`)
   revalidatePath("/")
-  return invoice
+
+  // Convert Decimal to number so the return value is serializable for Client Components
+  return {
+    ...invoice,
+    subtotal: invoice.subtotal.toNumber(),
+    vatAmount: invoice.vatAmount.toNumber(),
+    total: invoice.total.toNumber(),
+    exchangeRate: invoice.exchangeRate?.toNumber() ?? null,
+    subtotalEur: invoice.subtotalEur?.toNumber() ?? null,
+    vatAmountEur: invoice.vatAmountEur?.toNumber() ?? null,
+    totalEur: invoice.totalEur?.toNumber() ?? null,
+    items: invoice.items.map((item) => ({
+      ...item,
+      quantity: item.quantity.toNumber(),
+      unitPrice: item.unitPrice.toNumber(),
+      vatRate: item.vatRate.toNumber(),
+      subtotal: item.subtotal.toNumber(),
+      vatAmount: item.vatAmount.toNumber(),
+      total: item.total.toNumber(),
+    })),
+  }
 }
 
 export async function updateInvoiceStatus(

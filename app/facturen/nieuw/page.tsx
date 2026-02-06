@@ -1,12 +1,16 @@
 import { InvoiceForm } from "@/components/invoices/invoice-form"
 import { getCustomers } from "@/app/klanten/actions"
 import { getActiveProducts } from "@/app/producten/actions"
+import { getFiscalSettings } from "@/app/instellingen/actions"
 
 export const dynamic = "force-dynamic"
 
 export default async function NieuweFactuurPage() {
-  const customers = await getCustomers()
-  const products = await getActiveProducts()
+  const [customers, products, fiscalSettings] = await Promise.all([
+    getCustomers(),
+    getActiveProducts(),
+    getFiscalSettings(),
+  ])
 
   // Transform data for form
   const customersForForm = customers.map((c: typeof customers[0]) => ({
@@ -33,7 +37,7 @@ export default async function NieuweFactuurPage() {
         </p>
       </div>
 
-      <InvoiceForm customers={customersForForm} products={productsForForm} />
+      <InvoiceForm customers={customersForForm} products={productsForForm} useKOR={fiscalSettings.useKOR} />
     </div>
   )
 }

@@ -31,6 +31,9 @@ export async function GET(
             kvkNumber: true,
             iban: true,
             company: true,
+            fiscalSettings: {
+              select: { useKOR: true },
+            },
           },
         },
       },
@@ -92,10 +95,11 @@ export async function GET(
 
     // Genereer PDF met watermerk settings
     const pdfBuffer = await renderToBuffer(
-      InvoicePDF({ 
+      InvoicePDF({
         invoice: pdfData,
         watermarkSettings: settings,
         userTier: invoice.user.subscriptionTier || 'FREE',
+        useKOR: invoice.user.fiscalSettings?.useKOR ?? false,
       })
     )
 

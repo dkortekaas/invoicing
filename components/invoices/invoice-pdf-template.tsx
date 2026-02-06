@@ -304,9 +304,10 @@ interface InvoicePDFProps {
   invoice: InvoiceData
   watermarkSettings?: SystemSettings | null
   userTier?: string
+  useKOR?: boolean
 }
 
-export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: InvoicePDFProps) {
+export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE', useKOR = false }: InvoicePDFProps) {
   // Get currency code, default to EUR
   const currencyCode = invoice.currencyCode || "EUR"
   const isNonEur = currencyCode !== "EUR"
@@ -431,9 +432,11 @@ export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: In
             <Text style={[styles.tableHeaderCell, styles.colPrice]}>
               Prijs
             </Text>
-            <Text style={[styles.tableHeaderCell, styles.colVat]}>
-              BTW
-            </Text>
+            {!useKOR && (
+              <Text style={[styles.tableHeaderCell, styles.colVat]}>
+                BTW
+              </Text>
+            )}
             <Text style={[styles.tableHeaderCell, styles.colTotal]}>
               Totaal
             </Text>
@@ -451,9 +454,11 @@ export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: In
               <Text style={[styles.tableCell, styles.colPrice]}>
                 {formatAmount(item.unitPrice)}
               </Text>
-              <Text style={[styles.tableCell, styles.colVat]}>
-                {item.vatRate}%
-              </Text>
+              {!useKOR && (
+                <Text style={[styles.tableCell, styles.colVat]}>
+                  {item.vatRate}%
+                </Text>
+              )}
               <Text style={[styles.tableCell, styles.colTotal]}>
                 {formatAmount(item.subtotal)}
               </Text>
@@ -470,16 +475,25 @@ export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: In
             </Text>
           </View>
 
-          {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
-            <View key={rate} style={styles.totalRow}>
-              <Text style={styles.totalLabel}>
-                BTW {rate}% over {formatAmount(subtotal)}
-              </Text>
+          {useKOR ? (
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>BTW (KOR)</Text>
               <Text style={styles.totalValue}>
-                {formatAmount(vatAmount)}
+                {formatAmount(0)}
               </Text>
             </View>
-          ))}
+          ) : (
+            Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
+              <View key={rate} style={styles.totalRow}>
+                <Text style={styles.totalLabel}>
+                  BTW {rate}% over {formatAmount(subtotal)}
+                </Text>
+                <Text style={styles.totalValue}>
+                  {formatAmount(vatAmount)}
+                </Text>
+              </View>
+            ))
+          )}
 
           <View style={styles.totalRowFinal}>
             <Text style={styles.totalLabelFinal}>Totaal</Text>
@@ -521,6 +535,15 @@ export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: In
           </View>
         )}
 
+        {/* KOR notice - legally required */}
+        {useKOR && (
+          <View style={styles.notes}>
+            <Text style={styles.notesText}>
+              Vrijgesteld van omzetbelasting op grond van de Kleineondernemersregeling (KOR).
+            </Text>
+          </View>
+        )}
+
         {/* Notes */}
         {invoice.notes && (
           <View style={styles.notes}>
@@ -537,10 +560,12 @@ export function InvoicePDF({ invoice, watermarkSettings, userTier = 'FREE' }: In
               <Text style={styles.paymentLabel}>IBAN</Text>
               <Text style={styles.paymentValue}>{invoice.company.iban}</Text>
             </View>
-            <View style={styles.paymentBlock}>
-              <Text style={styles.paymentLabel}>BTW-nummer</Text>
-              <Text style={styles.paymentValue}>{invoice.company.vatNumber}</Text>
-            </View>
+            {!useKOR && (
+              <View style={styles.paymentBlock}>
+                <Text style={styles.paymentLabel}>BTW-nummer</Text>
+                <Text style={styles.paymentValue}>{invoice.company.vatNumber}</Text>
+              </View>
+            )}
             <View style={styles.paymentBlock}>
               <Text style={styles.paymentLabel}>KvK-nummer</Text>
               <Text style={styles.paymentValue}>{invoice.company.kvkNumber}</Text>

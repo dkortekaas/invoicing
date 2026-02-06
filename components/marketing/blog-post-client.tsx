@@ -52,7 +52,7 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
   return (
     <main id="main-content">
       {/* Hero Section */}
-      <section className="pt-28 pb-12 md:pt-36 md:pb-16 bg-gradient-hero">
+      <section className="pt-28 md:pt-36 bg-gradient-hero">
         <div className="container mx-auto px-6 md:px-0">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -134,7 +134,7 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
                   src={`/${frontmatter.image}`}
                   alt={frontmatter.seoTitle ?? frontmatter.title}
                   fill
-                  className="object-contain rounded-2xl"
+                  className="object-cover rounded-2xl"
                   sizes="(max-width: 1024px) 100vw, 1024px"
                   priority
                 />

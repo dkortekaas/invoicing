@@ -3,6 +3,7 @@ import { InvoiceForm } from "@/components/invoices/invoice-form"
 import { getInvoice } from "@/app/facturen/actions"
 import { getCustomers } from "@/app/klanten/actions"
 import { getActiveProducts } from "@/app/producten/actions"
+import { getFiscalSettings } from "@/app/instellingen/actions"
 
 export const dynamic = "force-dynamic"
 
@@ -12,11 +13,12 @@ interface FactuurBewerkenPageProps {
 
 export default async function FactuurBewerkenPage({ params }: FactuurBewerkenPageProps) {
   const { id } = await params
-  
-  const [invoice, customers, products] = await Promise.all([
+
+  const [invoice, customers, products, fiscalSettings] = await Promise.all([
     getInvoice(id),
     getCustomers(),
     getActiveProducts(),
+    getFiscalSettings(),
   ])
 
   if (!invoice) {
@@ -74,6 +76,7 @@ export default async function FactuurBewerkenPage({ params }: FactuurBewerkenPag
         invoice={invoiceForForm}
         customers={customersForForm}
         products={productsForForm}
+        useKOR={fiscalSettings.useKOR}
       />
     </div>
   )

@@ -135,6 +135,13 @@ export async function createInvoice(
     )
   }
 
+  // Check if user has KOR (Kleineondernemersregeling) enabled
+  const fiscalSettings = await db.fiscalSettings.findUnique({
+    where: { userId },
+    select: { useKOR: true },
+  })
+  const useKOR = fiscalSettings?.useKOR ?? false
+
   // Bereken totalen
   let subtotal = 0
   let vatAmount = 0
@@ -142,7 +149,9 @@ export async function createInvoice(
 
   const itemsWithTotals = validated.items.map((item: typeof validated.items[0], index: number) => {
     const itemSubtotal = roundToTwo(item.quantity * item.unitPrice)
-    const itemVatAmount = roundToTwo(itemSubtotal * (item.vatRate / 100))
+    // KOR: geen BTW berekenen
+    const effectiveVatRate = useKOR ? 0 : item.vatRate
+    const itemVatAmount = roundToTwo(itemSubtotal * (effectiveVatRate / 100))
     const itemTotal = roundToTwo(itemSubtotal + itemVatAmount)
 
     subtotal += itemSubtotal
@@ -153,7 +162,7 @@ export async function createInvoice(
       description: item.description,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
-      vatRate: item.vatRate,
+      vatRate: effectiveVatRate,
       unit: item.unit,
       subtotal: itemSubtotal,
       vatAmount: itemVatAmount,
@@ -269,6 +278,13 @@ export async function updateInvoice(
   const userId = await getCurrentUserId()
   const validated = invoiceSchema.parse(data)
 
+  // Check if user has KOR (Kleineondernemersregeling) enabled
+  const fiscalSettings = await db.fiscalSettings.findUnique({
+    where: { userId },
+    select: { useKOR: true },
+  })
+  const useKOR = fiscalSettings?.useKOR ?? false
+
   // Bereken totalen
   let subtotal = 0
   let vatAmount = 0
@@ -276,7 +292,9 @@ export async function updateInvoice(
 
   const itemsWithTotals = validated.items.map((item: typeof validated.items[0], index: number) => {
     const itemSubtotal = roundToTwo(item.quantity * item.unitPrice)
-    const itemVatAmount = roundToTwo(itemSubtotal * (item.vatRate / 100))
+    // KOR: geen BTW berekenen
+    const effectiveVatRate = useKOR ? 0 : item.vatRate
+    const itemVatAmount = roundToTwo(itemSubtotal * (effectiveVatRate / 100))
     const itemTotal = roundToTwo(itemSubtotal + itemVatAmount)
 
     subtotal += itemSubtotal
@@ -287,7 +305,7 @@ export async function updateInvoice(
       description: item.description,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
-      vatRate: item.vatRate,
+      vatRate: effectiveVatRate,
       unit: item.unit,
       subtotal: itemSubtotal,
       vatAmount: itemVatAmount,

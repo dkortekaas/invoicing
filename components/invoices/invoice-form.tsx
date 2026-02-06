@@ -4,7 +4,7 @@ import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { Loader2, Plus, Trash2, CalendarIcon } from "lucide-react"
+import { Loader2, Plus, Trash2, CalendarIcon, Info } from "lucide-react"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
 
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
@@ -69,9 +70,10 @@ interface InvoiceFormProps {
   invoice?: InvoiceFormData & { id: string; invoiceNumber: string; currencyCode?: string }
   customers: Customer[]
   products: Product[]
+  useKOR?: boolean
 }
 
-export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) {
+export function InvoiceForm({ invoice, customers, products, useKOR = false }: InvoiceFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [, setSelectedCustomer] = useState<Customer | null>(null)
@@ -97,7 +99,7 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
           description: "",
           quantity: 1,
           unitPrice: 0,
-          vatRate: 21,
+          vatRate: useKOR ? 0 : 21,
           unit: "uur",
         },
       ],
@@ -131,7 +133,8 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
   // Calculate totals
   const calculateItemTotal = (item: (typeof watchedItems)[0]) => {
     const subtotal = roundToTwo(item.quantity * item.unitPrice)
-    const vatAmount = roundToTwo(subtotal * (item.vatRate / 100))
+    const effectiveVatRate = useKOR ? 0 : item.vatRate
+    const vatAmount = roundToTwo(subtotal * (effectiveVatRate / 100))
     return { subtotal, vatAmount, total: roundToTwo(subtotal + vatAmount) }
   }
 
@@ -167,7 +170,7 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
         description: product.name,
         quantity: 1,
         unitPrice: product.unitPrice,
-        vatRate: product.vatRate,
+        vatRate: useKOR ? 0 : product.vatRate,
         unit: product.unit,
       })
     }
@@ -193,6 +196,17 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
   return (
     <Form {...form}>
       <form className="space-y-6">
+        {useKOR && (
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertTitle>Kleineondernemersregeling (KOR)</AlertTitle>
+            <AlertDescription>
+              Je maakt gebruik van de KOR. Er wordt geen BTW in rekening gebracht op deze factuur.
+              Wil je dit wijzigen? Ga naar{" "}
+              <a href="/instellingen" className="underline font-medium">Instellingen &gt; Fiscaal</a>.
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Left column - Customer & Dates */}
           <div className="space-y-6 lg:col-span-2">
@@ -498,23 +512,29 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>BTW</FormLabel>
-                              <Select
-                                onValueChange={(v) => field.onChange(parseInt(v))}
-                                defaultValue={field.value?.toString()}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {VAT_RATES.map((rate) => (
-                                    <SelectItem key={rate.value} value={rate.value}>
-                                      {rate.value}%
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                              {useKOR ? (
+                                <div className="flex h-10 items-center rounded-md border bg-muted px-3 text-sm text-muted-foreground">
+                                  0% (KOR)
+                                </div>
+                              ) : (
+                                <Select
+                                  onValueChange={(v) => field.onChange(parseInt(v))}
+                                  defaultValue={field.value?.toString()}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {VAT_RATES.map((rate) => (
+                                      <SelectItem key={rate.value} value={rate.value}>
+                                        {rate.value}%
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -540,7 +560,7 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
                       description: "",
                       quantity: 1,
                       unitPrice: 0,
-                      vatRate: 21,
+                      vatRate: useKOR ? 0 : 21,
                       unit: "uur",
                     })
                   }
@@ -611,20 +631,29 @@ export function InvoiceForm({ invoice, customers, products }: InvoiceFormProps) 
 
                 <Separator />
 
-                {/* VAT breakdown by rate */}
-                {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
-                  <div key={rate} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      BTW {rate}% over {formatCurrencyWithCode(subtotal, watchedCurrencyCode)}
-                    </span>
-                    <span>{formatCurrencyWithCode(vatAmount, watchedCurrencyCode)}</span>
+                {useKOR ? (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">BTW (KOR - vrijgesteld)</span>
+                    <span>{formatCurrencyWithCode(0, watchedCurrencyCode)}</span>
                   </div>
-                ))}
+                ) : (
+                  <>
+                    {/* VAT breakdown by rate */}
+                    {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
+                      <div key={rate} className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          BTW {rate}% over {formatCurrencyWithCode(subtotal, watchedCurrencyCode)}
+                        </span>
+                        <span>{formatCurrencyWithCode(vatAmount, watchedCurrencyCode)}</span>
+                      </div>
+                    ))}
 
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Totaal BTW</span>
-                  <span>{formatCurrencyWithCode(totals.vatAmount, watchedCurrencyCode)}</span>
-                </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Totaal BTW</span>
+                      <span>{formatCurrencyWithCode(totals.vatAmount, watchedCurrencyCode)}</span>
+                    </div>
+                  </>
+                )}
 
                 <Separator />
 

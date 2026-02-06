@@ -34,7 +34,7 @@ export function PaymentLinkGenerator({
   const [copied, setCopied] = useState(false)
   const [showQR, setShowQR] = useState(false)
 
-  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://declair.app"
   const paymentUrl = token ? `${APP_URL}/pay/${token}` : null
 
   const isExpired = linkExpiresAt && new Date() > linkExpiresAt

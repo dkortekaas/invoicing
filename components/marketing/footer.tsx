@@ -12,7 +12,7 @@ const Footer = () => {
     product: [
       { labelKey: "features" as const, href: "/functies" },
       { labelKey: "pricing" as const, href: "/prijzen" },
-      { labelKey: "integrations" as const, href: "/functies/koppelingen" },
+      //{ labelKey: "integrations" as const, href: "/functies/koppelingen" },
     ],
     resources: [
       { labelKey: "blog" as const, href: "/blog" },

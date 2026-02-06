@@ -70,9 +70,10 @@ export async function getInvoice(id: string) {
     return null
   }
 
-  // Convert Decimal fields to numbers for serialization
+  // Convert Decimal fields to numbers for serialization (Client Components require plain objects)
+  const { user: rawUser, ...rest } = invoice
   return {
-    ...invoice,
+    ...rest,
     subtotal: invoice.subtotal.toNumber(),
     vatAmount: invoice.vatAmount.toNumber(),
     total: invoice.total.toNumber(),
@@ -80,6 +81,10 @@ export async function getInvoice(id: string) {
     subtotalEur: invoice.subtotalEur?.toNumber() ?? null,
     vatAmountEur: invoice.vatAmountEur?.toNumber() ?? null,
     totalEur: invoice.totalEur?.toNumber() ?? null,
+    user: {
+      ...rawUser,
+      defaultHourlyRate: rawUser.defaultHourlyRate?.toNumber() ?? null,
+    },
     items: invoice.items.map((item) => ({
       ...item,
       quantity: item.quantity.toNumber(),

@@ -4,6 +4,7 @@ import { use } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   FileText,
   CreditCard,
@@ -19,10 +20,16 @@ import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/components/providers/locale-provider";
 import CallToActionSection from "@/components/marketing/cta-section";
 
-const featureConfig = {
+const featureConfig: Record<string, {
+  icon: typeof FileText;
+  translationKey: string;
+  heroImage?: string;
+  features: string[];
+}> = {
   "facturen-en-offertes": {
     icon: FileText,
     translationKey: "invoices",
+    heroImage: "/facturen-screenshot.png",
     features: [
       "feature1",
       "feature2",
@@ -35,6 +42,7 @@ const featureConfig = {
   "betalingen": {
     icon: CreditCard,
     translationKey: "payments",
+    heroImage: "/betalingen-screenshot.png",
     features: [
       "feature1",
       "feature2",
@@ -46,6 +54,7 @@ const featureConfig = {
   "onkosten-en-bonnetjes": {
     icon: Receipt,
     translationKey: "expenses",
+    heroImage: "/onkosten-screenshot.png",
     features: [
       "feature1",
       "feature2",
@@ -57,6 +66,7 @@ const featureConfig = {
   "projecten-en-uren": {
     icon: Clock,
     translationKey: "projects",
+    heroImage: "/projecten-screenshot.png",
     features: [
       "feature1",
       "feature2",
@@ -68,6 +78,7 @@ const featureConfig = {
   "rapportages-en-belasting": {
     icon: BarChart3,
     translationKey: "reports",
+    heroImage: "/rapportages-screenshot.png",
     features: [
       "feature1",
       "feature2",
@@ -89,13 +100,11 @@ const featureConfig = {
   },
 };
 
-type FeatureSlug = keyof typeof featureConfig;
-
 const FeatureDetailPage = ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = use(params);
   const { t } = useTranslations("featurePages");
 
-  const config = featureConfig[slug as FeatureSlug];
+  const config = featureConfig[slug];
 
   if (!config) {
     notFound();
@@ -120,44 +129,82 @@ const FeatureDetailPage = ({ params }: { params: Promise<{ slug: string }> }) =>
         </div>
 
         <div className="container mx-auto px-6 md:px-0 relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl"
-          >
-            <Link
-              href="/functies"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+          <div className={`grid ${config.heroImage ? "lg:grid-cols-2 gap-12 lg:gap-16 items-center" : ""}`}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={config.heroImage ? "" : "max-w-3xl"}
             >
-              <ArrowLeft className="w-4 h-4" />
-              {t("backToFeatures")}
-            </Link>
-
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
-              <Icon className="w-8 h-8 text-primary" />
-            </div>
-
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-              {t(`${key}.title`)}
-            </h1>
-            <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl">
-              {t(`${key}.description`)}
-            </p>
-
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <Link href="/register">
-                <Button size="lg" className="gap-2 shadow-glow">
-                  {t("startFree")}
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+              <Link
+                href="/functies"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                {t("backToFeatures")}
               </Link>
-              <Link href="/prijzen">
-                <Button variant="outline" size="lg">
-                  {t("viewPricing")}
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
+
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+                <Icon className="w-8 h-8 text-primary" />
+              </div>
+
+              <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+                {t(`${key}.title`)}
+              </h1>
+              <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl">
+                {t(`${key}.description`)}
+              </p>
+
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <Link href="/register">
+                  <Button size="lg" className="gap-2 shadow-glow">
+                    {t("startFree")}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <Link href="/prijzen">
+                  <Button variant="outline" size="lg">
+                    {t("viewPricing")}
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+
+            {config.heroImage && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="relative px-4 md:px-0"
+              >
+                {/* Browser Mockup */}
+                <div className="relative bg-card rounded-xl shadow-xl border border-border overflow-hidden">
+                  {/* Browser Header */}
+                  <div className="flex items-center gap-2 px-4 py-3 bg-muted/50 border-b border-border">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-destructive/60" />
+                      <div className="w-3 h-3 rounded-full bg-warning/60" />
+                      <div className="w-3 h-3 rounded-full bg-success/60" />
+                    </div>
+                    <div className="flex-1 flex justify-center">
+                      <div className="px-4 py-1 rounded-md bg-background text-xs text-muted-foreground">
+                        declair.nl
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Screenshot */}
+                  <Image
+                    src={config.heroImage}
+                    alt={t(`${key}.title`)}
+                    width={800}
+                    height={600}
+                    className="w-full h-auto"
+                    priority
+                  />
+                </div>
+              </motion.div>
+            )}
+          </div>
         </div>
       </section>
 

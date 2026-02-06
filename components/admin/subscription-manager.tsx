@@ -17,12 +17,13 @@ import { CreditCard, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 
+// PRO = legacy, treated as PROFESSIONAL
 interface SubscriptionUser {
   id: string;
   name: string | null;
   email: string;
   companyName: string;
-  subscriptionTier: 'FREE' | 'PRO';
+  subscriptionTier: 'FREE' | 'PRO' | 'STARTER' | 'PROFESSIONAL' | 'BUSINESS';
   subscriptionStatus: 'FREE' | 'ACTIVE' | 'TRIALING' | 'PAST_DUE' | 'CANCELED' | 'INCOMPLETE' | 'INCOMPLETE_EXPIRED' | 'UNPAID';
   billingCycle: 'MONTHLY' | 'YEARLY' | null;
   stripeCustomerId: string | null;
@@ -75,10 +76,15 @@ export function SubscriptionManager({ users }: SubscriptionManagerProps) {
 
   const getTierBadge = (tier: string) => {
     switch (tier) {
-      case 'PRO':
-        return <Badge className="bg-purple-100 text-purple-800">PRO</Badge>;
       case 'FREE':
         return <Badge variant="outline">FREE</Badge>;
+      case 'STARTER':
+        return <Badge className="bg-slate-100 text-slate-800">Starter</Badge>;
+      case 'PRO':
+      case 'PROFESSIONAL':
+        return <Badge className="bg-blue-100 text-blue-800">Professional</Badge>;
+      case 'BUSINESS':
+        return <Badge className="bg-purple-100 text-purple-800">Business</Badge>;
       default:
         return <Badge>{tier}</Badge>;
     }
@@ -86,7 +92,7 @@ export function SubscriptionManager({ users }: SubscriptionManagerProps) {
 
   const stats = {
     total: users.length,
-    pro: users.filter((u) => u.subscriptionTier === 'PRO').length,
+    paid: users.filter((u) => u.subscriptionTier !== 'FREE').length,
     active: users.filter((u) => u.subscriptionStatus === 'ACTIVE').length,
     free: users.filter((u) => u.subscriptionTier === 'FREE').length,
   };
@@ -103,8 +109,8 @@ export function SubscriptionManager({ users }: SubscriptionManagerProps) {
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-purple-600">{stats.pro}</div>
-            <div className="text-sm text-muted-foreground">PRO accounts</div>
+            <div className="text-2xl font-bold text-purple-600">{stats.paid}</div>
+            <div className="text-sm text-muted-foreground">Betaalde accounts</div>
           </CardContent>
         </Card>
         <Card>

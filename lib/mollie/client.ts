@@ -170,15 +170,15 @@ export class MollieClient {
   }
 
   /**
-   * Test connection to Mollie API
+   * Test connection to Mollie API.
+   * Uses GET /methods (works in both test and live mode); /organizations/me is live-only.
    */
   async testConnection(): Promise<{ success: boolean; mode: "test" | "live"; error?: string }> {
     try {
-      // Try to get organization profile to verify connection
-      const response = await this.request<{ mode: "test" | "live" }>("GET", "/organizations/me")
+      await this.request<{ count: number }>("GET", "/methods")
       return {
         success: true,
-        mode: response.mode || (this.testMode ? "test" : "live"),
+        mode: this.testMode ? "test" : "live",
       }
     } catch (error) {
       const err = error as Error & { status?: number }

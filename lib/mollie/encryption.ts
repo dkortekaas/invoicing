@@ -3,15 +3,19 @@ import { createCipheriv, createDecipheriv, randomBytes } from "crypto"
 const ALGORITHM = "aes-256-gcm"
 const IV_LENGTH = 16
 
+const HEX_64 = /^[0-9a-fA-F]{64}$/
+
 function getEncryptionKey(): Buffer {
-  const key = process.env.MOLLIE_ENCRYPTION_KEY
-  if (!key) {
+  const raw = process.env.MOLLIE_ENCRYPTION_KEY
+  if (!raw) {
     throw new Error("MOLLIE_ENCRYPTION_KEY is not configured")
   }
 
-  // Key should be 32 bytes (64 hex characters) for AES-256
-  if (key.length !== 64) {
-    throw new Error("MOLLIE_ENCRYPTION_KEY must be 64 hex characters (32 bytes)")
+  const key = raw.trim()
+  if (key.length !== 64 || !HEX_64.test(key)) {
+    throw new Error(
+      `MOLLIE_ENCRYPTION_KEY must be 64 hex characters (32 bytes), got ${key.length} characters`
+    )
   }
 
   return Buffer.from(key, "hex")

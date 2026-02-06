@@ -23,7 +23,7 @@ const featureKeys = [
   { key: "expenses", href: "/functies/onkosten-en-bonnetjes" },
   { key: "projects", href: "/functies/projecten-en-uren" },
   { key: "reports", href: "/functies/rapportages-en-belasting" },
-  { key: "integrations", href: "/functies/koppelingen" },
+  //{ key: "integrations", href: "/functies/koppelingen" },
 ] as const;
 
 const Header = () => {

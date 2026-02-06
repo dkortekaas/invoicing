@@ -65,12 +65,12 @@ const FeaturesPage = () => {
       href: "/functies/rapportages-en-belasting",
       highlights: ["reportsHighlight1", "reportsHighlight2", "reportsHighlight3"],
     },
-    {
-      icon: Plug,
-      titleKey: "integrations",
-      href: "/functies/koppelingen",
-      highlights: ["integrationsHighlight1", "integrationsHighlight2", "integrationsHighlight3"],
-    },
+    // {
+    //   icon: Plug,
+    //   titleKey: "integrations",
+    //   href: "/functies/koppelingen",
+    //   highlights: ["integrationsHighlight1", "integrationsHighlight2", "integrationsHighlight3"],
+    // },
   ];
 
   return (

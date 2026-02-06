@@ -5,7 +5,10 @@ import { db } from '@/lib/db';
 import { parseFile, executeImport } from '@/lib/import-export/import-service';
 import type { EntityType } from '@/lib/import-export/fields';
 
-async function getFileBuffer(job: { fileContent: Buffer | null; filePath: string | null }): Promise<Buffer> {
+async function getFileBuffer(job: {
+  fileContent: Buffer | Uint8Array | null;
+  filePath: string | null;
+}): Promise<Buffer> {
   if (job.fileContent && job.fileContent.length > 0) {
     return Buffer.isBuffer(job.fileContent) ? job.fileContent : Buffer.from(job.fileContent);
   }

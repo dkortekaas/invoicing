@@ -96,13 +96,19 @@ const navigation = [
 export function AppSidebar() {
   const pathname = usePathname()
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isSuperuser, setIsSuperuser] = useState(false)
 
   useEffect(() => {
-    // Check if user is admin
     fetch('/api/admin/check')
       .then((res) => res.json())
-      .then((data) => setIsAdmin(data.isAdmin))
-      .catch(() => setIsAdmin(false))
+      .then((data) => {
+        setIsAdmin(data.isAdmin ?? false)
+        setIsSuperuser(data.isSuperuser ?? false)
+      })
+      .catch(() => {
+        setIsAdmin(false)
+        setIsSuperuser(false)
+      })
   }, [])
 
   const handleLogout = async () => {
@@ -146,24 +152,24 @@ export function AppSidebar() {
                 )
               })}
               {isAdmin && (
-                <>
-                  <SidebarMenuItem className="py-1">
-                    <SidebarMenuButton asChild isActive={pathname?.startsWith('/audit-logs')}>
-                      <Link href="/audit-logs">
-                        <History />
-                        <span>Audit Log</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem className="py-1">
-                    <SidebarMenuButton asChild isActive={pathname?.startsWith('/admin')}>
-                      <Link href="/admin">
-                        <Shield />
-                        <span>Admin</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </>
+                <SidebarMenuItem className="py-1">
+                  <SidebarMenuButton asChild isActive={pathname?.startsWith('/audit-logs')}>
+                    <Link href="/audit-logs">
+                      <History />
+                      <span>Audit Log</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+              {isSuperuser && (
+                <SidebarMenuItem className="py-1">
+                  <SidebarMenuButton asChild isActive={pathname?.startsWith('/admin')}>
+                    <Link href="/admin">
+                      <Shield />
+                      <span>Admin</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               )}
             </SidebarMenu>
           </SidebarGroupContent>

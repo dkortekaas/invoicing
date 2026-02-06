@@ -3,7 +3,7 @@ title: Wat moet verplicht op een factuur staan? (zzp checklist)
 seoTitle: Verplichte factuurgegevens voor zzp’ers (complete checklist)
 metaDescription: Ontdek welke gegevens verplicht op een factuur moeten staan volgens de Belastingdienst. Inclusief praktische zzp-checklist.
 excerpt: Dit moet verplicht op een factuur staan volgens de Nederlandse regels. Inclusief praktische checklist voor zzp’ers.
-image: blog/2-wat-moet-verplicht-op-een-factuur-staan.PNG
+image: blog/2-wat-moet-verplicht-op-een-factuur-staan.jpg
 date: 2026-01-30
 category: facturatie
 readTime: 7

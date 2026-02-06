@@ -3,7 +3,7 @@ title: Hoe maak je een factuur als zzp’er? (stap-voor-stap gids)
 seoTitle: Factuur maken als zzp’er? Volg dit stappenplan (2026)
 metaDescription: Leer stap voor stap hoe je als zzp’er een correcte factuur maakt die voldoet aan de regels en zorgt dat je sneller betaald wordt.
 excerpt: Leer stap voor stap hoe je als zzp’er een correcte factuur maakt die voldoet aan de regels én sneller wordt betaald.
-image: blog/1-hoe-maak-je-een-factuur-als-zzper.PNG
+image: blog/1-hoe-maak-je-een-factuur-als-zzper.jpg
 date: 2026-01-30
 category: facturatie
 readTime: 9

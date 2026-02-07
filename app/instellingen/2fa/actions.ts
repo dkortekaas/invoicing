@@ -7,6 +7,7 @@ import {
   verifyTwoFactorCode,
   generateQRCodeDataURL,
   generateBackupCodes,
+  buildOtpauthUrl,
 } from "@/lib/auth-utils"
 
 export async function generate2FASecret() {
@@ -21,7 +22,10 @@ export async function generate2FASecret() {
   }
 
   const secret = generateTwoFactorSecret(user.email, user.company?.name ?? user.email)
-  const qrCode = await generateQRCodeDataURL(secret.otpauth_url!)
+  const label = `${user.company?.name ?? user.email} (${user.email})`
+  // QR bouwen met exact het base32 secret dat we opslaan (geen interne conversie)
+  const otpauthUrl = buildOtpauthUrl(secret.base32!, label)
+  const qrCode = await generateQRCodeDataURL(otpauthUrl)
 
   // Save secret temporarily (not enabled yet)
   await db.user.update({
@@ -46,8 +50,9 @@ export async function verify2FASetup(code: string) {
     throw new Error("Geen 2FA secret gevonden. Start de setup opnieuw.")
   }
 
-  // Verify code
-  const isValid = verifyTwoFactorCode(user.twoFactorSecret, code)
+  // Verify code (normaliseer: trim en verwijder spaties)
+  const normalizedCode = String(code ?? "").trim().replace(/\s/g, "")
+  const isValid = verifyTwoFactorCode(user.twoFactorSecret, normalizedCode)
 
   if (!isValid) {
     throw new Error("Ongeldige verificatie code")

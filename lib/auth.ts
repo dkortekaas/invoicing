@@ -5,7 +5,7 @@ import speakeasy from "speakeasy"
 import NextAuth from "next-auth"
 import type { JWT } from "next-auth/jwt"
 import type { Session, User } from "next-auth"
-import { verifyBackupCode } from "./auth-utils"
+import { verifyBackupCode, sanitizeBase32Secret } from "./auth-utils"
 import { logLogin, logLoginFailed } from "./audit/helpers"
 
 export const authOptions = {
@@ -50,7 +50,9 @@ export const authOptions = {
 
           // If 2FA is enabled, verify the code
           if (user.twoFactorEnabled) {
-            const twoFactorCode = credentials.twoFactorCode as string | undefined
+            const rawCode = credentials.twoFactorCode as string | undefined
+            const twoFactorCode =
+              typeof rawCode === "string" ? rawCode.trim().replace(/\s/g, "") : ""
             if (!twoFactorCode) {
               // 2FA is required but not provided
               // The login page should have checked this via /api/auth/check-2fa first
@@ -60,17 +62,25 @@ export const authOptions = {
 
             let isValid = false
 
-            // First try to verify as TOTP code
-            if (user.twoFactorSecret) {
-              isValid = speakeasy.totp.verify({
-                secret: user.twoFactorSecret,
-                encoding: "base32",
-                token: twoFactorCode,
-                window: 2, // Allow 2 time steps before/after
-              })
+            // Eerst proberen als TOTP (6 cijfers; eventueel leading zero)
+            if (
+              user.twoFactorSecret &&
+              /^\d+$/.test(twoFactorCode) &&
+              twoFactorCode.length <= 6
+            ) {
+              const token = twoFactorCode.padStart(6, "0")
+              const secret = sanitizeBase32Secret(user.twoFactorSecret)
+              if (secret) {
+                isValid = speakeasy.totp.verify({
+                  secret,
+                  encoding: "base32",
+                  token,
+                  window: 10, // ±5 min voor klokverschil
+                })
+              }
             }
 
-            // If TOTP verification failed, try backup code
+            // If TOTP verification failed, try backup code (8 digits)
             if (!isValid) {
               isValid = await verifyBackupCode(user.id, twoFactorCode)
             }

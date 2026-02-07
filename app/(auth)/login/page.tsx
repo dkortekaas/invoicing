@@ -68,11 +68,11 @@ function LoginForm() {
         }
       }
 
-      // Now try to sign in
+      // Now try to sign in (altijd twoFactorCode meesturen zodat de key in de body zit)
       const result = await signIn("credentials", {
         email: requiresTwoFactor ? email : data.email,
         password: requiresTwoFactor ? password : data.password,
-        twoFactorCode: data.twoFactorCode || undefined,
+        twoFactorCode: requiresTwoFactor ? (data.twoFactorCode ?? "") : "",
         redirect: false,
       })
 

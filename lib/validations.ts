@@ -247,6 +247,7 @@ export type CompanySettingsFormData = z.infer<typeof companySettingsSchema>
 export const loginSchema = z.object({
   email: z.string().email("Ongeldig e-mailadres"),
   password: z.string().min(6, "Wachtwoord moet minimaal 6 karakters zijn"),
+  twoFactorCode: z.string().optional(),
 })
 
 export type LoginFormData = z.infer<typeof loginSchema>

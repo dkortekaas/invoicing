@@ -297,6 +297,14 @@
             "privacy": "Privacy",
             "terms": "Algemene voorwaarden",
             "cookies": "Cookie beleid"
+        },
+        "newsletter": {
+            "title": "Nieuwsbrief",
+            "description": "Ontvang tips over facturatie en ondernemen.",
+            "placeholder": "je@email.nl",
+            "subscribe": "Inschrijven",
+            "success": "Bevestigingsmail verstuurd!",
+            "error": "Er ging iets mis. Probeer het opnieuw."
         }
     },
     "dashboard": {

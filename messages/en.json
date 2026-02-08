@@ -283,6 +283,14 @@
             "privacy": "Privacy",
             "terms": "Terms",
             "cookies": "Cookie policy"
+        },
+        "newsletter": {
+            "title": "Newsletter",
+            "description": "Get tips on invoicing and entrepreneurship.",
+            "placeholder": "you@email.com",
+            "subscribe": "Subscribe",
+            "success": "Confirmation email sent!",
+            "error": "Something went wrong. Please try again."
         }
     },
     "dashboard": {

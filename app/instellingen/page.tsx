@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/get-session"
 import { db } from "@/lib/db"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TabsContent } from "@/components/ui/tabs"
+import { SettingsTabs } from "./settings-tabs"
 import { ProfielForm } from "./profiel-form"
 import { BedrijfsgegevensForm } from "./bedrijfsgegevens-form"
 import { FinancieleGegevensForm } from "./financiele-gegevens-form"
@@ -65,17 +66,7 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
         </p>
       </div>
 
-      <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-8">
-          <TabsTrigger value="profiel">Profiel</TabsTrigger>
-          <TabsTrigger value="beveiliging">Beveiliging</TabsTrigger>
-          <TabsTrigger value="bedrijfsgegevens">Bedrijf</TabsTrigger>
-          <TabsTrigger value="financiele-gegevens">Financieel</TabsTrigger>
-          <TabsTrigger value="fiscaal">Fiscaal</TabsTrigger>
-          <TabsTrigger value="email">Email</TabsTrigger>
-          <TabsTrigger value="betalingen">Betalingen</TabsTrigger>
-          <TabsTrigger value="import-export">Import/Export</TabsTrigger>
-        </TabsList>
+      <SettingsTabs defaultTab={defaultTab}>
 
         <TabsContent value="profiel" className="mt-6">
           <div className="space-y-6">
@@ -141,7 +132,7 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+      </SettingsTabs>
     </div>
   )
 }

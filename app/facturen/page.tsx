@@ -102,7 +102,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Facturen</h2>
           <p className="text-muted-foreground">
@@ -125,6 +125,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
         <CardHeader className="pb-3">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <Tabs defaultValue={status}>
+              <div className="overflow-x-auto -mx-1 px-1">
               <TabsList>
                 <TabsTrigger value="ALL" asChild>
                   <Link href="/facturen">Alle ({statusCounts.ALL})</Link>
@@ -150,6 +151,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
                   </Link>
                 </TabsTrigger>
               </TabsList>
+              </div>
             </Tabs>
 
             <div className="flex flex-wrap items-center gap-2">

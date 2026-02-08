@@ -456,3 +456,10 @@ export const contactFormSchema = z.object({
 })
 
 export type ContactFormData = z.infer<typeof contactFormSchema>
+
+// ========== Newsletter Subscribe Schema ==========
+export const newsletterSubscribeSchema = z.object({
+  email: z.string().email("Ongeldig e-mailadres"),
+})
+
+export type NewsletterSubscribeFormData = z.infer<typeof newsletterSubscribeSchema>

@@ -81,6 +81,94 @@ export async function updateProfile(data: ProfileFormData) {
   revalidatePath("/instellingen")
 }
 
+// ========== Newsletter Actions ==========
+export async function getNewsletterStatus() {
+  const userId = await getCurrentUserId()
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { email: true },
+  })
+
+  if (!user) return { subscribed: false }
+
+  const subscription = await db.newsletterSubscriber.findFirst({
+    where: {
+      OR: [
+        { userId },
+        { email: user.email.toLowerCase() },
+      ],
+    },
+  })
+
+  if (!subscription) return { subscribed: false }
+
+  return {
+    subscribed: subscription.status === "CONFIRMED",
+    status: subscription.status,
+  }
+}
+
+export async function toggleNewsletterSubscription() {
+  const userId = await getCurrentUserId()
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { email: true },
+  })
+
+  if (!user) throw new Error("User not found")
+
+  const email = user.email.toLowerCase()
+
+  const existing = await db.newsletterSubscriber.findFirst({
+    where: {
+      OR: [
+        { userId },
+        { email },
+      ],
+    },
+  })
+
+  if (existing) {
+    if (existing.status === "CONFIRMED") {
+      // Unsubscribe
+      await db.newsletterSubscriber.update({
+        where: { id: existing.id },
+        data: {
+          status: "UNSUBSCRIBED",
+          unsubscribedAt: new Date(),
+          userId, // Link to user if not already
+        },
+      })
+    } else {
+      // Re-subscribe (skip confirmation for logged-in users)
+      await db.newsletterSubscriber.update({
+        where: { id: existing.id },
+        data: {
+          status: "CONFIRMED",
+          confirmedAt: new Date(),
+          unsubscribedAt: null,
+          confirmToken: null,
+          userId,
+        },
+      })
+    }
+  } else {
+    // New subscription (skip confirmation for logged-in users)
+    await db.newsletterSubscriber.create({
+      data: {
+        email,
+        status: "CONFIRMED",
+        confirmedAt: new Date(),
+        userId,
+      },
+    })
+  }
+
+  revalidatePath("/instellingen")
+}
+
 // ========== Company Info Actions ==========
 export async function getCompanyInfo() {
   const userId = await getCurrentUserId()

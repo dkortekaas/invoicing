@@ -18,7 +18,7 @@ import {
   CardContent,
   CardHeader,
 } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { StatusFilterTabs } from "@/components/status-filter-tabs"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import { getInvoices } from "./actions"
@@ -124,35 +124,16 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
       <Card>
         <CardHeader className="pb-3">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <Tabs defaultValue={status}>
-              <div className="overflow-x-auto -mx-1 px-1">
-              <TabsList>
-                <TabsTrigger value="ALL" asChild>
-                  <Link href="/facturen">Alle ({statusCounts.ALL})</Link>
-                </TabsTrigger>
-                <TabsTrigger value="DRAFT" asChild>
-                  <Link href="/facturen?status=DRAFT">
-                    Concept ({statusCounts.DRAFT})
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="SENT" asChild>
-                  <Link href="/facturen?status=SENT">
-                    Verzonden ({statusCounts.SENT})
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="PAID" asChild>
-                  <Link href="/facturen?status=PAID">
-                    Betaald ({statusCounts.PAID})
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="OVERDUE" asChild>
-                  <Link href="/facturen?status=OVERDUE">
-                    Achterstallig ({statusCounts.OVERDUE})
-                  </Link>
-                </TabsTrigger>
-              </TabsList>
-              </div>
-            </Tabs>
+            <StatusFilterTabs
+              currentStatus={status}
+              options={[
+                { value: "ALL", label: "Alle", count: statusCounts.ALL, href: "/facturen" },
+                { value: "DRAFT", label: "Concept", count: statusCounts.DRAFT, href: "/facturen?status=DRAFT" },
+                { value: "SENT", label: "Verzonden", count: statusCounts.SENT, href: "/facturen?status=SENT" },
+                { value: "PAID", label: "Betaald", count: statusCounts.PAID, href: "/facturen?status=PAID" },
+                { value: "OVERDUE", label: "Achterstallig", count: statusCounts.OVERDUE, href: "/facturen?status=OVERDUE" },
+              ]}
+            />
 
             <div className="flex flex-wrap items-center gap-2">
               <SearchForm currentStatus={status} />

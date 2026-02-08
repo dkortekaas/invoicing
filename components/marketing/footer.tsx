@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Logo from "@/components/marketing/logo";
+import { NewsletterForm } from "@/components/marketing/newsletter-form";
 import { useTranslations } from "@/components/providers/locale-provider";
 
 const Footer = () => {
@@ -32,7 +33,7 @@ const Footer = () => {
   return (
     <footer className="bg-muted/50 border-t border-border">
       <div className="container mx-auto pt-12 pb-4 md:pt-16 md:pb-8">
-        <div className="grid grid-cols-2 px-6 md:px-0 md:grid-cols-5 gap-8 md:gap-12">
+        <div className="grid grid-cols-2 px-6 md:px-0 md:grid-cols-6 gap-8 md:gap-12">
           {/* Logo & Description */}
           <div className="col-span-2 md:col-span-1">
             <Logo />
@@ -107,6 +108,17 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div className="col-span-2 md:col-span-1">
+            <h4 className="font-semibold text-foreground mb-4">
+              {t("newsletter.title")}
+            </h4>
+            <p className="text-sm text-muted-foreground mb-3">
+              {t("newsletter.description")}
+            </p>
+            <NewsletterForm />
           </div>
         </div>
 

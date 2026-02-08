@@ -17,7 +17,7 @@ import {
   CardContent,
   CardHeader,
 } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { StatusFilterTabs } from "@/components/status-filter-tabs"
 import { formatCurrency, formatDate, CREDIT_NOTE_REASON_LABELS } from "@/lib/utils"
 import { CreditNoteStatusBadge } from "@/components/creditnotes/credit-note-status-badge"
 import { getCreditNotes } from "./actions"
@@ -121,35 +121,16 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
       <Card>
         <CardHeader className="pb-3">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <Tabs defaultValue={status}>
-              <div className="overflow-x-auto -mx-1 px-1">
-              <TabsList>
-                <TabsTrigger value="ALL" asChild>
-                  <Link href="/creditnotas">Alle ({statusCounts.ALL})</Link>
-                </TabsTrigger>
-                <TabsTrigger value="DRAFT" asChild>
-                  <Link href="/creditnotas?status=DRAFT">
-                    Concept ({statusCounts.DRAFT})
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="FINAL" asChild>
-                  <Link href="/creditnotas?status=FINAL">
-                    Definitief ({statusCounts.FINAL})
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="SENT" asChild>
-                  <Link href="/creditnotas?status=SENT">
-                    Verzonden ({statusCounts.SENT})
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="REFUNDED" asChild>
-                  <Link href="/creditnotas?status=REFUNDED">
-                    Terugbetaald ({statusCounts.REFUNDED})
-                  </Link>
-                </TabsTrigger>
-              </TabsList>
-              </div>
-            </Tabs>
+            <StatusFilterTabs
+              currentStatus={status}
+              options={[
+                { value: "ALL", label: "Alle", count: statusCounts.ALL, href: "/creditnotas" },
+                { value: "DRAFT", label: "Concept", count: statusCounts.DRAFT, href: "/creditnotas?status=DRAFT" },
+                { value: "FINAL", label: "Definitief", count: statusCounts.FINAL, href: "/creditnotas?status=FINAL" },
+                { value: "SENT", label: "Verzonden", count: statusCounts.SENT, href: "/creditnotas?status=SENT" },
+                { value: "REFUNDED", label: "Terugbetaald", count: statusCounts.REFUNDED, href: "/creditnotas?status=REFUNDED" },
+              ]}
+            />
 
             <div className="flex flex-wrap items-center gap-2">
               <SearchForm currentStatus={status} />

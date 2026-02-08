@@ -9,7 +9,8 @@ import { TwoFactorSetup } from "./2fa/two-factor-setup"
 import { WachtwoordForm } from "./wachtwoord-form"
 import { EmailSettingsForm } from "./email-form"
 import { FiscaalForm } from "./fiscaal-form"
-import { getProfile, getCompanyInfo, getFinancialInfo, getEmailSettings, getMollieSettings, getFiscalSettings } from "./actions"
+import { getProfile, getCompanyInfo, getFinancialInfo, getEmailSettings, getMollieSettings, getFiscalSettings, getNewsletterStatus } from "./actions"
+import { NewsletterForm } from "./newsletter-form"
 import { MollieSettingsForm } from "./mollie-settings-form"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
@@ -41,13 +42,14 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
   }
 
   // Fetch all data in parallel
-  const [profile, companyInfo, financialInfo, emailSettings, mollieSettings, fiscalSettings, params] = await Promise.all([
+  const [profile, companyInfo, financialInfo, emailSettings, mollieSettings, fiscalSettings, newsletterStatus, params] = await Promise.all([
     getProfile(),
     getCompanyInfo(),
     getFinancialInfo(),
     getEmailSettings(),
     getMollieSettings(),
     getFiscalSettings(),
+    getNewsletterStatus(),
     searchParams,
   ])
 
@@ -76,7 +78,10 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
         </TabsList>
 
         <TabsContent value="profiel" className="mt-6">
-          <ProfielForm initialData={profile} />
+          <div className="space-y-6">
+            <ProfielForm initialData={profile} />
+            <NewsletterForm subscribed={newsletterStatus.subscribed} />
+          </div>
         </TabsContent>
 
         <TabsContent value="bedrijfsgegevens" className="mt-6">

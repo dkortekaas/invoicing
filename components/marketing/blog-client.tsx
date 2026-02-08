@@ -3,7 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, Calendar, Clock, User } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { ArrowRight, Calendar, Clock, User, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/components/providers/locale-provider";
 import CallToActionSection from "@/components/marketing/cta-section";
@@ -267,36 +268,7 @@ export function BlogClient({ posts }: BlogClientProps) {
       </section>
 
       {/* Newsletter */}
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container mx-auto px-6 md:px-0">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              {t("newsletterTitle")}
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              {t("newsletterDescription")}
-            </p>
-            <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder={t("emailPlaceholder")}
-                className="flex-1 px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <Button type="submit" size="lg">
-                {t("subscribe")}
-              </Button>
-            </form>
-            <p className="mt-4 text-xs text-muted-foreground">
-              {t("newsletterDisclaimer")}
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <NewsletterSection />
 
       {/* CTA Section */}
       <CallToActionSection
@@ -308,5 +280,97 @@ export function BlogClient({ posts }: BlogClientProps) {
         linkText2={t("ctaButton2")}
       />
     </main>
+  );
+}
+
+function NewsletterSection() {
+  const { t } = useTranslations("blog");
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Er is een fout opgetreden.");
+      } else {
+        setIsSubmitted(true);
+      }
+    } catch {
+      setError("Er is een fout opgetreden. Probeer het later opnieuw.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <section className="py-16 md:py-24 bg-background">
+      <div className="container mx-auto px-6 md:px-0">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-2xl mx-auto text-center"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            {t("newsletterTitle")}
+          </h2>
+          <p className="text-lg text-muted-foreground mb-8">
+            {t("newsletterDescription")}
+          </p>
+          {isSubmitted ? (
+            <div className="flex items-center justify-center gap-3 rounded-md bg-green-50 p-4 text-sm text-green-800 max-w-md mx-auto">
+              <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+              <p>
+                Bedankt! Controleer je inbox (en spam-map) voor de
+                bevestigingsmail.
+              </p>
+            </div>
+          ) : (
+            <>
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
+              >
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t("emailPlaceholder")}
+                  className="flex-1 px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <Button type="submit" size="lg" disabled={isLoading}>
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    t("subscribe")
+                  )}
+                </Button>
+              </form>
+              {error && (
+                <p className="mt-3 text-sm text-red-600">{error}</p>
+              )}
+            </>
+          )}
+          <p className="mt-4 text-xs text-muted-foreground">
+            {t("newsletterDisclaimer")}
+          </p>
+        </motion.div>
+      </div>
+    </section>
   );
 }

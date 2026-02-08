@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LayoutDashboard, Users, FileImage, CreditCard, Tag } from "lucide-react"
+import { LayoutDashboard, Users, FileImage, CreditCard, Tag, Mail } from "lucide-react"
 
 export function AdminTabs() {
   const pathname = usePathname()
@@ -15,6 +15,7 @@ export function AdminTabs() {
     if (pathname === "/admin/subscriptions") return "subscriptions"
     if (pathname === "/admin/discount-codes") return "discount-codes"
     if (pathname === "/admin/watermark") return "watermark"
+    if (pathname === "/admin/newsletter") return "newsletter"
     return "overzicht"
   }
 
@@ -34,6 +35,9 @@ export function AdminTabs() {
         break
       case "watermark":
         router.push("/admin/watermark")
+        break
+      case "newsletter":
+        router.push("/admin/newsletter")
         break
     }
   }
@@ -60,6 +64,10 @@ export function AdminTabs() {
         <TabsTrigger value="watermark" className="flex items-center gap-2">
           <FileImage className="h-4 w-4" />
           Watermerk
+        </TabsTrigger>
+        <TabsTrigger value="newsletter" className="flex items-center gap-2">
+          <Mail className="h-4 w-4" />
+          Nieuwsbrief
         </TabsTrigger>
       </TabsList>
     </Tabs>

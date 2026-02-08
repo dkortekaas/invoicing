@@ -152,7 +152,18 @@ function LoginForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Wachtwoord</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Wachtwoord</FormLabel>
+                      {!requiresTwoFactor && (
+                        <Link
+                          href="/wachtwoord-vergeten"
+                          className="text-sm text-primary hover:underline"
+                          tabIndex={-1}
+                        >
+                          Wachtwoord vergeten?
+                        </Link>
+                      )}
+                    </div>
                     <FormControl>
                       <Input
                         type="password"

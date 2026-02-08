@@ -280,6 +280,27 @@ export const changePasswordSchema = z
 
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>
 
+// ========== Forgot Password Schema ==========
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Ongeldig e-mailadres"),
+})
+
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
+
+// ========== Reset Password Schema ==========
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, "Token is verplicht"),
+    password: z.string().min(6, "Wachtwoord moet minimaal 6 karakters zijn"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Wachtwoorden komen niet overeen",
+    path: ["confirmPassword"],
+  })
+
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>
+
 // ========== Mollie Settings Schema ==========
 export const mollieSettingsSchema = z.object({
   mollieApiKey: z

@@ -18,6 +18,10 @@ export default async function UsersPage() {
       twoFactorEnabled: true,
       subscriptionTier: true,
       subscriptionStatus: true,
+      isManualSubscription: true,
+      manualSubscriptionExpiresAt: true,
+      manualSubscriptionNote: true,
+      stripeSubscriptionId: true,
       createdAt: true,
     },
     orderBy: {

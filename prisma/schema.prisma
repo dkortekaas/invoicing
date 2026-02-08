@@ -621,6 +621,18 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  tokenHash String   @unique // SHA-256 hash of the actual token
+  expires   DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([expires])
+}
+
 // Time Tracking Models
 
 model Project {

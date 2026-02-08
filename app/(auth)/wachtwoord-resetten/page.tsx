@@ -25,6 +25,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { PasswordStrengthIndicator } from "@/components/auth/password-strength-indicator"
 import { resetPasswordSchema, type ResetPasswordFormData } from "@/lib/validations"
 import { resetPassword } from "./actions"
 
@@ -147,6 +148,7 @@ function ResetPasswordForm() {
                             {...field}
                           />
                         </FormControl>
+                        <PasswordStrengthIndicator password={form.watch("password")} />
                         <FormMessage />
                       </FormItem>
                     )}

@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { PasswordStrengthIndicator } from "@/components/auth/password-strength-indicator"
 import { registerSchema, type RegisterFormData } from "@/lib/validations"
 import { registerUser } from "./actions"
 
@@ -101,7 +102,7 @@ export default function RegisterPage() {
                 />
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2 md:items-start">
                 <FormField
                   control={form.control}
                   name="password"
@@ -111,6 +112,7 @@ export default function RegisterPage() {
                       <FormControl>
                         <Input type="password" placeholder="••••••••" {...field} />
                       </FormControl>
+                      <PasswordStrengthIndicator password={form.watch("password")} />
                       <FormMessage />
                     </FormItem>
                   )}

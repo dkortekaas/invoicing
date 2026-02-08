@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle2, Clock, XCircle } from "lucide-react"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 
 export default async function AdminNewsletterPage() {
   await requireSuperuser()
@@ -76,12 +77,10 @@ export default async function AdminNewsletterPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Nieuwsbrief</h2>
-        <p className="text-muted-foreground">
-          Overzicht van alle nieuwsbrief inschrijvingen
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Nieuwsbrief"
+        subtitle="Overzicht van alle nieuwsbrief inschrijvingen"
+      />
 
       <div className="grid gap-4 md:grid-cols-4">
         <Card>

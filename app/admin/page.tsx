@@ -2,6 +2,7 @@ import { requireSuperuser } from '@/lib/auth/admin-guard';
 import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, FileText, Shield } from 'lucide-react';
+import { AdminPageHeader } from '@/components/admin/admin-page-header';
 
 export default async function AdminPage() {
   await requireSuperuser();
@@ -14,12 +15,10 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Admin Overzicht</h2>
-        <p className="text-muted-foreground">
-          Beheer systeeminstellingen en gebruikers
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Admin Overzicht"
+        subtitle="Beheer systeeminstellingen en gebruikers"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>

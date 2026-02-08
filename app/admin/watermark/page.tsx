@@ -2,6 +2,7 @@ import { requireSuperuser } from '@/lib/auth/admin-guard';
 import { db } from '@/lib/db';
 import { WatermarkSettingsForm } from '@/components/admin/watermark-settings-form';
 import { WatermarkPreview } from '@/components/admin/watermark-preview';
+import { AdminPageHeader } from '@/components/admin/admin-page-header';
 
 export default async function WatermarkPage() {
   await requireSuperuser();
@@ -22,12 +23,10 @@ export default async function WatermarkPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Watermerk Instellingen</h2>
-        <p className="text-muted-foreground">
-          Configureer het watermerk dat wordt getoond op facturen van gratis gebruikers
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Watermerk Instellingen"
+        subtitle="Configureer het watermerk dat wordt getoond op facturen van gratis gebruikers"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <WatermarkSettingsForm initialSettings={serializedSettings} />

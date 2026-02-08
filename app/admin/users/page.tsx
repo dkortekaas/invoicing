@@ -2,6 +2,7 @@ import { requireSuperuser } from '@/lib/auth/admin-guard';
 import { db } from '@/lib/db';
 import { UserRoleManager } from '@/components/admin/user-role-manager';
 import { InvitationManager } from '@/components/admin/invitation-manager';
+import { AdminPageHeader } from '@/components/admin/admin-page-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, Mail } from 'lucide-react';
 
@@ -36,12 +37,10 @@ export default async function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Gebruikers Beheer</h2>
-        <p className="text-muted-foreground">
-          Beheer gebruikersrollen en bekijk gebruikersstatistieken
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Gebruikers Beheer"
+        subtitle="Beheer gebruikersrollen en bekijk gebruikersstatistieken"
+      />
 
       <Tabs defaultValue="users" className="w-full">
         <TabsList>

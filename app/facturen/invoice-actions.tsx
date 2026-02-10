@@ -83,12 +83,14 @@ export function InvoiceActions({ invoice }: InvoiceActionsProps) {
             Bekijken
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href={`/facturen/${invoice.id}/bewerken`}>
-            <Pencil className="mr-2 h-4 w-4" />
-            Bewerken
-          </Link>
-        </DropdownMenuItem>
+        {invoice.status !== "PAID" && (
+          <DropdownMenuItem asChild>
+            <Link href={`/facturen/${invoice.id}/bewerken`}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Bewerken
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild>
           <a href={`/api/invoices/${invoice.id}/pdf`} download>
             <Download className="mr-2 h-4 w-4" />
@@ -114,15 +116,19 @@ export function InvoiceActions({ invoice }: InvoiceActionsProps) {
             Markeer als betaald
           </DropdownMenuItem>
         )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-red-600"
-          onClick={() => setIsDeleteDialogOpen(true)}
-          disabled={isLoading}
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Verwijderen
-        </DropdownMenuItem>
+        {invoice.status !== "PAID" && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="text-red-600"
+              onClick={() => setIsDeleteDialogOpen(true)}
+              disabled={isLoading}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Verwijderen
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
 

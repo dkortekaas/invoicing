@@ -318,6 +318,19 @@ export async function updateInvoice(
   status?: "DRAFT" | "SENT"
 ) {
   const userId = await getCurrentUserId()
+
+  // Check if invoice is paid - paid invoices cannot be edited
+  const existingInvoice = await db.invoice.findUnique({
+    where: { id, userId },
+    select: { status: true },
+  })
+  if (!existingInvoice) {
+    throw new Error("Factuur niet gevonden")
+  }
+  if (existingInvoice.status === "PAID") {
+    throw new Error("Een betaalde factuur kan niet meer bewerkt worden")
+  }
+
   const validated = invoiceSchema.parse(data)
 
   // Check if user has KOR (Kleineondernemersregeling) enabled
@@ -523,7 +536,7 @@ export async function updateInvoiceStatus(
 
 export async function deleteInvoice(id: string) {
   const userId = await getCurrentUserId()
-  
+
   // Get invoice data before deletion for audit logging
   const invoice = await db.invoice.findUnique({
     where: { id },
@@ -535,9 +548,14 @@ export async function deleteInvoice(id: string) {
       status: true,
     },
   })
-  
+
   if (!invoice || invoice.userId !== userId) {
     throw new Error("Factuur niet gevonden")
+  }
+
+  // Paid invoices cannot be deleted
+  if (invoice.status === "PAID") {
+    throw new Error("Een betaalde factuur kan niet verwijderd worden")
   }
   
   await db.invoice.delete({

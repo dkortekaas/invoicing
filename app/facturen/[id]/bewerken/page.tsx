@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { InvoiceForm } from "@/components/invoices/invoice-form"
 import { getInvoice } from "@/app/facturen/actions"
 import { getCustomers } from "@/app/klanten/actions"
@@ -23,6 +23,11 @@ export default async function FactuurBewerkenPage({ params }: FactuurBewerkenPag
 
   if (!invoice) {
     notFound()
+  }
+
+  // Paid invoices cannot be edited
+  if (invoice.status === "PAID") {
+    redirect(`/facturen/${id}`)
   }
 
   // Transform data for form

@@ -25,6 +25,9 @@ import { getInvoices } from "./actions"
 import { InvoiceActions } from "./invoice-actions"
 import { SearchForm } from "./search-form"
 import { YearFilterSelect } from "@/components/year-filter-select"
+import { Pagination } from "@/components/ui/pagination"
+
+const PAGE_SIZE = 50
 
 const INVOICE_SORT_KEYS = ["invoiceNumber", "customerName", "invoiceDate", "dueDate", "total"] as const
 type InvoiceSortKey = (typeof INVOICE_SORT_KEYS)[number]
@@ -33,7 +36,7 @@ function isInvoiceSortKey(s: string | null | undefined): s is InvoiceSortKey {
 }
 
 interface FacturenPageProps {
-  searchParams: Promise<{ status?: string; search?: string; year?: string; sortBy?: string; sortOrder?: string }>
+  searchParams: Promise<{ status?: string; search?: string; year?: string; sortBy?: string; sortOrder?: string; page?: string }>
 }
 
 export default async function FacturenPage({ searchParams }: FacturenPageProps) {
@@ -43,6 +46,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
   const yearParam = params.year ? parseInt(params.year, 10) : null
   const sortBy = isInvoiceSortKey(params.sortBy) ? params.sortBy : "invoiceDate"
   const sortOrder = params.sortOrder === "asc" ? "asc" : "desc"
+  const currentPage = Math.max(1, parseInt(params.page || "1", 10) || 1)
 
   const invoices = await getInvoices(status === "ALL" ? undefined : status)
 
@@ -98,6 +102,13 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
     PAID: allInvoices.filter((i: typeof allInvoices[0]) => i.status === "PAID").length,
     OVERDUE: allInvoices.filter((i: typeof allInvoices[0]) => i.status === "OVERDUE").length,
   }
+
+  // Pagination
+  const totalItems = filteredInvoices.length
+  const paginatedInvoices = filteredInvoices.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  )
 
   return (
     <div className="space-y-6">
@@ -161,7 +172,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredInvoices.length === 0 ? (
+              {paginatedInvoices.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <p className="text-muted-foreground">
@@ -176,7 +187,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredInvoices.map((invoice: typeof filteredInvoices[0]) => (
+                paginatedInvoices.map((invoice: typeof paginatedInvoices[0]) => (
                   <TableRow key={invoice.id}>
                     <TableCell>
                       <Link
@@ -219,6 +230,11 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
               )}
             </TableBody>
           </Table>
+          <Pagination
+            totalItems={totalItems}
+            pageSize={PAGE_SIZE}
+            currentPage={currentPage}
+          />
         </CardContent>
       </Card>
     </div>

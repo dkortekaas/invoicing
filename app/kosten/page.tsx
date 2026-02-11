@@ -20,6 +20,9 @@ import { nl } from 'date-fns/locale';
 import { redirect } from 'next/navigation';
 import { SearchForm } from './search-form';
 import { YearFilterSelect } from '@/components/year-filter-select';
+import { Pagination } from '@/components/ui/pagination';
+
+const PAGE_SIZE = 50;
 
 const CATEGORY_LABELS: Record<string, string> = {
   OFFICE: 'Kantoorkosten',
@@ -46,7 +49,7 @@ function isValidSortKey(s: string | null | undefined): s is SortKey {
 }
 
 interface ExpensesPageProps {
-  searchParams: Promise<{ search?: string; year?: string; sortBy?: string; sortOrder?: string }>;
+  searchParams: Promise<{ search?: string; year?: string; sortBy?: string; sortOrder?: string; page?: string }>;
 }
 
 export default async function ExpensesPage({ searchParams }: ExpensesPageProps) {
@@ -61,6 +64,7 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
   const yearParam = params.year ? parseInt(params.year, 10) : null;
   const sortBy = isValidSortKey(params.sortBy) ? params.sortBy : 'date';
   const sortOrder = params.sortOrder === 'asc' ? 'asc' : 'desc';
+  const currentPage = Math.max(1, parseInt(params.page || '1', 10) || 1);
 
   const where: { userId: string; date?: { gte: Date; lte: Date } } = {
     userId: session.user.id,
@@ -129,6 +133,13 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
     });
   const yearsList = allYears.length > 0 ? allYears : [new Date().getFullYear()];
 
+  // Pagination
+  const totalItems = expenses.length;
+  const paginatedExpenses = expenses.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('nl-NL', {
       style: 'currency',
@@ -181,7 +192,7 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
               </TableRow>
             </TableHeader>
             <TableBody>
-              {expenses.length === 0 ? (
+              {paginatedExpenses.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <p className="text-muted-foreground">
@@ -196,7 +207,7 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
                   </TableCell>
                 </TableRow>
               ) : (
-                expenses.map((expense) => (
+                paginatedExpenses.map((expense) => (
                   <TableRow key={expense.id}>
                     <TableCell>{format(new Date(expense.date), 'dd-MM-yyyy', { locale: nl })}</TableCell>
                     <TableCell>
@@ -236,6 +247,13 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
               )}
             </TableBody>
           </Table>
+          <div className="p-4">
+            <Pagination
+              totalItems={totalItems}
+              pageSize={PAGE_SIZE}
+              currentPage={currentPage}
+            />
+          </div>
         </CardContent>
       </Card>
     </div>

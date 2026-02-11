@@ -17,6 +17,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { getCustomers } from "./actions"
 import { CustomerActions } from "./customer-actions"
 import { SearchForm } from "./search-form"
+import { Pagination } from "@/components/ui/pagination"
+
+const PAGE_SIZE = 50
 
 const CUSTOMER_SORT_KEYS = ["name", "companyName", "email", "city", "invoiceCount"] as const
 type CustomerSortKey = (typeof CUSTOMER_SORT_KEYS)[number]
@@ -25,7 +28,7 @@ function isCustomerSortKey(s: string | null | undefined): s is CustomerSortKey {
 }
 
 interface KlantenPageProps {
-  searchParams: Promise<{ search?: string; sortBy?: string; sortOrder?: string }>
+  searchParams: Promise<{ search?: string; sortBy?: string; sortOrder?: string; page?: string }>
 }
 
 export default async function KlantenPage({ searchParams }: KlantenPageProps) {
@@ -33,6 +36,7 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
   const search = params.search ?? ""
   const sortBy = isCustomerSortKey(params.sortBy) ? params.sortBy : "name"
   const sortOrder = params.sortOrder === "asc" ? "asc" : "desc"
+  const currentPage = Math.max(1, parseInt(params.page || "1", 10) || 1)
 
   const allCustomers = await getCustomers()
 
@@ -69,6 +73,13 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
     }
     return sortOrder === "asc" ? cmp : -cmp
   })
+
+  // Pagination
+  const totalItems = customers.length
+  const paginatedCustomers = customers.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  )
 
   return (
     <div className="space-y-6">
@@ -111,7 +122,7 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {customers.length === 0 ? (
+              {paginatedCustomers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
                     <p className="text-muted-foreground">
@@ -126,7 +137,7 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
                   </TableCell>
                 </TableRow>
               ) : (
-                customers.map((customer: typeof customers[0]) => (
+                paginatedCustomers.map((customer: typeof paginatedCustomers[0]) => (
                   <TableRow key={customer.id}>
                     <TableCell>
                       <Link
@@ -150,6 +161,11 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
               )}
             </TableBody>
           </Table>
+          <Pagination
+            totalItems={totalItems}
+            pageSize={PAGE_SIZE}
+            currentPage={currentPage}
+          />
         </CardContent>
       </Card>
     </div>

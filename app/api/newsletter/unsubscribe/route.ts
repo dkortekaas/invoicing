@@ -1,5 +1,20 @@
+import crypto from "crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
+
+/**
+ * Generate a deterministic HMAC-based unsubscribe token for a subscriber.
+ * This allows verifying unsubscribe links without storing a separate token.
+ */
+function generateUnsubscribeToken(subscriberId: string, email: string): string {
+  const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || ""
+  return crypto
+    .createHmac("sha256", secret)
+    .update(`unsubscribe:${subscriberId}:${email}`)
+    .digest("hex")
+}
+
+export { generateUnsubscribeToken }
 
 export async function GET(request: NextRequest) {
   const email = request.nextUrl.searchParams.get("email")
@@ -14,7 +29,13 @@ export async function GET(request: NextRequest) {
       where: { email: email.toLowerCase().trim() },
     })
 
-    if (!subscriber || subscriber.id !== token) {
+    if (!subscriber) {
+      return redirectWithMessage("error", "Ongeldige uitschrijflink.")
+    }
+
+    // Verify HMAC token to prevent unauthorized unsubscribes
+    const expectedToken = generateUnsubscribeToken(subscriber.id, subscriber.email)
+    if (!crypto.timingSafeEqual(Buffer.from(token), Buffer.from(expectedToken))) {
       return redirectWithMessage("error", "Ongeldige uitschrijflink.")
     }
 

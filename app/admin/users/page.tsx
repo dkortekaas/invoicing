@@ -23,21 +23,20 @@ export default async function UsersPage() {
       manualSubscriptionNote: true,
       stripeSubscriptionId: true,
       createdAt: true,
+      _count: {
+        select: { invoices: true },
+      },
     },
     orderBy: {
       createdAt: 'desc',
     },
   });
 
-  // Count invoices per user
-  const usersWithCounts = await Promise.all(
-    users.map(async (user) => {
-      const invoiceCount = await db.invoice.count({
-        where: { userId: user.id },
-      });
-      return { ...user, invoiceCount };
-    })
-  );
+  // Map _count to invoiceCount for backwards compatibility with component
+  const usersWithCounts = users.map((user) => ({
+    ...user,
+    invoiceCount: user._count.invoices,
+  }));
 
   return (
     <div className="space-y-6">

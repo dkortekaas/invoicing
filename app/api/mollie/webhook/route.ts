@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { handlePaymentWebhook } from "@/lib/mollie/webhooks"
+import { rateLimit } from "@/lib/rate-limit"
+
+// Mollie payment IDs always start with "tr_"
+const MOLLIE_PAYMENT_ID_REGEX = /^tr_[A-Za-z0-9]+$/
 
 /**
  * Mollie webhook endpoint
@@ -7,9 +11,23 @@ import { handlePaymentWebhook } from "@/lib/mollie/webhooks"
  *
  * Mollie sends: application/x-www-form-urlencoded with "id" field
  * Example: id=tr_WDqYK6vllg
+ *
+ * Security: Mollie does not sign webhooks. Instead, we verify by:
+ * 1. Validating the payment ID format
+ * 2. Looking up the payment in our own database (only known payments processed)
+ * 3. Fetching the real status directly from the Mollie API with our key
+ * This means spoofed webhooks only trigger a DB lookup + Mollie API call,
+ * never any state changes based on the webhook payload itself.
  */
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit webhook calls to prevent abuse
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
+    const { allowed } = rateLimit(`mollie-webhook:${ip}`, { maxRequests: 60, windowSeconds: 60 })
+    if (!allowed) {
+      return NextResponse.json({ received: true }, { status: 200 })
+    }
+
     // Get the payment ID from form data
     const formData = await request.formData()
     const paymentId = formData.get("id")
@@ -22,10 +40,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate payment ID format to reject obviously fake requests
+    if (!MOLLIE_PAYMENT_ID_REGEX.test(paymentId)) {
+      console.error(`[Mollie Webhook] Invalid payment ID format: ${paymentId}`)
+      return NextResponse.json(
+        { error: "Invalid payment ID format" },
+        { status: 400 }
+      )
+    }
+
     // Log the webhook receipt
     console.log(`[Mollie Webhook] Received webhook for payment: ${paymentId}`)
 
-    // Process the webhook
+    // Process the webhook (verifies via Mollie API before any state changes)
     const result = await handlePaymentWebhook(paymentId)
 
     if (!result.success) {
@@ -44,14 +71,4 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     )
   }
-}
-
-/**
- * Handle GET requests (for testing/verification)
- */
-export async function GET() {
-  return NextResponse.json({
-    status: "ok",
-    message: "Mollie webhook endpoint is active",
-  })
 }

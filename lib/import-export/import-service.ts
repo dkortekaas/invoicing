@@ -1,4 +1,3 @@
-import ExcelJS from 'exceljs';
 import { db } from '@/lib/db';
 import { getFieldsForEntity, type EntityType } from './fields';
 import type { ExpenseCategory } from '@prisma/client';
@@ -10,6 +9,20 @@ import type {
   ImportResult,
   ParsedFile,
 } from './types';
+
+/**
+ * Sanitize cell values to prevent CSV formula injection.
+ * Cells starting with =, +, -, @, \t, or \r can trigger formula execution
+ * in spreadsheet programs when re-exported.
+ */
+function sanitizeCellValue(value: unknown): unknown {
+  if (typeof value !== 'string') return value;
+  const dangerous = /^[=+\-@\t\r]/;
+  if (dangerous.test(value)) {
+    return `'${value}`;
+  }
+  return value;
+}
 
 // ============================================
 // FILE PARSING
@@ -31,7 +44,8 @@ export async function parseFile(
 }
 
 async function parseExcel(buffer: Buffer): Promise<ParsedFile> {
-  const workbook = new ExcelJS.Workbook();
+  const { default: ExcelJSModule } = await import('exceljs');
+  const workbook = new ExcelJSModule.Workbook();
   await workbook.xlsx.load(buffer as unknown as ArrayBuffer);
 
   const worksheet = workbook.worksheets[0];
@@ -53,12 +67,12 @@ async function parseExcel(buffer: Buffer): Promise<ParsedFile> {
         const colName = columns[colNumber - 1];
         if (colName) {
           // Handle different cell types
-          if (cell.type === ExcelJS.ValueType.Date) {
+          if (cell.type === ExcelJSModule.ValueType.Date) {
             rowData[colName] = cell.value;
-          } else if (cell.type === ExcelJS.ValueType.Number) {
+          } else if (cell.type === ExcelJSModule.ValueType.Number) {
             rowData[colName] = cell.value;
           } else {
-            rowData[colName] = cell.text?.toString().trim() || '';
+            rowData[colName] = sanitizeCellValue(cell.text?.toString().trim() || '');
           }
         }
       });
@@ -97,7 +111,7 @@ function parseCsv(buffer: Buffer): ParsedFile {
     const rowData: Record<string, unknown> = {};
 
     columns.forEach((col, index) => {
-      rowData[col] = values[index] || '';
+      rowData[col] = sanitizeCellValue(values[index] || '');
     });
 
     rows.push(rowData);

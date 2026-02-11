@@ -2,12 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calculateAmount, roundDuration } from '@/lib/time/calculations';
+import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
 
 export async function POST(request: NextRequest) {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const hasAccess = await hasFeatureAccess(session.user.id, 'time_tracking');
+  if (!hasAccess) {
+    return NextResponse.json(
+      { error: 'Urenregistratie is een premium functie. Upgrade je abonnement.' },
+      { status: 403 }
+    );
   }
 
   try {

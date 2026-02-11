@@ -3,14 +3,24 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { calculateNextDate } from '@/lib/recurring/calculations';
 import { ensureCompanyDetails } from '@/lib/company-guard';
+import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
 import { Prisma, RecurringStatus } from '@prisma/client';
 
 // GET - List recurring invoices
 export async function GET(request: NextRequest) {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Recurring invoices is a premium feature
+  const hasAccess = await hasFeatureAccess(session.user.id, 'recurring_invoices');
+  if (!hasAccess) {
+    return NextResponse.json(
+      { error: 'Automatische facturen is een premium functie. Upgrade je abonnement.' },
+      { status: 403 }
+    );
   }
 
   const searchParams = request.nextUrl.searchParams;
@@ -59,9 +69,17 @@ export async function GET(request: NextRequest) {
 // POST - Create recurring invoice
 export async function POST(request: NextRequest) {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const hasAccess = await hasFeatureAccess(session.user.id, 'recurring_invoices');
+  if (!hasAccess) {
+    return NextResponse.json(
+      { error: 'Automatische facturen is een premium functie. Upgrade je abonnement.' },
+      { status: 403 }
+    );
   }
 
   if (!(await ensureCompanyDetails(session.user.id))) {

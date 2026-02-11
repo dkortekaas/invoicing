@@ -1,5 +1,13 @@
+import crypto from "crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
+
+/**
+ * Hash a newsletter token using SHA-256 to match stored hash.
+ */
+function hashToken(token: string): string {
+  return crypto.createHash("sha256").update(token).digest("hex")
+}
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token")
@@ -9,8 +17,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Hash the token from the URL to compare against stored hash
+    const hashedToken = hashToken(token)
     const subscriber = await db.newsletterSubscriber.findUnique({
-      where: { confirmToken: token },
+      where: { confirmToken: hashedToken },
     })
 
     if (!subscriber) {

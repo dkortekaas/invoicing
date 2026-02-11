@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
+import { rateLimit, RATE_LIMITS } from "@/lib/rate-limit"
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit by IP
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
+    const { allowed } = rateLimit(`login:${ip}`, RATE_LIMITS.login)
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Te veel inlogpogingen. Probeer het over 15 minuten opnieuw." },
+        { status: 429 }
+      )
+    }
+
     const { email, password } = await request.json()
 
     if (!email || !password) {

@@ -4,6 +4,7 @@ import crypto from "crypto"
 import { db } from "@/lib/db"
 import { forgotPasswordSchema } from "@/lib/validations"
 import { sendPasswordResetEmail } from "@/lib/email/send-password-reset"
+import { rateLimit, RATE_LIMITS } from "@/lib/rate-limit"
 
 const PASSWORD_RESET_EXPIRY_MS = 60 * 60 * 1000 // 1 hour
 
@@ -19,6 +20,17 @@ export async function requestPasswordReset(formData: { email: string }) {
 
   const { email } = parsed.data
   const normalizedEmail = email.toLowerCase().trim()
+
+  // Rate limit password reset requests per email
+  const { allowed } = rateLimit(`password-reset:${normalizedEmail}`, RATE_LIMITS.passwordReset)
+  if (!allowed) {
+    // Return the same success message to prevent email enumeration
+    return {
+      success: true,
+      message:
+        "Als er een account bestaat met dit e-mailadres, ontvang je binnen enkele minuten een e-mail met instructies om je wachtwoord te herstellen.",
+    }
+  }
 
   try {
     // Check if user exists (but don't reveal this to the client)

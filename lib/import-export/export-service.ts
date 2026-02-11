@@ -1,4 +1,3 @@
-import ExcelJS from 'exceljs';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { db } from '@/lib/db';
@@ -83,6 +82,7 @@ async function generateExcel(
   fields: Record<string, FieldDefinition>,
   options?: FormatOptions
 ): Promise<Buffer> {
+  const { default: ExcelJS } = await import('exceljs');
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet(sheetName);
 

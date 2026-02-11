@@ -7,6 +7,7 @@ import type { JWT } from "next-auth/jwt"
 import type { Session, User } from "next-auth"
 import { verifyBackupCode, sanitizeBase32Secret } from "./auth-utils"
 import { logLogin, logLoginFailed } from "./audit/helpers"
+import { captureException } from "./error-monitoring"
 
 export const authOptions = {
   providers: [
@@ -75,7 +76,7 @@ export const authOptions = {
                   secret,
                   encoding: "base32",
                   token,
-                  window: 10, // ±5 min voor klokverschil
+                  window: 1, // ±30 seconden voor klokverschil
                 })
               }
             }
@@ -103,6 +104,10 @@ export const authOptions = {
         } catch (error) {
           // Only log unexpected errors, not normal authentication failures
           console.error("Unexpected authorize error:", error)
+          captureException(error, {
+            tags: { component: "auth", action: "authorize" },
+            level: "error",
+          })
           return null
         }
       },

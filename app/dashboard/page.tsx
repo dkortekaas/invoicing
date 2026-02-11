@@ -10,8 +10,10 @@ import { getDashboardStats, getRecentInvoices } from "@/app/facturen/actions"
 export const dynamic = "force-dynamic"
 
 export default async function DashboardPage() {
-  const stats = await getDashboardStats()
-  const recentInvoices = await getRecentInvoices(5)
+  const [stats, recentInvoices] = await Promise.all([
+    getDashboardStats(),
+    getRecentInvoices(5),
+  ])
   return (
     <div className="space-y-6">
       {/* Header met snelle acties */}

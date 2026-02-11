@@ -34,62 +34,45 @@ export async function getMonthlyTrends(
       const monthStart = startOfMonth(month);
       const monthEnd = endOfMonth(month);
 
-      // Get invoices
-      const invoices = await db.invoice.findMany({
-        where: {
-          userId,
-          status: 'PAID',
-          paidAt: {
-            gte: monthStart,
-            lte: monthEnd,
+      // Run all three queries in parallel using aggregations
+      const [invoiceAgg, expenseAgg, timeAgg] = await Promise.all([
+        db.invoice.aggregate({
+          where: {
+            userId,
+            status: 'PAID',
+            paidAt: { gte: monthStart, lte: monthEnd },
           },
-        },
-      });
-
-      const revenue = invoices.reduce(
-        (sum, i) => sum + Number(i.total),
-        0
-      );
-
-      // Get expenses
-      const expenses = await db.expense.findMany({
-        where: {
-          userId,
-          date: {
-            gte: monthStart,
-            lte: monthEnd,
+          _sum: { total: true },
+          _count: true,
+        }),
+        db.expense.aggregate({
+          where: {
+            userId,
+            date: { gte: monthStart, lte: monthEnd },
           },
-        },
-      });
-
-      const expenseTotal = expenses.reduce(
-        (sum, e) => sum + Number(e.amount),
-        0
-      );
-
-      // Get time entries
-      const timeEntries = await db.timeEntry.findMany({
-        where: {
-          userId,
-          startTime: {
-            gte: monthStart,
-            lte: monthEnd,
+          _sum: { amount: true },
+        }),
+        db.timeEntry.aggregate({
+          where: {
+            userId,
+            startTime: { gte: monthStart, lte: monthEnd },
           },
-        },
-      });
+          _sum: { duration: true },
+          _count: true,
+        }),
+      ]);
 
-      const hours = timeEntries.reduce(
-        (sum, t) => sum + Number(t.duration),
-        0
-      );
+      const revenue = Number(invoiceAgg._sum.total ?? 0);
+      const expenseTotal = Number(expenseAgg._sum.amount ?? 0);
+      const hours = Number(timeAgg._sum.duration ?? 0);
 
       return {
         month: format(month, 'MMM yyyy', { locale: nl }),
         revenue,
         expenses: expenseTotal,
         profit: revenue - expenseTotal,
-        invoices: invoices.length,
-        hours: timeEntries.length > 0 ? hours : undefined,
+        invoices: invoiceAgg._count,
+        hours: timeAgg._count > 0 ? hours : undefined,
       };
     })
   );

@@ -243,10 +243,18 @@ export const companySettingsSchema = z.object({
 
 export type CompanySettingsFormData = z.infer<typeof companySettingsSchema>
 
+// Password must be at least 10 characters and contain uppercase, lowercase, and a digit
+const passwordSchema = z
+  .string()
+  .min(10, "Wachtwoord moet minimaal 10 karakters zijn")
+  .regex(/[a-z]/, "Wachtwoord moet minimaal één kleine letter bevatten")
+  .regex(/[A-Z]/, "Wachtwoord moet minimaal één hoofdletter bevatten")
+  .regex(/[0-9]/, "Wachtwoord moet minimaal één cijfer bevatten")
+
 // ========== Login Schema ==========
 export const loginSchema = z.object({
   email: z.string().email("Ongeldig e-mailadres"),
-  password: z.string().min(6, "Wachtwoord moet minimaal 6 karakters zijn"),
+  password: z.string().min(1, "Wachtwoord is verplicht"),
   twoFactorCode: z.string().optional(),
 })
 
@@ -257,7 +265,7 @@ export type LoginFormData = z.infer<typeof loginSchema>
 export const registerSchema = z.object({
   name: z.string().min(1, "Naam is verplicht"),
   email: z.string().email("Ongeldig e-mailadres"),
-  password: z.string().min(6, "Wachtwoord moet minimaal 6 karakters zijn"),
+  password: passwordSchema,
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Wachtwoorden komen niet overeen",
@@ -270,7 +278,7 @@ export type RegisterFormData = z.infer<typeof registerSchema>
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Huidig wachtwoord is verplicht"),
-    newPassword: z.string().min(6, "Wachtwoord moet minimaal 6 karakters zijn"),
+    newPassword: passwordSchema,
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -291,7 +299,7 @@ export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
 export const resetPasswordSchema = z
   .object({
     token: z.string().min(1, "Token is verplicht"),
-    password: z.string().min(6, "Wachtwoord moet minimaal 6 karakters zijn"),
+    password: passwordSchema,
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {

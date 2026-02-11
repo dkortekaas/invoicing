@@ -35,11 +35,18 @@ export async function POST(request: NextRequest) {
     const uploadsDir = join(process.cwd(), "public", "uploads", "logos")
     await mkdir(uploadsDir, { recursive: true })
 
-    // Generate unique filename
+    // Generate unique filename with safe extension
     const timestamp = Date.now()
-    const extension = file.name.split(".").pop()
+    const rawExtension = file.name.split(".").pop()?.toLowerCase() || "png"
+    const safeExtensions = ["png", "jpg", "jpeg", "svg", "webp"]
+    const extension = safeExtensions.includes(rawExtension) ? rawExtension : "png"
     const filename = `${userId}-${timestamp}.${extension}`
     const filepath = join(uploadsDir, filename)
+
+    // Prevent path traversal
+    if (!filepath.startsWith(uploadsDir)) {
+      return NextResponse.json({ error: "Ongeldig bestandspad" }, { status: 400 })
+    }
 
     // Save file
     const bytes = await file.arrayBuffer()

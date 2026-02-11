@@ -75,7 +75,7 @@ export const authOptions = {
                   secret,
                   encoding: "base32",
                   token,
-                  window: 10, // ±5 min voor klokverschil
+                  window: 1, // ±30 seconden voor klokverschil
                 })
               }
             }

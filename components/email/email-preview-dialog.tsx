@@ -60,7 +60,7 @@ export function EmailPreviewDialog({
   return (
     <>
       {trigger ? (
-        <div onClick={handlePreview}>{trigger}</div>
+        <button type="button" onClick={handlePreview} className="inline-flex appearance-none bg-transparent border-0 p-0 cursor-pointer">{trigger}</button>
       ) : (
         <Button onClick={handlePreview} variant="outline" size="sm">
           <Eye className="mr-2 h-4 w-4" />
@@ -77,15 +77,16 @@ export function EmailPreviewDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-auto border rounded-lg">
+          <div className="flex-1 overflow-auto border rounded-lg" aria-busy={loading} aria-live="polite">
             {loading && (
-              <div className="flex items-center justify-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <div className="flex items-center justify-center h-64" role="status">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden="true" />
+                <span className="sr-only">Email preview laden...</span>
               </div>
             )}
 
             {error && (
-              <div className="p-4 text-red-600">
+              <div className="p-4 text-red-600" role="alert">
                 {error}
               </div>
             )}

@@ -246,7 +246,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                   )}
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="invoiceDate"
@@ -326,7 +326,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="reference"
@@ -376,11 +376,11 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
 
             {/* Invoice items */}
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <CardTitle>Factuurregels</CardTitle>
                 {products.length > 0 && (
                   <Select onValueChange={addProduct}>
-                    <SelectTrigger className="w-[200px]">
+                    <SelectTrigger className="w-full sm:w-[200px]">
                       <SelectValue placeholder="Voeg product toe..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -427,7 +427,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                         </Button>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+                      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-5">
                         <FormField
                           control={form.control}
                           name={`items.${index}.quantity`}

@@ -56,10 +56,10 @@ export default async function BewerkenCreditNotaPage({ params }: BewerkenPagePro
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">
+        <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
           Credit Nota {creditNote.creditNoteNumber} bewerken
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm sm:text-base">
           Pas de credit nota aan
         </p>
       </div>

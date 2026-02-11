@@ -69,10 +69,10 @@ export default async function FactuurBewerkenPage({ params }: FactuurBewerkenPag
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">
+        <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
           Factuur {invoice.invoiceNumber} bewerken
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm sm:text-base">
           Wijzig de factuurgegevens
         </p>
       </div>

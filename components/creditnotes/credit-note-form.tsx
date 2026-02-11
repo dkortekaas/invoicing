@@ -189,7 +189,7 @@ export function CreditNoteForm({
                 <CardTitle>Klant & Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="customerId"
@@ -261,7 +261,7 @@ export function CreditNoteForm({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="currencyCode"
@@ -309,7 +309,7 @@ export function CreditNoteForm({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
                   {customerInvoices.length > 0 && (
                     <FormField
@@ -410,7 +410,7 @@ export function CreditNoteForm({
                         </Button>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+                      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-5">
                         <FormField
                           control={form.control}
                           name={`items.${index}.quantity`}

@@ -4,12 +4,15 @@ import { ExpenseForm } from '@/components/expenses/expense-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { redirect } from 'next/navigation';
 import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
+import { requireFeature } from '@/lib/auth/subscription-guard';
 
 export default async function EditExpensePage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireFeature('expenses');
+
   const session = await auth();
 
   if (!session?.user?.id) {

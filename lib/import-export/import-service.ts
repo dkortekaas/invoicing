@@ -1,4 +1,3 @@
-import type ExcelJS from 'exceljs';
 import { db } from '@/lib/db';
 import { getFieldsForEntity, type EntityType } from './fields';
 import type { ExpenseCategory } from '@prisma/client';

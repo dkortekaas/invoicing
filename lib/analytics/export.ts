@@ -1,5 +1,3 @@
-import type ExcelJS from 'exceljs';
-
 interface KPIData {
   totalRevenue: number;
   revenueThisMonth: number;

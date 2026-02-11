@@ -1,14 +1,18 @@
 /**
  * Error monitoring abstraction layer.
  *
- * Logs errors to console by default. When Sentry is installed and configured,
- * automatically forwards errors to Sentry.
- *
- * To enable Sentry:
+ * Logs errors to console by default. To enable Sentry:
  *   1. npx @sentry/wizard@latest -i nextjs
  *   2. Set NEXT_PUBLIC_SENTRY_DSN and SENTRY_AUTH_TOKEN env vars
- *   3. Errors will be automatically forwarded to Sentry
+ *   3. Uncomment the Sentry import below and the forwarding code
+ *
+ * The wizard will create sentry.client.config.ts, sentry.server.config.ts,
+ * and sentry.edge.config.ts which auto-capture errors. This module provides
+ * additional structured error reporting for custom error handling.
  */
+
+// Uncomment after installing @sentry/nextjs:
+// import * as Sentry from "@sentry/nextjs"
 
 interface ErrorContext {
   /** Additional data to attach to the error report */
@@ -21,83 +25,61 @@ interface ErrorContext {
   level?: "fatal" | "error" | "warning" | "info"
 }
 
-let sentryModule: typeof import("@sentry/nextjs") | null = null
-let sentryInitAttempted = false
-
-async function getSentry() {
-  if (sentryInitAttempted) return sentryModule
-  sentryInitAttempted = true
-
-  if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return null
-
-  try {
-    sentryModule = await import("@sentry/nextjs")
-    return sentryModule
-  } catch {
-    // @sentry/nextjs not installed
-    return null
-  }
-}
-
 /**
  * Report an error to the monitoring system.
  */
-export async function captureException(
+export function captureException(
   error: Error | unknown,
   context?: ErrorContext
-): Promise<void> {
-  // Always log to console in development
-  if (process.env.NODE_ENV === "development") {
-    console.error("[Error Monitor]", error, context?.extra)
-  }
+): void {
+  // Always log to console
+  console.error(
+    "[Error Monitor]",
+    context?.tags ? `[${Object.values(context.tags).join(":")}]` : "",
+    error,
+    context?.extra || ""
+  )
 
-  const sentry = await getSentry()
-  if (sentry) {
-    sentry.withScope((scope) => {
-      if (context?.extra) {
-        Object.entries(context.extra).forEach(([key, value]) => {
-          scope.setExtra(key, value)
-        })
-      }
-      if (context?.user) {
-        scope.setUser(context.user)
-      }
-      if (context?.tags) {
-        Object.entries(context.tags).forEach(([key, value]) => {
-          scope.setTag(key, value)
-        })
-      }
-      if (context?.level) {
-        scope.setLevel(context.level)
-      }
-      sentry.captureException(error)
-    })
-  }
+  // Uncomment after installing @sentry/nextjs:
+  // Sentry.withScope((scope) => {
+  //   if (context?.extra) {
+  //     Object.entries(context.extra).forEach(([key, value]) => {
+  //       scope.setExtra(key, value)
+  //     })
+  //   }
+  //   if (context?.user) scope.setUser(context.user)
+  //   if (context?.tags) {
+  //     Object.entries(context.tags).forEach(([key, value]) => {
+  //       scope.setTag(key, value)
+  //     })
+  //   }
+  //   if (context?.level) scope.setLevel(context.level)
+  //   Sentry.captureException(error)
+  // })
 }
 
 /**
  * Log a message to the monitoring system.
  */
-export async function captureMessage(
+export function captureMessage(
   message: string,
   context?: ErrorContext
-): Promise<void> {
-  if (process.env.NODE_ENV === "development") {
-    console.log("[Error Monitor]", message, context?.extra)
-  }
+): void {
+  console.log(
+    "[Error Monitor]",
+    context?.tags ? `[${Object.values(context.tags).join(":")}]` : "",
+    message,
+    context?.extra || ""
+  )
 
-  const sentry = await getSentry()
-  if (sentry) {
-    sentry.withScope((scope) => {
-      if (context?.extra) {
-        Object.entries(context.extra).forEach(([key, value]) => {
-          scope.setExtra(key, value)
-        })
-      }
-      if (context?.level) {
-        scope.setLevel(context.level)
-      }
-      sentry.captureMessage(message)
-    })
-  }
+  // Uncomment after installing @sentry/nextjs:
+  // Sentry.withScope((scope) => {
+  //   if (context?.extra) {
+  //     Object.entries(context.extra).forEach(([key, value]) => {
+  //       scope.setExtra(key, value)
+  //     })
+  //   }
+  //   if (context?.level) scope.setLevel(context.level)
+  //   Sentry.captureMessage(message)
+  // })
 }

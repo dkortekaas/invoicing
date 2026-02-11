@@ -38,8 +38,8 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/uitnodiging") ||
     pathname.startsWith("/pay") ||
     pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/upload") ||
     pathname.startsWith("/api/stripe/webhook") ||
+    pathname.startsWith("/api/mollie/webhook") ||
     pathname.startsWith("/uploads") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
@@ -78,7 +78,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Check premium routes
+  // Check premium routes and company details in a single consolidated query
   const premiumRoutes = [
     '/abonnementen',
     '/btw',
@@ -86,12 +86,15 @@ export async function proxy(request: NextRequest) {
     '/rapporten',
   ]
 
-  const requiresPremium = premiumRoutes.some(route => 
+  const requiresPremium = premiumRoutes.some(route =>
     pathname.startsWith(route)
   )
 
-  if (requiresPremium && token?.id) {
+  const needsCompanyCheck = !pathname.startsWith('/api') && !pathname.startsWith('/instellingen')
+
+  if (token?.id && (requiresPremium || needsCompanyCheck)) {
     try {
+      // Single DB query for both premium and company details checks
       const user = await db.user.findUnique({
         where: { id: token.id as string },
         select: {
@@ -99,57 +102,69 @@ export async function proxy(request: NextRequest) {
           subscriptionTier: true,
           subscriptionStatus: true,
           stripeCurrentPeriodEnd: true,
+          isManualSubscription: true,
+          manualSubscriptionExpiresAt: true,
+          ...(needsCompanyCheck && {
+            company: {
+              select: {
+                name: true,
+                email: true,
+                address: true,
+                city: true,
+                postalCode: true,
+              },
+            },
+          }),
         },
       })
 
-      if (user) {
-        // Superusers have access to everything, skip subscription check
-        if (user.role === 'SUPERUSER') {
-          return NextResponse.next()
+      // Premium route check
+      if (requiresPremium && user) {
+        if (user.role !== 'SUPERUSER') {
+          const tier = user.subscriptionTier
+          const isPaid = ['STARTER', 'PROFESSIONAL', 'BUSINESS'].includes(tier)
+
+          let isActiveSubscription = false
+          if (isPaid) {
+            if (user.isManualSubscription) {
+              isActiveSubscription = !user.manualSubscriptionExpiresAt ||
+                new Date(user.manualSubscriptionExpiresAt) > new Date()
+            } else {
+              const isActive = ['ACTIVE', 'TRIALING'].includes(user.subscriptionStatus)
+              const notExpired = user.stripeCurrentPeriodEnd
+                ? new Date(user.stripeCurrentPeriodEnd) > new Date()
+                : false
+              isActiveSubscription = isActive && notExpired
+            }
+          }
+
+          if (!isActiveSubscription) {
+            const feature = pathname.split('/')[1]
+            return NextResponse.redirect(
+              new URL(`/upgrade?feature=${feature}`, request.url)
+            )
+          }
         }
+      }
 
-        const isPro = user.subscriptionTier === 'PRO'
-        const isActive = ['ACTIVE', 'TRIALING'].includes(user.subscriptionStatus)
-        const notExpired = user.stripeCurrentPeriodEnd
-          ? new Date(user.stripeCurrentPeriodEnd) > new Date()
-          : false
-
-        if (!isPro || !isActive || !notExpired) {
-          const feature = pathname.split('/')[1]
-          return NextResponse.redirect(
-            new URL(`/upgrade?feature=${feature}`, request.url)
-          )
+      // Company details check
+      if (needsCompanyCheck && user && 'company' in user) {
+        const { hasCompanyDetails } = await import('@/lib/company-guard')
+        if (!hasCompanyDetails(user.company)) {
+          return NextResponse.redirect(new URL('/instellingen?tab=bedrijfsgegevens', request.url))
         }
       }
     } catch (error) {
-      // If database check fails, allow access (fail open)
-      console.error('Premium route check failed:', error)
-    }
-  }
-
-  // Vereis bedrijfsgegevens voor app-pagina's (niet voor API of instellingen)
-  if (token?.id && !pathname.startsWith('/api') && !pathname.startsWith('/instellingen')) {
-    try {
-      const { hasCompanyDetails } = await import('@/lib/company-guard')
-      const user = await db.user.findUnique({
-        where: { id: token.id as string },
-        select: {
-          company: {
-            select: {
-              name: true,
-              email: true,
-              address: true,
-              city: true,
-              postalCode: true,
-            },
-          },
-        },
-      })
-      if (user && !hasCompanyDetails(user.company)) {
-        return NextResponse.redirect(new URL('/instellingen?tab=bedrijfsgegevens', request.url))
+      // Fail-closed: deny access to premium routes on database errors
+      if (requiresPremium) {
+        console.error('Premium route check failed (denying access):', error)
+        const feature = pathname.split('/')[1]
+        return NextResponse.redirect(
+          new URL(`/upgrade?feature=${feature}`, request.url)
+        )
       }
-    } catch (e) {
-      console.error('Company details check failed:', e)
+      // Company details check failure is non-critical, allow through
+      console.error('Company details check failed:', error)
     }
   }
 

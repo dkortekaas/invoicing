@@ -13,6 +13,11 @@ export interface SendContactParams {
 const CONTACT_TO =
   process.env.CONTACT_EMAIL || process.env.EMAIL_REPLY_TO || 'support@declair.app';
 
+// Strip newlines and carriage returns to prevent SMTP header injection
+function sanitizeHeaderValue(value: string): string {
+  return value.replace(/[\r\n]/g, ' ').trim();
+}
+
 export async function sendContactEmail({
   name,
   email,
@@ -21,13 +26,15 @@ export async function sendContactEmail({
   subjectLabel,
   message,
 }: SendContactParams) {
-  const subjectDisplay = subjectLabel || subject;
+  const safeName = sanitizeHeaderValue(name);
+  const safeEmail = sanitizeHeaderValue(email);
+  const subjectDisplay = sanitizeHeaderValue(subjectLabel || subject);
   const { data, error } = await resend.emails.send({
     from: EMAIL_CONFIG.from,
-    replyTo: email,
+    replyTo: safeEmail,
     to: CONTACT_TO,
-    subject: `Contactformulier: ${subjectDisplay} – ${name}`,
-    react: ContactEmail({ name, email, company, subject: subjectDisplay, message }),
+    subject: `Contactformulier: ${subjectDisplay} – ${safeName}`,
+    react: ContactEmail({ name: safeName, email: safeEmail, company, subject: subjectDisplay, message }),
   });
 
   if (error) {

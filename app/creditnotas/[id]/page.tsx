@@ -58,31 +58,31 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild className="shrink-0">
             <Link href="/creditnotas">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold tracking-tight">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
                 Credit Nota {creditNote.creditNoteNumber}
               </h2>
               <CreditNoteStatusBadge status={creditNote.status} />
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm sm:text-base">
               {formatDateLong(creditNote.creditNoteDate)}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" asChild className="sm:size-default">
             <a href={`/api/creditnotes/${creditNote.id}/pdf`} download>
-              <Download className="mr-2 h-4 w-4" />
-              Download PDF
+              <Download className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Download PDF</span>
             </a>
           </Button>
 
@@ -168,8 +168,9 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
             <CardHeader>
               <CardTitle>Credit nota regels</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
+            <CardContent className="-mx-6 px-0 sm:mx-0 sm:px-6">
+              <div className="overflow-x-auto">
+              <Table className="min-w-[500px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Omschrijving</TableHead>
@@ -229,6 +230,7 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
                   </TableRow>
                 </TableFooter>
               </Table>
+              </div>
             </CardContent>
           </Card>
 
@@ -358,15 +360,15 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
                   {creditNote.emails.map((email: typeof creditNote.emails[0]) => (
                     <div
                       key={email.id}
-                      className="flex items-center justify-between rounded-lg border p-3 text-sm"
+                      className="flex flex-col gap-2 rounded-lg border p-3 text-sm sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div>
-                        <p className="font-medium">{email.subject}</p>
-                        <p className="text-muted-foreground">
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{email.subject}</p>
+                        <p className="text-muted-foreground truncate">
                           {email.recipient}
                         </p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left sm:text-right shrink-0">
                         <p className={`text-xs ${
                           email.status === 'SENT' ? 'text-green-600' :
                           email.status === 'FAILED' ? 'text-red-600' : 'text-yellow-600'

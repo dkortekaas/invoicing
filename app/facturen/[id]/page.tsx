@@ -68,31 +68,31 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild className="shrink-0">
             <Link href="/facturen">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold tracking-tight">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
                 Factuur {invoice.invoiceNumber}
               </h2>
               <InvoiceStatusBadge status={invoice.status} />
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm sm:text-base">
               {formatDateLong(invoice.invoiceDate)}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" asChild className="sm:size-default">
             <a href={`/api/invoices/${invoice.id}/pdf`} download>
-              <Download className="mr-2 h-4 w-4" />
-              Download PDF
+              <Download className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Download PDF</span>
             </a>
           </Button>
 
@@ -186,8 +186,9 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
             <CardHeader>
               <CardTitle>Factuurregels</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
+            <CardContent className="-mx-6 px-0 sm:mx-0 sm:px-6">
+              <div className="overflow-x-auto">
+              <Table className="min-w-[500px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Omschrijving</TableHead>
@@ -247,6 +248,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                   </TableRow>
                 </TableFooter>
               </Table>
+              </div>
             </CardContent>
           </Card>
 
@@ -462,7 +464,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                   {creditNotes.map((cn: typeof creditNotes[0]) => (
                     <div
                       key={cn.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
+                      className="flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div>
                         <Link

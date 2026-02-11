@@ -228,7 +228,7 @@ export function AuditLogViewer({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Audit Log</CardTitle>
             <CardDescription>Activiteiten geschiedenis</CardDescription>

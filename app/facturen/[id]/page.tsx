@@ -187,8 +187,56 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
               <CardTitle>Factuurregels</CardTitle>
             </CardHeader>
             <CardContent className="-mx-6 px-0 sm:mx-0 sm:px-6">
-              <div className="overflow-x-auto">
-              <Table className="min-w-[500px]">
+              {/* Mobile card layout */}
+              <div className="space-y-3 px-6 sm:hidden">
+                {invoice.items.map((item: typeof invoice.items[0]) => (
+                  <div key={item.id} className="rounded-lg border p-3 space-y-2">
+                    <p className="font-medium">{item.description}</p>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Aantal</span>
+                        <p>{formatCurrency(item.quantity)} {item.unit}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Prijs</span>
+                        <p>{formatCurrency(item.unitPrice)}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">BTW</span>
+                        <p>{item.vatRate}%</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center pt-1 border-t">
+                      <span className="text-sm text-muted-foreground">Totaal</span>
+                      <span className="font-medium">{formatCurrency(item.subtotal)}</span>
+                    </div>
+                  </div>
+                ))}
+                <Separator />
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Subtotaal</span>
+                    <span>{formatCurrency(invoice.subtotal)}</span>
+                  </div>
+                  {(Object.entries(vatByRate) as Array<[string, { subtotal: number; vatAmount: number }]>).map(([rate, values]) => (
+                    <div key={rate} className="flex justify-between">
+                      <span className="text-muted-foreground">BTW {rate}% over {formatCurrency(values.subtotal)}</span>
+                      <span>{formatCurrency(values.vatAmount)}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Totaal BTW</span>
+                    <span>{formatCurrency(invoice.vatAmount)}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-base pt-1 border-t">
+                    <span>Totaal</span>
+                    <span>{formatCurrency(invoice.total)}</span>
+                  </div>
+                </div>
+              </div>
+              {/* Desktop table layout */}
+              <div className="hidden sm:block">
+              <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Omschrijving</TableHead>

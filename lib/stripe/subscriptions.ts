@@ -15,7 +15,12 @@ export type Feature =
   | 'multi_currency'
   | 'api_access'
   | 'multi_user'
-  | 'bulk_invoicing';
+  | 'bulk_invoicing'
+  | 'expenses'
+  | 'payment_links'
+  | 'smart_reminders'
+  | 'accounting_integrations'
+  | 'cashflow_forecasts';
 
 // Subscription tiers in order of capability (higher = more features)
 export type SubscriptionTier = 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'BUSINESS';
@@ -23,41 +28,58 @@ export type SubscriptionTier = 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'BUSINESS';
 const PAID_TIERS: SubscriptionTier[] = ['STARTER', 'PROFESSIONAL', 'BUSINESS'];
 
 // Granular feature access by tier
+// FREE: Tot 5 facturen/maand, klantenbeheer, productencatalogus, PDF generatie
+// STARTER: + Onbeperkt facturen, OCR bonnetjes, onkosten bijhouden, BTW-overzichten
+// PROFESSIONAL: + iDEAL betaallinks, projecten & urenregistratie, slimme herinneringen, boekhoudkoppelingen, analytics
+// BUSINESS: + Multi-valuta, klantportaal, cashflow voorspellingen, API toegang
 const FEATURE_ACCESS: Record<Feature, SubscriptionTier[]> = {
+  // Starter features
   recurring_invoices: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
   vat_reporting: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
+  unlimited_invoices: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
+  ocr_extraction: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
+  expenses: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
+  credit_notes: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
+  export: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
+  // Professional features
   time_tracking: ['PROFESSIONAL', 'BUSINESS'],
   analytics: ['PROFESSIONAL', 'BUSINESS'],
-  unlimited_invoices: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
+  payment_links: ['PROFESSIONAL', 'BUSINESS'],
+  smart_reminders: ['PROFESSIONAL', 'BUSINESS'],
+  accounting_integrations: ['PROFESSIONAL', 'BUSINESS'],
   unlimited_emails: ['PROFESSIONAL', 'BUSINESS'],
-  export: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
   tax_reporting: ['PROFESSIONAL', 'BUSINESS'],
-  ocr_extraction: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
-  credit_notes: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
+  bulk_invoicing: ['PROFESSIONAL', 'BUSINESS'],
+  // Business features
   customer_portal: ['BUSINESS'],
   multi_currency: ['BUSINESS'],
   api_access: ['BUSINESS'],
   multi_user: ['BUSINESS'],
-  bulk_invoicing: ['PROFESSIONAL', 'BUSINESS'],
+  cashflow_forecasts: ['BUSINESS'],
 };
 
 // Minimum tier required for each feature (for UI messaging)
 const MINIMUM_TIER: Record<Feature, SubscriptionTier> = {
   recurring_invoices: 'STARTER',
   vat_reporting: 'STARTER',
+  unlimited_invoices: 'STARTER',
+  ocr_extraction: 'STARTER',
+  expenses: 'STARTER',
+  credit_notes: 'STARTER',
+  export: 'STARTER',
   time_tracking: 'PROFESSIONAL',
   analytics: 'PROFESSIONAL',
-  unlimited_invoices: 'STARTER',
+  payment_links: 'PROFESSIONAL',
+  smart_reminders: 'PROFESSIONAL',
+  accounting_integrations: 'PROFESSIONAL',
   unlimited_emails: 'PROFESSIONAL',
-  export: 'STARTER',
   tax_reporting: 'PROFESSIONAL',
-  ocr_extraction: 'STARTER',
-  credit_notes: 'STARTER',
+  bulk_invoicing: 'PROFESSIONAL',
   customer_portal: 'BUSINESS',
   multi_currency: 'BUSINESS',
   api_access: 'BUSINESS',
   multi_user: 'BUSINESS',
-  bulk_invoicing: 'PROFESSIONAL',
+  cashflow_forecasts: 'BUSINESS',
 };
 
 export function getMinimumTier(feature: Feature): SubscriptionTier {
@@ -224,58 +246,17 @@ export async function canCreateInvoice(userId: string): Promise<{
 export async function canCreateExpense(userId: string): Promise<{
   allowed: boolean;
   reason?: string;
-  current?: number;
-  limit?: number;
 }> {
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    select: {
-      role: true,
-      subscriptionTier: true,
-    },
-  });
+  const hasAccess = await hasFeatureAccess(userId, 'expenses');
 
-  if (!user) {
-    return { allowed: false, reason: 'User not found' };
-  }
-
-  // Superusers and paid users have unlimited access
-  if (user.role === 'SUPERUSER') {
-    return { allowed: true };
-  }
-
-  const isActive = await hasActiveSubscription(userId);
-  if (isActive && PAID_TIERS.includes(user.subscriptionTier as SubscriptionTier)) {
-    return { allowed: true };
-  }
-
-  // Free users: 10 per month
-  const FREE_LIMIT = 10;
-
-  // Count expenses created this month
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const expenseCount = await db.expense.count({
-    where: {
-      userId,
-      createdAt: { gte: startOfMonth },
-    },
-  });
-
-  if (expenseCount >= FREE_LIMIT) {
+  if (!hasAccess) {
     return {
       allowed: false,
-      reason: 'Monthly expense limit reached',
-      current: expenseCount,
-      limit: FREE_LIMIT,
+      reason: 'Onkosten bijhouden is beschikbaar vanaf het Starter abonnement',
     };
   }
 
-  return {
-    allowed: true,
-    current: expenseCount,
-    limit: FREE_LIMIT,
-  };
+  return { allowed: true };
 }
 
 export async function incrementInvoiceCount(userId: string) {
@@ -304,6 +285,11 @@ export function getFeatureName(feature: Feature): string {
     api_access: 'API Toegang',
     multi_user: 'Multi-gebruiker',
     bulk_invoicing: 'Bulk Facturatie',
+    expenses: 'Onkosten Bijhouden',
+    payment_links: 'iDEAL Betaallinks',
+    smart_reminders: 'Slimme Herinneringen',
+    accounting_integrations: 'Boekhoudkoppelingen',
+    cashflow_forecasts: 'Cashflow Voorspellingen',
   };
   return names[feature];
 }

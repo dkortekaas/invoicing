@@ -12,29 +12,26 @@ const FREE_FEATURES = [
   'Tot 5 facturen per maand',
   'Klantenbeheer',
   'Productencatalogus',
-  'PDF generatie met watermark',
-  'Tot 10 onkosten per maand',
+  'PDF generatie',
 ];
 
 const STARTER_FEATURES = [
   'Onbeperkt facturen',
-  'Eigen huisstijl & logo',
+  'OCR bonnetjes scannen',
+  'Onkosten bijhouden',
+  'BTW-overzichten',
   'Credit nota\'s',
   'Terugkerende facturen',
-  'OCR bonnetjes scannen',
-  'BTW-overzichten',
   'Export naar Excel/CSV',
 ];
 
 const PROFESSIONAL_FEATURES = [
   'Alles van Starter',
   'iDEAL betaallinks',
-  'Automatische herinneringen',
   'Projecten & urenregistratie',
-  'Kilometerregistratie',
+  'Slimme herinneringen',
   'Boekhoudkoppelingen',
   'Analytics dashboard',
-  'Inkomstenbelasting overzicht',
 ];
 
 const BUSINESS_FEATURES = [
@@ -42,10 +39,7 @@ const BUSINESS_FEATURES = [
   'Multi-valuta',
   'Klantportaal',
   'Cashflow voorspellingen',
-  'Contractbeheer',
-  'API toegang & Webhooks',
-  'Multi-gebruiker',
-  'Dedicated accountmanager',
+  'API toegang',
 ];
 
 function UpgradePageContent() {

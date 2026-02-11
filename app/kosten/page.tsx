@@ -21,6 +21,7 @@ import { redirect } from 'next/navigation';
 import { SearchForm } from './search-form';
 import { YearFilterSelect } from '@/components/year-filter-select';
 import { Pagination } from '@/components/ui/pagination';
+import { requireFeature } from '@/lib/auth/subscription-guard';
 
 const PAGE_SIZE = 50;
 
@@ -53,6 +54,8 @@ interface ExpensesPageProps {
 }
 
 export default async function ExpensesPage({ searchParams }: ExpensesPageProps) {
+  await requireFeature('expenses');
+
   const session = await auth();
 
   if (!session?.user?.id) {

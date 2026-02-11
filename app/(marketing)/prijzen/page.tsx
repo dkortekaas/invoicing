@@ -54,11 +54,10 @@ const Pricing = () => {
     {
       name: t("expensesAndAdministration"),
       features: [
-        { name: t("expensesPerMonth"), free: "10", starter: "Onbeperkt", professional: "Onbeperkt", business: "Onbeperkt" },
-        { name: t("trackExpenses"), free: true, starter: true, professional: true, business: true },
+        { name: t("trackExpenses"), free: false, starter: true, professional: true, business: true },
         { name: t("ocrReceipts"), free: false, starter: true, professional: true, business: true },
         { name: t("mileageRegistration"), free: false, starter: false, professional: true, business: true },
-        { name: t("categoriesManagement"), free: true, starter: true, professional: true, business: true },
+        { name: t("categoriesManagement"), free: false, starter: true, professional: true, business: true },
       ],
     },
     {

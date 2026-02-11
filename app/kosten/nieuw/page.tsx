@@ -4,8 +4,11 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { redirect } from 'next/navigation';
 import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
+import { requireFeature } from '@/lib/auth/subscription-guard';
 
 export default async function NewExpensePage() {
+  await requireFeature('expenses');
+
   const session = await auth();
 
   if (!session?.user?.id) {

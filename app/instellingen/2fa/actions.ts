@@ -58,19 +58,20 @@ export async function verify2FASetup(code: string) {
     throw new Error("Ongeldige verificatie code")
   }
 
-  // Generate backup codes
-  const backupCodes = generateBackupCodes(10)
+  // Generate backup codes (plain to show user, hashed to store)
+  const { plainCodes, hashedCodes } = generateBackupCodes(10)
 
-  // Enable 2FA
+  // Enable 2FA - store only hashed codes in DB
   await db.user.update({
     where: { id: userId },
     data: {
       twoFactorEnabled: true,
-      backupCodes: JSON.stringify(backupCodes),
+      backupCodes: JSON.stringify(hashedCodes),
     },
   })
 
-  return { backupCodes }
+  // Return plain codes to show user (only time they'll see them)
+  return { backupCodes: plainCodes }
 }
 
 export async function disable2FA() {

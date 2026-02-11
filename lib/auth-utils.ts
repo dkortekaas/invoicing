@@ -1,3 +1,4 @@
+import crypto from "crypto"
 import bcrypt from "bcryptjs"
 import speakeasy from "speakeasy"
 import QRCode from "qrcode"
@@ -94,16 +95,29 @@ export async function generateQRCodeDataURL(otpauthUrl: string): Promise<string>
 }
 
 /**
- * Genereer backup codes voor 2FA
+ * Hash a backup code using SHA-256 for secure storage.
  */
-export function generateBackupCodes(count: number = 10): string[] {
-  const codes: string[] = []
+function hashBackupCode(code: string): string {
+  return crypto.createHash("sha256").update(code).digest("hex")
+}
+
+/**
+ * Genereer backup codes voor 2FA.
+ * Returns plain codes (to show user once) and hashed codes (to store in DB).
+ * Uses crypto.randomBytes instead of Math.random for secure generation.
+ */
+export function generateBackupCodes(count: number = 10): {
+  plainCodes: string[]
+  hashedCodes: string[]
+} {
+  const plainCodes: string[] = []
+  const hashedCodes: string[] = []
   for (let i = 0; i < count; i++) {
-    // Generate 8-digit code
-    const code = Math.floor(10000000 + Math.random() * 90000000).toString()
-    codes.push(code)
+    const code = crypto.randomInt(10000000, 99999999).toString()
+    plainCodes.push(code)
+    hashedCodes.push(hashBackupCode(code))
   }
-  return codes
+  return { plainCodes, hashedCodes }
 }
 
 /**
@@ -114,7 +128,9 @@ function normalizeBackupCode(code: string): string {
 }
 
 /**
- * Verifieer een backup code
+ * Verifieer een backup code.
+ * Compares against SHA-256 hashed codes stored in DB.
+ * Also supports legacy plain-text codes for backward compatibility during migration.
  */
 export async function verifyBackupCode(
   userId: string,
@@ -144,7 +160,15 @@ export async function verifyBackupCode(
     return false
   }
 
-  const index = codes.findIndex((c) => c === normalizedInput)
+  const hashedInput = hashBackupCode(normalizedInput)
+
+  // Check hashed codes first, then fall back to legacy plain-text comparison
+  let index = codes.findIndex((c) => c === hashedInput)
+  if (index === -1) {
+    // Legacy: check plain-text codes for users who enabled 2FA before hashing was added
+    index = codes.findIndex((c) => c === normalizedInput)
+  }
+
   if (index === -1) {
     return false
   }

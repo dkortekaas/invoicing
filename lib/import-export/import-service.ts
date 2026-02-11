@@ -1,4 +1,4 @@
-import ExcelJS from 'exceljs';
+import type ExcelJS from 'exceljs';
 import { db } from '@/lib/db';
 import { getFieldsForEntity, type EntityType } from './fields';
 import type { ExpenseCategory } from '@prisma/client';
@@ -45,7 +45,8 @@ export async function parseFile(
 }
 
 async function parseExcel(buffer: Buffer): Promise<ParsedFile> {
-  const workbook = new ExcelJS.Workbook();
+  const { default: ExcelJSModule } = await import('exceljs');
+  const workbook = new ExcelJSModule.Workbook();
   await workbook.xlsx.load(buffer as unknown as ArrayBuffer);
 
   const worksheet = workbook.worksheets[0];
@@ -67,9 +68,9 @@ async function parseExcel(buffer: Buffer): Promise<ParsedFile> {
         const colName = columns[colNumber - 1];
         if (colName) {
           // Handle different cell types
-          if (cell.type === ExcelJS.ValueType.Date) {
+          if (cell.type === ExcelJSModule.ValueType.Date) {
             rowData[colName] = cell.value;
-          } else if (cell.type === ExcelJS.ValueType.Number) {
+          } else if (cell.type === ExcelJSModule.ValueType.Number) {
             rowData[colName] = cell.value;
           } else {
             rowData[colName] = sanitizeCellValue(cell.text?.toString().trim() || '');

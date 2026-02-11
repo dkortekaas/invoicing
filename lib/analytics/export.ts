@@ -1,4 +1,4 @@
-import ExcelJS from 'exceljs';
+import type ExcelJS from 'exceljs';
 
 interface KPIData {
   totalRevenue: number;
@@ -39,7 +39,8 @@ export async function exportAnalyticsToExcel(data: {
   customers: CustomerData[];
   period: { start: Date; end: Date };
 }): Promise<Buffer> {
-  const workbook = new ExcelJS.Workbook();
+  const { default: ExcelJSModule } = await import('exceljs');
+  const workbook = new ExcelJSModule.Workbook();
 
   // KPIs Sheet
   const kpisSheet = workbook.addWorksheet('KPI Overzicht');

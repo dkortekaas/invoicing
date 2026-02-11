@@ -1,12 +1,31 @@
 import crypto from "crypto"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { newsletterSubscribeSchema } from "@/lib/validations"
 import { resend, EMAIL_CONFIG } from "@/lib/email/client"
 import NewsletterConfirmEmail from "@/emails/newsletter-confirm-email"
+import { rateLimit, RATE_LIMITS } from "@/lib/rate-limit"
 
-export async function POST(request: Request) {
+/**
+ * Hash a newsletter token for secure storage using SHA-256.
+ */
+function hashToken(token: string): string {
+  return crypto.createHash("sha256").update(token).digest("hex")
+}
+
+export async function POST(request: NextRequest) {
   try {
+    // Rate limit newsletter subscribe by IP
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
+    const { allowed } = rateLimit(`newsletter:${ip}`, RATE_LIMITS.contact)
+    if (!allowed) {
+      // Return same success message to prevent enumeration
+      return NextResponse.json({
+        message:
+          "Als dit e-mailadres nog niet is ingeschreven, ontvang je een bevestigingsmail.",
+      })
+    }
+
     const body = await request.json()
     const parsed = newsletterSubscribeSchema.safeParse(body)
 
@@ -35,18 +54,18 @@ export async function POST(request: Request) {
 
       if (existing.status === "UNSUBSCRIBED") {
         // Re-subscribe: generate new token and set to PENDING
-        const confirmToken = crypto.randomBytes(32).toString("hex")
+        const plainToken = crypto.randomBytes(32).toString("hex")
 
         await db.newsletterSubscriber.update({
           where: { id: existing.id },
           data: {
             status: "PENDING",
-            confirmToken,
+            confirmToken: hashToken(plainToken),
             unsubscribedAt: null,
           },
         })
 
-        await sendConfirmationEmail(email, confirmToken)
+        await sendConfirmationEmail(email, plainToken)
 
         return NextResponse.json({
           message:
@@ -55,14 +74,14 @@ export async function POST(request: Request) {
       }
 
       // PENDING - resend confirmation
-      const confirmToken = crypto.randomBytes(32).toString("hex")
+      const plainToken = crypto.randomBytes(32).toString("hex")
 
       await db.newsletterSubscriber.update({
         where: { id: existing.id },
-        data: { confirmToken },
+        data: { confirmToken: hashToken(plainToken) },
       })
 
-      await sendConfirmationEmail(email, confirmToken)
+      await sendConfirmationEmail(email, plainToken)
 
       return NextResponse.json({
         message:
@@ -71,17 +90,17 @@ export async function POST(request: Request) {
     }
 
     // New subscriber
-    const confirmToken = crypto.randomBytes(32).toString("hex")
+    const plainToken = crypto.randomBytes(32).toString("hex")
 
     await db.newsletterSubscriber.create({
       data: {
         email,
-        confirmToken,
+        confirmToken: hashToken(plainToken),
         status: "PENDING",
       },
     })
 
-    await sendConfirmationEmail(email, confirmToken)
+    await sendConfirmationEmail(email, plainToken)
 
     return NextResponse.json({
       message:

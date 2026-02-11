@@ -1,4 +1,3 @@
-import ExcelJS from 'exceljs';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { getQuarterInfo } from './calculations';
@@ -42,6 +41,7 @@ interface VATReportExportData {
 export async function exportVATReportToExcel(
   data: VATReportExportData
 ): Promise<Buffer> {
+  const { default: ExcelJS } = await import('exceljs');
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('BTW Aangifte');
 

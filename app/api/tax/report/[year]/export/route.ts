@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ExcelJS from 'exceljs';
+import type ExcelJS from 'exceljs';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { auth } from '@/lib/auth';
@@ -44,8 +44,11 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Dynamic import to avoid loading ExcelJS in the initial bundle
+    const { default: ExcelJSModule } = await import('exceljs');
+
     // Generate Excel workbook
-    const workbook = new ExcelJS.Workbook();
+    const workbook = new ExcelJSModule.Workbook();
     workbook.creator = 'Declair';
     workbook.created = new Date();
 

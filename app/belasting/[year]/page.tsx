@@ -526,7 +526,7 @@ export default async function BelastingJaarPage({
 
         {/* Disclaimer */}
         <Card className="bg-muted/50">
-          <CardContent className="pt-6">
+          <CardContent>
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div className="text-sm text-muted-foreground">

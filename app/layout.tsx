@@ -48,7 +48,7 @@ export default async function RootLayout({
   const locale = (cookieStore.get(LOCALE_COOKIE)?.value as Locale | undefined) ?? defaultLocale
 
   return (
-    <html lang={locale} className={inter.variable} suppressHydrationWarning>
+    <html lang={locale} className={inter.variable} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <link rel="icon" type="image/png" href="/favicons/favicon-96x96.png" sizes="96x96" />
         <link rel="icon" type="image/svg+xml" href="/favicons/favicon.svg" />

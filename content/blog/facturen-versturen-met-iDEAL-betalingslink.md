@@ -1,9 +1,9 @@
 ---
-title: Facturen versturen met iDEAL-betalingslink (zo werkt het)
-seoTitle: Factuur met iDEAL-betalingslink versturen als zzp'er – complete uitleg
-metaDescription: Leer hoe je als zzp'er facturen verstuurt met een iDEAL-betalingslink. Sneller betaald, minder herinneringen, makkelijk in te stellen.
-excerpt: Wachten op een overboeking duurt. Met een iDEAL-betalingslink op je factuur wordt je gemiddeld 10x sneller betaald. Zo stel je het in.
-image: blog/3.factuur-ideal-betalingslink-zzp.jpg
+title: Facturen versturen met iDEAL of Wero (zo werkt het)
+seoTitle: Factuur met iDEAL- of Wero-betalingslink versturen als zzp'er – complete uitleg
+metaDescription: Leer hoe je als zzp'er facturen verstuurt met een iDEAL- of Wero-betalingslink. Sneller betaald, minder herinneringen, makkelijk in te stellen.
+excerpt: Wachten op een overboeking duurt. Met een betalingslink via iDEAL of het nieuwe Europese Wero wordt je gemiddeld 10x sneller betaald. Zo stel je het in.
+image: blog/4-factuur-ideal-betalingslink-zzp.jpg
 date: 2026-02-13
 category: facturatie
 readTime: 7
@@ -11,9 +11,9 @@ author: Declair
 authorRole: Slimme facturatie voor zzp'ers
 ---
 
-Wachten op een overboeking duurt. Soms dagen, soms weken. Maar wat als je klant direct kon betalen — met één klik, via iDEAL?
+Wachten op een overboeking duurt. Soms dagen, soms weken. Maar wat als je klant direct kon betalen — met één klik, via iDEAL of het nieuwe Europese Wero?
 
-In dit artikel lees je hoe je facturen verstuurt met een iDEAL-betalingslink, wat de voordelen zijn, en hoe je het technisch regelt. Spoiler: het is makkelijker dan je denkt.
+In dit artikel lees je hoe je facturen verstuurt met een directe betalingslink, wat de voordelen zijn, en hoe je het technisch regelt. Spoiler: het is makkelijker dan je denkt.
 
 ---
 
@@ -37,7 +37,13 @@ Het proces ziet er als volgt uit: je maakt een factuur aan in je facturatiesoftw
 
 ---
 
-## Wat heb je nodig om iDEAL-facturen te versturen?
+## iDEAL en Wero: wat verandert er?
+
+iDEAL is al jaren de standaard voor directe online betalingen in Nederland, maar dat verandert. Vanaf begin 2026 wordt iDEAL stap voor stap vervangen door **Wero**, het nieuwe Europese betaalsysteem. Eind 2027 verdwijnt de naam iDEAL naar verwachting volledig.
+
+Wero biedt dezelfde veiligheid en snelheid als iDEAL, maar is ontworpen voor naadloze betalingen in heel Europa — niet alleen in Nederland. Voor zzp'ers met internationale klanten is dat een groot voordeel. De werking blijft hetzelfde: klant klikt, logt in bij zijn bank, en betaalt. Alleen de naam op de knop verandert.
+
+Wat betekent dit voor jou in de praktijk? Voorlopig nog weinig. iDEAL blijft gewoon beschikbaar tijdens de overgangsperiode. Zorg wel dat de facturatiesoftware die je gebruikt de overstap naar Wero op tijd ondersteunt — goede software doet dat automatisch op de achtergrond.
 
 **Een zakelijke bankrekening** — iDEAL-betalingen lopen via je zakelijke rekening. Een privérekening is niet geschikt.
 
@@ -81,12 +87,12 @@ Nee. Een IBAN is verplicht, iDEAL is optioneel. Maar het verhoogt je kans om sne
 
 ---
 
-## iDEAL vs bankoverschrijving
+## iDEAL/Wero vs bankoverschrijving
 
-| Methode | Snelheid | Gemak voor klant | Kosten | Ideaal voor |
-|---|---|---|---|---|
-| **iDEAL** | Direct – 24u | Hoog | €0,29 + 0,29% | Eenmalige betalingen, facturen >€50 |
-| **Bankoverschrijving** | 1–3 werkdagen | Laag | Gratis | Grote bedragen, vaste klanten |
+| Methode                | Snelheid      | Gemak voor klant | Kosten        | Ideaal voor                         |
+| ---------------------- | ------------- | ---------------- | ------------- | ----------------------------------- |
+| **iDEAL / Wero**       | Direct – 24u  | Hoog             | €0,29 + 0,29% | Eenmalige betalingen, facturen >€50 |
+| **Bankoverschrijving** | 1–3 werkdagen | Laag             | Gratis        | Grote bedragen, vaste klanten       |
 
 ---
 
@@ -114,10 +120,10 @@ Nee. Een IBAN is verplicht, iDEAL is optioneel. Maar het verhoogt je kans om sne
 
 ## Samenvatting
 
-Facturen met een iDEAL-betalingslink worden gemiddeld 10x sneller betaald dan facturen zonder. Je hebt een payment provider (zoals Mollie), facturatiesoftware die iDEAL ondersteunt en een zakelijke rekening nodig. De transactiekosten zijn minimaal vergeleken met de voordelen: sneller geld binnen en minder tijd kwijt aan achterstallige betalingen.
+Facturen met een directe betalingslink worden gemiddeld 10x sneller betaald dan facturen zonder. In Nederland is dat nu nog iDEAL; vanaf 2026 neemt het Europese Wero die rol stap voor stap over. Je hebt een payment provider (zoals Mollie), facturatiesoftware die dit ondersteunt en een zakelijke rekening nodig. De transactiekosten zijn minimaal vergeleken met de voordelen: sneller geld binnen en minder tijd kwijt aan achterstallige betalingen.
 
 > 👉 **Ontvang iDEAL-betalingen met Declair** — In 5 minuten ingesteld, eerste facturen gratis.
 
 ---
 
-*Gerelateerd: [Hoe maak je een factuur als zzp'er?](/blog/hoe-maak-je-een-factuur-zzp) · [Beste facturatieprogramma voor zzp'ers](/blog/beste-facturatieprogramma-zzp)*
+_Gerelateerd: [Hoe maak je een factuur als zzp'er?](/blog/hoe-maak-je-een-factuur-zzp) · [Beste facturatieprogramma voor zzp'ers](/blog/beste-facturatieprogramma-zzp)_

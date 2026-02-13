@@ -19,7 +19,7 @@
         "yearly": "Yearly",
         "2monthsfree": "2 months free",
         "mostpopular": "Most popular",
-        "perMonth": "per month",
+        "perMonth": "p/mnd",
         "yearlyInvoiced": "Yearly invoiced",
         "exclVAT": "excl. VAT",
         "startFree": "Start free",
@@ -84,7 +84,9 @@
         "notSureWhichPlan": "Not sure which plan suits you best?",
         "startFreeTrialDescription": "Start with 14 days free and see for yourself which plan suits you best. No credit card needed, cancel anytime.",
         "startFreeTrial": "Start free trial",
-        "contactUs": "Contact us"
+        "contactUs": "Contact us",
+        "feature": "Feature",
+        "unlimited": "Unlimited"
     },
     "pricingSection": {
         "title": "Fair prices, no surprises",
@@ -99,7 +101,7 @@
         "starter": "Starter",
         "professional": "Professional",
         "business": "Business",
-        "perMonth": "per month",
+        "perMonth": "p/mnd",
         "exclVAT": "excl. VAT",
         "freeFeatures1": "Up to 5 invoices per month",
         "freeFeatures2": "Customer management",

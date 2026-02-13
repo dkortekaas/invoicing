@@ -19,7 +19,7 @@
         "yearly": "Jaarlijks",
         "2monthsfree": "2 maanden gratis",
         "mostpopular": "Meest gekozen",
-        "perMonth": "per maand",
+        "perMonth": "p/mnd",
         "yearlyInvoiced": "Jaarlijks gefactureerd",
         "exclVAT": "excl. BTW",
         "startFree": "Start gratis",
@@ -91,7 +91,8 @@
         "startFreeTrialDescription": "Start gratis en ontdek welk plan het beste bij je past. Geen creditcard nodig, opzeggen wanneer je wilt.",
         "startFreeTrial": "Start gratis",
         "contactUs": "Neem contact op",
-        "feature": "Functie"
+        "feature": "Functie",
+        "unlimited": "Onbeperkt"
     },
     "pricingSection": {
         "title": "Eerlijke prijzen, geen verrassingen",
@@ -106,7 +107,7 @@
         "starter": "Starter",
         "professional": "Professional",
         "business": "Business",
-        "perMonth": "per maand",
+        "perMonth": "p/mnd",
         "exclVAT": "excl. BTW",
         "freeFeatures1": "Tot 5 facturen per maand",
         "freeFeatures2": "Klantenbeheer",

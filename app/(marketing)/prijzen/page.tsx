@@ -31,7 +31,7 @@ const Pricing = () => {
     {
       name: t("facturation"),
       features: [
-        { name: t("invoicesPerMonth"), free: "5", starter: "Onbeperkt", professional: "Onbeperkt", business: "Onbeperkt" },
+        { name: t("invoicesPerMonth"), free: "5", starter: t("unlimited"), professional: t("unlimited"), business: t("unlimited") },
         { name: t("quotes"), free: true, starter: true, professional: true, business: true },
         { name: t("creditNotes"), free: false, starter: true, professional: true, business: true },
         { name: t("recurringInvoices"), free: false, starter: true, professional: true, business: true },

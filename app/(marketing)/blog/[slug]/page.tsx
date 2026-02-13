@@ -61,5 +61,43 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     .filter((p) => p.slug !== slug)
     .slice(0, 3);
 
-  return <BlogPostClient post={post} relatedPosts={relatedPosts} />;
+  const { title, excerpt, image, date, author } = post.frontmatter;
+  const articleUrl = `${siteUrl}/blog/${slug}`;
+  const imageUrl = image ? `${siteUrl}/${image}` : `${siteUrl}/og-image.png`;
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    description: excerpt,
+    image: imageUrl,
+    datePublished: date,
+    dateModified: date,
+    author: {
+      "@type": "Person",
+      name: author,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Declair",
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/logo.png`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": articleUrl,
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <BlogPostClient post={post} relatedPosts={relatedPosts} />
+    </>
+  );
 }

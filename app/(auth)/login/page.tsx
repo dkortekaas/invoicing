@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { loginSchema, type LoginFormData } from "@/lib/validations"
+import { trackLogin } from "@/lib/analytics"
 
 function LoginForm() {
   const router = useRouter()
@@ -93,6 +94,7 @@ function LoginForm() {
           setError(result.error)
         }
       } else if (result?.ok) {
+        trackLogin("credentials")
         router.push(callbackUrl)
         router.refresh()
       } else {

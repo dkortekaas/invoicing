@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { trackFormSuccess } from "@/lib/analytics";
 import {
   Mail,
   MessageSquare,
@@ -50,6 +51,7 @@ const ContactPage = () => {
         setSubmitError(data.error ?? t("errorGeneric"));
         return;
       }
+      trackFormSuccess("contact");
       setFormSubmitted(true);
     } catch {
       setSubmitError(t("errorGeneric"));

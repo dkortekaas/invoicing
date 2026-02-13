@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PasswordStrengthIndicator } from "@/components/auth/password-strength-indicator"
 import { registerSchema, type RegisterFormData } from "@/lib/validations"
+import { trackSignUp } from "@/lib/analytics"
 import { registerUser } from "./actions"
 
 export default function RegisterPage() {
@@ -44,6 +45,7 @@ export default function RegisterPage() {
 
     try {
       await registerUser(data)
+      trackSignUp("email")
       router.push("/login?registered=true")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Er is een fout opgetreden bij het registreren")

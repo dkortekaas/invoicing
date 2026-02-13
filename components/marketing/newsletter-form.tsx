@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Send, Loader2, CheckCircle2 } from "lucide-react";
+import { trackFormSuccess } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslations } from "@/components/providers/locale-provider";
@@ -33,6 +34,7 @@ export function NewsletterForm() {
         return;
       }
 
+      trackFormSuccess("newsletter");
       setStatus("success");
       setMessage(data.message || t("newsletter.success"));
       setEmail("");

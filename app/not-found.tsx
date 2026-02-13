@@ -1,42 +1,54 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const NotFound = () => {
+export default function NotFound() {
   const pathname = usePathname();
 
-  useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", pathname);
-  }, [pathname]);
-
   return (
-      <div className="flex-1 flex items-center justify-center py-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center px-6"
-        >
-          <div className="text-8xl font-bold text-primary mb-4">404</div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-            Pagina niet gevonden
-          </h1>
-          <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-            De pagina die je zoekt bestaat niet of is verplaatst.
-          </p>
-          <Link href="/">
-            <Button className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Terug naar home
-            </Button>
-          </Link>
-        </motion.div>
-      </div>
+    <div className="flex min-h-[60vh] flex-1 flex-col items-center justify-center px-6 py-20">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex max-w-md flex-col items-center text-center"
+      >
+        <p className="mb-2 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          Fout 404
+        </p>
+        <h1 className="text-6xl font-bold tabular-nums text-primary md:text-7xl">
+          404
+        </h1>
+        <h2 className="mt-4 text-xl font-semibold text-foreground md:text-2xl">
+          Pagina niet gevonden
+        </h2>
+        <p className="mt-3 text-muted-foreground">
+          De pagina <span className="font-medium text-foreground">{pathname || "..."}</span>{" "}
+          bestaat niet of is verplaatst.
+        </p>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <Button asChild size="lg" className="gap-2">
+            <Link href="/">
+              <Home className="size-4" />
+              Naar home
+            </Link>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            className="gap-2"
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft className="size-4" />
+            Terug
+          </Button>
+        </div>
+      </motion.div>
+    </div>
   );
-};
-
-export default NotFound;
+}

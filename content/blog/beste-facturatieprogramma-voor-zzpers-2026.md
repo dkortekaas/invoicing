@@ -3,7 +3,7 @@ title: Beste facturatieprogramma voor zzp'ers in 2026 (eerlijke vergelijking)
 seoTitle: Beste facturatieprogramma zzp 2026 – vergelijking van 6 tools
 metaDescription: Welk facturatieprogramma is het beste voor zzp'ers in 2026? We vergeleken Declair, Moneybird, Informer, SnelStart en meer op prijs, functies en gebruiksgemak.
 excerpt: We testten de 6 populairste facturatieprogramma's voor zzp'ers op prijs, functionaliteit en gebruiksgemak. Eerlijke vergelijking, zonder marketingpraatjes.
-image: blog/public/blog/3-beste-facturatieprogramma-voor-zzpers.jpg
+image: blog/3-beste-facturatieprogramma-voor-zzpers.jpg
 date: 2026-02-13
 category: facturatie
 readTime: 8

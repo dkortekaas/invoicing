@@ -3,7 +3,7 @@ title: Facturen versturen met iDEAL of Wero (zo werkt het)
 seoTitle: Factuur met iDEAL- of Wero-betalingslink versturen als zzp'er – complete uitleg
 metaDescription: Leer hoe je als zzp'er facturen verstuurt met een iDEAL- of Wero-betalingslink. Sneller betaald, minder herinneringen, makkelijk in te stellen.
 excerpt: Wachten op een overboeking duurt. Met een betalingslink via iDEAL of het nieuwe Europese Wero wordt je gemiddeld 10x sneller betaald. Zo stel je het in.
-image: blog/4-factuur-ideal-betalingslink-zzp.jpg
+image: blog/4-facturen-versturen-met-iDEAL-betalingslink.jpg
 date: 2026-02-13
 category: facturatie
 readTime: 7

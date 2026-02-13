@@ -33,6 +33,7 @@ export async function GET(_request: NextRequest) {
       );
     }
 
+    const hasStripeSubscription = !!user.stripeSubscriptionId;
     const payload: Record<string, unknown> = {
       tier: user.subscriptionTier,
       status: user.subscriptionStatus,
@@ -42,6 +43,7 @@ export async function GET(_request: NextRequest) {
       invoiceCountResetAt: user.invoiceCountResetAt,
       cancelAtPeriodEnd: false,
       cancelAt: null,
+      hasStripeSubscription,
     };
 
     if (user.stripeSubscriptionId) {

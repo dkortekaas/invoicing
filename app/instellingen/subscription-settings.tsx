@@ -37,6 +37,7 @@ interface SubscriptionData {
   cancelAt: string | null
   invoiceCount: number | null
   invoiceCountResetAt: string | null
+  hasStripeSubscription?: boolean
 }
 
 export function SubscriptionSettings() {
@@ -134,7 +135,8 @@ export function SubscriptionSettings() {
   }
 
   const isPaidTier = data && data.tier !== "FREE"
-  const hasPortal = isPaidTier && data?.status
+  const isStripeSubscription = Boolean(data?.hasStripeSubscription)
+  const hasPortal = isPaidTier && isStripeSubscription && data?.status
 
   if (loading) {
     return (
@@ -162,16 +164,21 @@ export function SubscriptionSettings() {
               </CardTitle>
               <CardDescription>
                 {isPaidTier
-                  ? "Je Stripe-abonnement en facturatie"
+                  ? isStripeSubscription
+                    ? "Je Stripe-abonnement en facturatie"
+                    : "Dit abonnement is handmatig toegewezen (niet via Stripe)."
                   : "Je gebruikt het gratis plan. Upgrade voor meer functies."}
               </CardDescription>
               <div className="flex flex-wrap items-center gap-2 mt-2">
+                {isPaidTier && !isStripeSubscription && (
+                  <Badge variant="secondary">Handmatig toegewezen</Badge>
+                )}
                 {data?.status && (
                   <Badge variant={data.status === "ACTIVE" || data.status === "TRIALING" ? "default" : "secondary"}>
                     {STATUS_LABELS[data.status] ?? data.status}
                   </Badge>
                 )}
-                {Boolean(data?.cancelAtPeriodEnd) && (
+                {isStripeSubscription && Boolean(data?.cancelAtPeriodEnd) && (
                   <Badge variant="secondary">Wordt opgezegd</Badge>
                 )}
               </div>
@@ -189,7 +196,7 @@ export function SubscriptionSettings() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {isPaidTier && data?.currentPeriodEnd && (
+          {isPaidTier && isStripeSubscription && data?.currentPeriodEnd && (
             <div className="rounded-lg border bg-muted/50 p-4">
               <p className="text-sm font-medium">Huidige periode</p>
               <p className="text-sm text-muted-foreground">
@@ -238,7 +245,7 @@ export function SubscriptionSettings() {
             </div>
           )}
 
-          {isPaidTier && (
+          {isPaidTier && isStripeSubscription && (
             <div className="pt-2 flex flex-wrap items-center gap-2">
               <Button
                 type="button"

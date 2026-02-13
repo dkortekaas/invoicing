@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     description: 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
     images: [
       {
-        url: '/og-image.png',
+        url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: 'Declair - Facturatie Software',
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Declair - Factureren zonder gedoe | Facturatie voor ZZP\'ers',
     description: 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
-    images: ['/og-image.png'],
+    images: [`${siteUrl}/og-image.png`],
   },
   alternates: {
     canonical: siteUrl,

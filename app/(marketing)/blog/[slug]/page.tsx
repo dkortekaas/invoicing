@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import { getPostBySlug, getPosts, getPostSlugs } from "@/lib/blog";
 import { BlogPostClient } from "@/components/marketing/blog-post-client";
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://declair.app";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -10,30 +13,38 @@ export function generateStaticParams() {
   return getPostSlugs().map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: BlogPostPageProps) {
+export async function generateMetadata({
+  params,
+}: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) return {};
   const { title, seoTitle, excerpt, metaDescription, image } = post.frontmatter;
   const metaTitle = seoTitle ?? title;
   const metaDesc = metaDescription ?? excerpt;
-  const ogImages = image
-    ? [{ url: `/${image}`, width: 1200, height: 630, alt: metaTitle }]
-    : undefined;
+  const imageUrl = image ? `${siteUrl}/${image}` : `${siteUrl}/og-image.png`;
   return {
     title: metaTitle,
     description: metaDesc,
     openGraph: {
-      type: 'article' as const,
+      type: "article",
       title: metaTitle,
       description: metaDesc,
-      images: ogImages,
+      url: `${siteUrl}/blog/${slug}`,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: metaTitle,
+        },
+      ],
     },
     twitter: {
-      card: 'summary_large_image' as const,
+      card: "summary_large_image",
       title: metaTitle,
       description: metaDesc,
-      images: ogImages,
+      images: [imageUrl],
     },
   };
 }

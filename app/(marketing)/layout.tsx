@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import Header from '@/components/marketing/header';
 import Footer from '@/components/marketing/footer';
 import { SkipToContentLink } from '@/components/marketing/skip-to-content';
-
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://declair.app';
+import { alternatesForPath, siteUrl } from '@/lib/seo';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -62,9 +61,7 @@ export const metadata: Metadata = {
     description: 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
     images: [`${siteUrl}/og-image.png`],
   },
-  alternates: {
-    canonical: siteUrl,
-  },
+  alternates: alternatesForPath(''),
   category: 'business',
 };
 

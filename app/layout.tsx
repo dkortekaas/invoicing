@@ -6,6 +6,7 @@ import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
 import { CookieConsentBanner } from "@/components/marketing/cookie-consent-banner"
 import { AnalyticsClickTracking } from "@/components/marketing/analytics-click-tracking"
 import { GoogleAnalytics } from "@/components/marketing/google-analytics"
+import { PageViewTracker } from "@/components/marketing/page-view-tracker"
 import { AuthProvider } from "@/components/providers/session-provider"
 import { LocaleProvider } from "@/components/providers/locale-provider"
 import { Toaster } from "@/components/ui/sonner"
@@ -61,6 +62,7 @@ export default async function RootLayout({
       </head>
       <body className={inter.className}>
         <GoogleAnalytics />
+        <PageViewTracker />
         <AnalyticsClickTracking />
         <LocaleProvider initialLocale={locale}>
           <AuthProvider>

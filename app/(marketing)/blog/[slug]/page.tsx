@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getPostBySlug, getPosts, getPostSlugs } from "@/lib/blog";
 import { BlogPostClient } from "@/components/marketing/blog-post-client";
+import { alternatesForPath } from "@/lib/seo";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://declair.app";
 
@@ -26,6 +27,7 @@ export async function generateMetadata({
   return {
     title: metaTitle,
     description: metaDesc,
+    alternates: alternatesForPath(`blog/${slug}`),
     openGraph: {
       type: "article",
       title: metaTitle,

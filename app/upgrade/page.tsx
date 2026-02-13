@@ -58,10 +58,15 @@ function UpgradePageContent() {
         }),
       });
 
-      const { url } = await response.json();
+      const data = await response.json();
 
-      if (url) {
-        window.location.href = url;
+      if (!response.ok) {
+        toast.error(data?.error ?? 'Er is een fout opgetreden');
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
       }
     } catch (error) {
       console.error('Checkout error:', error);

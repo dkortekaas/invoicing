@@ -13,6 +13,7 @@ import { FiscaalForm } from "./fiscaal-form"
 import { getProfile, getCompanyInfo, getFinancialInfo, getEmailSettings, getMollieSettings, getFiscalSettings, getNewsletterStatus } from "./actions"
 import { NewsletterForm } from "./newsletter-form"
 import { MollieSettingsForm } from "./mollie-settings-form"
+import { SubscriptionSettings } from "./subscription-settings"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -103,6 +104,10 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
 
         <TabsContent value="betalingen" className="mt-6">
           <MollieSettingsForm initialData={mollieSettings} />
+        </TabsContent>
+
+        <TabsContent value="abonnement" className="mt-6">
+          <SubscriptionSettings />
         </TabsContent>
 
         <TabsContent value="import-export" className="mt-6">

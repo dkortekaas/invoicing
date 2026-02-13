@@ -10,39 +10,58 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   typescript: true,
 });
 
+// Use server env first, fallback to NEXT_PUBLIC_ so one set of vars works for both client and API validation
 export const STRIPE_PLANS = {
   starter: {
     monthly: {
-      priceId: process.env.STRIPE_PRICE_ID_STARTER_MONTHLY || '',
+      priceId:
+        process.env.STRIPE_PRICE_ID_STARTER_MONTHLY ||
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STARTER_MONTHLY ||
+        '',
       amount: 995, // €9,95
       interval: 'month' as const,
     },
     yearly: {
-      priceId: process.env.STRIPE_PRICE_ID_STARTER_YEARLY || '',
+      priceId:
+        process.env.STRIPE_PRICE_ID_STARTER_YEARLY ||
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STARTER_YEARLY ||
+        '',
       amount: 9900, // €99,00 (€8,25/maand)
       interval: 'year' as const,
     },
   },
   professional: {
     monthly: {
-      priceId: process.env.STRIPE_PRICE_ID_PROFESSIONAL_MONTHLY || process.env.STRIPE_PRICE_ID_MONTHLY || '',
+      priceId:
+        process.env.STRIPE_PRICE_ID_PROFESSIONAL_MONTHLY ||
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL_MONTHLY ||
+        '',
       amount: 1995, // €19,95
       interval: 'month' as const,
     },
     yearly: {
-      priceId: process.env.STRIPE_PRICE_ID_PROFESSIONAL_YEARLY || process.env.STRIPE_PRICE_ID_YEARLY || '',
+      priceId:
+        process.env.STRIPE_PRICE_ID_PROFESSIONAL_YEARLY ||
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL_YEARLY ||
+        '',
       amount: 19900, // €199,00 (€16,58/maand)
       interval: 'year' as const,
     },
   },
   business: {
     monthly: {
-      priceId: process.env.STRIPE_PRICE_ID_BUSINESS_MONTHLY || '',
+      priceId:
+        process.env.STRIPE_PRICE_ID_BUSINESS_MONTHLY ||
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_BUSINESS_MONTHLY ||
+        '',
       amount: 3495, // €34,95
       interval: 'month' as const,
     },
     yearly: {
-      priceId: process.env.STRIPE_PRICE_ID_BUSINESS_YEARLY || '',
+      priceId:
+        process.env.STRIPE_PRICE_ID_BUSINESS_YEARLY ||
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_BUSINESS_YEARLY ||
+        '',
       amount: 34900, // €349,00 (€29,08/maand)
       interval: 'year' as const,
     },

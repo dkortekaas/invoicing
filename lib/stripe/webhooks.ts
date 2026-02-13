@@ -2,32 +2,71 @@ import { db } from '@/lib/db';
 import Stripe from 'stripe';
 import { getTierFromPriceId } from './client';
 
-export async function handleSubscriptionCreated(
+const TERMINAL_SUBSCRIPTION_STATUSES = ['canceled', 'incomplete_expired', 'unpaid'] as const;
+
+/** Shared: update user record from a Stripe subscription (used by webhooks and sync). */
+export async function updateUserFromStripeSubscription(
   subscription: Stripe.Subscription
 ) {
   const customerId = subscription.customer as string;
   const firstItem = subscription.items.data[0];
-  
+  const status = subscription.status;
+
+  if (TERMINAL_SUBSCRIPTION_STATUSES.includes(status as (typeof TERMINAL_SUBSCRIPTION_STATUSES)[number])) {
+    await db.user.update({
+      where: { stripeCustomerId: customerId },
+      data: {
+        stripeSubscriptionId: null,
+        stripePriceId: null,
+        stripeCurrentPeriodEnd: null,
+        subscriptionStatus: 'FREE',
+        subscriptionTier: 'FREE',
+        billingCycle: null,
+      },
+    });
+    return;
+  }
+
   if (!firstItem) {
     console.error('Subscription has no items:', subscription.id);
     return;
   }
-  
+
+  const periodEndRaw = firstItem.current_period_end;
+  const periodEndMs =
+    typeof periodEndRaw === 'number'
+      ? periodEndRaw * 1000
+      : typeof periodEndRaw === 'string'
+        ? parseInt(periodEndRaw, 10) * 1000
+        : NaN;
+  const stripeCurrentPeriodEnd =
+    Number.isFinite(periodEndMs) && periodEndMs > 0
+      ? new Date(periodEndMs)
+      : undefined;
+
+  const billingCycle =
+    firstItem.price.recurring?.interval === 'year' ? 'YEARLY' : 'MONTHLY';
+
   await db.user.update({
     where: { stripeCustomerId: customerId },
     data: {
       stripeSubscriptionId: subscription.id,
       stripePriceId: firstItem.price.id,
-      stripeCurrentPeriodEnd: new Date((subscription as Stripe.Subscription & { current_period_end: number }).current_period_end * 1000),
+      ...(stripeCurrentPeriodEnd && { stripeCurrentPeriodEnd }),
       subscriptionStatus: mapStripeStatus(subscription.status),
       subscriptionTier: getTierFromPriceId(firstItem.price.id),
-      billingCycle: firstItem.price.recurring?.interval === 'year' 
-        ? 'YEARLY' 
-        : 'MONTHLY',
+      billingCycle,
     },
   });
+}
 
-  // Log event
+export async function handleSubscriptionCreated(
+  subscription: Stripe.Subscription
+) {
+  await updateUserFromStripeSubscription(subscription);
+
+  const customerId = subscription.customer as string;
+  const firstItem = subscription.items.data[0];
   const user = await db.user.findUnique({
     where: { stripeCustomerId: customerId },
   });
@@ -50,27 +89,9 @@ export async function handleSubscriptionCreated(
 export async function handleSubscriptionUpdated(
   subscription: Stripe.Subscription
 ) {
+  await updateUserFromStripeSubscription(subscription);
+
   const customerId = subscription.customer as string;
-  const firstItem = subscription.items.data[0];
-
-  if (!firstItem) {
-    console.error('Subscription has no items:', subscription.id);
-    return;
-  }
-
-  await db.user.update({
-    where: { stripeCustomerId: customerId },
-    data: {
-      stripePriceId: firstItem.price.id,
-      stripeCurrentPeriodEnd: new Date((subscription as Stripe.Subscription & { current_period_end: number }).current_period_end * 1000),
-      subscriptionStatus: mapStripeStatus(subscription.status),
-      subscriptionTier: getTierFromPriceId(firstItem.price.id),
-      billingCycle: firstItem.price.recurring?.interval === 'year'
-        ? 'YEARLY'
-        : 'MONTHLY',
-    },
-  });
-
   const user = await db.user.findUnique({
     where: { stripeCustomerId: customerId },
   });
@@ -140,6 +161,24 @@ export async function handleInvoicePaid(invoice: Stripe.Invoice) {
         },
       },
     });
+
+    const inv = invoice as { billing_reason?: string; subscription?: string };
+    const billingReason = inv.billing_reason;
+    const isSubscriptionInvoice =
+      Boolean(invoice.parent?.subscription_details?.subscription) ||
+      Boolean(inv.subscription) ||
+      (typeof billingReason === 'string' &&
+        ['subscription', 'subscription_create', 'subscription_cycle', 'subscription_threshold', 'subscription_update'].includes(billingReason));
+    if (isSubscriptionInvoice) {
+      const { createExpenseFromStripeInvoice } = await import(
+        './create-expense-from-invoice'
+      );
+      try {
+        await createExpenseFromStripeInvoice(invoice, user.id);
+      } catch (err) {
+        console.error('Create expense from Stripe invoice:', err);
+      }
+    }
   }
 }
 
@@ -188,4 +227,24 @@ function mapStripeStatus(
   };
 
   return mapping[status] || 'FREE';
+}
+
+/**
+ * When checkout completes, subscription might not be synced yet (e.g. webhook missed).
+ * Fetch subscription from Stripe and update user.
+ */
+export async function handleCheckoutSessionCompleted(
+  session: Stripe.Checkout.Session
+) {
+  if (session.mode !== 'subscription' || !session.subscription) return;
+
+  const stripe = (await import('./client')).stripe;
+  const subscription =
+    typeof session.subscription === 'string'
+      ? await stripe.subscriptions.retrieve(session.subscription, {
+          expand: ['items.data.price'],
+        })
+      : session.subscription;
+
+  await updateUserFromStripeSubscription(subscription);
 }

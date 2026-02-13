@@ -18,7 +18,7 @@ export function BillingPortalButton() {
       const { url } = await response.json();
       
       if (url) {
-        window.location.href = url;
+        window.open(url, "_blank", "noopener,noreferrer");
       }
     } catch (error) {
       console.error('Portal error:', error);

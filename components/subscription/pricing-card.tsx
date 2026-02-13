@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { formatCurrency } from '@/lib/utils';
 
 interface PricingCardProps {
   name: string;
@@ -43,12 +44,7 @@ export function PricingCard({
   };
 
   const formatPrice = () => {
-    const formatted = new Intl.NumberFormat('nl-NL', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price / 100);
+    const formatted = formatCurrency(price / 100);
 
     return (
       <div className="flex items-baseline gap-1">
@@ -73,7 +69,7 @@ export function PricingCard({
             <div className="mt-4">{formatPrice()}</div>
             {interval === 'year' && (
               <p className="text-sm text-muted-foreground mt-1">
-                €{((price / 100) / 12).toFixed(2)}/maand
+                {formatCurrency((price / 100) / 12)}/maand
               </p>
             )}
           </div>

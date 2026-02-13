@@ -4,25 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { SyncAfterCheckout } from '@/components/subscription/sync-after-checkout';
 
 export const dynamic = 'force-dynamic';
 
-interface SuccessPageProps {
-  searchParams: Promise<{ session_id?: string }>;
-}
-
-export default async function CheckoutSuccessPage({ searchParams }: SuccessPageProps) {
+export default async function CheckoutSuccessPage() {
   const user = await getCurrentUser();
 
   if (!user) {
     redirect('/login');
   }
 
-  const params = await searchParams;
-  const sessionId = params.session_id;
-
   return (
-    <div className="container max-w-2xl py-12">
+    <div className="container mx-auto max-w-2xl py-12">
+      <SyncAfterCheckout />
       <Card>
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
@@ -32,18 +27,15 @@ export default async function CheckoutSuccessPage({ searchParams }: SuccessPageP
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <p className="text-muted-foreground">
-            Je Pro abonnement is nu actief. Je hebt nu toegang tot alle premium features.
+            Je abonnement is nu actief. Je hebt nu toegang tot alle bijbehorende functies.
           </p>
-          
-          {sessionId && (
-            <p className="text-xs text-muted-foreground">
-              Sessie ID: {sessionId}
-            </p>
-          )}
+          <p className="text-sm text-muted-foreground">
+            Je kunt je abonnement en facturen beheren onder Instellingen → Abonnement.
+          </p>
 
           <div className="flex gap-4 justify-center pt-4">
             <Button asChild>
-              <Link href="/abonnement">Bekijk abonnement</Link>
+              <Link href="/instellingen?tab=abonnement">Bekijk abonnement</Link>
             </Button>
             <Button variant="outline" asChild>
               <Link href="/dashboard">Naar dashboard</Link>

@@ -6,6 +6,7 @@ import {
   handleSubscriptionDeleted,
   handleInvoicePaid,
   handleInvoicePaymentFailed,
+  handleCheckoutSessionCompleted,
 } from '@/lib/stripe/webhooks';
 import Stripe from 'stripe';
 
@@ -38,6 +39,10 @@ export async function POST(request: NextRequest) {
 
   try {
     switch (event.type) {
+      case 'checkout.session.completed':
+        await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
+        break;
+
       case 'customer.subscription.created':
         await handleSubscriptionCreated(event.data.object as Stripe.Subscription);
         break;

@@ -15,7 +15,7 @@ export default async function CheckoutCanceledPage() {
   }
 
   return (
-    <div className="container max-w-2xl py-12">
+    <div className="container mx-auto max-w-2xl py-12">
       <Card>
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100">

@@ -86,7 +86,7 @@ export function PricingCard({
           <Button
             className="w-full"
             onClick={handleSubscribe}
-            disabled={loading || currentPlan}
+            disabled={loading || currentPlan || (!!onSubscribe && !priceId)}
             variant={popular ? 'default' : 'outline'}
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

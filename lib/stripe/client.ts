@@ -35,6 +35,7 @@ export const STRIPE_PLANS = {
       priceId:
         process.env.STRIPE_PRICE_ID_PROFESSIONAL_MONTHLY ||
         process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL_MONTHLY ||
+        process.env.STRIPE_PRICE_ID_MONTHLY ||
         '',
       amount: 1995, // €19,95
       interval: 'month' as const,
@@ -43,6 +44,7 @@ export const STRIPE_PLANS = {
       priceId:
         process.env.STRIPE_PRICE_ID_PROFESSIONAL_YEARLY ||
         process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL_YEARLY ||
+        process.env.STRIPE_PRICE_ID_YEARLY ||
         '',
       amount: 19900, // €199,00 (€16,58/maand)
       interval: 'year' as const,

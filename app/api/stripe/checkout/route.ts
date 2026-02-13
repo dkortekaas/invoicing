@@ -16,7 +16,10 @@ export async function POST(request: NextRequest) {
 
     if (!priceId || typeof priceId !== 'string') {
       return NextResponse.json(
-        { error: 'priceId is verplicht' },
+        {
+          error:
+            'Geen abonnement gekozen. Controleer of op Vercel de Stripe price IDs zijn gezet (bijv. STRIPE_PRICE_ID_PROFESSIONAL_MONTHLY).',
+        },
         { status: 400 }
       );
     }

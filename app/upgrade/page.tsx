@@ -1,12 +1,18 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { toast } from 'sonner';
 import { PricingCard } from '@/components/subscription/pricing-card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+
+type PriceIds = {
+  starter: { monthly: string | null; yearly: string | null };
+  professional: { monthly: string | null; yearly: string | null };
+  business: { monthly: string | null; yearly: string | null };
+};
 
 const FREE_FEATURES = [
   'Tot 5 facturen per maand',
@@ -44,8 +50,20 @@ const BUSINESS_FEATURES = [
 
 function UpgradePageContent() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [priceIds, setPriceIds] = useState<PriceIds | null>(null);
   const searchParams = useSearchParams();
   const feature = searchParams.get('feature');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/stripe/price-ids')
+      .then((res) => res.ok ? res.json() : null)
+      .then((data: PriceIds | null) => {
+        if (!cancelled && data) setPriceIds(data);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const handleSubscribe = async (priceId: string) => {
     try {
@@ -74,20 +92,29 @@ function UpgradePageContent() {
     }
   };
 
-  const getStarterPriceId = () =>
-    billingCycle === 'monthly'
+  const getStarterPriceId = () => {
+    const fromApi = billingCycle === 'monthly' ? priceIds?.starter.monthly : priceIds?.starter.yearly;
+    if (fromApi) return fromApi;
+    return billingCycle === 'monthly'
       ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STARTER_MONTHLY || ''
       : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STARTER_YEARLY || '';
+  };
 
-  const getProfessionalPriceId = () =>
-    billingCycle === 'monthly'
+  const getProfessionalPriceId = () => {
+    const fromApi = billingCycle === 'monthly' ? priceIds?.professional.monthly : priceIds?.professional.yearly;
+    if (fromApi) return fromApi;
+    return billingCycle === 'monthly'
       ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL_MONTHLY || process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY || ''
       : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL_YEARLY || process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY || '';
+  };
 
-  const getBusinessPriceId = () =>
-    billingCycle === 'monthly'
+  const getBusinessPriceId = () => {
+    const fromApi = billingCycle === 'monthly' ? priceIds?.business.monthly : priceIds?.business.yearly;
+    if (fromApi) return fromApi;
+    return billingCycle === 'monthly'
       ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_BUSINESS_MONTHLY || ''
       : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_BUSINESS_YEARLY || '';
+  };
 
   return (
     <div className="container max-w-7xl py-12">

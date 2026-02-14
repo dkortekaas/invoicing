@@ -1,129 +1,274 @@
 ---
-title: Facturen versturen met iDEAL of Wero (zo werkt het)
-seoTitle: Factuur met iDEAL- of Wero-betalingslink versturen als zzp'er – complete uitleg
-metaDescription: Leer hoe je als zzp'er facturen verstuurt met een iDEAL- of Wero-betalingslink. Sneller betaald, minder herinneringen, makkelijk in te stellen.
-excerpt: Wachten op een overboeking duurt. Met een betalingslink via iDEAL of het nieuwe Europese Wero wordt je gemiddeld 10x sneller betaald. Zo stel je het in.
+title: "Facturen versturen met iDEAL of Wero — sneller betaald als zzp'er (2026)"
+seoTitle: "Facturen versturen met iDEAL of Wero — sneller betaald als zzp'er (2026)"
+metaDescription: "Alles over betaallinks op facturen: hoe iDEAL en Wero werken, hoe je ze instelt via Mollie, en waarom je er gemiddeld 11 dagen sneller mee betaald wordt."
+excerpt: "Alles over betaallinks op facturen: hoe iDEAL en Wero werken, hoe je ze instelt via Mollie, en waarom je er gemiddeld 11 dagen sneller mee betaald wordt."
 image: blog/4-facturen-versturen-met-iDEAL-betalingslink.jpg
-date: 2026-02-13
+date: "2026-02-13"
+updatedAt: "2026-02-14"
 category: facturatie
-readTime: 7
-author: Declair
+readTime: 8
+author: Declair Redactie
 authorRole: Slimme facturatie voor zzp'ers
+canonical: "https://declair.app/blog/facturen-versturen-met-iDEAL-betalingslink"
+keywords:
+  - iDEAL betaallink factuur
+  - factuur met betaallink versturen
+  - Wero betaling factuur
+  - sneller betaald worden zzp
+  - iDEAL factuur zzp
+  - betaallink factuurprogramma
+  - Mollie iDEAL instellen
+howToSteps:
+  - name: "Maak een Mollie-account aan"
+    text: "Ga naar mollie.com en registreer een gratis account. Voltooi de verificatie van je bedrijfsgegevens (KvK, IBAN)."
+  - name: "Kopieer je Mollie API-sleutel"
+    text: "Ga in het Mollie-dashboard naar Developers > API-sleutels. Kopieer je live API-sleutel."
+  - name: "Koppel Mollie aan Declair"
+    text: "Ga in Declair naar Instellingen > Betalingen. Plak je Mollie API-sleutel en test de verbinding."
+  - name: "Stuur een factuur met betaallink"
+    text: "Maak een factuur aan en verstuur deze. De iDEAL-betaallink wordt automatisch toegevoegd. Je klant kan direct betalen via de knop in de e-mail of via de QR-code op de PDF."
+faq:
+  - question: "Wat kost een iDEAL-betaling op een factuur?"
+    answer: "Declair rekent geen transactiekosten. Je betaalt alleen de kosten van Mollie: €0,29 per iDEAL-transactie. Voor creditcardbetalingen geldt 1,8% + €0,25. Je kunt deze kosten als zakelijke kosten aftrekken."
+  - question: "Wat is Wero en verschilt het van iDEAL?"
+    answer: "Wero is een nieuw Europees betaalnetwerk dat is opgezet door grote Europese banken. Waar iDEAL alleen in Nederland werkt, is Wero beschikbaar in meerdere EU-landen (Nederland, België, Duitsland, Frankrijk). Voor zzp'ers met internationale klanten is Wero daardoor een waardevolle aanvulling op iDEAL."
+  - question: "Kan mijn klant ook betalen zonder iDEAL?"
+    answer: "Ja. Via Mollie kun je naast iDEAL ook creditcard, Wero en andere betaalmethoden aanbieden. Je klant ziet op de betaalpagina welke opties beschikbaar zijn en kiest zelf."
+  - question: "Hoe weet ik wanneer mijn klant heeft betaald?"
+    answer: "Zodra de betaling is verwerkt, ontvang je een e-mailnotificatie en wordt de factuurstatus in Declair automatisch bijgewerkt naar 'betaald'. Je klant ontvangt tegelijkertijd een automatische betalingsbevestiging."
+  - question: "Werkt een iDEAL-betaallink ook op mobiel?"
+    answer: "Ja. De betaalpagina is volledig mobielvriendelijk. Op een smartphone opent de betaallink direct de bankapp van de klant. De QR-code op de PDF-factuur is ook te scannen met de camera van een smartphone."
+  - question: "Kan ik een betaallink toevoegen aan een al verstuurde factuur?"
+    answer: "Ja. Je kunt in Declair een bestaande factuur opnieuw versturen met betaallink, of de betaallink los kopiëren en naar je klant sturen via e-mail of WhatsApp."
+  - question: "Wat als mijn klant de betaallink niet gebruikt en toch overmaakt?"
+    answer: "Geen probleem. Je kunt de factuur handmatig op 'betaald' zetten in Declair. De betaallink vervalt automatisch zodra je dit doet."
+  - question: "Is een Mollie-account verplicht voor iDEAL-betaallinks?"
+    answer: "Ja, Declair gebruikt Mollie als betaalprovider voor iDEAL en creditcardbetalingen. Een Mollie-account aanmaken is gratis — je betaalt alleen per transactie."
 ---
 
-Wachten op een overboeking duurt. Soms dagen, soms weken. Maar wat als je klant direct kon betalen — met één klik, via iDEAL of het nieuwe Europese Wero?
+Wachten op een overboeking is een van de frustrerendste kanten van het zzp-leven. Je hebt het werk afgerond, de factuur verstuurd — en dan… niets. Geen notificatie, geen zekerheid, gewoon wachten.
 
-In dit artikel lees je hoe je facturen verstuurt met een directe betalingslink, wat de voordelen zijn, en hoe je het technisch regelt. Spoiler: het is makkelijker dan je denkt.
+Met een betaallink op je factuur verander je dat volledig. Je klant klikt op een knop, kiest zijn bank, en betaalt in dertig seconden. Geen handmatig overtypen van IBAN-nummers, geen vergeten betalingen.
 
----
-
-## Waarom facturen met iDEAL versturen?
-
-**Je wordt sneller betaald.** De gemiddelde betaaltermijn bij standaard facturen ligt tussen de 14 en 30 dagen. Met iDEAL is de gemiddelde betaaltijd binnen 24 uur. Klanten die direct kunnen betalen, doen dat ook — geen gedoe met overschrijven, IBAN's overtypen of achterstallige betalingen najagen.
-
-**Lagere drempel voor je klant.** Een iDEAL-knop op je factuur voelt net zo makkelijk als online shoppen. Geen bankapp openen, geen factuurgegevens invullen. Gewoon: klik, inloggen, betalen. Klaar.
-
-**Minder betalingsherinneringen.** Minder wachten betekent minder herinneringen versturen en minder tijd kwijt aan debiteuren.
-
-**Professionelere uitstraling.** Een factuur met betalingslink straalt uit dat je je zaken op orde hebt. Het is de digitale equivalent van een pinapparaat bij de kassa.
-
----
-
-## Hoe werkt een iDEAL-betalingslink op een factuur?
-
-Een iDEAL-betalingslink is een unieke URL die je toevoegt aan je factuur. Klikt je klant op die link, dan wordt hij doorgestuurd naar zijn eigen bank om de betaling goed te keuren.
-
-Het proces ziet er als volgt uit: je maakt een factuur aan in je facturatiesoftware, de software genereert automatisch een iDEAL-betalingslink, de link wordt als knop of hyperlink aan de factuur toegevoegd, je klant klikt erop en betaalt via zijn bankapp, het geld komt binnen op je zakelijke rekening en de factuur wordt automatisch gemarkeerd als betaald.
-
----
-
-## iDEAL en Wero: wat verandert er?
-
-iDEAL is al jaren de standaard voor directe online betalingen in Nederland, maar dat verandert. Vanaf begin 2026 wordt iDEAL stap voor stap vervangen door **Wero**, het nieuwe Europese betaalsysteem. Eind 2027 verdwijnt de naam iDEAL naar verwachting volledig.
-
-Wero biedt dezelfde veiligheid en snelheid als iDEAL, maar is ontworpen voor naadloze betalingen in heel Europa — niet alleen in Nederland. Voor zzp'ers met internationale klanten is dat een groot voordeel. De werking blijft hetzelfde: klant klikt, logt in bij zijn bank, en betaalt. Alleen de naam op de knop verandert.
-
-Wat betekent dit voor jou in de praktijk? Voorlopig nog weinig. iDEAL blijft gewoon beschikbaar tijdens de overgangsperiode. Zorg wel dat de facturatiesoftware die je gebruikt de overstap naar Wero op tijd ondersteunt — goede software doet dat automatisch op de achtergrond.
-
-**Een zakelijke bankrekening** — iDEAL-betalingen lopen via je zakelijke rekening. Een privérekening is niet geschikt.
-
-**Een payment provider** — iDEAL werkt niet direct tussen jou en je klant; er zit een tussenpersoon tussen. De bekendste opties zijn Mollie (populair bij zzp'ers, €0,29 per transactie), Stripe (internationaal, iets duurdere tarieven) en MultiSafepay (ook geschikt voor webshops). De meeste providers rekenen een klein percentage (0,29%–1,5%) plus een vast bedrag per transactie.
-
-**Facturatiesoftware die iDEAL ondersteunt** — Niet elke facturatietool biedt dit aan. Moneybird heeft bijvoorbeeld geen native iDEAL-integratie; je moet dan zelf een koppeling bouwen of handmatig links toevoegen. Software die het wél ondersteunt: Declair (ingebouwde iDEAL-integratie, geen technische kennis nodig), Factuursturen.nl (via Mollie-koppeling, handmatig instellen) en Reeleezee (via plugins).
-
----
-
-## Stap-voor-stap: iDEAL-facturen versturen met Declair
-
-Het instellen van iDEAL in Declair werkt als volgt. Maak een account aan (gratis tot 5 facturen per maand) en koppel je Mollie-account — of laat Declair dit automatisch regelen. Maak vervolgens een factuur aan zoals je gewend bent, zet de optie "iDEAL-betaling toestaan" aan en verstuur de factuur. De betalingslink staat er automatisch in. Je ontvangt real-time een melding zodra je klant heeft betaald.
-
-Dat is alles. Geen code, geen ingewikkelde instellingen.
+In dit artikel leggen we uit hoe iDEAL-betaallinks en het nieuwe Wero werken, hoe je ze instelt via Mollie en Declair, en wat de echte impact is op je betaaltijden.
 
 ---
 
-## Wat kost het om iDEAL aan te bieden?
+## Waarom wachten op een overboeking te lang duurt
 
-Via Mollie betaal je €0,29 per transactie plus 0,29% van het factuurbedrag. In de praktijk betekent dat: €0,58 voor een factuur van €100, €1,74 voor €500 en €4,64 voor €1.500.
+De gemiddelde betaaltermijn bij zzp'ers zonder betaallink is **30 tot 45 dagen** na factuurdatum. Veel klanten betalen pas als ze er een herinnering over krijgen — niet uit onwil, maar omdat een factuur makkelijk ondersneeuwen in een drukke e-mailinbox.
 
-Klinkt misschien veel, maar vergelijk het met de tijd die je kwijt bent aan herinneringen versturen, facturen die te laat of helemaal niet betaald worden, en het cashflow-voordeel van direct geld binnen krijgen. Voor de meeste zzp'ers is dat een no-brainer.
+Een betaallink op je factuur neemt elke drempel weg:
 
----
+- De klant hoeft geen IBAN over te typen
+- Geen zoeken naar de factuur als de betaaltermijn verloopt
+- Directe koppeling met de bankapp van de klant
+- Bevestiging voor zowel jou als de klant op het moment van betaling
 
-## Veelgemaakte fouten bij iDEAL-facturen
-
-**iDEAL aanbieden voor facturen onder de €5** — De transactiekosten zijn dan relatief hoog. Wees selectief; bied iDEAL bij voorkeur aan bij facturen boven de €50.
-
-**Geen alternatieve betaalmethode vermelden** — Sommige klanten willen tóch overmaken. Vermeld altijd ook je IBAN.
-
-**Handmatig links genereren** — Dit is foutgevoelig en tijdrovend. Gebruik software die het automatiseert.
-
-**Geen melding ontvangen als er betaald is** — Zorg dat je systeem je notificeert, anders stuur je onnodig herinneringen.
+Het resultaat: zzp'ers die betaallinks gebruiken worden gemiddeld **11 dagen sneller betaald** dan zzp'ers die alleen een IBAN vermelden.
 
 ---
 
-## Is iDEAL verplicht op facturen?
+## Twee betaalmethoden voor Nederlandse zzp'ers
 
-Nee. Een IBAN is verplicht, iDEAL is optioneel. Maar het verhoogt je kans om snel betaald te worden enorm.
+### iDEAL — de Nederlandse standaard
 
----
+iDEAL is de meest gebruikte online betaalmethode in Nederland, goed voor meer dan 70% van alle online betalingen. Vrijwel elke Nederlander heeft een bank die iDEAL ondersteunt: ABN AMRO, ING, Rabobank, SNS, ASN, Triodos, Bunq en tientallen andere.
 
-## iDEAL/Wero vs bankoverschrijving
+Voor zzp'ers die voornamelijk aan Nederlandse klanten factureren is iDEAL de beste keuze: vertrouwd, direct en met lage transactiekosten (€0,29 per betaling via Mollie).
 
-| Methode                | Snelheid      | Gemak voor klant | Kosten        | Ideaal voor                         |
-| ---------------------- | ------------- | ---------------- | ------------- | ----------------------------------- |
-| **iDEAL / Wero**       | Direct – 24u  | Hoog             | €0,29 + 0,29% | Eenmalige betalingen, facturen >€50 |
-| **Bankoverschrijving** | 1–3 werkdagen | Laag             | Gratis        | Grote bedragen, vaste klanten       |
+**Hoe het werkt voor je klant:**
 
----
+1. Klant ontvangt je factuur per e-mail
+1. Klant klikt op de blauwe betaalknop
+1. Klant kiest zijn bank op de Mollie-betaalpagina
+1. Klant logt in op zijn bankapp en keurt de betaling goed
+1. Betaling is direct verwerkt — jij ontvangt een notificatie
 
-## Alternatieven voor iDEAL
-
-**Creditcard** — Hogere transactiekosten (1,5%–3%), maar handig voor internationale klanten.
-
-**PayPal** — Werkt goed, maar dure fees (3,4% + €0,35). Vooral geschikt als je al met PayPal werkt.
-
-**Bancontact** — Als je veel Belgische klanten hebt, is dit een must.
-
-**Automatische incasso** — Handig bij terugkerende betalingen, zoals abonnementen of vaste opdrachten.
+Het hele proces duurt minder dan 60 seconden.
 
 ---
 
-## Checklist: klaar om iDEAL-facturen te versturen?
+### Wero — het nieuwe Europese alternatief
 
-- [ ] Zakelijke bankrekening geopend
-- [ ] Account bij payment provider (bijv. Mollie)
-- [ ] Facturatiesoftware met iDEAL-ondersteuning
-- [ ] Testfactuur verstuurd naar jezelf om te controleren of het werkt
-- [ ] Notificaties ingesteld voor ontvangen betalingen
+Wero is een nieuw betaalnetwerk dat in 2024 is gelanceerd door een consortium van grote Europese banken, waaronder ING, ABN AMRO, BNP Paribas en Deutsche Bank. Het doel: één Europees betaalsysteem dat werkt over landsgrenzen heen.
+
+**Waarom Wero interessant is voor zzp'ers:**
+
+|                    |iDEAL              |Wero                                                    |
+|--------------------|-------------------|--------------------------------------------------------|
+|**Landen**          |Alleen Nederland   |Nederland, België, Duitsland, Frankrijk (en uitbreidend)|
+|**Doelgroep**       |Nederlandse klanten|Europese klanten                                        |
+|**Transactiekosten**|€0,29 via Mollie   |Vergelijkbaar                                           |
+|**Directe betaling**|✅                  |✅                                                       |
+|**Bekendheid NL**   |Zeer hoog          |Groeiend                                                |
+
+Voor zzp'ers met klanten in andere EU-landen is Wero een waardevolle aanvulling. Een Belgische of Duitse klant hoeft niet te weten wat iDEAL is — met Wero betalen ze via een methode die ze al kennen van hun eigen bank.
+
+> **First-mover kans:** Wero is nieuw en groeit snel. Zzp'ers die nu al Wero-betaallinks aanbieden op hun facturen onderscheiden zich van concurrenten die alleen iDEAL kennen.
+
+---
+
+## Kosten — wat betaal je per transactie?
+
+Declair rekent **geen transactiekosten**. Je betaalt alleen de kosten van Mollie, de betaalprovider:
+
+|Betaalmethode               |Kosten per transactie  |
+|----------------------------|-----------------------|
+|iDEAL                       |€0,29                  |
+|Creditcard (Visa/Mastercard)|1,8% + €0,25           |
+|Wero                        |Vergelijkbaar met iDEAL|
+
+Een factuur van €500 via iDEAL kost je dus €0,29. Die kosten mag je als zakelijke uitgave aftrekken. Vergeleken met de tijdwinst en het snellere betaalgedrag is dit verwaarloosbaar.
+
+Mollie is gratis te registreren. Je betaalt alleen per geslaagde transactie — geen maandelijks abonnement.
+
+---
+
+## Instellen in 4 stappen
+
+### Stap 1 — Maak een Mollie-account aan
+
+Ga naar [mollie.com](https://www.mollie.com) en registreer een gratis account. Je hebt nodig:
+
+- Je bedrijfsnaam en KvK-nummer
+- Je IBAN (waarop betalingen worden uitbetaald)
+- Een geldig e-mailadres
+
+De verificatie duurt doorgaans 1–2 werkdagen. Mollie betaalt ontvangen betalingen dagelijks of wekelijks uit naar je IBAN.
+
+### Stap 2 — Kopieer je API-sleutel
+
+Log in op het Mollie-dashboard. Ga naar **Developers → API-sleutels** en kopieer je **live API-sleutel** (begint met `live_`).
+
+> Gebruik voor het testen de **test API-sleutel** (`test_`). Dan kun je het betaalproces doorlopen zonder echte betalingen te verwerken.
+
+### Stap 3 — Koppel Mollie aan Declair
+
+Ga in Declair naar **Instellingen → Betalingen**. Plak je Mollie API-sleutel in het veld en sla op. Klik op "Verbinding testen" om te controleren of alles werkt.
+
+Je kunt kiezen of je start in testmodus (voor proefbetalingen) of direct in live-modus.
+
+### Stap 4 — Verstuur je eerste factuur met betaallink
+
+Maak een factuur aan zoals je dat normaal doet. Zodra Mollie is gekoppeld, wordt de iDEAL-betaallink automatisch toegevoegd aan:
+
+- De e-mail die je klant ontvangt (als knop)
+- De PDF van de factuur (als klikbare link én als QR-code)
+
+Je klant ziet de betaaloptie direct — zonder extra stappen van jouw kant.
+
+---
+
+## De betaalpagina — wat ziet je klant?
+
+Je klant klikt op de betaalknop en komt op een door Mollie gehoste betaalpagina. Die pagina toont:
+
+- Het te betalen bedrag
+- Jouw bedrijfsnaam en factuuromschrijving
+- De beschikbare betaalmethoden (iDEAL, Wero, creditcard — afhankelijk van wat je hebt ingeschakeld)
+- Een keuzemenu voor de bank (bij iDEAL)
+
+De pagina is volledig **mobielvriendelijk**. Op een smartphone opent de betaalknop direct de bankapp van de klant — één keer Face ID of vingerafdruk, en de betaling is gedaan.
+
+De **QR-code op de PDF** werkt ook: klant scant de code met zijn telefoon, de betaalpagina opent, en betaling volgt in seconden.
+
+---
+
+## Automatische betalingsherinneringen combineren
+
+Een betaallink is krachtig — maar gecombineerd met automatische herinneringen is het nóg effectiever. Veel klanten openen de factuur-e-mail wel, maar scrollen er pas doorheen als ze er een herinnering over krijgen.
+
+Met Declair Professional stel je automatische herinneringen in die de betaallink opnieuw meesturen:
+
+|Herinnering             |Timing                  |Toon                            |
+|------------------------|------------------------|--------------------------------|
+|Vriendelijke herinnering|3 dagen vóór vervaldatum|Vriendelijk, informerend        |
+|Eerste herinnering      |7 dagen ná vervaldatum  |Neutraal, zakelijk              |
+|Tweede herinnering      |14 dagen ná vervaldatum |Formeler, met urgentie          |
+|Laatste aanmaning       |30 dagen ná vervaldatum |Formeel, verwijzing naar incasso|
+
+Elke herinnering bevat automatisch de betaallink — je klant hoeft niet te zoeken naar de originele factuur.
+
+---
+
+## iDEAL-betaallink op een al verstuurde factuur
+
+Heb je een factuur al verstuurd zonder betaallink, maar wil je die alsnog toevoegen? Dat kan op twee manieren:
+
+**Optie 1 — Opnieuw versturen vanuit Declair:**
+Open de factuur, klik op "Opnieuw versturen". De betaallink wordt automatisch meegestuurd als Mollie is gekoppeld.
+
+**Optie 2 — Betaallink kopiëren en los sturen:**
+Open de factuur in Declair en kopieer de betaallink. Stuur die via e-mail, WhatsApp of SMS direct naar je klant.
+
+---
+
+## Veelgemaakte fouten bij betaallinks
+
+### Fout 1 — Mollie nog in testmodus laten staan
+
+Vergeet niet om na het testen over te schakelen naar live-modus. In testmodus verwerkt Mollie geen echte betalingen.
+
+### Fout 2 — Alleen iDEAL inschakelen voor internationale klanten
+
+Een Belgische of Duitse klant heeft geen iDEAL-rekening. Schakel ook Wero en/of creditcard in als je aan klanten buiten Nederland factureert.
+
+### Fout 3 — Transactiekosten niet opnemen in je uurtarief
+
+€0,29 per iDEAL-betaling is verwaarloosbaar, maar als je tientallen facturen per maand verstuurt loopt het op. Zorg dat je tarief deze kosten dekt — of geef ze door aan de klant via een kleine toeslag.
+
+### Fout 4 — Betaalpagina niet testen voor je live gaat
+
+Test het volledige betaalproces minstens één keer in testmodus: klik de betaalknop, doorloop de betaling en controleer of de factuurstatus in Declair bijgewerkt wordt.
 
 ---
 
 ## Samenvatting
 
-Facturen met een directe betalingslink worden gemiddeld 10x sneller betaald dan facturen zonder. In Nederland is dat nu nog iDEAL; vanaf 2026 neemt het Europese Wero die rol stap voor stap over. Je hebt een payment provider (zoals Mollie), facturatiesoftware die dit ondersteunt en een zakelijke rekening nodig. De transactiekosten zijn minimaal vergeleken met de voordelen: sneller geld binnen en minder tijd kwijt aan achterstallige betalingen.
+Een iDEAL- of Wero-betaallink op je factuur is de snelste manier om gemiddeld 11 dagen eerder betaald te worden. De setup via Mollie kost je eenmalig tien minuten, de kosten zijn €0,29 per transactie, en het werkt volledig automatisch voor elke factuur die je daarna verstuurt.
 
-> 👉 **Ontvang iDEAL-betalingen met Declair** — In 5 minuten ingesteld, eerste facturen gratis.
+Voor zzp'ers met Nederlandse klanten is iDEAL de beste keuze. Voor zzp'ers met klanten in andere EU-landen is Wero een slimme aanvulling — en je bent er vroeg bij.
+
+**[Koppel Mollie aan Declair en stuur je eerste factuur met betaallink →](https://declair.app/register)**
 
 ---
 
-_Gerelateerd: [Hoe maak je een factuur als zzp'er?](/blog/hoe-maak-je-een-factuur-zzp) · [Beste facturatieprogramma voor zzp'ers](/blog/beste-facturatieprogramma-zzp)_
+## Veelgestelde vragen
+
+### Wat kost een iDEAL-betaling op een factuur?
+
+Declair rekent geen transactiekosten. Je betaalt alleen de kosten van Mollie: €0,29 per iDEAL-transactie. Voor creditcardbetalingen geldt 1,8% + €0,25. Je kunt deze kosten als zakelijke kosten aftrekken.
+
+### Wat is Wero en verschilt het van iDEAL?
+
+Wero is een nieuw Europees betaalnetwerk opgezet door grote Europese banken. Waar iDEAL alleen in Nederland werkt, is Wero beschikbaar in meerdere EU-landen (Nederland, België, Duitsland, Frankrijk). Voor zzp'ers met internationale klanten is Wero daardoor een waardevolle aanvulling op iDEAL.
+
+### Kan mijn klant ook betalen zonder iDEAL?
+
+Ja. Via Mollie kun je naast iDEAL ook creditcard, Wero en andere betaalmethoden aanbieden. Je klant ziet op de betaalpagina welke opties beschikbaar zijn en kiest zelf.
+
+### Hoe weet ik wanneer mijn klant heeft betaald?
+
+Zodra de betaling is verwerkt, ontvang je een e-mailnotificatie en wordt de factuurstatus in Declair automatisch bijgewerkt naar "betaald". Je klant ontvangt tegelijkertijd een automatische betalingsbevestiging.
+
+### Werkt een iDEAL-betaallink ook op mobiel?
+
+Ja. De betaalpagina is volledig mobielvriendelijk. Op een smartphone opent de betaallink direct de bankapp van de klant. De QR-code op de PDF-factuur is ook te scannen met de camera van een smartphone.
+
+### Kan ik een betaallink toevoegen aan een al verstuurde factuur?
+
+Ja. Je kunt in Declair een bestaande factuur opnieuw versturen met betaallink, of de betaallink los kopiëren en naar je klant sturen via e-mail of WhatsApp.
+
+### Wat als mijn klant de betaallink niet gebruikt en toch overmaakt?
+
+Geen probleem. Je kunt de factuur handmatig op "betaald" zetten in Declair. De betaallink vervalt automatisch zodra je dit doet.
+
+### Is een Mollie-account verplicht voor iDEAL-betaallinks?
+
+Ja, Declair gebruikt Mollie als betaalprovider voor iDEAL en creditcardbetalingen. Een Mollie-account aanmaken is gratis — je betaalt alleen per transactie.
+
+---
+
+*Meer weten over sneller betaald worden? Lees ook [hoe automatische betalingsherinneringen werken](/blog/hoe-maak-je-een-factuur-als-zzper) of bekijk de [vergelijking van facturatieprogramma's](/blog/beste-facturatieprogramma-voor-zzpers-2026) om te zien welke tools betaallinks ondersteunen.*

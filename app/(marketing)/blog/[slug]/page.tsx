@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { getPostBySlug, getPosts, getPostSlugs } from "@/lib/blog";
 import { BlogPostClient } from "@/components/marketing/blog-post-client";
 import { alternatesForPath } from "@/lib/seo";
+import { generateJsonLd } from "@/lib/jsonld";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://declair.app";
 
@@ -61,42 +62,18 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     .filter((p) => p.slug !== slug)
     .slice(0, 3);
 
-  const { title, excerpt, image, date, author } = post.frontmatter;
   const articleUrl = `${siteUrl}/blog/${slug}`;
-  const imageUrl = image ? `${siteUrl}/${image}` : `${siteUrl}/og-image.png`;
-
-  const articleJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: title,
-    description: excerpt,
-    image: imageUrl,
-    datePublished: date,
-    dateModified: date,
-    author: {
-      "@type": "Person",
-      name: author,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "Declair",
-      logo: {
-        "@type": "ImageObject",
-        url: `${siteUrl}/logo.png`,
-      },
-    },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": articleUrl,
-    },
-  };
+  const jsonLdSchemas = generateJsonLd(post.frontmatter, articleUrl);
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
-      />
+      {jsonLdSchemas.map((schema, index) => (
+        <script
+          key={index}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
       <BlogPostClient post={post} relatedPosts={relatedPosts} />
     </>
   );

@@ -4,6 +4,16 @@ import matter from "gray-matter";
 
 const BLOG_DIR = path.join(process.cwd(), "content", "blog");
 
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export interface HowToStep {
+  name: string;
+  text: string;
+}
+
 export interface BlogPostFrontmatter {
   title: string;
   /** SEO title for meta tags (falls back to title) */
@@ -14,10 +24,22 @@ export interface BlogPostFrontmatter {
   /** Optional hero/cover image path under public/ (e.g. blog/post.PNG). Falls back to categoryEmoji when absent. */
   image?: string;
   date: string;
+  /** Last modified date (falls back to date) */
+  updatedAt?: string;
   category: string;
   readTime: number;
   author: string;
   authorRole: string;
+  /** Canonical URL for SEO */
+  canonical?: string;
+  /** SEO keywords */
+  keywords?: string[];
+  /** Structured data: HowTo steps */
+  howToSteps?: HowToStep[];
+  /** Structured data: FAQ items */
+  faq?: FaqItem[];
+  /** Structured data: ItemList entries */
+  itemList?: string[];
 }
 
 export interface BlogPost {

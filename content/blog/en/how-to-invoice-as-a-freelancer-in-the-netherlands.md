@@ -1,56 +1,53 @@
------
-
-title: “How to Invoice as a Freelancer in the Netherlands — Complete Guide (2026)”
-description: “Everything expats and foreign freelancers need to know about invoicing in the Netherlands: VAT rates, KvK number, iDEAL payment links, and Dutch legal requirements.”
-slug: “how-to-invoice-as-a-freelancer-in-the-netherlands”
-publishedAt: “2026-02-15”
-updatedAt: “2026-02-15”
-category: “Invoicing”
+---
+title: "How to Invoice as a Freelancer in the Netherlands — Complete Guide (2026)"
+description: "Everything expats and foreign freelancers need to know about invoicing in the Netherlands: VAT rates, KvK number, iDEAL payment links, and Dutch legal requirements."
+slug: "how-to-invoice-as-a-freelancer-in-the-netherlands"
+publishedAt: "2026-02-15"
+updatedAt: "2026-02-15"
+category: "Invoicing"
 readingTime: 10
-author: “Declair Editorial”
-canonical: “https://declair.app/en/blog/how-to-invoice-as-a-freelancer-in-the-netherlands”
+author: "Declair Editorial"
+canonical: "https://declair.app/en/blog/how-to-invoice-as-a-freelancer-in-the-netherlands"
 keywords:
-
-- invoice freelancer Netherlands
-- how to invoice Netherlands
-- self-employed Netherlands invoice
-- ZZP invoicing English
-- Dutch VAT invoice
-- freelancer invoice Netherlands expat
-- KvK number invoice
-- BTW number invoice Netherlands
-  howToSteps:
-- name: “Register with the KvK (Chamber of Commerce)”
-  text: “Before you can send invoices, register your business at kvk.nl. You will receive a KvK number and, within two weeks, a BTW (VAT) identification number from the Belastingdienst (Dutch Tax Authority).”
-- name: “Gather your business details”
-  text: “Collect your business name, address, KvK number, BTW identification number, and IBAN bank account number. You need all of these on every invoice.”
-- name: “Add your client’s details”
-  text: “Include your client’s full name or company name, their address, and their VAT number if they are a business in another EU country.”
-- name: “Set a unique invoice number and date”
-  text: “Use a sequential numbering format such as 2026-001. Add the invoice date — this is the starting point of the payment term.”
-- name: “Describe your services and calculate VAT”
-  text: “Write a clear description of the work delivered, the number of hours or units, your rate, and the applicable VAT rate (0%, 9%, or 21%). Show the subtotal excluding VAT, the VAT amount, and the total including VAT as separate lines.”
-- name: “Send the invoice”
-  text: “Send the invoice as a PDF by email. Add an iDEAL or Wero payment link so your client can pay instantly without entering bank details manually.”
-  faq:
-- question: “Do I need a KvK number to invoice clients in the Netherlands?”
-  answer: “Yes. To legally invoice clients as a freelancer (ZZP’er) in the Netherlands, you must first register with the Kamer van Koophandel (KvK). Registration is free for sole proprietors (eenmanszaak). Once registered, you receive a KvK number and a BTW (VAT) identification number, both of which are required on every invoice.”
-- question: “What VAT rate do I charge as a freelancer in the Netherlands?”
-  answer: “Most freelancers in services such as IT, design, consulting, marketing, writing, and photography charge 21% VAT. The 9% rate applies to specific goods and services such as food, books, and hairdressing. The 0% rate applies to exports outside the EU and to services delivered to VAT-registered businesses in other EU countries (reverse charge).”
-- question: “What is a BTW number and do I need it on every invoice?”
-  answer: “BTW is the Dutch abbreviation for VAT (Belasting over de Toegevoegde Waarde). As a ZZP’er, you have two BTW numbers: your BTW identification number (used on invoices and client communications, format: NL123456789B01) and your BTW tax number (used only in communications with the Belastingdienst). Always use your BTW identification number on invoices — never the tax number.”
-- question: “Can I invoice in English as a freelancer in the Netherlands?”
-  answer: “Yes. Dutch law does not require invoices to be written in Dutch. You can invoice in English, German, or any other language, as long as all required fields are present. The legal requirements apply to the content, not the language.”
-- question: “What is the KOR scheme and does it apply to me?”
-  answer: “The KOR (Kleineondernemersregeling, or Small Business Scheme) allows freelancers with annual turnover below €20,000 to be exempt from charging VAT. If you opt in, you do not charge VAT and do not file quarterly VAT returns — but you also cannot reclaim VAT on your business expenses. If you qualify, write ‘VAT exempt under Article 25 Dutch VAT Act (KOR)’ on your invoices instead of a VAT amount.”
-- question: “How do I invoice a client in another EU country?”
-  answer: “When invoicing a VAT-registered business in another EU country, you apply the 0% VAT rate and use the reverse charge mechanism. You must include your client’s VAT number on the invoice and write ‘VAT reverse charged’ or ‘BTW verlegd’. You also need to file an ICP declaration (intracommunautaire prestaties) with the Dutch Tax Authority each quarter.”
-- question: “What is iDEAL and how does it work on a Dutch invoice?”
-  answer: “iDEAL is the most widely used online payment method in the Netherlands, supported by virtually every Dutch bank. Adding an iDEAL payment link to your invoice means your client can pay with one click directly from their banking app, without manually entering your IBAN. Freelancers who use payment links get paid an average of 11 days faster.”
-- question: “How long do I need to keep invoices in the Netherlands?”
-  answer: “Dutch law requires you to keep all invoices and financial records for at least 7 years. For real estate-related documents, the retention period is 10 years. You may store invoices digitally, as long as they remain accessible and readable.”
-
------
+  - invoice freelancer Netherlands
+  - how to invoice Netherlands
+  - self-employed Netherlands invoice
+  - ZZP invoicing English
+  - Dutch VAT invoice
+  - freelancer invoice Netherlands expat
+  - KvK number invoice
+  - BTW number invoice Netherlands
+howToSteps:
+  - name: "Register with the KvK (Chamber of Commerce)"
+    text: "Before you can send invoices, register your business at kvk.nl. You will receive a KvK number and, within two weeks, a BTW (VAT) identification number from the Belastingdienst (Dutch Tax Authority)."
+  - name: "Gather your business details"
+    text: "Collect your business name, address, KvK number, BTW identification number, and IBAN bank account number. You need all of these on every invoice."
+  - name: "Add your client's details"
+    text: "Include your client's full name or company name, their address, and their VAT number if they are a business in another EU country."
+  - name: "Set a unique invoice number and date"
+    text: "Use a sequential numbering format such as 2026-001. Add the invoice date — this is the starting point of the payment term."
+  - name: "Describe your services and calculate VAT"
+    text: "Write a clear description of the work delivered, the number of hours or units, your rate, and the applicable VAT rate (0%, 9%, or 21%). Show the subtotal excluding VAT, the VAT amount, and the total including VAT as separate lines."
+  - name: "Send the invoice"
+    text: "Send the invoice as a PDF by email. Add an iDEAL or Wero payment link so your client can pay instantly without entering bank details manually."
+faq:
+  - question: "Do I need a KvK number to invoice clients in the Netherlands?"
+    answer: "Yes. To legally invoice clients as a freelancer (ZZP'er) in the Netherlands, you must first register with the Kamer van Koophandel (KvK). Registration is free for sole proprietors (eenmanszaak). Once registered, you receive a KvK number and a BTW (VAT) identification number, both of which are required on every invoice."
+  - question: "What VAT rate do I charge as a freelancer in the Netherlands?"
+    answer: "Most freelancers in services such as IT, design, consulting, marketing, writing, and photography charge 21% VAT. The 9% rate applies to specific goods and services such as food, books, and hairdressing. The 0% rate applies to exports outside the EU and to services delivered to VAT-registered businesses in other EU countries (reverse charge)."
+  - question: "What is a BTW number and do I need it on every invoice?"
+    answer: "BTW is the Dutch abbreviation for VAT (Belasting over de Toegevoegde Waarde). As a ZZP'er, you have two BTW numbers: your BTW identification number (used on invoices and client communications, format: NL123456789B01) and your BTW tax number (used only in communications with the Belastingdienst). Always use your BTW identification number on invoices — never the tax number."
+  - question: "Can I invoice in English as a freelancer in the Netherlands?"
+    answer: "Yes. Dutch law does not require invoices to be written in Dutch. You can invoice in English, German, or any other language, as long as all required fields are present. The legal requirements apply to the content, not the language."
+  - question: "What is the KOR scheme and does it apply to me?"
+    answer: "The KOR (Kleineondernemersregeling, or Small Business Scheme) allows freelancers with annual turnover below €20,000 to be exempt from charging VAT. If you opt in, you do not charge VAT and do not file quarterly VAT returns — but you also cannot reclaim VAT on your business expenses. If you qualify, write 'VAT exempt under Article 25 Dutch VAT Act (KOR)' on your invoices instead of a VAT amount."
+  - question: "How do I invoice a client in another EU country?"
+    answer: "When invoicing a VAT-registered business in another EU country, you apply the 0% VAT rate and use the reverse charge mechanism. You must include your client's VAT number on the invoice and write 'VAT reverse charged' or 'BTW verlegd'. You also need to file an ICP declaration (intracommunautaire prestaties) with the Dutch Tax Authority each quarter."
+  - question: "What is iDEAL and how does it work on a Dutch invoice?"
+    answer: "iDEAL is the most widely used online payment method in the Netherlands, supported by virtually every Dutch bank. Adding an iDEAL payment link to your invoice means your client can pay with one click directly from their banking app, without manually entering your IBAN. Freelancers who use payment links get paid an average of 11 days faster."
+  - question: "How long do I need to keep invoices in the Netherlands?"
+    answer: "Dutch law requires you to keep all invoices and financial records for at least 7 years. For real estate-related documents, the retention period is 10 years. You may store invoices digitally, as long as they remain accessible and readable."
+---
 
 # How to Invoice as a Freelancer in the Netherlands — Complete Guide (2026)
 
@@ -58,15 +55,15 @@ Starting as a freelancer in the Netherlands is straightforward — but the invoi
 
 This guide covers everything you need to know: what goes on a Dutch invoice, which VAT rate to use, how to deal with the KvK and BTW numbers, and how to get paid faster using iDEAL payment links.
 
-Whether you just registered as a ZZP’er or you have been freelancing in the Netherlands for a while, this guide gives you a complete, practical overview.
+Whether you just registered as a ZZP'er or you have been freelancing in the Netherlands for a while, this guide gives you a complete, practical overview.
 
 -----
 
-## What is a ZZP’er?
+## What is a ZZP'er?
 
-In the Netherlands, freelancers and self-employed professionals are called **ZZP’ers** — short for *zelfstandige zonder personeel*, meaning “self-employed without staff”. As a ZZP’er, you work without an employment contract, take on projects at your own risk, and are responsible for your own taxes and administration.
+In the Netherlands, freelancers and self-employed professionals are called **ZZP'ers** — short for *zelfstandige zonder personeel*, meaning "self-employed without staff". As a ZZP'er, you work without an employment contract, take on projects at your own risk, and are responsible for your own taxes and administration.
 
-To legally work as a ZZP’er, you need to register your business with the **Kamer van Koophandel (KvK)** — the Dutch Chamber of Commerce. Registration is free for sole proprietors (*eenmanszaak*) and takes about 15 minutes online or in person.
+To legally work as a ZZP'er, you need to register your business with the **Kamer van Koophandel (KvK)** — the Dutch Chamber of Commerce. Registration is free for sole proprietors (*eenmanszaak*) and takes about 15 minutes online or in person.
 
 Once registered, the KvK shares your details with the **Belastingdienst** (Dutch Tax Authority), which will send you your **BTW identification number** (VAT number) within two weeks. You need both the KvK number and the BTW number before you can send your first legal invoice.
 
@@ -86,8 +83,8 @@ Dutch law sets out exactly what every invoice must include. Missing any of these
 ### Client details
 
 - Full company name or personal name of your client
-- Client’s address
-- Client’s VAT number — **required** if invoicing a VAT-registered business in another EU country
+- Client's address
+- Client's VAT number — **required** if invoicing a VAT-registered business in another EU country
 
 ### Invoice details
 
@@ -104,7 +101,7 @@ Dutch law sets out exactly what every invoice must include. Missing any of these
 ### Payment details
 
 - Your IBAN bank account number
-- Payment term (e.g. “Payment due within 30 days” or a specific date)
+- Payment term (e.g. "Payment due within 30 days" or a specific date)
 
 > **Tip:** In Declair, all required fields are built into the invoice template. You cannot accidentally forget your KvK number or BTW number.
 
@@ -130,7 +127,7 @@ The Belastingdienst publishes a complete list of VAT-exempt and reduced-rate ser
 
 ## Your Two BTW Numbers — and Which One to Use
 
-This is one of the most common points of confusion for new ZZP’ers in the Netherlands. As a sole proprietor (*eenmanszaak*), you actually receive **two different BTW numbers**:
+This is one of the most common points of confusion for new ZZP'ers in the Netherlands. As a sole proprietor (*eenmanszaak*), you actually receive **two different BTW numbers**:
 
 |Number                       |Format          |Used for                                   |
 |-----------------------------|----------------|-------------------------------------------|
@@ -182,7 +179,7 @@ Notice that the VAT amount is shown as a **separate line** — this is a legal r
 
 ## Quarterly VAT Returns
 
-As a Dutch ZZP’er, you are required to file a **VAT return (BTW-aangifte) every quarter**, unless you are exempt under the KOR scheme.
+As a Dutch ZZP'er, you are required to file a **VAT return (BTW-aangifte) every quarter**, unless you are exempt under the KOR scheme.
 
 The quarterly deadlines are:
 
@@ -229,8 +226,8 @@ If you invoice a **VAT-registered business in another EU country** (for example,
 
 - You charge **0% VAT** (not 21%)
 - You apply the **reverse charge mechanism** — your client accounts for the VAT in their own country
-- You must include your **client’s VAT number** on the invoice
-- You write: *“VAT reverse charged”* or *“BTW verlegd”* on the invoice
+- You must include your **client's VAT number** on the invoice
+- You write: *"VAT reverse charged"* or *"BTW verlegd"* on the invoice
 - You need to file an **ICP declaration** (Opgaaf ICP) each quarter with the Belastingdienst
 
 If your client is a **private individual** in another EU country (not a business), different rules apply — you generally charge Dutch VAT in that case.
@@ -377,7 +374,7 @@ Most freelancers in services such as IT, design, consulting, marketing, writing,
 
 ### What is a BTW number and do I need it on every invoice?
 
-BTW is the Dutch term for VAT. As a ZZP’er you have two BTW numbers: your BTW identification number (used on invoices, format: NL123456789B01) and your BTW tax number (used only with the Belastingdienst). Always use your BTW identification number on invoices.
+BTW is the Dutch term for VAT. As a ZZP'er you have two BTW numbers: your BTW identification number (used on invoices, format: NL123456789B01) and your BTW tax number (used only with the Belastingdienst). Always use your BTW identification number on invoices.
 
 ### Can I invoice in English as a freelancer in the Netherlands?
 
@@ -389,7 +386,7 @@ The KOR allows freelancers with annual turnover below €20,000 to be exempt fro
 
 ### How do I invoice a client in another EU country?
 
-When invoicing a VAT-registered business in another EU country, apply the 0% VAT rate with the reverse charge mechanism. Include your client’s VAT number and write “VAT reverse charged” on the invoice. You also need to file an ICP declaration each quarter.
+When invoicing a VAT-registered business in another EU country, apply the 0% VAT rate with the reverse charge mechanism. Include your client's VAT number and write "VAT reverse charged" on the invoice. You also need to file an ICP declaration each quarter.
 
 ### What is iDEAL and how does it work on a Dutch invoice?
 

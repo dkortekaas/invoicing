@@ -1,12 +1,13 @@
 ---
 title: "How to Invoice as a Freelancer in the Netherlands — Complete Guide (2026)"
-description: "Everything expats and foreign freelancers need to know about invoicing in the Netherlands: VAT rates, KvK number, iDEAL payment links, and Dutch legal requirements."
+excerpt: "Everything expats and foreign freelancers need to know about invoicing in the Netherlands: VAT rates, KvK number, iDEAL payment links, and Dutch legal requirements."
 slug: "how-to-invoice-as-a-freelancer-in-the-netherlands"
-publishedAt: "2026-02-15"
+date: "2026-02-15"
 updatedAt: "2026-02-15"
-category: "Invoicing"
-readingTime: 10
+category: facturatie
+readTime: 10
 author: "Declair Editorial"
+authorRole: "Smart invoicing for freelancers"
 canonical: "https://declair.app/en/blog/how-to-invoice-as-a-freelancer-in-the-netherlands"
 keywords:
   - invoice freelancer Netherlands

@@ -1,8 +1,49 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getToken } from "next-auth/jwt"
 import { db } from "@/lib/db"
+import { getEnToNlPathMap } from "@/lib/i18n-routes"
+
+function rewriteToNl(request: NextRequest, nlPath: string): NextResponse {
+  const url = request.nextUrl.clone()
+  url.pathname = nlPath
+
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set("x-locale", "en")
+
+  return NextResponse.rewrite(url, {
+    request: { headers: requestHeaders },
+  })
+}
 
 export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Handle /en/* paths: rewrite to NL equivalent and set locale header
+  if (pathname === "/en" || pathname.startsWith("/en/")) {
+    const staticMap = getEnToNlPathMap()
+
+    // Check static path map first (exact match)
+    if (staticMap[pathname]) {
+      return rewriteToNl(request, staticMap[pathname])
+    }
+
+    // Dynamic: /en/blog/[slug] → /blog/[slug] (slug passed through as-is)
+    const blogMatch = pathname.match(/^\/en\/blog\/(.+)$/)
+    if (blogMatch) {
+      return rewriteToNl(request, `/blog/${blogMatch[1]}`)
+    }
+
+    // Dynamic: /en/functions/[slug] → /functies/[slug] (fallback for unknown slugs)
+    const functionsMatch = pathname.match(/^\/en\/functions\/(.+)$/)
+    if (functionsMatch) {
+      return rewriteToNl(request, `/functies/${functionsMatch[1]}`)
+    }
+
+    // Fallback: strip /en prefix
+    const stripped = pathname.replace(/^\/en\/?/, "/") || "/"
+    return rewriteToNl(request, stripped)
+  }
+
   // Get JWT token from cookie
   const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET
 
@@ -22,8 +63,6 @@ export async function proxy(request: NextRequest) {
     cookieName,
   })
 
-  const { pathname } = request.nextUrl
-
   // Allow access to auth pages, marketing pages, legal pages, payment pages, and API routes
   if (
     pathname === "/" ||
@@ -33,6 +72,9 @@ export async function proxy(request: NextRequest) {
     pathname === "/algemene-voorwaarden" ||
     pathname.startsWith("/blog") ||
     pathname.startsWith("/functies") ||
+    pathname.startsWith("/contact") ||
+    pathname.startsWith("/help") ||
+    pathname.startsWith("/nieuwsbrief") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/uitnodiging") ||

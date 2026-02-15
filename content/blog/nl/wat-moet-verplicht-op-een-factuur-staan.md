@@ -11,6 +11,7 @@ readTime: 7
 author: Declair Redactie
 authorRole: Slimme facturatie voor zzp'ers
 canonical: "https://declair.app/blog/wat-moet-verplicht-op-een-factuur-staan"
+translationSlug: "what-must-be-on-an-invoice"
 keywords:
   - verplichte factuurgegevens
   - wat moet op een factuur staan

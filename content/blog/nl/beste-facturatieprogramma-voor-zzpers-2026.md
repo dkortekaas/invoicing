@@ -11,6 +11,7 @@ readTime: 9
 author: Declair Redactie
 authorRole: Slimme facturatie voor zzp'ers
 canonical: "https://declair.app/blog/beste-facturatieprogramma-voor-zzpers-2026"
+translationSlug: "best-invoicing-software-for-freelancers-2026"
 keywords:
   - beste facturatieprogramma zzp
   - facturatieprogramma vergelijken

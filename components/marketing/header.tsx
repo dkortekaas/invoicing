@@ -16,26 +16,32 @@ import {
 } from "@/components/ui/navigation-menu";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useTranslations } from "@/components/providers/locale-provider";
+import { featureSlugMap } from "@/lib/i18n-routes";
 
-const featureKeys = [
-  { key: "invoices", href: "/functies/facturen-en-offertes" },
-  { key: "payments", href: "/functies/betalingen" },
-  { key: "expenses", href: "/functies/onkosten-en-bonnetjes" },
-  { key: "projects", href: "/functies/projecten-en-uren" },
-  { key: "reports", href: "/functies/rapportages-en-belasting" },
-  //{ key: "integrations", href: "/functies/koppelingen" },
+const featureKeysNl = [
+  { key: "invoices", slug: "facturen-en-offertes" },
+  { key: "payments", slug: "betalingen" },
+  { key: "expenses", slug: "onkosten-en-bonnetjes" },
+  { key: "projects", slug: "projecten-en-uren" },
+  { key: "reports", slug: "rapportages-en-belasting" },
 ] as const;
 
 const Header = () => {
-  const { t } = useTranslations("header");
+  const { t, locale, lp } = useTranslations("header");
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const features = featureKeys.map(({ key, href }) => ({
-    title: t(`featuresList.${key}.title`),
-    description: t(`featuresList.${key}.description`),
-    href,
-  }));
+  const features = featureKeysNl.map(({ key, slug }) => {
+    const enSlug = featureSlugMap[slug] ?? slug;
+    const href = locale === "nl"
+      ? `/functies/${slug}`
+      : `/en/functions/${enSlug}`;
+    return {
+      title: t(`featuresList.${key}.title`),
+      description: t(`featuresList.${key}.description`),
+      href,
+    };
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,7 +62,7 @@ const Header = () => {
       <div className="container mx-auto relative">
         <div className="flex items-center h-16 px-6 md:px-0 md:h-[72px]">
           {/* Left: Logo */}
-          <Link href="/" className="flex-1 flex items-center min-w-0">
+          <Link href={lp("/")} className="flex-1 flex items-center min-w-0">
             <Logo asLink={false} />
           </Link>
 
@@ -93,19 +99,19 @@ const Header = () => {
               </NavigationMenuList>
             </NavigationMenu>
             <Link
-              href="/prijzen"
+              href={lp("/prijzen")}
               className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
               {t("pricing")}
             </Link>
             <Link
-              href="/blog"
+              href={lp("/blog")}
               className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
               {t("blog")}
             </Link>
             <Link
-              href="/contact"
+              href={lp("/contact")}
               className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
             >
               {t("contact")}
@@ -167,21 +173,21 @@ const Header = () => {
               </div>
               <div className="border-t border-border pt-4 space-y-1">
                 <Link
-                  href="/prijzen"
+                  href={lp("/prijzen")}
                   className="block px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t("pricing")}
                 </Link>
                 <Link
-                  href="/blog"
+                  href={lp("/blog")}
                   className="block px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t("blog")}
                 </Link>
                 <Link
-                  href="/contact"
+                  href={lp("/contact")}
                   className="block px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md"
                   onClick={() => setMobileMenuOpen(false)}
                 >

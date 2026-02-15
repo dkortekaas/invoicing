@@ -3,73 +3,106 @@ import Header from '@/components/marketing/header';
 import Footer from '@/components/marketing/footer';
 import { SkipToContentLink } from '@/components/marketing/skip-to-content';
 import { alternatesForPath, siteUrl } from '@/lib/seo';
+import { getLocaleFromHeaders } from '@/lib/i18n';
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: {
-    default: 'Declair - Factureren zonder gedoe | Facturatie voor ZZP\'ers',
-    template: '%s | Declair',
-  },
-  description: 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
-  keywords: [
-    'facturatie software',
-    'factuur programma',
-    'zzp factureren',
-    'online factureren',
-    'facturatie zzp',
-    'factuur maken',
-    'boekhouding zzp',
-    'btw factuur',
-    'factuur versturen',
-    'betaalherinnering',
-    'ideal betaallink',
-    'freelancer facturatie',
-  ],
-  authors: [{ name: 'Declair' }],
-  creator: 'Declair',
-  publisher: 'Shortcheese Solutions',
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocaleFromHeaders();
+  const isEn = locale === 'en';
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: {
+      default: isEn
+        ? 'Declair - Invoicing made easy | Invoicing for Freelancers'
+        : 'Declair - Factureren zonder gedoe | Facturatie voor ZZP\'ers',
+      template: '%s | Declair',
+    },
+    description: isEn
+      ? 'The complete invoicing app for Dutch freelancers. Create invoices in seconds, get paid faster with iDEAL and keep your administration effortlessly organized.'
+      : 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
+    keywords: isEn
+      ? [
+          'invoicing software',
+          'invoice program',
+          'freelancer invoicing',
+          'online invoicing',
+          'invoice creator',
+          'VAT invoice',
+          'send invoice',
+          'payment reminder',
+          'iDEAL payment link',
+        ]
+      : [
+          'facturatie software',
+          'factuur programma',
+          'zzp factureren',
+          'online factureren',
+          'facturatie zzp',
+          'factuur maken',
+          'boekhouding zzp',
+          'btw factuur',
+          'factuur versturen',
+          'betaalherinnering',
+          'ideal betaallink',
+          'freelancer facturatie',
+        ],
+    authors: [{ name: 'Declair' }],
+    creator: 'Declair',
+    publisher: 'Shortcheese Solutions',
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  openGraph: {
-    type: 'website',
-    locale: 'nl_NL',
-    url: siteUrl,
-    siteName: 'Declair',
-    title: 'Declair - Factureren zonder gedoe | Facturatie voor ZZP\'ers',
-    description: 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
-    images: [
-      {
-        url: `${siteUrl}/og-image.png`,
-        width: 1200,
-        height: 630,
-        alt: 'Declair - Facturatie Software',
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
       },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Declair - Factureren zonder gedoe | Facturatie voor ZZP\'ers',
-    description: 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
-    images: [`${siteUrl}/og-image.png`],
-  },
-  alternates: alternatesForPath(''),
-  category: 'business',
-};
+    },
+    openGraph: {
+      type: 'website',
+      locale: isEn ? 'en_US' : 'nl_NL',
+      url: isEn ? `${siteUrl}/en` : siteUrl,
+      siteName: 'Declair',
+      title: isEn
+        ? 'Declair - Invoicing made easy | Invoicing for Freelancers'
+        : 'Declair - Factureren zonder gedoe | Facturatie voor ZZP\'ers',
+      description: isEn
+        ? 'The complete invoicing app for Dutch freelancers. Create invoices in seconds, get paid faster with iDEAL and keep your administration effortlessly organized.'
+        : 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
+      images: [
+        {
+          url: `${siteUrl}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: 'Declair - Invoicing Software',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: isEn
+        ? 'Declair - Invoicing made easy | Invoicing for Freelancers'
+        : 'Declair - Factureren zonder gedoe | Facturatie voor ZZP\'ers',
+      description: isEn
+        ? 'The complete invoicing app for Dutch freelancers. Create invoices in seconds, get paid faster with iDEAL and keep your administration effortlessly organized.'
+        : 'De complete facturatie-app voor Nederlandse ZZP\'ers en freelancers. Maak facturen in seconden, ontvang sneller betaald met iDEAL en houd je administratie moeiteloos bij.',
+      images: [`${siteUrl}/og-image.png`],
+    },
+    alternates: alternatesForPath('', locale),
+    category: 'business',
+  };
+}
 
-export default function MarketingLayout({
+export default async function MarketingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocaleFromHeaders();
+  const isEn = locale === 'en';
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -92,7 +125,7 @@ export default function MarketingLayout({
         publisher: {
           '@id': `${siteUrl}/#organization`,
         },
-        inLanguage: 'nl-NL',
+        inLanguage: isEn ? 'en' : 'nl-NL',
       },
       {
         '@type': 'SoftwareApplication',
@@ -103,7 +136,7 @@ export default function MarketingLayout({
           '@type': 'Offer',
           price: '0',
           priceCurrency: 'EUR',
-          description: 'Gratis starten met factureren',
+          description: isEn ? 'Start invoicing for free' : 'Gratis starten met factureren',
         },
         aggregateRating: {
           '@type': 'AggregateRating',

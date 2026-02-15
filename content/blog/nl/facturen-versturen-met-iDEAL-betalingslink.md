@@ -11,6 +11,7 @@ readTime: 8
 author: Declair Redactie
 authorRole: Slimme facturatie voor zzp'ers
 canonical: "https://declair.app/blog/facturen-versturen-met-iDEAL-betalingslink"
+translationSlug: "sending-invoices-with-ideal-payment-link"
 keywords:
   - iDEAL betaallink factuur
   - factuur met betaallink versturen

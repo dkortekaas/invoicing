@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/components/providers/locale-provider";
 
 const HeroSection = () => {
-  const { t } = useTranslations("heroSection");
+  const { t, lp } = useTranslations("heroSection");
   
   return (
     <section className="relative pt-28 pb-20 px-6 md:px-0 md:pt-36 md:pb-28 overflow-hidden bg-gradient-hero">
@@ -64,7 +64,7 @@ const HeroSection = () => {
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
-              <Link href="/functies">
+              <Link href={lp("/functies")}>
                 <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   {t("cta2")}
                 </Button>

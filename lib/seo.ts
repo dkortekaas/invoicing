@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import type { Locale } from "./i18n";
+import { nlPathToEn } from "./i18n-routes";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://declair.app";
 const BASE = SITE_URL.replace(/\/$/, "");
@@ -12,16 +14,31 @@ export function fullUrl(path: string): string {
 }
 
 /**
- * Metadata alternates (canonical + hreflang nl) for a given path.
- * Use in layout or page metadata for correct canonical URLs and Dutch hreflang.
+ * Metadata alternates with hreflang for both NL and EN.
+ * `nlPath` is the NL path (e.g. "blog", "functies/facturen-en-offertes").
+ * `enPath` is optional; if not provided, it's auto-generated from the NL path.
+ * `locale` determines the canonical URL.
  */
-export function alternatesForPath(path: string): Metadata["alternates"] {
-  const url = fullUrl(path);
+export function alternatesForPath(
+  nlPath: string,
+  locale: Locale = "nl",
+  enPath?: string
+): Metadata["alternates"] {
+  const nlFullPath = nlPath.startsWith("/") ? nlPath : nlPath === "" ? "/" : `/${nlPath}`;
+  const enFullPath = enPath
+    ? enPath.startsWith("/") ? enPath : `/${enPath}`
+    : nlPathToEn(nlFullPath);
+
+  const nlUrl = fullUrl(nlFullPath);
+  const enUrl = fullUrl(enFullPath);
+  const canonicalUrl = locale === "nl" ? nlUrl : enUrl;
+
   return {
-    canonical: url,
+    canonical: canonicalUrl,
     languages: {
-      "nl": url,
-      "x-default": url,
+      nl: nlUrl,
+      en: enUrl,
+      "x-default": nlUrl,
     },
   };
 }

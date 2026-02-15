@@ -1,8 +1,13 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import type { Locale } from "./i18n";
 
-const BLOG_DIR = path.join(process.cwd(), "content", "blog");
+const CONTENT_DIR = path.join(process.cwd(), "content", "blog");
+
+function blogDir(locale: Locale): string {
+  return path.join(CONTENT_DIR, locale);
+}
 
 export interface FaqItem {
   question: string;
@@ -40,10 +45,13 @@ export interface BlogPostFrontmatter {
   faq?: FaqItem[];
   /** Structured data: ItemList entries */
   itemList?: string[];
+  /** Slug of the translated post in the other language */
+  translationSlug?: string;
 }
 
 export interface BlogPost {
   slug: string;
+  locale: Locale;
   frontmatter: BlogPostFrontmatter;
   content: string;
 }
@@ -52,18 +60,19 @@ function getSlugFromFilename(filename: string): string {
   return filename.replace(/\.md$/, "");
 }
 
-export function getPostSlugs(): string[] {
-  if (!fs.existsSync(BLOG_DIR)) return [];
+export function getPostSlugs(locale: Locale = "nl"): string[] {
+  const dir = blogDir(locale);
+  if (!fs.existsSync(dir)) return [];
   return fs
-    .readdirSync(BLOG_DIR)
+    .readdirSync(dir)
     .filter((f) => f.endsWith(".md"))
     .map(getSlugFromFilename);
 }
 
-export function getPosts(): BlogPost[] {
-  const slugs = getPostSlugs();
+export function getPosts(locale: Locale = "nl"): BlogPost[] {
+  const slugs = getPostSlugs(locale);
   const posts = slugs
-    .map((slug) => getPostBySlug(slug))
+    .map((slug) => getPostBySlug(slug, locale))
     .filter((p): p is BlogPost => p !== null)
     .sort((a, b) => {
       const dateA = new Date(a.frontmatter.date).getTime();
@@ -73,18 +82,31 @@ export function getPosts(): BlogPost[] {
   return posts;
 }
 
-export function getPostBySlug(slug: string): BlogPost | null {
-  const filePath = path.join(BLOG_DIR, `${slug}.md`);
+export function getPostBySlug(slug: string, locale: Locale = "nl"): BlogPost | null {
+  const filePath = path.join(blogDir(locale), `${slug}.md`);
   if (!fs.existsSync(filePath)) return null;
   const raw = fs.readFileSync(filePath, "utf-8");
   const { data, content } = matter(raw);
   const frontmatter = data as BlogPostFrontmatter;
   return {
     slug,
+    locale,
     frontmatter: {
       ...frontmatter,
       readTime: Number(frontmatter.readTime) || 5,
     },
     content,
   };
+}
+
+/**
+ * Try to find a post by slug, checking the given locale first, then the other.
+ * Returns the post and the locale it was found in.
+ */
+export function findPostBySlug(slug: string, preferredLocale: Locale = "nl"): BlogPost | null {
+  const post = getPostBySlug(slug, preferredLocale);
+  if (post) return post;
+  // Fallback: check the other locale
+  const otherLocale: Locale = preferredLocale === "nl" ? "en" : "nl";
+  return getPostBySlug(slug, otherLocale);
 }

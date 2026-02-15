@@ -25,12 +25,13 @@ interface BlogPostClientProps {
 }
 
 export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
-  const { t } = useTranslations("blog");
+  const { t, locale, lp } = useTranslations("blog");
+  const blogBase = locale === "en" ? "/en/blog" : "/blog";
   const { frontmatter, content } = post;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("nl-NL", {
+    return date.toLocaleDateString(locale === "en" ? "en-GB" : "nl-NL", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -60,7 +61,7 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
             className="max-w-3xl mx-auto"
           >
             <Link
-              href="/blog"
+              href={blogBase}
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -196,7 +197,7 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link
-                  href={`/blog/${related.slug}`}
+                  href={`${blogBase}/${related.slug}`}
                   className="group block h-full rounded-xl overflow-hidden bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all"
                 >
                   <div className="aspect-[16/10] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center overflow-hidden relative">
@@ -239,7 +240,7 @@ export function BlogPostClient({ post, relatedPosts }: BlogPostClientProps) {
         description={t("ctaDescription")}
         linkHref1="/register"
         linkText1={t("ctaButton1")}
-        linkHref2="/functies"
+        linkHref2={lp("/functies")}
         linkText2={t("ctaButton2")}
       />
     </main>

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
@@ -45,8 +45,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const cookieStore = await cookies()
-  const locale = (cookieStore.get(LOCALE_COOKIE)?.value as Locale | undefined) ?? defaultLocale
+  const [cookieStore, headersList] = await Promise.all([cookies(), headers()])
+  // x-locale header is set by middleware for /en/* routes
+  const xLocale = headersList.get("x-locale") as Locale | null
+  const locale = xLocale ?? (cookieStore.get(LOCALE_COOKIE)?.value as Locale | undefined) ?? defaultLocale
 
   return (
     <html lang={locale} className={inter.variable} suppressHydrationWarning data-scroll-behavior="smooth">

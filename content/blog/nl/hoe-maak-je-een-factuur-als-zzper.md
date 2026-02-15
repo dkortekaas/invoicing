@@ -11,6 +11,7 @@ readTime: 10
 author: Declair Redactie
 authorRole: Slimme facturatie voor zzp'ers
 canonical: "https://declair.app/blog/hoe-maak-je-een-factuur-als-zzper"
+translationSlug: "how-to-create-an-invoice-as-freelancer"
 keywords:
   - factuur maken zzp
   - hoe maak je een factuur

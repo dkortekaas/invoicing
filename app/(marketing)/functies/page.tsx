@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/components/providers/locale-provider";
 import CallToActionSection from "@/components/marketing/cta-section";
+import { featureSlugMap } from "@/lib/i18n-routes";
 
 const container = {
   hidden: { opacity: 0 },
@@ -30,47 +31,24 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-const FeaturesPage = () => {
-  const { t } = useTranslations("featuresPage");
+const featureItemsNl = [
+  { icon: FileText, titleKey: "invoices", nlSlug: "facturen-en-offertes", highlights: ["invoicesHighlight1", "invoicesHighlight2", "invoicesHighlight3"] },
+  { icon: CreditCard, titleKey: "payments", nlSlug: "betalingen", highlights: ["paymentsHighlight1", "paymentsHighlight2", "paymentsHighlight3"] },
+  { icon: Receipt, titleKey: "expenses", nlSlug: "onkosten-en-bonnetjes", highlights: ["expensesHighlight1", "expensesHighlight2", "expensesHighlight3"] },
+  { icon: Clock, titleKey: "projects", nlSlug: "projecten-en-uren", highlights: ["projectsHighlight1", "projectsHighlight2", "projectsHighlight3"] },
+  { icon: BarChart3, titleKey: "reports", nlSlug: "rapportages-en-belasting", highlights: ["reportsHighlight1", "reportsHighlight2", "reportsHighlight3"] },
+];
 
-  const features = [
-    {
-      icon: FileText,
-      titleKey: "invoices",
-      href: "/functies/facturen-en-offertes",
-      highlights: ["invoicesHighlight1", "invoicesHighlight2", "invoicesHighlight3"],
-    },
-    {
-      icon: CreditCard,
-      titleKey: "payments",
-      href: "/functies/betalingen",
-      highlights: ["paymentsHighlight1", "paymentsHighlight2", "paymentsHighlight3"],
-    },
-    {
-      icon: Receipt,
-      titleKey: "expenses",
-      href: "/functies/onkosten-en-bonnetjes",
-      highlights: ["expensesHighlight1", "expensesHighlight2", "expensesHighlight3"],
-    },
-    {
-      icon: Clock,
-      titleKey: "projects",
-      href: "/functies/projecten-en-uren",
-      highlights: ["projectsHighlight1", "projectsHighlight2", "projectsHighlight3"],
-    },
-    {
-      icon: BarChart3,
-      titleKey: "reports",
-      href: "/functies/rapportages-en-belasting",
-      highlights: ["reportsHighlight1", "reportsHighlight2", "reportsHighlight3"],
-    },
-    // {
-    //   icon: Plug,
-    //   titleKey: "integrations",
-    //   href: "/functies/koppelingen",
-    //   highlights: ["integrationsHighlight1", "integrationsHighlight2", "integrationsHighlight3"],
-    // },
-  ];
+const FeaturesPage = () => {
+  const { t, locale, lp } = useTranslations("featuresPage");
+
+  const features = featureItemsNl.map((f) => {
+    const enSlug = featureSlugMap[f.nlSlug] ?? f.nlSlug;
+    return {
+      ...f,
+      href: locale === "nl" ? `/functies/${f.nlSlug}` : `/en/functions/${enSlug}`,
+    };
+  });
 
   return (
     <main id="main-content">
@@ -194,7 +172,7 @@ const FeaturesPage = () => {
             viewport={{ once: true }}
             className="text-center mt-12"
           >
-            <Link href="/prijzen">
+            <Link href={lp("/prijzen")}>
               <Button size="lg" className="gap-2">
                 {t("viewPricing")}
                 <ArrowRight className="w-4 h-4" />
@@ -210,7 +188,7 @@ const FeaturesPage = () => {
         description={t("ctaDescription")}
         linkHref1="/register"
         linkText1={t("ctaButton1")}
-        linkHref2="/prijzen"
+        linkHref2={lp("/prijzen")}
         linkText2={t("ctaButton2")}
         checkText1={t("ctaCheck1")}
         checkText2={t("ctaCheck2")}

@@ -49,3 +49,15 @@ export function createT(messages: Messages, namespace?: keyof Messages) {
 }
 
 export { getNested };
+
+/**
+ * Get locale from x-locale header (set by middleware for /en/* paths).
+ * For use in server components.
+ */
+export async function getLocaleFromHeaders(): Promise<Locale> {
+  const { headers } = await import("next/headers");
+  const headersList = await headers();
+  const xLocale = headersList.get("x-locale");
+  if (xLocale === "en") return "en";
+  return defaultLocale;
+}

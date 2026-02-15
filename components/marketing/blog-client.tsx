@@ -39,7 +39,8 @@ interface BlogClientProps {
 }
 
 export function BlogClient({ posts }: BlogClientProps) {
-  const { t } = useTranslations("blog");
+  const { t, locale, lp } = useTranslations("blog");
+  const blogBase = locale === "en" ? "/en/blog" : "/blog";
   const featuredPost = posts[0];
   const restPosts = posts.slice(1);
   const categories = getCategoryCounts(posts);
@@ -59,7 +60,7 @@ export function BlogClient({ posts }: BlogClientProps) {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("nl-NL", {
+    return date.toLocaleDateString(locale === "en" ? "en-GB" : "nl-NL", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -128,7 +129,7 @@ export function BlogClient({ posts }: BlogClientProps) {
             viewport={{ once: true }}
           >
             <Link
-              href={`/blog/${featuredPost.slug}`}
+              href={`${blogBase}/${featuredPost.slug}`}
               className="group block rounded-2xl overflow-hidden bg-card border border-border hover:border-primary/30 hover:shadow-xl transition-all"
             >
               <div className="grid md:grid-cols-2 gap-0">
@@ -211,7 +212,7 @@ export function BlogClient({ posts }: BlogClientProps) {
             {restPosts.map((post) => (
               <motion.article key={post.slug} variants={item}>
                 <Link
-                  href={`/blog/${post.slug}`}
+                  href={`${blogBase}/${post.slug}`}
                   className="group block h-full rounded-xl overflow-hidden bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all"
                 >
                   <div className="aspect-[16/10] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center overflow-hidden relative">
@@ -276,7 +277,7 @@ export function BlogClient({ posts }: BlogClientProps) {
         description={t("ctaDescription")}
         linkHref1="/register"
         linkText1={t("ctaButton1")}
-        linkHref2="/functies"
+        linkHref2={lp("/functies")}
         linkText2={t("ctaButton2")}
       />
     </main>

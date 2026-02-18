@@ -4,7 +4,7 @@ excerpt: "Everything foreign freelancers need to know about Dutch VAT (BTW): rat
 slug: "dutch-vat-for-freelancers-btw-explained"
 date: "2026-02-16"
 updatedAt: "2026-02-16"
-category: "Tax & VAT"
+category: belasting
 readTime: 12
 author: "Declair Editorial"
 authorRole: "Smart invoicing for freelancers"

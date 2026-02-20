@@ -18,10 +18,13 @@ import type { Metadata } from "next"
 import { validateSigningAccess } from "@/lib/quotes/signing-guard"
 import { logSigningEvent, markQuoteViewed } from "@/lib/quotes/signing-events"
 import { formatDate, formatDateLong, formatCurrencyWithCode } from "@/lib/utils"
+import { db } from "@/lib/db"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { QuoteSigningEventType } from "@prisma/client"
+import SigningForm from "@/components/quotes/SigningForm"
+import { DEFAULT_AGREEMENT_TEXT } from "@/lib/quotes/signing-submission"
 
 export const dynamic = "force-dynamic"
 
@@ -73,6 +76,13 @@ export default async function SignPage({ params }: Props) {
     logSigningEvent(quote.id, QuoteSigningEventType.SIGNING_STARTED, { ipAddress: ip, userAgent }),
     markQuoteViewed(quote.id, { ipAddress: ip, userAgent }),
   ])
+
+  // Haal de aangepaste akkoordtekst op (valt terug op de standaardtekst)
+  const userSettings = await db.userSigningSettings.findUnique({
+    where: { userId: quote.userId },
+    select: { agreementText: true },
+  })
+  const agreementText = userSettings?.agreementText ?? DEFAULT_AGREEMENT_TEXT
 
   const company = quote.user.company
   const now = new Date()
@@ -251,12 +261,10 @@ export default async function SignPage({ params }: Props) {
         </Card>
       )}
 
-      {/* Ondertekeningsgebied — ingevuld in stap 4 */}
       {!isSigned && !isDeclined && !isExpired && (
         <Card id="signing-area">
-          <CardContent className="pt-6 pb-8 text-center text-sm text-muted-foreground">
-            {/* SignatureCanvas + akkoordknoppen worden hier toegevoegd */}
-            <p className="italic">Ondertekeningsgebied</p>
+          <CardContent className="pt-6">
+            <SigningForm token={token} agreementText={agreementText} />
           </CardContent>
         </Card>
       )}

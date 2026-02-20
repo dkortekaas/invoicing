@@ -180,4 +180,6 @@ export const RATE_LIMITS = {
   upload: { maxRequests: 10, windowSeconds: 60 },
   /** Contact form: 3 submissions per 15 minutes per IP */
   contact: { maxRequests: 3, windowSeconds: 900 },
+  /** Quote signing: 10 attempts per hour per signing token */
+  signing: { maxRequests: 10, windowSeconds: 3600 },
 } as const

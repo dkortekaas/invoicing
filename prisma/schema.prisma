@@ -138,6 +138,10 @@ model User {
 
   // Newsletter
   newsletterSubscription NewsletterSubscriber?
+
+  // Offertes
+  quotes           Quote[]
+  signingSettings  UserSigningSettings?
 }
 
 /**
@@ -192,6 +196,9 @@ model Customer {
 
   // Credit notes
   creditNotes CreditNote[]
+
+  // Offertes
+  quotes Quote[]
 
   // BTW info
   vatCountry  String? // Land voor ICP
@@ -288,6 +295,9 @@ model Invoice {
 
   // Credit notes linked to this invoice
   creditNotes CreditNote[]
+
+  // Offerte waaruit deze factuur is aangemaakt (back-reference, geen FK kolom)
+  sourceQuote Quote? @relation("QuoteToInvoice")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1841,6 +1851,7 @@ model Currency {
   customers       Customer[]
   invoices        Invoice[]
   creditNotes     CreditNote[]
+  quotes          Quote[]
   userSettings    CurrencySettings[] @relation("EnabledCurrencies")
   baseSettings    CurrencySettings[] @relation("BaseCurrency")
 
@@ -1898,4 +1909,235 @@ enum RateLockTiming {
   CREATE // When invoice is created
   SEND   // When invoice is sent (default)
   MANUAL // Only manually
+}
+
+// ========== Digitale Offerte Ondertekening ==========
+
+enum QuoteStatus {
+  DRAFT     // Concept
+  SENT      // Verzonden naar klant
+  VIEWED    // Bekeken door klant
+  SIGNED    // Ondertekend door klant
+  DECLINED  // Afgewezen door klant
+  EXPIRED   // Verlopen
+  CONVERTED // Omgezet naar factuur
+}
+
+enum SigningStatus {
+  PENDING  // Wacht op ondertekening
+  VIEWED   // Ondertekeningspagina bekeken
+  SIGNED   // Ondertekend
+  DECLINED // Afgewezen
+  EXPIRED  // Verlopen
+}
+
+enum QuoteSigningEventType {
+  CREATED         // Offerte aangemaakt
+  SENT            // Offerte verzonden
+  VIEWED          // Offerte bekeken
+  SIGNING_STARTED // Ondertekeningspagina geopend
+  SIGNED          // Ondertekend
+  DECLINED        // Afgewezen
+  EXPIRED         // Verlopen
+  REMINDER_SENT   // Herinnering verzonden
+  INVOICE_CREATED // Factuur aangemaakt na ondertekening
+}
+
+enum SignatureMethod {
+  DRAWN    // Getekend op canvas (handtekening)
+  TYPED    // Getypte naam als handtekening
+  UPLOADED // Geüploade afbeelding
+}
+
+enum ReminderStatus {
+  PENDING // Ingepland
+  SENT    // Verzonden
+  FAILED  // Mislukt
+}
+
+// Offerte model
+
+model Quote {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  quoteNumber String // Uniek per user (bijv. OFF-2025-001)
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+
+  quoteDate  DateTime    @default(now())
+  expiryDate DateTime?   // Verloopdatum offerte
+  status     QuoteStatus @default(DRAFT)
+
+  // Bedragen
+  subtotal  Decimal @db.Decimal(10, 2)
+  vatAmount Decimal @db.Decimal(10, 2)
+  total     Decimal @db.Decimal(10, 2)
+
+  // Valuta (multi-currency)
+  currencyId   String?
+  currency     Currency? @relation(fields: [currencyId], references: [id])
+  currencyCode String    @default("EUR")
+
+  // Extra velden
+  reference     String? // Referentie klant
+  notes         String? // Notities op offerte
+  internalNotes String? // Interne notities (niet zichtbaar voor klant)
+
+  // Digitale ondertekening
+  signingEnabled   Boolean       @default(false) // Ondertekening ingeschakeld
+  signingToken     String?       @unique         // Veilig token voor ondertekenings-URL
+  signingUrl       String?       @unique         // Volledige URL voor ondertekeningspagina
+  signingStatus    SigningStatus?                // Huidige ondertekeningsstatus
+  signingExpiresAt DateTime?                     // Verloopdatum ondertekeningsverzoek
+  autoCreateInvoice Boolean      @default(true)  // Automatisch factuur aanmaken na ondertekening
+
+  // Items
+  items QuoteItem[]
+
+  // Ondertekening relaties
+  signature        QuoteSignature?
+  signingEvents    QuoteSigningEvent[]
+  signingReminders QuoteSigningReminder[]
+
+  // Factuur aangemaakt vanuit deze offerte
+  convertedInvoiceId String?  @unique
+  convertedInvoice   Invoice? @relation("QuoteToInvoice", fields: [convertedInvoiceId], references: [id])
+
+  // Metadata
+  pdfPath    String?
+  sentAt     DateTime? // Wanneer verzonden
+  viewedAt   DateTime? // Wanneer voor het eerst bekeken
+  signedAt   DateTime? // Wanneer ondertekend
+  declinedAt DateTime? // Wanneer afgewezen
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, quoteNumber])
+  @@index([userId])
+  @@index([customerId])
+  @@index([status])
+  @@index([signingToken])
+  @@index([signingStatus])
+  @@index([expiryDate])
+  @@index([quoteDate])
+}
+
+model QuoteItem {
+  id      String @id @default(cuid())
+  quoteId String
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  description String
+  quantity    Decimal @db.Decimal(10, 2)
+  unitPrice   Decimal @db.Decimal(10, 2)
+  vatRate     Decimal @db.Decimal(5, 2)
+  unit        String  @default("uur")
+
+  // Berekend
+  subtotal  Decimal @db.Decimal(10, 2) // quantity * unitPrice
+  vatAmount Decimal @db.Decimal(10, 2) // subtotal * (vatRate / 100)
+  total     Decimal @db.Decimal(10, 2) // subtotal + vatAmount
+
+  sortOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([quoteId])
+}
+
+// Ondertekening handtekening opslag
+
+model QuoteSignature {
+  id      String @id @default(cuid())
+  quoteId String @unique
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  // Ondertekenaar gegevens
+  signerName      String  // Naam van de ondertekenaar
+  signerEmail     String  // E-mailadres van de ondertekenaar
+  signerIpAddress String? // IP-adres voor audittrail
+  signerUserAgent String? // Browser/device info voor audittrail
+
+  // Handtekening data
+  signatureMethod SignatureMethod
+  signatureData   String          @db.Text // Base64 afbeelding of getypte naam
+
+  // Juridisch
+  agreementText String? // Tekst waarmee de klant heeft ingestemd
+
+  signedAt  DateTime // Exacte tijdstip van ondertekening
+  createdAt DateTime @default(now())
+
+  @@index([quoteId])
+}
+
+// Ondertekening events (audittrail)
+
+model QuoteSigningEvent {
+  id      String @id @default(cuid())
+  quoteId String
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  eventType QuoteSigningEventType
+
+  // Optionele context
+  ipAddress String?
+  userAgent String?
+  metadata  Json?   // Extra event-specifieke data
+
+  createdAt DateTime @default(now())
+
+  @@index([quoteId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+// Ondertekening herinneringen
+
+model QuoteSigningReminder {
+  id      String @id @default(cuid())
+  quoteId String
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  scheduledAt DateTime         // Wanneer moet de herinnering verstuurd worden
+  sentAt      DateTime?        // Wanneer daadwerkelijk verstuurd
+  status      ReminderStatus   @default(PENDING)
+
+  recipient String  // E-mailadres ontvanger
+  subject   String? // Onderwerp van de herinnering
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([quoteId])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+// Gebruikersinstellingen voor digitale ondertekening
+
+model UserSigningSettings {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Standaard instellingen voor nieuwe offertes
+  signingEnabled    Boolean @default(false) // Standaard ondertekening inschakelen
+  defaultExpiryDays Int     @default(30)    // Standaard verloopdagen ondertekeningsverzoek
+  autoCreateInvoice Boolean @default(true)  // Standaard automatisch factuur aanmaken
+
+  // Herinnering instellingen
+  sendReminders Boolean @default(true)  // Herinneringen versturen
+  reminderDays  Int[]   @default([7, 3]) // Dagen vóór verloopdatum voor herinnering
+
+  // Huisstijl ondertekeningspagina
+  signingPageMessage String? // Persoonlijk bericht op de ondertekeningspagina
+  agreementText      String? // Standaard akkoordtekst voor klant
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

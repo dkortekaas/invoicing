@@ -22,7 +22,7 @@ export async function requestPasswordReset(formData: { email: string }) {
   const normalizedEmail = email.toLowerCase().trim()
 
   // Rate limit password reset requests per email
-  const { allowed } = rateLimit(`password-reset:${normalizedEmail}`, RATE_LIMITS.passwordReset)
+  const { allowed } = await rateLimit(`password-reset:${normalizedEmail}`, RATE_LIMITS.passwordReset)
   if (!allowed) {
     // Return the same success message to prevent email enumeration
     return {

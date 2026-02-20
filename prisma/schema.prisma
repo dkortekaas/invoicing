@@ -48,6 +48,8 @@ model User {
 
   // Superuser/Admin
   role            UserRole  @default(USER)
+  // Incremented on role change to invalidate existing JWT sessions
+  sessionVersion  Int       @default(1)
 
   // Subscription
   stripeCustomerId       String?   @unique

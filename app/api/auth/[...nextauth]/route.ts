@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   if (url.pathname.endsWith("/callback/credentials")) {
     const ip =
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
-    const { allowed } = rateLimit(`login:${ip}`, RATE_LIMITS.login)
+    const { allowed } = await rateLimit(`login:${ip}`, RATE_LIMITS.login)
 
     if (!allowed) {
       return NextResponse.json(

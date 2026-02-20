@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit webhook calls to prevent abuse
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
-    const { allowed } = rateLimit(`mollie-webhook:${ip}`, { maxRequests: 60, windowSeconds: 60 })
+    const { allowed } = await rateLimit(`mollie-webhook:${ip}`, { maxRequests: 60, windowSeconds: 60 })
     if (!allowed) {
       return NextResponse.json({ received: true }, { status: 200 })
     }

@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit contact form submissions by IP
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    const { allowed } = rateLimit(`contact:${ip}`, RATE_LIMITS.contact);
+    const { allowed } = await rateLimit(`contact:${ip}`, RATE_LIMITS.contact);
     if (!allowed) {
       return NextResponse.json(
         { error: 'Te veel berichten verstuurd. Probeer het later opnieuw.' },

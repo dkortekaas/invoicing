@@ -1,11 +1,10 @@
 import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "./db"
 import bcrypt from "bcryptjs"
-import speakeasy from "speakeasy"
 import NextAuth from "next-auth"
 import type { JWT } from "next-auth/jwt"
 import type { Session, User } from "next-auth"
-import { verifyBackupCode, sanitizeBase32Secret } from "./auth-utils"
+import { verifyBackupCode, verifyTwoFactorCode } from "./auth-utils"
 import { logLogin, logLoginFailed } from "./audit/helpers"
 import { captureException } from "./error-monitoring"
 
@@ -61,27 +60,10 @@ export const authOptions = {
               return null
             }
 
-            let isValid = false
+            // Probeer TOTP via de centrale utility (window: 10 = ±5 min kloktolerantie)
+            let isValid = verifyTwoFactorCode(user.twoFactorSecret ?? "", twoFactorCode)
 
-            // Eerst proberen als TOTP (6 cijfers; eventueel leading zero)
-            if (
-              user.twoFactorSecret &&
-              /^\d+$/.test(twoFactorCode) &&
-              twoFactorCode.length <= 6
-            ) {
-              const token = twoFactorCode.padStart(6, "0")
-              const secret = sanitizeBase32Secret(user.twoFactorSecret)
-              if (secret) {
-                isValid = speakeasy.totp.verify({
-                  secret,
-                  encoding: "base32",
-                  token,
-                  window: 1, // ±30 seconden voor klokverschil
-                })
-              }
-            }
-
-            // If TOTP verification failed, try backup code (8 digits)
+            // Als TOTP mislukt: probeer backup code (8 cijfers)
             if (!isValid) {
               isValid = await verifyBackupCode(user.id, twoFactorCode)
             }

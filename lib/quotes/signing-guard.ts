@@ -42,6 +42,8 @@ export type SigningGuardFailure = {
   reason: SigningGuardReason
   /** HTTP-statuscode die de caller terug moet sturen. */
   httpStatus: 404 | 410 | 403 | 429
+  /** Seconden tot rate-limit reset (alleen bij reason === "rate_limited"). */
+  retryAfterSeconds?: number
   /** Kant-en-klare response-headers (bijv. Retry-After). */
   headers?: Record<string, string>
 }
@@ -90,6 +92,7 @@ export async function validateSigningAccess(
       valid: false,
       reason: "rate_limited",
       httpStatus: 429,
+      retryAfterSeconds: seconds,
       headers: {
         "Retry-After": String(seconds),
         "X-RateLimit-Reset": String(Math.ceil(resetAt / 1000)),

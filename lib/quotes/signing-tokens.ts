@@ -25,11 +25,11 @@ export function generateSigningToken(): string {
 
 /**
  * Bouwt de volledige publieke ondertekenings-URL op basis van een token.
- * Pad: /offerte/ondertekenen/[token]
+ * Pad: /sign/[token]  (consistent met /pay/[token] voor betalingslinks)
  */
 export function generateSigningUrl(token: string): string {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
-  return `${baseUrl}/offerte/ondertekenen/${token}`
+  return `${baseUrl}/sign/${token}`
 }
 
 // ─── Database queries ─────────────────────────────────────────────────────────

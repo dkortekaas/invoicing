@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
-import { Prisma, type Invoice, type InvoiceItem } from "@prisma/client"
+import { Prisma, type Invoice, type InvoiceItem, type InvoiceStatus } from "@prisma/client"
 import { invoiceSchema, type InvoiceFormData } from "@/lib/validations"
 import { generateInvoiceNumber, roundToTwo } from "@/lib/utils"
 import { getCurrentUserId } from "@/lib/server-utils"
@@ -15,7 +15,7 @@ import {
 } from "@/lib/currency"
 
 interface GetInvoicesOptions {
-  status?: string
+  status?: InvoiceStatus | string
   search?: string
   year?: number
   sortBy?: "invoiceNumber" | "customerName" | "invoiceDate" | "dueDate" | "total"
@@ -39,7 +39,7 @@ export async function getInvoices(options: GetInvoicesOptions = {}) {
   const where: Prisma.InvoiceWhereInput = { userId }
 
   if (status && status !== "ALL") {
-    where.status = status
+    where.status = status as InvoiceStatus
   }
   if (year) {
     where.invoiceDate = {

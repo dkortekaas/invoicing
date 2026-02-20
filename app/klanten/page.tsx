@@ -38,48 +38,13 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
   const sortOrder = params.sortOrder === "asc" ? "asc" : "desc"
   const currentPage = Math.max(1, parseInt(params.page || "1", 10) || 1)
 
-  const allCustomers = await getCustomers()
-
-  let customers = search.trim()
-    ? allCustomers.filter(
-        (c: typeof allCustomers[0]) =>
-          c.name.toLowerCase().includes(search.toLowerCase()) ||
-          (c.companyName ?? "").toLowerCase().includes(search.toLowerCase()) ||
-          (c.email ?? "").toLowerCase().includes(search.toLowerCase()) ||
-          (c.city ?? "").toLowerCase().includes(search.toLowerCase())
-      )
-    : allCustomers
-
-  customers = [...customers].sort((a: typeof allCustomers[0], b: typeof allCustomers[0]) => {
-    let cmp = 0
-    switch (sortBy) {
-      case "name":
-        cmp = a.name.localeCompare(b.name)
-        break
-      case "companyName":
-        cmp = (a.companyName ?? "").localeCompare(b.companyName ?? "")
-        break
-      case "email":
-        cmp = (a.email ?? "").localeCompare(b.email ?? "")
-        break
-      case "city":
-        cmp = (a.city ?? "").localeCompare(b.city ?? "")
-        break
-      case "invoiceCount":
-        cmp = a._count.invoices - b._count.invoices
-        break
-      default:
-        cmp = a.name.localeCompare(b.name)
-    }
-    return sortOrder === "asc" ? cmp : -cmp
+  const { customers: paginatedCustomers, total: totalItems } = await getCustomers({
+    search: search.trim() || undefined,
+    sortBy,
+    sortOrder,
+    page: currentPage,
+    pageSize: PAGE_SIZE,
   })
-
-  // Pagination
-  const totalItems = customers.length
-  const paginatedCustomers = customers.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
-  )
 
   return (
     <div className="space-y-6">
@@ -92,7 +57,7 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
           </p>
         </div>
         <div className="flex gap-2">
-          <ExportButton entityType="CUSTOMERS" totalCount={allCustomers.length} />
+          <ExportButton entityType="CUSTOMERS" totalCount={totalItems} />
           <Button asChild>
             <Link href="/klanten/nieuw">
               <Plus className="mr-2 h-4 w-4" />

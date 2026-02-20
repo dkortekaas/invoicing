@@ -13,14 +13,57 @@ const VALID_ENTITY_TYPES: EntityType[] = [
   'TIME_ENTRIES',
 ];
 
-const ALLOWED_MIME_TYPES = [
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // xlsx
-  'application/vnd.ms-excel', // xls
-  'text/csv',
-  'application/csv',
-];
-
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+// Magic byte signatures for allowed formats
+const XLSX_MAGIC = [0x50, 0x4b, 0x03, 0x04] // PK\x03\x04 — ZIP container (XLSX)
+const XLS_MAGIC  = [0xd0, 0xcf, 0x11, 0xe0] // OLE2 compound document (XLS)
+
+/**
+ * Detects the actual file type from the first bytes of the buffer.
+ * Returns the canonical MIME type or null for unrecognised/disallowed content.
+ * Ignores the client-supplied Content-Type header, which is trivially spoofable.
+ */
+function detectMimeTypeFromBytes(buffer: Buffer): string | null {
+  if (buffer.length < 4) return null
+
+  // XLSX (ZIP-based Office Open XML)
+  if (
+    buffer[0] === XLSX_MAGIC[0] &&
+    buffer[1] === XLSX_MAGIC[1] &&
+    buffer[2] === XLSX_MAGIC[2] &&
+    buffer[3] === XLSX_MAGIC[3]
+  ) {
+    return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  }
+
+  // XLS (OLE2 compound document)
+  if (
+    buffer[0] === XLS_MAGIC[0] &&
+    buffer[1] === XLS_MAGIC[1] &&
+    buffer[2] === XLS_MAGIC[2] &&
+    buffer[3] === XLS_MAGIC[3]
+  ) {
+    return 'application/vnd.ms-excel'
+  }
+
+  // UTF-8 BOM (EF BB BF) — common for CSV exports from Excel
+  if (buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
+    return 'text/csv'
+  }
+
+  // Heuristic: if the first 512 bytes contain no unexpected control bytes
+  // the content is very likely plain-text CSV.
+  const sample = buffer.slice(0, 512)
+  const hasBinaryBytes = sample.some(
+    (byte) => byte < 0x09 || (byte > 0x0d && byte < 0x20)
+  )
+  if (!hasBinaryBytes) {
+    return 'text/csv'
+  }
+
+  return null // Unrecognised binary content
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,16 +94,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Ongeldig entiteit type' }, { status: 400 });
     }
 
-    // Validate file type
-    const mimeType = file.type || 'text/csv';
-    if (!ALLOWED_MIME_TYPES.includes(mimeType) && !file.name.endsWith('.csv')) {
-      return NextResponse.json(
-        { error: 'Ongeldig bestandstype. Alleen Excel (.xlsx) en CSV bestanden zijn toegestaan.' },
-        { status: 400 }
-      );
-    }
-
-    // Validate file size
+    // Validate file size before reading the buffer (cheap early exit)
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: 'Bestand is te groot. Maximum is 10MB.' },
@@ -71,6 +105,15 @@ export async function POST(request: NextRequest) {
     // Read file content
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+
+    // Server-side magic bytes check — do not trust the client-supplied Content-Type
+    const mimeType = detectMimeTypeFromBytes(buffer);
+    if (!mimeType) {
+      return NextResponse.json(
+        { error: 'Ongeldig bestandstype. Alleen Excel (.xlsx, .xls) en CSV bestanden zijn toegestaan.' },
+        { status: 400 }
+      );
+    }
 
     // Parse file
     const { columns, rows } = await parseFile(buffer, mimeType);

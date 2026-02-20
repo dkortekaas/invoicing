@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import { InvoiceForm } from "@/components/invoices/invoice-form"
 import { getInvoice } from "@/app/facturen/actions"
-import { getCustomers } from "@/app/klanten/actions"
+import { getCustomersForDropdown } from "@/app/klanten/actions"
 import { getActiveProducts } from "@/app/producten/actions"
 import { getFiscalSettings } from "@/app/instellingen/actions"
 
@@ -16,7 +16,7 @@ export default async function FactuurBewerkenPage({ params }: FactuurBewerkenPag
 
   const [invoice, customers, products, fiscalSettings] = await Promise.all([
     getInvoice(id),
-    getCustomers(),
+    getCustomersForDropdown(),
     getActiveProducts(),
     getFiscalSettings(),
   ])

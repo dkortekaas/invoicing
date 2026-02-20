@@ -21,7 +21,7 @@ import {
 import { StatusFilterTabs } from "@/components/status-filter-tabs"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
-import { getInvoices } from "./actions"
+import { getInvoices, getInvoiceStatusCounts, getInvoiceYears } from "./actions"
 import { InvoiceActions } from "./invoice-actions"
 import { SearchForm } from "./search-form"
 import { YearFilterSelect } from "@/components/year-filter-select"
@@ -48,67 +48,20 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
   const sortOrder = params.sortOrder === "asc" ? "asc" : "desc"
   const currentPage = Math.max(1, parseInt(params.page || "1", 10) || 1)
 
-  const invoices = await getInvoices(status === "ALL" ? undefined : status)
-
-  // Filter op search term
-  let filteredInvoices = search
-    ? invoices.filter(
-        (invoice: typeof invoices[0]) =>
-          invoice.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
-          invoice.customer.name.toLowerCase().includes(search.toLowerCase()) ||
-          invoice.customer.companyName?.toLowerCase().includes(search.toLowerCase())
-      )
-    : invoices
-
-  // Filter op jaar
-  if (yearParam && !Number.isNaN(yearParam)) {
-    filteredInvoices = filteredInvoices.filter((invoice: typeof invoices[0]) => {
-      const y = new Date(invoice.invoiceDate).getFullYear()
-      return y === yearParam
-    })
-  }
-
-  // Sorteren
-  filteredInvoices = [...filteredInvoices].sort((a: typeof invoices[0], b: typeof invoices[0]) => {
-    let cmp = 0
-    switch (sortBy) {
-      case "invoiceNumber":
-        cmp = a.invoiceNumber.localeCompare(b.invoiceNumber)
-        break
-      case "customerName":
-        cmp = (a.customer.companyName || a.customer.name).localeCompare(b.customer.companyName || b.customer.name)
-        break
-      case "invoiceDate":
-        cmp = new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime()
-        break
-      case "dueDate":
-        cmp = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-        break
-      case "total":
-        cmp = a.total - b.total
-        break
-      default:
-        cmp = new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime()
-    }
-    return sortOrder === "asc" ? cmp : -cmp
-  })
-
-  // Bereken status counts
-  const allInvoices = await getInvoices()
-  const statusCounts = {
-    ALL: allInvoices.length,
-    DRAFT: allInvoices.filter((i: typeof allInvoices[0]) => i.status === "DRAFT").length,
-    SENT: allInvoices.filter((i: typeof allInvoices[0]) => i.status === "SENT").length,
-    PAID: allInvoices.filter((i: typeof allInvoices[0]) => i.status === "PAID").length,
-    OVERDUE: allInvoices.filter((i: typeof allInvoices[0]) => i.status === "OVERDUE").length,
-  }
-
-  // Pagination
-  const totalItems = filteredInvoices.length
-  const paginatedInvoices = filteredInvoices.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
-  )
+  const [{ invoices: paginatedInvoices, total: totalItems }, statusCounts, years] =
+    await Promise.all([
+      getInvoices({
+        status: status === "ALL" ? undefined : status,
+        search: search || undefined,
+        year: yearParam && !Number.isNaN(yearParam) ? yearParam : undefined,
+        sortBy,
+        sortOrder,
+        page: currentPage,
+        pageSize: PAGE_SIZE,
+      }),
+      getInvoiceStatusCounts(),
+      getInvoiceYears(),
+    ])
 
   return (
     <div className="space-y-6">
@@ -121,7 +74,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
           </p>
         </div>
         <div className="flex gap-2">
-          <ExportButton entityType="INVOICES" totalCount={allInvoices.length} />
+          <ExportButton entityType="INVOICES" totalCount={statusCounts.ALL} />
           <Button asChild>
             <Link href="/facturen/nieuw">
               <Plus className="mr-2 h-4 w-4" />
@@ -149,10 +102,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
             <div className="flex flex-wrap items-center gap-2">
               <SearchForm currentStatus={status} />
               <YearFilterSelect
-                years={(() => {
-                  const years = new Set(allInvoices.map((i: typeof allInvoices[0]) => new Date(i.invoiceDate).getFullYear()))
-                  return Array.from(years).sort((a, b) => b - a)
-                })()}
+                years={years}
                 currentYear={params.year ?? null}
               />
             </div>

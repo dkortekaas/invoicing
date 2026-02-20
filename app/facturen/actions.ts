@@ -22,6 +22,8 @@ interface GetInvoicesOptions {
   sortOrder?: "asc" | "desc"
   page?: number
   pageSize?: number
+  /** When true, return only soft-deleted invoices (prullenbak view) */
+  deletedOnly?: boolean
 }
 
 export async function getInvoices(options: GetInvoicesOptions = {}) {
@@ -34,11 +36,15 @@ export async function getInvoices(options: GetInvoicesOptions = {}) {
     sortOrder = "desc",
     page = 1,
     pageSize = 50,
+    deletedOnly = false,
   } = options
 
-  const where: Prisma.InvoiceWhereInput = { userId }
+  const where: Prisma.InvoiceWhereInput = {
+    userId,
+    deletedAt: deletedOnly ? { not: null } : null,
+  }
 
-  if (status && status !== "ALL") {
+  if (!deletedOnly && status && status !== "ALL") {
     where.status = status as InvoiceStatus
   }
   if (year) {
@@ -87,12 +93,18 @@ export async function getInvoices(options: GetInvoicesOptions = {}) {
   }
 }
 
+/** Returns the number of soft-deleted invoices for the current user. */
+export async function getDeletedInvoiceCount(): Promise<number> {
+  const userId = await getCurrentUserId()
+  return db.invoice.count({ where: { userId, deletedAt: { not: null } } })
+}
+
 /** Returns invoice counts grouped by status (for the filter tabs). */
 export async function getInvoiceStatusCounts() {
   const userId = await getCurrentUserId()
   const groups = await db.invoice.groupBy({
     by: ["status"],
-    where: { userId },
+    where: { userId, deletedAt: null },
     _count: { status: true },
   })
   const result = { ALL: 0, DRAFT: 0, SENT: 0, PAID: 0, OVERDUE: 0, CANCELLED: 0 }
@@ -110,7 +122,7 @@ export async function getInvoiceYears(): Promise<number[]> {
   const rows = await db.$queryRaw<{ year: number }[]>`
     SELECT DISTINCT EXTRACT(YEAR FROM "invoiceDate")::int AS year
     FROM "Invoice"
-    WHERE "userId" = ${userId}
+    WHERE "userId" = ${userId} AND "deletedAt" IS NULL
     ORDER BY year DESC
   `
   return rows.map((r) => r.year)
@@ -605,48 +617,65 @@ export async function updateInvoiceStatus(
 export async function deleteInvoice(id: string) {
   const userId = await getCurrentUserId()
 
-  // Get invoice data before deletion for audit logging
   const invoice = await db.invoice.findUnique({
     where: { id },
-    select: {
-      userId: true,
-      invoiceNumber: true,
-      customerId: true,
-      total: true,
-      status: true,
-    },
+    select: { userId: true, invoiceNumber: true, customerId: true, total: true, status: true, deletedAt: true },
   })
 
   if (!invoice || invoice.userId !== userId) {
     throw new Error("Factuur niet gevonden")
   }
 
-  // Paid invoices cannot be deleted
+  // Paid invoices cannot be moved to trash
   if (invoice.status === "PAID") {
     throw new Error("Een betaalde factuur kan niet verwijderd worden")
   }
-  
-  await db.invoice.delete({
+
+  // Soft-delete: set deletedAt timestamp
+  await db.invoice.update({
     where: { id, userId },
+    data: { deletedAt: new Date() },
   })
 
-  // Log audit trail
-  if (invoice) {
-    await logDelete(
-      "invoice",
-      id,
-      {
-        invoiceNumber: invoice.invoiceNumber,
-        customerId: invoice.customerId,
-        total: invoice.total.toNumber(),
-        status: invoice.status,
-      },
-      userId
-    )
-  }
+  await logDelete(
+    "invoice",
+    id,
+    {
+      invoiceNumber: invoice.invoiceNumber,
+      customerId: invoice.customerId,
+      total: invoice.total.toNumber(),
+      status: invoice.status,
+    },
+    userId
+  )
 
   revalidatePath("/facturen")
   revalidatePath("/")
+}
+
+export async function restoreInvoice(id: string) {
+  const userId = await getCurrentUserId()
+
+  const invoice = await db.invoice.findUnique({
+    where: { id },
+    select: { userId: true, invoiceNumber: true, deletedAt: true },
+  })
+
+  if (!invoice || invoice.userId !== userId) {
+    throw new Error("Factuur niet gevonden")
+  }
+  if (!invoice.deletedAt) {
+    throw new Error("Factuur staat niet in de prullenbak")
+  }
+
+  await db.invoice.update({
+    where: { id, userId },
+    data: { deletedAt: null },
+  })
+
+  await logUpdate("invoice", id, { deletedAt: invoice.deletedAt }, { deletedAt: null }, userId)
+
+  revalidatePath("/facturen")
 }
 
 export async function getDashboardStats() {
@@ -666,6 +695,7 @@ export async function getDashboardStats() {
     db.invoice.aggregate({
       where: {
         userId,
+        deletedAt: null,
         status: { in: ["SENT", "OVERDUE"] },
       },
       _sum: { total: true },
@@ -676,6 +706,7 @@ export async function getDashboardStats() {
     db.invoice.aggregate({
       where: {
         userId,
+        deletedAt: null,
         status: "OVERDUE",
       },
       _sum: { total: true },
@@ -686,6 +717,7 @@ export async function getDashboardStats() {
     db.invoice.aggregate({
       where: {
         userId,
+        deletedAt: null,
         status: "PAID",
         paidAt: { gte: startOfMonth },
       },
@@ -696,15 +728,16 @@ export async function getDashboardStats() {
     db.invoice.aggregate({
       where: {
         userId,
+        deletedAt: null,
         status: "PAID",
         paidAt: { gte: startOfYear },
       },
       _sum: { total: true },
     }),
 
-    // Aantal klanten
+    // Aantal klanten (excl. soft-deleted)
     db.customer.count({
-      where: { userId },
+      where: { userId, deletedAt: null },
     }),
   ])
 
@@ -722,7 +755,7 @@ export async function getDashboardStats() {
 export async function getRecentInvoices(limit = 5) {
   const userId = await getCurrentUserId()
   const invoices = await db.invoice.findMany({
-    where: { userId },
+    where: { userId, deletedAt: null },
     orderBy: { invoiceDate: "desc" },
     take: limit,
     include: {

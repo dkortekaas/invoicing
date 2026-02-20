@@ -21,11 +21,12 @@ import {
 import { StatusFilterTabs } from "@/components/status-filter-tabs"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
-import { getInvoices, getInvoiceStatusCounts, getInvoiceYears } from "./actions"
+import { getInvoices, getInvoiceStatusCounts, getInvoiceYears, getDeletedInvoiceCount } from "./actions"
 import { InvoiceActions } from "./invoice-actions"
 import { SearchForm } from "./search-form"
 import { YearFilterSelect } from "@/components/year-filter-select"
 import { Pagination } from "@/components/ui/pagination"
+import { Trash2 } from "lucide-react"
 
 const PAGE_SIZE = 50
 
@@ -36,11 +37,12 @@ function isInvoiceSortKey(s: string | null | undefined): s is InvoiceSortKey {
 }
 
 interface FacturenPageProps {
-  searchParams: Promise<{ status?: string; search?: string; year?: string; sortBy?: string; sortOrder?: string; page?: string }>
+  searchParams: Promise<{ status?: string; search?: string; year?: string; sortBy?: string; sortOrder?: string; page?: string; deleted?: string }>
 }
 
 export default async function FacturenPage({ searchParams }: FacturenPageProps) {
   const params = await searchParams
+  const showDeleted = params.deleted === "true"
   const status = params.status || "ALL"
   const search = params.search || ""
   const yearParam = params.year ? parseInt(params.year, 10) : null
@@ -48,19 +50,21 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
   const sortOrder = params.sortOrder === "asc" ? "asc" : "desc"
   const currentPage = Math.max(1, parseInt(params.page || "1", 10) || 1)
 
-  const [{ invoices: paginatedInvoices, total: totalItems }, statusCounts, years] =
+  const [{ invoices: paginatedInvoices, total: totalItems }, statusCounts, years, deletedCount] =
     await Promise.all([
       getInvoices({
-        status: status === "ALL" ? undefined : status,
+        status: showDeleted || status === "ALL" ? undefined : status,
         search: search || undefined,
         year: yearParam && !Number.isNaN(yearParam) ? yearParam : undefined,
         sortBy,
         sortOrder,
         page: currentPage,
         pageSize: PAGE_SIZE,
+        deletedOnly: showDeleted,
       }),
       getInvoiceStatusCounts(),
       getInvoiceYears(),
+      getDeletedInvoiceCount(),
     ])
 
   return (
@@ -74,13 +78,29 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
           </p>
         </div>
         <div className="flex gap-2">
-          <ExportButton entityType="INVOICES" totalCount={statusCounts.ALL} />
-          <Button asChild>
-            <Link href="/facturen/nieuw">
-              <Plus className="mr-2 h-4 w-4" />
-              Nieuwe Factuur
-            </Link>
-          </Button>
+          {!showDeleted && <ExportButton entityType="INVOICES" totalCount={statusCounts.ALL} />}
+          {showDeleted ? (
+            <Button variant="outline" asChild>
+              <Link href="/facturen">Terug naar facturen</Link>
+            </Button>
+          ) : (
+            <>
+              {deletedCount > 0 && (
+                <Button variant="outline" asChild>
+                  <Link href="/facturen?deleted=true">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Prullenbak ({deletedCount})
+                  </Link>
+                </Button>
+              )}
+              <Button asChild>
+                <Link href="/facturen/nieuw">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nieuwe Factuur
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -125,7 +145,11 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
               {paginatedInvoices.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
-                    {search ? (
+                    {showDeleted ? (
+                      <p className="text-muted-foreground">
+                        De prullenbak is leeg.
+                      </p>
+                    ) : search ? (
                       <p className="text-muted-foreground">
                         Geen facturen gevonden voor &ldquo;{search}&rdquo;.
                       </p>
@@ -180,6 +204,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
                         invoice={{
                           id: invoice.id,
                           status: invoice.status,
+                          deletedAt: invoice.deletedAt,
                         }}
                       />
                     </TableCell>

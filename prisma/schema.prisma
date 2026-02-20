@@ -180,10 +180,13 @@ model Customer {
   vatCountry  String? // Land voor ICP
   vatReversed Boolean @default(false) // Verlegd BTW van toepassing
 
+  deletedAt DateTime? // Soft-delete: set when customer is moved to trash
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@index([deletedAt])
 }
 
 model Product {
@@ -249,7 +252,8 @@ model Invoice {
   // Metadata
   pdfPath String?
   sentAt  DateTime?
-  paidAt  DateTime?
+  paidAt     DateTime?
+  deletedAt  DateTime? // Soft-delete: set when invoice is moved to trash
 
   // Email tracking
   emails          EmailLog[]
@@ -276,6 +280,7 @@ model Invoice {
   @@index([customerId])
   @@index([status])
   @@index([invoiceDate])
+  @@index([deletedAt])
   @@index([recurringInvoiceId])
   @@index([paymentLinkToken])
 }
@@ -993,6 +998,7 @@ model Expense {
   @@index([category])
   @@index([deductible])
   @@index([vendorId])
+  @@index([customerId])
 }
 
 model Vendor {

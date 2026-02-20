@@ -23,8 +23,9 @@ export async function GET(request: NextRequest) {
     // SUPERUSER ziet alle logs (userId blijft undefined)
     
     // Parse query parameters
-    const page = parseInt(searchParams.get("page") || "1")
-    const limit = parseInt(searchParams.get("limit") || "50")
+    const MAX_LIMIT = 1000
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1)
+    const limit = Math.min(MAX_LIMIT, Math.max(1, parseInt(searchParams.get("limit") || "50") || 50))
     const skip = (page - 1) * limit
     
     const action = searchParams.get("action")

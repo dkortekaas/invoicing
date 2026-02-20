@@ -28,7 +28,7 @@ import { Separator } from "@/components/ui/separator"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import { CreditNoteStatusBadge } from "@/components/creditnotes/credit-note-status-badge"
 import { formatCurrency, formatDate, formatDateLong } from "@/lib/utils"
-import { getInvoice, getInvoicePaymentInfo } from "../actions"
+import { getInvoiceWithUser, getInvoicePaymentInfo } from "../actions"
 import { getCreditNotesForInvoice } from "@/app/creditnotas/actions"
 import { PaymentSection } from "./payment-section"
 import { InvoiceActionsClient } from "./invoice-actions-client"
@@ -45,7 +45,7 @@ interface FactuurDetailPageProps {
 export default async function FactuurDetailPage({ params }: FactuurDetailPageProps) {
   const { id } = await params
   const [invoice, paymentInfo, creditNotes] = await Promise.all([
-    getInvoice(id),
+    getInvoiceWithUser(id),
     getInvoicePaymentInfo(id),
     getCreditNotesForInvoice(id),
   ])

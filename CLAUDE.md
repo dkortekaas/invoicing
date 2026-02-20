@@ -83,7 +83,7 @@ Database models:
 ### Subscription System (Feature Gating)
 Premium features are controlled via `lib/stripe/subscriptions.ts`:
 - `hasFeatureAccess(userId, feature)` - Check if user can access feature
-- `canCreateInvoice(userId)` - Check invoice limits (FREE: 50/month)
+- `canCreateInvoice(userId)` - Check invoice limits (FREE: 5/month)
 - Features: `recurring_invoices`, `vat_reporting`, `time_tracking`, `analytics`, `export`, `ocr_extraction`
 - SUPERUSER role bypasses all feature gates
 

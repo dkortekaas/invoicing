@@ -132,7 +132,54 @@ export async function getInvoiceYears(): Promise<number[]> {
   return rows.map((r) => r.year)
 }
 
+/** Invoice detail without user/company data — for the edit form and lightweight views. */
 export async function getInvoice(id: string) {
+  const userId = await getCurrentUserId()
+  const invoice = await db.invoice.findUnique({
+    where: { id },
+    include: {
+      customer: true,
+      currency: true,
+      items: {
+        orderBy: { sortOrder: "asc" },
+      },
+      emails: {
+        orderBy: { createdAt: "desc" },
+      },
+    },
+  })
+
+  if (!invoice || invoice.userId !== userId) {
+    return null
+  }
+
+  return {
+    ...invoice,
+    subtotal: invoice.subtotal.toNumber(),
+    vatAmount: invoice.vatAmount.toNumber(),
+    total: invoice.total.toNumber(),
+    exchangeRate: invoice.exchangeRate?.toNumber() ?? null,
+    subtotalEur: invoice.subtotalEur?.toNumber() ?? null,
+    vatAmountEur: invoice.vatAmountEur?.toNumber() ?? null,
+    totalEur: invoice.totalEur?.toNumber() ?? null,
+    items: invoice.items.map((item) => ({
+      ...item,
+      quantity: item.quantity.toNumber(),
+      unitPrice: item.unitPrice.toNumber(),
+      vatRate: item.vatRate.toNumber(),
+      subtotal: item.subtotal.toNumber(),
+      vatAmount: item.vatAmount.toNumber(),
+      total: item.total.toNumber(),
+    })),
+  }
+}
+
+/**
+ * Invoice detail including user + company data.
+ * Used by the detail/preview page which renders the full invoice layout
+ * (sender address, VAT/KvK numbers, IBAN).
+ */
+export async function getInvoiceWithUser(id: string) {
   const userId = await getCurrentUserId()
   const invoice = await db.invoice.findUnique({
     where: { id },
@@ -149,12 +196,10 @@ export async function getInvoice(id: string) {
     },
   })
 
-  // Verify invoice belongs to user
   if (!invoice || invoice.userId !== userId) {
     return null
   }
 
-  // Convert Decimal fields to numbers for serialization (Client Components require plain objects)
   const { user: rawUser, ...rest } = invoice
   return {
     ...rest,

@@ -38,9 +38,9 @@ model User {
   invoicePrefix     String  @default("FAC")
 
   // 2FA velden
-  twoFactorSecret  String? // TOTP secret key
-  twoFactorEnabled Boolean @default(false)
-  backupCodes      String? // JSON array van backup codes
+  twoFactorSecret   String? // TOTP secret key
+  twoFactorEnabled  Boolean     @default(false)
+  backupCodeEntries BackupCode[]
 
   // Time tracking settings
   defaultHourlyRate Decimal? @db.Decimal(10, 2)
@@ -138,6 +138,23 @@ model User {
 
   // Newsletter
   newsletterSubscription NewsletterSubscriber?
+}
+
+/**
+ * Individual 2FA backup code (replaces the backupCodes JSON column on User).
+ * usedAt is set when the code is consumed; NULL = still available.
+ * Separate rows allow per-code indexing and anonymisation.
+ */
+model BackupCode {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String    // SHA-256 hash of the plain backup code
+  usedAt    DateTime? // null = available; set = consumed (kept for audit trail)
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([codeHash])
 }
 
 model Customer {

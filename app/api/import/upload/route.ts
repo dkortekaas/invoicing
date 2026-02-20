@@ -115,14 +115,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse file
-    const { columns, rows } = await parseFile(buffer, mimeType);
+    // Parse file — wrap separately so we can give actionable error messages
+    let columns: string[]
+    let rows: Record<string, unknown>[]
+    try {
+      const result = await parseFile(buffer, mimeType)
+      columns = result.columns
+      rows = result.rows
+    } catch {
+      if (mimeType === 'text/csv') {
+        return NextResponse.json(
+          {
+            error:
+              'Het CSV-bestand kon niet worden gelezen. Controleer of het scheidingsteken een komma (,) of puntkomma (;) is en of het bestand UTF-8 gecodeerd is.',
+          },
+          { status: 400 }
+        )
+      }
+      return NextResponse.json(
+        {
+          error:
+            'Het bestand kon niet worden gelezen. Controleer of het bestand niet beschadigd of beveiligd is met een wachtwoord.',
+        },
+        { status: 400 }
+      )
+    }
 
     if (rows.length === 0) {
+      if (mimeType === 'text/csv') {
+        return NextResponse.json(
+          {
+            error:
+              'Het CSV-bestand bevat geen gegevensrijen. Controleer of het scheidingsteken (komma of puntkomma) correct is en het bestand daadwerkelijk gegevens bevat.',
+          },
+          { status: 400 }
+        )
+      }
       return NextResponse.json(
-        { error: 'Bestand is leeg of kon niet worden gelezen' },
+        {
+          error:
+            'Het bestand bevat geen gegevens. Controleer of je het juiste werkblad hebt geselecteerd en of er rijen met gegevens aanwezig zijn.',
+        },
         { status: 400 }
-      );
+      )
     }
 
     if (rows.length > 10000) {

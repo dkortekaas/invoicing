@@ -95,18 +95,13 @@ export async function getInvoiceStatusCounts() {
     where: { userId },
     _count: { status: true },
   })
-  const counts: Record<string, number> = {
-    ALL: 0,
-    DRAFT: 0,
-    SENT: 0,
-    PAID: 0,
-    OVERDUE: 0,
-  }
+  const counts: Record<string, number> = { DRAFT: 0, SENT: 0, PAID: 0, OVERDUE: 0 }
+  let total = 0
   for (const g of groups) {
     counts[g.status] = g._count.status
-    counts.ALL += g._count.status
+    total += g._count.status
   }
-  return counts
+  return { ALL: total, ...counts }
 }
 
 /** Returns the distinct years for which invoices exist (for the year filter). */

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { parseFile, detectColumnMapping } from '@/lib/import-export/import-service';
+import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
 import type { EntityType } from '@/lib/import-export/fields';
 
 const VALID_ENTITY_TYPES: EntityType[] = [
@@ -27,6 +28,14 @@ export async function POST(request: NextRequest) {
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Niet ingelogd' }, { status: 401 });
+    }
+
+    const hasAccess = await hasFeatureAccess(session.user.id, 'import');
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'Import is alleen beschikbaar vanaf het Starter abonnement' },
+        { status: 403 }
+      );
     }
 
     const formData = await request.formData();

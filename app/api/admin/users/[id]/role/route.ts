@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { isSuperuser } from '@/lib/auth/admin-guard';
+import { logUpdate } from '@/lib/audit/helpers';
 
 export async function PATCH(
   request: NextRequest,
@@ -38,10 +39,19 @@ export async function PATCH(
       );
     }
 
+    // Fetch the current role before updating so we can log the change
+    const existingUser = await db.user.findUnique({
+      where: { id },
+      select: { role: true },
+    });
+
     const user = await db.user.update({
       where: { id },
       data: { role },
     });
+
+    // Audit log: record who changed whose role and from/to what value
+    await logUpdate('user', id, { role: existingUser?.role }, { role }, session.user.id);
 
     return NextResponse.json(user);
   } catch (error) {

@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit by IP
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
-    const { allowed } = rateLimit(`login:${ip}`, RATE_LIMITS.login)
+    const { allowed } = await rateLimit(`login:${ip}`, RATE_LIMITS.login)
     if (!allowed) {
       return NextResponse.json(
         { error: "Te veel inlogpogingen. Probeer het over 15 minuten opnieuw." },

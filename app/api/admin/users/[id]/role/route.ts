@@ -47,7 +47,8 @@ export async function PATCH(
 
     const user = await db.user.update({
       where: { id },
-      data: { role },
+      // Increment sessionVersion to invalidate any existing JWT sessions for this user
+      data: { role, sessionVersion: { increment: 1 } },
     });
 
     // Audit log: record who changed whose role and from/to what value

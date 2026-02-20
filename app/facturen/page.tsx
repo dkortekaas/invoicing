@@ -125,15 +125,23 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
               {paginatedInvoices.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
-                    <p className="text-muted-foreground">
-                      Nog geen facturen. Maak je eerste factuur!
-                    </p>
-                    <Button asChild className="mt-4">
-                      <Link href="/facturen/nieuw">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Nieuwe Factuur
-                      </Link>
-                    </Button>
+                    {search ? (
+                      <p className="text-muted-foreground">
+                        Geen facturen gevonden voor &ldquo;{search}&rdquo;.
+                      </p>
+                    ) : (
+                      <>
+                        <p className="text-muted-foreground">
+                          Nog geen facturen. Maak je eerste factuur!
+                        </p>
+                        <Button asChild className="mt-4">
+                          <Link href="/facturen/nieuw">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Nieuwe Factuur
+                          </Link>
+                        </Button>
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               ) : (

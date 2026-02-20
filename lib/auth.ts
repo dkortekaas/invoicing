@@ -116,8 +116,40 @@ export const authOptions = {
   callbacks: {
     async jwt({ token, user }: { token: JWT; user?: User | undefined }) {
       if (user) {
+        // Initial sign-in: store the current sessionVersion in the JWT so we
+        // can detect role changes (or other admin-triggered invalidations) on
+        // subsequent requests.
         token.id = user.id
+        const dbUser = await db.user.findUnique({
+          where: { id: user.id as string },
+          select: { sessionVersion: true },
+        })
+        token.sessionVersion = dbUser?.sessionVersion ?? 1
+        token.sessionVersionCheckedAt = Date.now()
+        return token
       }
+
+      // On subsequent calls, re-verify sessionVersion at most once every
+      // 5 minutes to balance security with DB load.
+      const checkedAt = token.sessionVersionCheckedAt as number | undefined
+      const stale = !checkedAt || Date.now() - checkedAt > 5 * 60 * 1000
+      if (stale && token.id) {
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { id: token.id as string },
+            select: { sessionVersion: true },
+          })
+          if (!dbUser || dbUser.sessionVersion !== (token.sessionVersion as number)) {
+            // Session invalidated by a role change or admin action — return
+            // null to destroy the token (NextAuth v5 treats this as sign-out).
+            return null
+          }
+          token.sessionVersionCheckedAt = Date.now()
+        } catch {
+          // DB error — keep the existing token rather than logging everyone out
+        }
+      }
+
       return token
     },
     async session({ session, token }: { session: Session; token: JWT }) {

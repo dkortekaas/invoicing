@@ -14,6 +14,13 @@ interface GetCustomersOptions {
   sortOrder?: "asc" | "desc"
   page?: number
   pageSize?: number
+  /** When true, return only soft-deleted customers (prullenbak view) */
+  deletedOnly?: boolean
+}
+
+export async function getDeletedCustomerCount(): Promise<number> {
+  const userId = await getCurrentUserId()
+  return db.customer.count({ where: { userId, deletedAt: { not: null } } })
 }
 
 export async function getCustomers(options: GetCustomersOptions = {}) {
@@ -24,9 +31,13 @@ export async function getCustomers(options: GetCustomersOptions = {}) {
     sortOrder = "desc",
     page = 1,
     pageSize = 50,
+    deletedOnly = false,
   } = options
 
-  const where: Prisma.CustomerWhereInput = { userId }
+  const where: Prisma.CustomerWhereInput = {
+    userId,
+    deletedAt: deletedOnly ? { not: null } : null,
+  }
   if (search) {
     where.OR = [
       { name: { contains: search, mode: "insensitive" } },
@@ -60,11 +71,12 @@ export async function getCustomers(options: GetCustomersOptions = {}) {
 /**
  * Lightweight customer list for use in form dropdowns.
  * Only fetches the fields needed to render a select input.
+ * Excludes soft-deleted customers.
  */
 export async function getCustomersForDropdown() {
   const userId = await getCurrentUserId()
   return db.customer.findMany({
-    where: { userId },
+    where: { userId, deletedAt: null },
     select: { id: true, name: true, companyName: true, paymentTermDays: true },
     orderBy: { name: "asc" },
   })
@@ -157,34 +169,47 @@ export async function updateCustomer(id: string, data: CustomerFormData) {
 
 export async function deleteCustomer(id: string) {
   const userId = await getCurrentUserId()
-  
-  // Get customer data before deletion for audit logging
+
   const customer = await db.customer.findUnique({
     where: { id, userId },
-    select: {
-      name: true,
-      email: true,
-      companyName: true,
-    },
-  })
-  
-  await db.customer.delete({
-    where: { id, userId },
+    select: { name: true, email: true, companyName: true, deletedAt: true },
   })
 
-  // Log audit trail
-  if (customer) {
-    await logDelete(
-      "customer",
-      id,
-      {
-        name: customer.name,
-        email: customer.email,
-        companyName: customer.companyName,
-      },
-      userId
-    )
-  }
+  if (!customer) throw new Error("Klant niet gevonden")
+
+  // Soft-delete: set deletedAt timestamp
+  await db.customer.update({
+    where: { id, userId },
+    data: { deletedAt: new Date() },
+  })
+
+  await logDelete(
+    "customer",
+    id,
+    { name: customer.name, email: customer.email, companyName: customer.companyName },
+    userId
+  )
+
+  revalidatePath("/klanten")
+}
+
+export async function restoreCustomer(id: string) {
+  const userId = await getCurrentUserId()
+
+  const customer = await db.customer.findUnique({
+    where: { id, userId },
+    select: { name: true, deletedAt: true },
+  })
+
+  if (!customer) throw new Error("Klant niet gevonden")
+  if (!customer.deletedAt) throw new Error("Klant staat niet in de prullenbak")
+
+  await db.customer.update({
+    where: { id, userId },
+    data: { deletedAt: null },
+  })
+
+  await logUpdate("customer", id, { deletedAt: customer.deletedAt }, { deletedAt: null }, userId)
 
   revalidatePath("/klanten")
 }

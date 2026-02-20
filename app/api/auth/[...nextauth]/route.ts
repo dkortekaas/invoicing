@@ -1,6 +1,6 @@
 import { handlers } from "@/lib/auth"
 import { NextRequest, NextResponse } from "next/server"
-import { rateLimit, RATE_LIMITS } from "@/lib/rate-limit"
+import { rateLimit, RATE_LIMITS, retryAfterInfo } from "@/lib/rate-limit"
 
 export const GET = handlers.GET
 
@@ -13,12 +13,13 @@ export async function POST(request: NextRequest) {
   if (url.pathname.endsWith("/callback/credentials")) {
     const ip =
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
-    const { allowed } = await rateLimit(`login:${ip}`, RATE_LIMITS.login)
+    const { allowed, resetAt } = await rateLimit(`login:${ip}`, RATE_LIMITS.login)
 
     if (!allowed) {
+      const { seconds, humanReadable } = retryAfterInfo(resetAt)
       return NextResponse.json(
-        { error: "Te veel inlogpogingen. Probeer het over 15 minuten opnieuw." },
-        { status: 429 }
+        { error: `Te veel inlogpogingen. Probeer het over ${humanReadable} opnieuw.` },
+        { status: 429, headers: { "Retry-After": String(seconds) } }
       )
     }
   }

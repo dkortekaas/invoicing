@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
-import { rateLimit, RATE_LIMITS } from "@/lib/rate-limit"
+import { rateLimit, RATE_LIMITS, retryAfterInfo } from "@/lib/rate-limit"
 
 export async function POST(request: NextRequest) {
   try {
     // Rate limit by IP
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
-    const { allowed } = await rateLimit(`login:${ip}`, RATE_LIMITS.login)
+    const { allowed, resetAt } = await rateLimit(`login:${ip}`, RATE_LIMITS.login)
     if (!allowed) {
+      const { seconds, humanReadable } = retryAfterInfo(resetAt)
       return NextResponse.json(
-        { error: "Te veel inlogpogingen. Probeer het over 15 minuten opnieuw." },
-        { status: 429 }
+        { error: `Te veel inlogpogingen. Probeer het over ${humanReadable} opnieuw.` },
+        { status: 429, headers: { "Retry-After": String(seconds) } }
       )
     }
 

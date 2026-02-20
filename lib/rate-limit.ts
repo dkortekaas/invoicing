@@ -146,6 +146,27 @@ export async function rateLimit(
 }
 
 /**
+ * Returns the number of seconds until a rate-limit resets and a Dutch
+ * human-readable description for use in error messages and Retry-After headers.
+ *
+ * @example
+ *   const { allowed, resetAt } = await rateLimit(key, opts)
+ *   if (!allowed) {
+ *     const { seconds, humanReadable } = retryAfterInfo(resetAt)
+ *     return NextResponse.json(
+ *       { error: `Te veel pogingen. Probeer het over ${humanReadable} opnieuw.` },
+ *       { status: 429, headers: { "Retry-After": String(seconds) } },
+ *     )
+ *   }
+ */
+export function retryAfterInfo(resetAt: number): { seconds: number; humanReadable: string } {
+  const seconds = Math.max(1, Math.ceil((resetAt - Date.now()) / 1000))
+  const humanReadable =
+    seconds < 60 ? `${seconds} seconden` : `${Math.ceil(seconds / 60)} minuten`
+  return { seconds, humanReadable }
+}
+
+/**
  * Rate limit presets for common use cases
  */
 export const RATE_LIMITS = {

@@ -72,8 +72,14 @@ export async function getInvoices(options: GetInvoicesOptions = {}) {
       orderBy,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      // Do not include items — the list view does not need them
-      include: {
+      select: {
+        id: true,
+        invoiceNumber: true,
+        invoiceDate: true,
+        dueDate: true,
+        status: true,
+        total: true,
+        deletedAt: true,
         customer: {
           select: { name: true, companyName: true },
         },
@@ -85,8 +91,6 @@ export async function getInvoices(options: GetInvoicesOptions = {}) {
   return {
     invoices: invoices.map((invoice) => ({
       ...invoice,
-      subtotal: invoice.subtotal.toNumber(),
-      vatAmount: invoice.vatAmount.toNumber(),
       total: invoice.total.toNumber(),
     })),
     total,

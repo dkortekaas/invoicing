@@ -14,38 +14,111 @@ import {
   lockInvoiceExchangeRate,
 } from "@/lib/currency"
 
-export async function getInvoices(status?: string) {
+interface GetInvoicesOptions {
+  status?: string
+  search?: string
+  year?: number
+  sortBy?: "invoiceNumber" | "customerName" | "invoiceDate" | "dueDate" | "total"
+  sortOrder?: "asc" | "desc"
+  page?: number
+  pageSize?: number
+}
+
+export async function getInvoices(options: GetInvoicesOptions = {}) {
   const userId = await getCurrentUserId()
-  const where: Record<string, unknown> = { userId }
+  const {
+    status,
+    search,
+    year,
+    sortBy = "invoiceDate",
+    sortOrder = "desc",
+    page = 1,
+    pageSize = 50,
+  } = options
+
+  const where: Prisma.InvoiceWhereInput = { userId }
+
   if (status && status !== "ALL") {
     where.status = status
   }
+  if (year) {
+    where.invoiceDate = {
+      gte: new Date(year, 0, 1),
+      lt: new Date(year + 1, 0, 1),
+    }
+  }
+  if (search) {
+    where.OR = [
+      { invoiceNumber: { contains: search, mode: "insensitive" } },
+      { customer: { name: { contains: search, mode: "insensitive" } } },
+      { customer: { companyName: { contains: search, mode: "insensitive" } } },
+    ]
+  }
 
-  const invoices = await db.invoice.findMany({
-    where,
-    orderBy: { invoiceDate: "desc" },
-    include: {
-      customer: true,
-      items: true,
-    },
-  })
-  
-  // Convert Decimal fields to numbers for serialization
-  return invoices.map((invoice) => ({
-    ...invoice,
-    subtotal: invoice.subtotal.toNumber(),
-    vatAmount: invoice.vatAmount.toNumber(),
-    total: invoice.total.toNumber(),
-    items: invoice.items.map((item) => ({
-      ...item,
-      quantity: item.quantity.toNumber(),
-      unitPrice: item.unitPrice.toNumber(),
-      vatRate: item.vatRate.toNumber(),
-      subtotal: item.subtotal.toNumber(),
-      vatAmount: item.vatAmount.toNumber(),
-      total: item.total.toNumber(),
+  const orderBy: Prisma.InvoiceOrderByWithRelationInput =
+    sortBy === "customerName"
+      ? { customer: { name: sortOrder } }
+      : { [sortBy]: sortOrder }
+
+  const [invoices, total] = await Promise.all([
+    db.invoice.findMany({
+      where,
+      orderBy,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      // Do not include items — the list view does not need them
+      include: {
+        customer: {
+          select: { name: true, companyName: true },
+        },
+      },
+    }),
+    db.invoice.count({ where }),
+  ])
+
+  return {
+    invoices: invoices.map((invoice) => ({
+      ...invoice,
+      subtotal: invoice.subtotal.toNumber(),
+      vatAmount: invoice.vatAmount.toNumber(),
+      total: invoice.total.toNumber(),
     })),
-  }))
+    total,
+  }
+}
+
+/** Returns invoice counts grouped by status (for the filter tabs). */
+export async function getInvoiceStatusCounts() {
+  const userId = await getCurrentUserId()
+  const groups = await db.invoice.groupBy({
+    by: ["status"],
+    where: { userId },
+    _count: { status: true },
+  })
+  const counts: Record<string, number> = {
+    ALL: 0,
+    DRAFT: 0,
+    SENT: 0,
+    PAID: 0,
+    OVERDUE: 0,
+  }
+  for (const g of groups) {
+    counts[g.status] = g._count.status
+    counts.ALL += g._count.status
+  }
+  return counts
+}
+
+/** Returns the distinct years for which invoices exist (for the year filter). */
+export async function getInvoiceYears(): Promise<number[]> {
+  const userId = await getCurrentUserId()
+  const rows = await db.$queryRaw<{ year: number }[]>`
+    SELECT DISTINCT EXTRACT(YEAR FROM "invoiceDate")::int AS year
+    FROM "Invoice"
+    WHERE "userId" = ${userId}
+    ORDER BY year DESC
+  `
+  return rows.map((r) => r.year)
 }
 
 export async function getInvoice(id: string) {

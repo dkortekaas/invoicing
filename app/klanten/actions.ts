@@ -2,23 +2,72 @@
 
 import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
+import { Prisma } from "@prisma/client"
 import { customerSchema, type CustomerFormData } from "@/lib/validations"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { logCreate, logUpdate, logDelete } from "@/lib/audit/helpers"
 import { requireCompanyDetails } from "@/lib/company-guard"
 
-export async function getCustomers() {
+interface GetCustomersOptions {
+  search?: string
+  sortBy?: "name" | "companyName" | "email" | "city" | "invoiceCount"
+  sortOrder?: "asc" | "desc"
+  page?: number
+  pageSize?: number
+}
+
+export async function getCustomers(options: GetCustomersOptions = {}) {
   const userId = await getCurrentUserId()
-  const customers = await db.customer.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    include: {
-      _count: {
-        select: { invoices: true },
+  const {
+    search,
+    sortBy = "name",
+    sortOrder = "desc",
+    page = 1,
+    pageSize = 50,
+  } = options
+
+  const where: Prisma.CustomerWhereInput = { userId }
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { companyName: { contains: search, mode: "insensitive" } },
+      { email: { contains: search, mode: "insensitive" } },
+      { city: { contains: search, mode: "insensitive" } },
+    ]
+  }
+
+  const orderBy: Prisma.CustomerOrderByWithRelationInput =
+    sortBy === "invoiceCount"
+      ? { invoices: { _count: sortOrder } }
+      : { [sortBy]: sortOrder }
+
+  const [customers, total] = await Promise.all([
+    db.customer.findMany({
+      where,
+      orderBy,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: {
+        _count: { select: { invoices: true } },
       },
-    },
+    }),
+    db.customer.count({ where }),
+  ])
+
+  return { customers, total }
+}
+
+/**
+ * Lightweight customer list for use in form dropdowns.
+ * Only fetches the fields needed to render a select input.
+ */
+export async function getCustomersForDropdown() {
+  const userId = await getCurrentUserId()
+  return db.customer.findMany({
+    where: { userId },
+    select: { id: true, name: true, companyName: true, paymentTermDays: true },
+    orderBy: { name: "asc" },
   })
-  return customers
 }
 
 export async function getCustomer(id: string) {

@@ -7,7 +7,9 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit by IP
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
-    const { allowed, resetAt } = await rateLimit(`login:${ip}`, RATE_LIMITS.login)
+    // Use a separate key so wrong-password checks don't consume the
+    // final-signIn budget (which uses "login:${ip}" in the NextAuth handler).
+    const { allowed, resetAt } = await rateLimit(`check2fa:${ip}`, RATE_LIMITS.login)
     if (!allowed) {
       const { seconds, humanReadable } = retryAfterInfo(resetAt)
       return NextResponse.json(

@@ -18,8 +18,10 @@ export const authOptions = {
         twoFactorCode: { label: "2FA Code", type: "text", optional: true },
       },
       async authorize(credentials) {
+        const dev = process.env.NODE_ENV === "development"
         try {
           if (!credentials?.email || !credentials?.password) {
+            if (dev) console.log("[auth] authorize: missing email or password")
             return null
           }
 
@@ -43,6 +45,7 @@ export const authOptions = {
           )
 
           if (!isValidPassword) {
+            if (dev) console.log("[auth] authorize: invalid password for", email)
             // Log failed login attempt
             await logLoginFailed(email, "Invalid password")
             return null
@@ -53,6 +56,9 @@ export const authOptions = {
             const rawCode = credentials.twoFactorCode as string | undefined
             const twoFactorCode =
               typeof rawCode === "string" ? rawCode.trim().replace(/\s/g, "") : ""
+
+            if (dev) console.log("[auth] authorize: 2FA required, code length:", twoFactorCode.length, "secret present:", !!user.twoFactorSecret)
+
             if (!twoFactorCode) {
               // 2FA is required but not provided
               // The login page should have checked this via /api/auth/check-2fa first
@@ -63,9 +69,17 @@ export const authOptions = {
             // Probeer TOTP via de centrale utility (window: 10 = ±5 min kloktolerantie)
             let isValid = verifyTwoFactorCode(user.twoFactorSecret ?? "", twoFactorCode)
 
+            if (dev) console.log("[auth] authorize: TOTP valid:", isValid)
+
             // Als TOTP mislukt: probeer backup code (8 cijfers)
             if (!isValid) {
-              isValid = await verifyBackupCode(user.id, twoFactorCode)
+              try {
+                isValid = await verifyBackupCode(user.id, twoFactorCode)
+                if (dev) console.log("[auth] authorize: backup code valid:", isValid)
+              } catch (backupErr) {
+                console.error("[auth] authorize: verifyBackupCode threw:", backupErr)
+                // TOTP already failed; backup code error doesn't change the outcome
+              }
             }
 
             if (!isValid) {

@@ -114,6 +114,7 @@ function LoginForm() {
       const result = await signIn("credentials", {
         email: requiresTwoFactor ? email : data.email,
         password: requiresTwoFactor ? password : data.password,
+        twoFactorCode: "",
         redirect: false,
       })
 
@@ -124,9 +125,9 @@ function LoginForm() {
 
       if (result?.error) {
         if (result.error === "CredentialsSignin") {
-          // 2FA codes are now validated in check-2fa before signIn is called.
-          // A CredentialsSignin error here means the password/session is wrong.
-          setError("Inloggen mislukt. Probeer het opnieuw.")
+          // 2FA codes are validated in check-2fa before signIn is called.
+          // A CredentialsSignin error here means the password is wrong.
+          setError("Ongeldige inloggegevens. Controleer je e-mailadres en wachtwoord.")
         } else {
           setError(result.error)
         }

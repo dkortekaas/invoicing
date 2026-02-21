@@ -109,12 +109,13 @@ function LoginForm() {
         // Cookie is now set by check-2fa — proceed to signIn
       }
 
-      // Sign in — for 2FA flows, authorize() reads the pre-auth cookie;
-      // no need to pass twoFactorCode as a credential.
+      // Sign in. For 2FA flows, authorize() first checks the pre-auth cookie set
+      // by check-2fa; if the cookie is inaccessible it falls back to verifying
+      // the actual TOTP code passed here directly.
       const result = await signIn("credentials", {
         email: requiresTwoFactor ? email : data.email,
         password: requiresTwoFactor ? password : data.password,
-        twoFactorCode: "",
+        twoFactorCode: requiresTwoFactor ? ((data.twoFactorCode ?? "").trim()) : "",
         redirect: false,
       })
 

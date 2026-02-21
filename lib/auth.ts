@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs"
 import NextAuth from "next-auth"
 import type { JWT } from "next-auth/jwt"
 import type { Session, User } from "next-auth"
-import { verifyBackupCode, verifyTwoFactorCode } from "./auth-utils"
+import { verifyBackupCode, verifyTwoFactorCode, verifyPreAuthCookie } from "./auth-utils"
 import { logLogin, logLoginFailed } from "./audit/helpers"
 import { captureException } from "./error-monitoring"
 
@@ -17,7 +17,8 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
         twoFactorCode: { label: "2FA Code", type: "text", optional: true },
       },
-      async authorize(credentials) {
+      // NextAuth v5 passes the raw Request as the second argument.
+      async authorize(credentials, request) {
         const dev = process.env.NODE_ENV === "development"
         try {
           if (!credentials?.email || !credentials?.password) {
@@ -33,59 +34,62 @@ export const authOptions = {
           })
 
           if (!user) {
-            // Log failed login attempt
             await logLoginFailed(email, "User not found")
             return null
           }
 
           // Verify password
-          const isValidPassword = await bcrypt.compare(
-            password,
-            user.passwordHash
-          )
+          const isValidPassword = await bcrypt.compare(password, user.passwordHash)
 
           if (!isValidPassword) {
             if (dev) console.log("[auth] authorize: invalid password for", email)
-            // Log failed login attempt
             await logLoginFailed(email, "Invalid password")
             return null
           }
 
-          // If 2FA is enabled, verify the code
+          // If 2FA is enabled, the login page first POSTs to /api/auth/check-2fa
+          // which verifies the TOTP code and sets a short-lived signed cookie
+          // (2fa_preauth).  We read that cookie here to confirm the check was done.
+          // This avoids relying on NextAuth's credential-passing for the code itself.
           if (user.twoFactorEnabled) {
-            const rawCode = credentials.twoFactorCode as string | undefined
-            const twoFactorCode =
-              typeof rawCode === "string" ? rawCode.trim().replace(/\s/g, "") : ""
+            // ── Primary path: pre-auth cookie set by check-2fa ────────────────
+            const cookieHeader = (request as Request | undefined)?.headers?.get?.("cookie") ?? ""
+            const match = cookieHeader.match(/(?:^|;\s*)2fa_preauth=([^;]+)/)
+            const preAuthValue = match ? decodeURIComponent(match[1]!) : null
 
-            if (dev) console.log("[auth] authorize: 2FA required, code length:", twoFactorCode.length, "secret present:", !!user.twoFactorSecret)
+            if (dev) console.log("[auth] authorize: 2FA required, preAuthCookie present:", !!preAuthValue)
 
-            if (!twoFactorCode) {
-              // 2FA is required but not provided
-              // The login page should have checked this via /api/auth/check-2fa first
-              // This is expected behavior, not an error
-              return null
-            }
+            if (preAuthValue && verifyPreAuthCookie(preAuthValue, user.id)) {
+              // Cookie verifies — 2FA already confirmed by check-2fa
+              if (dev) console.log("[auth] authorize: pre-auth cookie valid, allowing login")
+            } else {
+              // ── Fallback path: twoFactorCode credential (kept for compatibility) ─
+              const rawCode = credentials.twoFactorCode as string | undefined
+              const twoFactorCode =
+                typeof rawCode === "string" ? rawCode.trim().replace(/\s/g, "") : ""
 
-            // Probeer TOTP via de centrale utility (window: 10 = ±5 min kloktolerantie)
-            let isValid = verifyTwoFactorCode(user.twoFactorSecret ?? "", twoFactorCode)
+              if (dev) console.log("[auth] authorize: fallback TOTP, code length:", twoFactorCode.length, "secret present:", !!user.twoFactorSecret)
 
-            if (dev) console.log("[auth] authorize: TOTP valid:", isValid)
-
-            // Als TOTP mislukt: probeer backup code (8 cijfers)
-            if (!isValid) {
-              try {
-                isValid = await verifyBackupCode(user.id, twoFactorCode)
-                if (dev) console.log("[auth] authorize: backup code valid:", isValid)
-              } catch (backupErr) {
-                console.error("[auth] authorize: verifyBackupCode threw:", backupErr)
-                // TOTP already failed; backup code error doesn't change the outcome
+              if (!twoFactorCode) {
+                return null
               }
-            }
 
-            if (!isValid) {
-              // Log failed login attempt
-              await logLoginFailed(email, "Invalid 2FA code")
-              return null
+              let isValid = verifyTwoFactorCode(user.twoFactorSecret ?? "", twoFactorCode)
+              if (dev) console.log("[auth] authorize: TOTP valid:", isValid)
+
+              if (!isValid) {
+                try {
+                  isValid = await verifyBackupCode(user.id, twoFactorCode)
+                  if (dev) console.log("[auth] authorize: backup code valid:", isValid)
+                } catch (backupErr) {
+                  console.error("[auth] authorize: verifyBackupCode threw:", backupErr)
+                }
+              }
+
+              if (!isValid) {
+                await logLoginFailed(email, "Invalid 2FA code")
+                return null
+              }
             }
           }
 

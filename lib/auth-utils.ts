@@ -4,6 +4,63 @@ import speakeasy from "speakeasy"
 import QRCode from "qrcode"
 import { db } from "./db"
 
+// ─── Pre-auth cookie helpers ──────────────────────────────────────────────────
+// Used to communicate a completed 2FA verification from the check-2fa API route
+// to authorize() without relying on NextAuth credential passing.
+
+function getPreAuthSecret(): string {
+  return process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? "dev-fallback-secret"
+}
+
+/**
+ * Generates a short-lived signed cookie value that proves the user passed 2FA.
+ * Format: "<userId>:<expiry>:<hmac-hex>"
+ * Valid for 2 minutes (enough time to call signIn after check-2fa).
+ */
+export function generatePreAuthCookie(userId: string): string {
+  const expiry = Date.now() + 2 * 60 * 1000 // 2 minutes
+  const payload = `${userId}:${expiry}`
+  const sig = crypto
+    .createHmac("sha256", getPreAuthSecret())
+    .update(payload)
+    .digest("hex")
+  return `${payload}:${sig}`
+}
+
+/**
+ * Returns true when the cookie value is a valid, unexpired pre-auth token
+ * for the given userId.
+ */
+export function verifyPreAuthCookie(value: string, userId: string): boolean {
+  try {
+    const lastColon = value.lastIndexOf(":")
+    if (lastColon === -1) return false
+    const payload = value.slice(0, lastColon)
+    const sig = value.slice(lastColon + 1)
+
+    const parts = payload.split(":")
+    if (parts.length < 2) return false
+    const storedUserId = parts.slice(0, -1).join(":")
+    const expiry = parseInt(parts[parts.length - 1]!, 10)
+
+    if (storedUserId !== userId) return false
+    if (isNaN(expiry) || Date.now() > expiry) return false
+
+    const expectedSig = crypto
+      .createHmac("sha256", getPreAuthSecret())
+      .update(payload)
+      .digest("hex")
+
+    // Constant-time comparison to prevent timing attacks
+    const sigBuf = Buffer.from(sig.padEnd(expectedSig.length, "0"), "hex")
+    const expBuf = Buffer.from(expectedSig, "hex")
+    if (sigBuf.length !== expBuf.length) return false
+    return crypto.timingSafeEqual(sigBuf, expBuf)
+  } catch {
+    return false
+  }
+}
+
 /**
  * Hash een wachtwoord
  */

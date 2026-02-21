@@ -29,8 +29,18 @@ export const authOptions = {
           const email = credentials.email as string
           const password = credentials.password as string
 
+          // Explicit select to avoid querying columns that may not exist yet
+          // (e.g. sessionVersion before the migration is applied).
           const user = await db.user.findUnique({
             where: { email },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              passwordHash: true,
+              twoFactorEnabled: true,
+              twoFactorSecret: true,
+            },
           })
 
           if (!user) {

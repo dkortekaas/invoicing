@@ -56,6 +56,14 @@ function LoginForm() {
           body: JSON.stringify({ email: data.email, password: data.password }),
         })
 
+        if (response.status === 429) {
+          // Rate limited — show the error message from the response body
+          const body = await response.json().catch(() => ({}))
+          setError(body.error ?? "Te veel inlogpogingen. Probeer het later opnieuw.")
+          setIsLoading(false)
+          return
+        }
+
         if (response.ok) {
           const { requires2FA } = await response.json()
           if (requires2FA) {

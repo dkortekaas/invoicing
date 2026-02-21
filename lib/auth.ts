@@ -120,11 +120,16 @@ export const authOptions = {
         // can detect role changes (or other admin-triggered invalidations) on
         // subsequent requests.
         token.id = user.id
-        const dbUser = await db.user.findUnique({
-          where: { id: user.id as string },
-          select: { sessionVersion: true },
-        })
-        token.sessionVersion = dbUser?.sessionVersion ?? 1
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { id: user.id as string },
+            select: { sessionVersion: true },
+          })
+          token.sessionVersion = dbUser?.sessionVersion ?? 1
+        } catch {
+          // Graceful fallback if sessionVersion column is missing (migration not yet applied)
+          token.sessionVersion = 1
+        }
         token.sessionVersionCheckedAt = Date.now()
         return token
       }

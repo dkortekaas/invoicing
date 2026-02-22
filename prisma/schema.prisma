@@ -1956,6 +1956,11 @@ enum ReminderStatus {
   FAILED  // Mislukt
 }
 
+enum ReminderType {
+  MANUAL // Handmatig verstuurd door gebruiker
+  AUTO   // Automatisch verstuurd op basis van schema
+}
+
 // Offerte model
 
 model Quote {
@@ -2109,9 +2114,10 @@ model QuoteSigningReminder {
   quoteId String
   quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
 
-  scheduledAt DateTime         // Wanneer moet de herinnering verstuurd worden
-  sentAt      DateTime?        // Wanneer daadwerkelijk verstuurd
-  status      ReminderStatus   @default(PENDING)
+  scheduledAt  DateTime       // Wanneer moet de herinnering verstuurd worden
+  sentAt       DateTime?      // Wanneer daadwerkelijk verstuurd
+  status       ReminderStatus @default(PENDING)
+  reminderType ReminderType   @default(AUTO) // Handmatig of automatisch verstuurd
 
   recipient String  // E-mailadres ontvanger
   subject   String? // Onderwerp van de herinnering
@@ -2170,6 +2176,9 @@ model UserSigningSettings {
   // Herinnering instellingen
   sendReminders Boolean @default(true)  // Herinneringen versturen
   reminderDays  Int[]   @default([7, 3]) // Dagen vóór verloopdatum voor herinnering
+
+  // Handtekening vereisten
+  requireDrawnSignature Boolean @default(false) // Alleen getekende handtekening accepteren (geen getypte)
 
   // Huisstijl ondertekeningspagina
   signingPageMessage String? // Persoonlijk bericht op de ondertekeningspagina

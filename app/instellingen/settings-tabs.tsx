@@ -18,6 +18,7 @@ const settingsTabs = [
   { value: "fiscaal", label: "Fiscaal" },
   { value: "email", label: "Email" },
   { value: "betalingen", label: "Betalingen" },
+  { value: "ondertekening", label: "Ondertekening" },
   { value: "abonnement", label: "Abonnement" },
   { value: "import-export", label: "Import/Export" },
 ] as const
@@ -51,7 +52,7 @@ export function SettingsTabs({ defaultTab, children }: SettingsTabsProps) {
       </div>
 
       {/* Desktop: Tabs */}
-      <TabsList className="hidden md:grid w-full grid-cols-9">
+      <TabsList className="hidden md:grid w-full grid-cols-10">
         {settingsTabs.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value}>
             {tab.label}

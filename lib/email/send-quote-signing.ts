@@ -143,7 +143,10 @@ export async function sendSigningInvitationEmail(quoteId: string) {
 
 // ─── 2. Herinnering ondertekening → klant ────────────────────────────────────
 
-export async function sendSigningReminderEmail(quoteId: string) {
+export async function sendSigningReminderEmail(
+  quoteId: string,
+  options: { reminderType?: "MANUAL" | "AUTO" } = {},
+) {
   const quote = await fetchQuote(quoteId)
 
   if (!quote.customer.email) throw new Error("Klant heeft geen e-mailadres")
@@ -194,6 +197,7 @@ export async function sendSigningReminderEmail(quoteId: string) {
         sentAt: new Date(),
         status: "SENT",
         subject,
+        reminderType: options.reminderType ?? "AUTO",
       },
     }),
     logReminderSent(quoteId, quote.customer.email, daysUntilExpiry),

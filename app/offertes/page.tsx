@@ -37,10 +37,11 @@ interface OffortesPageProps {
 
 export default async function OffertesPage({ searchParams }: OffortesPageProps) {
   const params = await searchParams
+  const currentYearNum = new Date().getFullYear()
   const status = params.status || "ALL"
   const signingStatus = params.signingStatus || "ALL"
   const search = params.search || ""
-  const yearParam = params.year ? parseInt(params.year, 10) : null
+  const yearParam = params.year === "all" ? null : (params.year ? parseInt(params.year, 10) : currentYearNum)
   const currentPage = Math.max(1, parseInt(params.page || "1", 10) || 1)
 
   const [{ quotes, total: totalItems }, statusCounts] = await Promise.all([

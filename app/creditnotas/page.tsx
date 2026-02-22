@@ -37,9 +37,10 @@ interface CreditNotasPageProps {
 
 export default async function CreditNotasPage({ searchParams }: CreditNotasPageProps) {
   const params = await searchParams
+  const currentYearNum = new Date().getFullYear()
   const status = params.status || "ALL"
   const search = params.search || ""
-  const yearParam = params.year ? parseInt(params.year, 10) : null
+  const yearParam = params.year === "all" ? null : (params.year ? parseInt(params.year, 10) : currentYearNum)
   const sortBy = isCreditNoteSortKey(params.sortBy) ? params.sortBy : "creditNoteDate"
   const sortOrder = params.sortOrder === "asc" ? "asc" : "desc"
 
@@ -139,7 +140,7 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
                   const years = new Set(allCreditNotes.map((cn: typeof allCreditNotes[0]) => new Date(cn.creditNoteDate).getFullYear()))
                   return Array.from(years).sort((a, b) => b - a)
                 })()}
-                currentYear={params.year ?? null}
+                currentYear={params.year === "all" ? "all" : (params.year ?? String(currentYearNum))}
               />
             </div>
           </div>

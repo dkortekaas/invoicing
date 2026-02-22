@@ -42,10 +42,11 @@ interface FacturenPageProps {
 
 export default async function FacturenPage({ searchParams }: FacturenPageProps) {
   const params = await searchParams
+  const currentYearNum = new Date().getFullYear()
   const showDeleted = params.deleted === "true"
   const status = params.status || "ALL"
   const search = params.search || ""
-  const yearParam = params.year ? parseInt(params.year, 10) : null
+  const yearParam = params.year === "all" ? null : (params.year ? parseInt(params.year, 10) : currentYearNum)
   const sortBy = isInvoiceSortKey(params.sortBy) ? params.sortBy : "invoiceDate"
   const sortOrder = params.sortOrder === "asc" ? "asc" : "desc"
   const currentPage = Math.max(1, parseInt(params.page || "1", 10) || 1)
@@ -123,7 +124,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
               <SearchForm currentStatus={status} />
               <YearFilterSelect
                 years={years}
-                currentYear={params.year ?? null}
+                currentYear={params.year === "all" ? "all" : (params.year ?? String(currentYearNum))}
               />
             </div>
           </div>

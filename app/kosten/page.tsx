@@ -63,8 +63,9 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
   }
 
   const params = await searchParams;
+  const currentYearNum = new Date().getFullYear();
   const search = params.search ?? '';
-  const yearParam = params.year ? parseInt(params.year, 10) : null;
+  const yearParam = params.year === 'all' ? null : (params.year ? parseInt(params.year, 10) : currentYearNum);
   const sortBy = isValidSortKey(params.sortBy) ? params.sortBy : 'date';
   const sortOrder = params.sortOrder === 'asc' ? 'asc' : 'desc';
   const currentPage = Math.max(1, parseInt(params.page || '1', 10) || 1);
@@ -174,7 +175,7 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
         <CardHeader className="pb-3">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <SearchForm />
-            <YearFilterSelect years={yearsList} currentYear={params.year ?? null} />
+            <YearFilterSelect years={yearsList} currentYear={params.year === 'all' ? 'all' : (params.year ?? String(currentYearNum))} />
           </div>
         </CardHeader>
         <CardContent className="p-0">

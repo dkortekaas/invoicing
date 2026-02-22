@@ -22,7 +22,7 @@ export function YearFilterSelect({ years, currentYear }: YearFilterSelectProps) 
   function onValueChange(value: string) {
     const params = new URLSearchParams(searchParams.toString())
     if (value === "all") {
-      params.delete("year")
+      params.set("year", "all")
     } else {
       params.set("year", value)
     }
@@ -30,7 +30,7 @@ export function YearFilterSelect({ years, currentYear }: YearFilterSelectProps) 
   }
 
   return (
-    <Select value={currentYear ?? "all"} onValueChange={onValueChange}>
+    <Select value={currentYear === "all" ? "all" : (currentYear ?? String(new Date().getFullYear()))} onValueChange={onValueChange}>
       <SelectTrigger className="w-[140px]">
         <SelectValue placeholder="Jaar" />
       </SelectTrigger>

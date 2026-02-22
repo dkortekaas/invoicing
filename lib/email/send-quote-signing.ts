@@ -13,6 +13,7 @@ import { format } from "date-fns"
 import { nl } from "date-fns/locale"
 import { resend, EMAIL_CONFIG } from "./client"
 import { db } from "@/lib/db"
+import { logSigningLinkSent, logReminderSent } from "@/lib/quotes/signing-events"
 import QuoteSigningInvitationEmail from "@/emails/quote-signing-invitation-email"
 import QuoteSigningReminderEmail from "@/emails/quote-signing-reminder-email"
 import QuoteSignedConfirmationEmail from "@/emails/quote-signed-confirmation-email"
@@ -134,6 +135,9 @@ export async function sendSigningInvitationEmail(quoteId: string) {
     },
   })
 
+  // Audittrail: SENT event loggen
+  await logSigningLinkSent(quoteId, quote.customer.email)
+
   return { success: true, emailId: data?.id }
 }
 
@@ -180,17 +184,20 @@ export async function sendSigningReminderEmail(quoteId: string) {
 
   await logQuoteEmail(quoteId, "SIGNING_REMINDER", quote.customer.email, subject, "SENT", { resendId: data?.id })
 
-  // Log reminder event
-  await db.quoteSigningReminder.create({
-    data: {
-      quoteId,
-      recipient: quote.customer.email,
-      scheduledAt: new Date(),
-      sentAt: new Date(),
-      status: "SENT",
-      subject,
-    },
-  })
+  // Log reminder event + audittrail
+  await Promise.allSettled([
+    db.quoteSigningReminder.create({
+      data: {
+        quoteId,
+        recipient: quote.customer.email,
+        scheduledAt: new Date(),
+        sentAt: new Date(),
+        status: "SENT",
+        subject,
+      },
+    }),
+    logReminderSent(quoteId, quote.customer.email, daysUntilExpiry),
+  ])
 
   return { success: true, emailId: data?.id }
 }

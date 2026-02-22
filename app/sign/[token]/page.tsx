@@ -6,8 +6,9 @@
  * (rate limiting + tokenvalidatie + statuscontrole).
  *
  * Events die hier worden gelogd:
- *   - SIGNING_STARTED  → pagina geopend (= SIGNING_LINK_OPENED)
- *   - VIEWED           → offerte bekeken (= QUOTE_VIEWED, eerste keer)
+ *   - SIGNING_STARTED  → pagina geopend (= link geopend)
+ *   - VIEWED           → offerte bekeken (eerste keer)
+ *   - EXPIRED          → verlopen link bezocht (+ status DB-update)
  */
 
 import { headers } from "next/headers"
@@ -16,7 +17,7 @@ import { AlertCircle, CheckCircle2, Clock, XCircle } from "lucide-react"
 import type { Metadata } from "next"
 
 import { validateSigningAccess } from "@/lib/quotes/signing-guard"
-import { logSigningEvent, markQuoteViewed } from "@/lib/quotes/signing-events"
+import { logSigningEvent, markQuoteViewed, markSigningExpired } from "@/lib/quotes/signing-events"
 import { formatDate, formatDateLong, formatCurrencyWithCode } from "@/lib/utils"
 import { db } from "@/lib/db"
 import { Badge } from "@/components/ui/badge"
@@ -71,10 +72,24 @@ export default async function SignPage({ params }: Props) {
 
   const { quote } = result
 
+  const now = new Date()
+  const isSigned = quote.signingStatus === "SIGNED"
+  const isDeclined = quote.signingStatus === "DECLINED"
+  const isExpired =
+    !isSigned &&
+    !isDeclined &&
+    quote.signingExpiresAt != null &&
+    now > quote.signingExpiresAt
+
   // Events loggen (niet-blokkerend via Promise.allSettled)
+  const eventContext = { ipAddress: ip, userAgent }
   await Promise.allSettled([
-    logSigningEvent(quote.id, QuoteSigningEventType.SIGNING_STARTED, { ipAddress: ip, userAgent }),
-    markQuoteViewed(quote.id, { ipAddress: ip, userAgent }),
+    logSigningEvent(quote.id, QuoteSigningEventType.SIGNING_STARTED, eventContext),
+    markQuoteViewed(quote.id, eventContext),
+    // Lazy expiry: bij eerste bezoek na verloopdatum status bijwerken
+    isExpired
+      ? markSigningExpired(quote.id, eventContext)
+      : Promise.resolve(),
   ])
 
   // Haal de aangepaste akkoordtekst op (valt terug op de standaardtekst)
@@ -85,15 +100,6 @@ export default async function SignPage({ params }: Props) {
   const agreementText = userSettings?.agreementText ?? DEFAULT_AGREEMENT_TEXT
 
   const company = quote.user.company
-  const now = new Date()
-
-  const isSigned = quote.signingStatus === "SIGNED"
-  const isDeclined = quote.signingStatus === "DECLINED"
-  const isExpired =
-    !isSigned &&
-    !isDeclined &&
-    quote.signingExpiresAt != null &&
-    now > quote.signingExpiresAt
 
   return (
     <SigningLayout>

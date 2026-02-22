@@ -5,9 +5,9 @@ description: Ontdek welke functionaliteiten we aan het bouwen zijn en wat er op 
 
 ## In ontwikkeling
 
-- **Meerdere talen in facturen** – Facturen en offertes in het Engels of andere talen aanmaken.
-- **Verbeterde zoekfunctie** – Sneller zoeken in klanten, facturen en producten.
 - **Digitale offerte-ondertekening** – Klanten kunnen offertes online accepteren met een rechtsgeldige elektronische handtekening (naam + timestamp). Bij akkoord wordt automatisch een factuur gegenereerd. Snellere doorlooptijd en integratie met het klantportaal.
+- **Meerdere talen in facturen** – Facturen en offertes in het Engels aanmaken.
+- **Verbeterde zoekfunctie** – Sneller zoeken in klanten, facturen en producten.
 
 ## Gepland
 

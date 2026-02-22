@@ -204,6 +204,9 @@ model Customer {
   vatCountry  String? // Land voor ICP
   vatReversed Boolean @default(false) // Verlegd BTW van toepassing
 
+  // Klantportaal — uniek token voor toegang tot de klant-specifieke portaalpagina
+  portalToken String? @unique
+
   deletedAt DateTime? // Soft-delete: set when customer is moved to trash
 
   createdAt DateTime @default(now())
@@ -211,6 +214,7 @@ model Customer {
 
   @@index([userId])
   @@index([deletedAt])
+  @@index([portalToken])
 }
 
 model Product {

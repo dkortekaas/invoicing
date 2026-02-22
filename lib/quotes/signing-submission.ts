@@ -13,6 +13,7 @@ import { z } from "zod"
 import { db } from "@/lib/db"
 import { logSigningEvent } from "./signing-events"
 import { QuoteSigningEventType, SignatureMethod } from "@prisma/client"
+import { generateSignedPdf } from "./generate-signed-pdf"
 import {
   sendSignedConfirmationEmail,
   sendSignedNotificationEmail,
@@ -193,12 +194,14 @@ export async function processSignRequest(
       data: {
         quoteId,
         signerName: input.signerName,
+        signerRole: input.signerRole ?? null,
         signerEmail: input.signerEmail,
         signerIpAddress: context.ipAddress ?? null,
         signerUserAgent: context.userAgent ?? null,
         signatureMethod: input.signatureType as SignatureMethod,
         signatureData: input.signatureData,
         agreementText: context.agreementText ?? DEFAULT_AGREEMENT_TEXT,
+        remarks: input.remarks ?? null,
         signedAt: now,
       },
     })
@@ -227,9 +230,12 @@ export async function processSignRequest(
     },
   })
 
-  // E-mailnotificaties — fire-and-forget (fouten blokkeren de response niet)
+  // E-mailnotificaties + PDF-generatie — fire-and-forget
+  // PDF-generatie mislukt → bevestigingse-mail wordt zonder bijlage verstuurd
   Promise.allSettled([
-    sendSignedConfirmationEmail(quoteId),
+    generateSignedPdf(quoteId)
+      .then((pdfBuffer) => sendSignedConfirmationEmail(quoteId, pdfBuffer))
+      .catch(() => sendSignedConfirmationEmail(quoteId)),
     sendSignedNotificationEmail(quoteId),
   ]).catch(() => {
     // Fouten worden gelogd in QuoteEmailLog door de send-functies zelf

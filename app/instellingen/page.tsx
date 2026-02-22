@@ -116,6 +116,8 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
               requireDrawnSignature: signingSettings?.requireDrawnSignature ?? false,
               agreementText: signingSettings?.agreementText,
               signingPageMessage: signingSettings?.signingPageMessage,
+              logoUrl: signingSettings?.logoUrl,
+              primaryColor: signingSettings?.primaryColor,
             }}
           />
         </TabsContent>

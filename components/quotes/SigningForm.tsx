@@ -55,6 +55,8 @@ interface FieldErrors {
 export interface SigningFormProps {
   token: string
   agreementText: string
+  /** Optionele primaire kleur (#RRGGBB) voor branding van de submit-knop. */
+  primaryColor?: string
 }
 
 // ─── Client-side validatie ───────────────────────────────────────────────────
@@ -97,7 +99,7 @@ function validateForm(
 
 // ─── Hoofdcomponent ───────────────────────────────────────────────────────────
 
-export default function SigningForm({ token, agreementText }: SigningFormProps) {
+export default function SigningForm({ token, agreementText, primaryColor }: SigningFormProps) {
   const canvasRef = useRef<SignatureCanvasRef>(null)
 
   const [phase, setPhase] = useState<Phase>("form")
@@ -510,6 +512,11 @@ export default function SigningForm({ token, agreementText }: SigningFormProps) 
           onClick={handleSign}
           disabled={isLoading}
           className="sm:ml-auto"
+          style={
+            primaryColor
+              ? { backgroundColor: primaryColor, borderColor: primaryColor }
+              : undefined
+          }
         >
           {isLoading ? "Bezig met verwerken…" : "Offerte goedkeuren →"}
         </Button>

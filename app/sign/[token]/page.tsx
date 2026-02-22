@@ -92,24 +92,40 @@ export default async function SignPage({ params }: Props) {
       : Promise.resolve(),
   ])
 
-  // Haal de aangepaste akkoordtekst op (valt terug op de standaardtekst)
+  // Haal gebruikersinstellingen op: akkoordtekst, branding, persoonlijk bericht
   const userSettings = await db.userSigningSettings.findUnique({
     where: { userId: quote.userId },
-    select: { agreementText: true },
+    select: {
+      agreementText: true,
+      logoUrl: true,
+      primaryColor: true,
+      signingPageMessage: true,
+    },
   })
   const agreementText = userSettings?.agreementText ?? DEFAULT_AGREEMENT_TEXT
+  const primaryColor = userSettings?.primaryColor ?? undefined
 
   const company = quote.user.company
+  // Brandinglogo: instellingen-override heeft prioriteit boven bedrijfslogo
+  const logoSrc = userSettings?.logoUrl ?? company?.logo ?? null
 
   return (
-    <SigningLayout>
+    <SigningLayout primaryColor={primaryColor}>
+      {/* Kleuraccent balk bovenin */}
+      {primaryColor && (
+        <div
+          className="fixed top-0 left-0 right-0 h-1 z-50"
+          style={{ backgroundColor: primaryColor }}
+        />
+      )}
+
       {/* Bedrijfsbranding */}
       <header className="text-center space-y-3 pb-2">
-        {company?.logo && (
+        {logoSrc && (
           <div className="flex justify-center">
             <Image
-              src={company.logo}
-              alt={company.name ?? "Bedrijfslogo"}
+              src={logoSrc}
+              alt={company?.name ?? "Bedrijfslogo"}
               width={140}
               height={70}
               className="max-h-[70px] w-auto object-contain"
@@ -118,6 +134,11 @@ export default async function SignPage({ params }: Props) {
         )}
         {company?.name && (
           <p className="text-base font-semibold text-gray-900">{company.name}</p>
+        )}
+        {userSettings?.signingPageMessage && (
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            {userSettings.signingPageMessage}
+          </p>
         )}
       </header>
 
@@ -270,7 +291,11 @@ export default async function SignPage({ params }: Props) {
       {!isSigned && !isDeclined && !isExpired && (
         <Card id="signing-area">
           <CardContent className="pt-6">
-            <SigningForm token={token} agreementText={agreementText} />
+            <SigningForm
+              token={token}
+              agreementText={agreementText}
+              primaryColor={primaryColor}
+            />
           </CardContent>
         </Card>
       )}
@@ -285,9 +310,18 @@ export default async function SignPage({ params }: Props) {
 
 // ─── Sub-componenten ──────────────────────────────────────────────────────────
 
-function SigningLayout({ children }: { children: React.ReactNode }) {
+function SigningLayout({
+  children,
+  primaryColor,
+}: {
+  children: React.ReactNode
+  primaryColor?: string
+}) {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div
+      className="min-h-screen bg-slate-50"
+      style={primaryColor ? ({ "--signing-primary": primaryColor } as React.CSSProperties) : undefined}
+    >
       <main className="mx-auto max-w-2xl px-4 py-8 space-y-5">{children}</main>
     </div>
   )

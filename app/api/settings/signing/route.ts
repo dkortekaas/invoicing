@@ -14,12 +14,20 @@ export const dynamic = "force-dynamic"
 
 // ─── Validatie schema ─────────────────────────────────────────────────────────
 
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/
+
 const signingSettingsSchema = z.object({
   defaultExpiryDays: z.number().int().min(1).max(365),
   autoCreateInvoice: z.boolean(),
   requireDrawnSignature: z.boolean(),
   agreementText: z.string().max(2000).optional().nullable(),
   signingPageMessage: z.string().max(1000).optional().nullable(),
+  logoUrl: z.string().url("Voer een geldige URL in").max(2048).optional().nullable(),
+  primaryColor: z
+    .string()
+    .regex(HEX_COLOR_RE, "Voer een geldige hex-kleur in (#RRGGBB)")
+    .optional()
+    .nullable(),
 })
 
 // ─── GET ──────────────────────────────────────────────────────────────────────
@@ -44,6 +52,8 @@ export async function GET() {
       requireDrawnSignature: false,
       agreementText: null,
       signingPageMessage: null,
+      logoUrl: null,
+      primaryColor: null,
     },
   )
 }
@@ -80,11 +90,15 @@ export async function PATCH(request: NextRequest) {
       ...parsed.data,
       agreementText: parsed.data.agreementText ?? null,
       signingPageMessage: parsed.data.signingPageMessage ?? null,
+      logoUrl: parsed.data.logoUrl ?? null,
+      primaryColor: parsed.data.primaryColor ?? null,
     },
     update: {
       ...parsed.data,
       agreementText: parsed.data.agreementText ?? null,
       signingPageMessage: parsed.data.signingPageMessage ?? null,
+      logoUrl: parsed.data.logoUrl ?? null,
+      primaryColor: parsed.data.primaryColor ?? null,
     },
   })
 

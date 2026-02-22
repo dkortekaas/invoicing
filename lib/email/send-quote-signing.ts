@@ -145,7 +145,7 @@ export async function sendSigningInvitationEmail(quoteId: string) {
 
 export async function sendSigningReminderEmail(
   quoteId: string,
-  options: { reminderType?: "MANUAL" | "AUTO" } = {},
+  options: { reminderType?: "MANUAL" | "AUTO" | "AUTO_7_DAYS" | "AUTO_3_DAYS" | "AUTO_EXPIRY" } = {},
 ) {
   const quote = await fetchQuote(quoteId)
 

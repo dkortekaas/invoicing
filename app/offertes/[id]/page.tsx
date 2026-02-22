@@ -1,0 +1,342 @@
+import { notFound } from "next/navigation"
+import Link from "next/link"
+import {
+  ArrowLeft,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Eye,
+  Send,
+  AlertCircle,
+  FileCheck,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { formatCurrency, formatDate } from "@/lib/utils"
+import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge"
+import { SigningStatusBadge } from "@/components/quotes/signing-status-badge"
+import { getQuoteById } from "../actions"
+
+interface QuoteDetailPageProps {
+  params: Promise<{ id: string }>
+}
+
+const SIGNING_EVENT_LABELS: Record<string, string> = {
+  CREATED: "Offerte aangemaakt",
+  SENT: "Ondertekeningsverzoek verstuurd",
+  VIEWED: "Offerte bekeken",
+  SIGNING_STARTED: "Ondertekeningspagina geopend",
+  SIGNED: "Ondertekend",
+  DECLINED: "Afgewezen",
+  EXPIRED: "Verlopen",
+  REMINDER_SENT: "Herinnering verstuurd",
+  INVOICE_CREATED: "Factuur aangemaakt",
+}
+
+const SIGNING_EVENT_ICONS: Record<string, React.ReactNode> = {
+  CREATED: <Clock className="h-4 w-4 text-gray-500" />,
+  SENT: <Send className="h-4 w-4 text-blue-500" />,
+  VIEWED: <Eye className="h-4 w-4 text-indigo-500" />,
+  SIGNING_STARTED: <FileCheck className="h-4 w-4 text-yellow-500" />,
+  SIGNED: <CheckCircle2 className="h-4 w-4 text-green-500" />,
+  DECLINED: <XCircle className="h-4 w-4 text-red-500" />,
+  EXPIRED: <AlertCircle className="h-4 w-4 text-orange-500" />,
+  REMINDER_SENT: <Clock className="h-4 w-4 text-blue-400" />,
+  INVOICE_CREATED: <CheckCircle2 className="h-4 w-4 text-purple-500" />,
+}
+
+export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) {
+  const { id } = await params
+  const quote = await getQuoteById(id)
+
+  if (!quote) notFound()
+
+  const subtotal = Number(quote.subtotal)
+  const vatAmount = Number(quote.vatAmount)
+  const total = Number(quote.total)
+  const isSigned = quote.status === "SIGNED"
+  const isDeclined = quote.status === "DECLINED"
+  const isExpired = quote.status === "EXPIRED"
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/offertes">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-bold tracking-tight">{quote.quoteNumber}</h2>
+            <QuoteStatusBadge status={quote.status} />
+            {quote.signingEnabled && (
+              <SigningStatusBadge status={quote.signingStatus} />
+            )}
+          </div>
+          <p className="text-muted-foreground">
+            {quote.customer.companyName || quote.customer.name}
+            {quote.customer.companyName && ` · ${quote.customer.name}`}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Hoofd inhoud */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Offerte details */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Offerte details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Offertenummer</p>
+                  <p className="font-medium">{quote.quoteNumber}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Offertedatum</p>
+                  <p className="font-medium">{formatDate(quote.quoteDate)}</p>
+                </div>
+                {quote.expiryDate && (
+                  <div>
+                    <p className="text-muted-foreground">Geldig tot</p>
+                    <p className={`font-medium ${isExpired ? "text-red-600" : ""}`}>
+                      {formatDate(quote.expiryDate)}
+                    </p>
+                  </div>
+                )}
+                {quote.reference && (
+                  <div>
+                    <p className="text-muted-foreground">Referentie</p>
+                    <p className="font-medium">{quote.reference}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Klant */}
+              <Separator />
+              <div className="text-sm">
+                <p className="text-muted-foreground mb-1">Klant</p>
+                <p className="font-medium">{quote.customer.companyName || quote.customer.name}</p>
+                {quote.customer.companyName && (
+                  <p className="text-muted-foreground">{quote.customer.name}</p>
+                )}
+                {quote.customer.email && (
+                  <p className="text-muted-foreground">{quote.customer.email}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Regelitems */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Regelitems</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="grid grid-cols-12 text-xs font-medium text-muted-foreground uppercase tracking-wide pb-2 border-b">
+                  <span className="col-span-6">Omschrijving</span>
+                  <span className="col-span-2 text-right">Aantal</span>
+                  <span className="col-span-2 text-right">Prijs</span>
+                  <span className="col-span-2 text-right">Totaal</span>
+                </div>
+                {quote.items.map((item) => (
+                  <div key={item.id} className="grid grid-cols-12 text-sm py-2">
+                    <div className="col-span-6">
+                      <p className="font-medium">{item.description}</p>
+                      <p className="text-xs text-muted-foreground">BTW {Number(item.vatRate)}%</p>
+                    </div>
+                    <span className="col-span-2 text-right text-muted-foreground">
+                      {Number(item.quantity)} {item.unit}
+                    </span>
+                    <span className="col-span-2 text-right">
+                      {formatCurrency(item.unitPrice)}
+                    </span>
+                    <span className="col-span-2 text-right font-medium">
+                      {formatCurrency(item.total)}
+                    </span>
+                  </div>
+                ))}
+
+                <Separator />
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Subtotaal</span>
+                    <span>{formatCurrency(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">BTW</span>
+                    <span>{formatCurrency(vatAmount)}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-base pt-1">
+                    <span>Totaal</span>
+                    <span>{formatCurrency(total)}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Notities */}
+          {quote.notes && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Notities</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm whitespace-pre-wrap">{quote.notes}</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Ondertekeningsstatus */}
+          {quote.signingEnabled && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileCheck className="h-4 w-4" />
+                  Digitale ondertekening
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Status</span>
+                  <SigningStatusBadge status={quote.signingStatus} />
+                </div>
+
+                {quote.signingExpiresAt && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Geldig tot</span>
+                    <span className={isExpired ? "text-red-600 font-medium" : ""}>
+                      {formatDate(quote.signingExpiresAt)}
+                    </span>
+                  </div>
+                )}
+
+                {quote.sentAt && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Verzonden op</span>
+                    <span>{formatDate(quote.sentAt)}</span>
+                  </div>
+                )}
+
+                {quote.viewedAt && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Bekeken op</span>
+                    <span>{formatDate(quote.viewedAt)}</span>
+                  </div>
+                )}
+
+                {isSigned && quote.signedAt && (
+                  <>
+                    <Separator />
+                    <div className="flex items-center gap-2 text-green-700 bg-green-50 rounded-md p-3">
+                      <CheckCircle2 className="h-4 w-4 shrink-0" />
+                      <div className="text-sm">
+                        <p className="font-medium">Ondertekend</p>
+                        <p className="text-green-600">{formatDate(quote.signedAt)}</p>
+                      </div>
+                    </div>
+                    {quote.signature && (
+                      <div className="text-sm space-y-1">
+                        <p className="text-muted-foreground">Ondertekenaar</p>
+                        <p className="font-medium">{quote.signature.signerName}</p>
+                        <p className="text-muted-foreground">{quote.signature.signerEmail}</p>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {isDeclined && quote.declinedAt && (
+                  <>
+                    <Separator />
+                    <div className="flex items-center gap-2 text-red-700 bg-red-50 rounded-md p-3">
+                      <XCircle className="h-4 w-4 shrink-0" />
+                      <div className="text-sm">
+                        <p className="font-medium">Afgewezen</p>
+                        <p className="text-red-600">{formatDate(quote.declinedAt)}</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Signing URL */}
+                {quote.signingUrl && !isSigned && !isDeclined && (
+                  <div className="pt-2">
+                    <p className="text-xs text-muted-foreground mb-1">Ondertekeningslink</p>
+                    <code className="text-xs bg-muted p-2 rounded block break-all">
+                      {quote.signingUrl}
+                    </code>
+                  </div>
+                )}
+
+                {/* Omgezette factuur */}
+                {quote.convertedInvoice && (
+                  <>
+                    <Separator />
+                    <div className="text-sm">
+                      <p className="text-muted-foreground mb-1">Factuur aangemaakt</p>
+                      <Link
+                        href={`/facturen/${quote.convertedInvoice.id}`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        {quote.convertedInvoice.invoiceNumber}
+                      </Link>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Audittrail / signing events */}
+          {quote.signingEvents.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Geschiedenis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ol className="relative border-l border-muted-foreground/20 ml-2 space-y-4">
+                  {quote.signingEvents.map((event) => (
+                    <li key={event.id} className="pl-4">
+                      <div className="absolute -left-[9px] bg-background">
+                        {SIGNING_EVENT_ICONS[event.eventType] ?? (
+                          <Clock className="h-4 w-4 text-gray-400" />
+                        )}
+                      </div>
+                      <p className="text-sm font-medium">
+                        {SIGNING_EVENT_LABELS[event.eventType] ?? event.eventType}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Intl.DateTimeFormat("nl-NL", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }).format(event.createdAt)}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

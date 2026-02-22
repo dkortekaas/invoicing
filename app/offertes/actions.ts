@@ -160,6 +160,49 @@ export async function getQuoteYears(): Promise<number[]> {
 }
 
 /**
+ * Haalt alle offertes op met een openstaand ondertekeningsverzoek (PENDING of VIEWED).
+ * Berekent wachttijd en geeft aan of de offerte bijna verloopt (≤3 dagen).
+ */
+export async function getPendingSigningQuotes() {
+  const userId = await getCurrentUserId()
+
+  const quotes = await db.quote.findMany({
+    where: {
+      userId,
+      signingEnabled: true,
+      signingStatus: { in: ["PENDING", "VIEWED"] },
+    },
+    orderBy: { signingExpiresAt: "asc" },
+    select: {
+      id: true,
+      quoteNumber: true,
+      total: true,
+      signingStatus: true,
+      signingExpiresAt: true,
+      sentAt: true,
+      customer: { select: { name: true, companyName: true } },
+    },
+  })
+
+  const now = Date.now()
+  const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000
+
+  return quotes.map((q) => {
+    const waitDays = q.sentAt
+      ? Math.floor((now - q.sentAt.getTime()) / (24 * 60 * 60 * 1000))
+      : null
+    const expiresInMs = q.signingExpiresAt
+      ? q.signingExpiresAt.getTime() - now
+      : null
+    const nearlyExpired =
+      expiresInMs !== null && expiresInMs > 0 && expiresInMs <= THREE_DAYS_MS
+    const expired = expiresInMs !== null && expiresInMs <= 0
+
+    return { ...q, waitDays, nearlyExpired, expired }
+  })
+}
+
+/**
  * Verstuurt een herinneringse-mail voor het ondertekenen van een offerte.
  * Controleert eigenaarschap en signing-status voordat de e-mail wordt verstuurd.
  */

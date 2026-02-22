@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { CustomerForm } from "@/components/customers/customer-form"
+import { PortalLink } from "@/components/customers/portal-link"
 import { getCustomer } from "../actions"
 
 export const dynamic = "force-dynamic"
@@ -43,6 +44,15 @@ export default async function KlantDetailPage({ params }: KlantDetailPageProps) 
       </div>
 
       <CustomerForm customer={customerFormData} />
+
+      <PortalLink
+        customerId={customer.id}
+        initialPortalUrl={
+          customer.portalToken
+            ? `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/klantportaal/${customer.portalToken}`
+            : null
+        }
+      />
     </div>
   )
 }

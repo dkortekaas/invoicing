@@ -3,6 +3,7 @@ import { Euro, FileText, Users, AlertTriangle, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatsCard } from "@/components/dashboard/stats-card"
+import { SigningPendingWidget } from "@/components/dashboard/signing-pending-widget"
 import { formatCurrency, STATUS_LABELS, STATUS_COLORS, cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { getDashboardStats, getRecentInvoices } from "@/app/facturen/actions"
@@ -14,6 +15,7 @@ export default async function DashboardPage() {
     getDashboardStats(),
     getRecentInvoices(5),
   ])
+
   return (
     <div className="space-y-6">
       {/* Header met snelle acties */}
@@ -135,6 +137,9 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Openstaande ondertekeningen */}
+      <SigningPendingWidget />
 
       {/* Omzet overzicht */}
       <Card>

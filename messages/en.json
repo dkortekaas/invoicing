@@ -237,6 +237,7 @@
         "features": "Features",
         "pricing": "Pricing",
         "blog": "Blog",
+        "roadmap": "Roadmap",
         "helpCenter": "Help Center",
         "about": "About",
         "contact": "Contact",
@@ -284,6 +285,7 @@
             "pricing": "Pricing",
             "integrations": "Integrations",
             "blog": "Blog",
+            "roadmap": "Roadmap",
             "helpCenter": "Help Center",
             "about": "About",
             "contact": "Contact",
@@ -844,6 +846,15 @@
                 }
             }
         }
+    },
+    "roadmap": {
+        "ctaTitle": "Try Declair for free",
+        "ctaDescription": "Start invoicing today and discover what we're building next. No credit card required.",
+        "ctaButton1": "Start free",
+        "ctaButton2": "View pricing",
+        "ctaCheck1": "14 days free",
+        "ctaCheck2": "No credit card needed",
+        "ctaCheck3": "Cancel anytime"
     },
     "help": {
         "title": "Help Center",

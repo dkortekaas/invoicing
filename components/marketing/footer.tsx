@@ -16,6 +16,7 @@ const Footer = () => {
     ],
     resources: [
       { labelKey: "blog" as const, href: lp("/blog") },
+      { labelKey: "roadmap" as const, href: lp("/roadmap") },
       { labelKey: "helpCenter" as const, href: lp("/help") },
     ],
     company: [

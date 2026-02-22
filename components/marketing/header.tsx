@@ -179,13 +179,13 @@ const Header = () => {
                 >
                   {t("pricing")}
                 </Link>
-                <Link
-                  href={lp("/blog")}
-                  className="block px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t("blog")}
-                </Link>
+<Link
+                    href={lp("/blog")}
+                    className="block px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t("blog")}
+                  </Link>
                 <Link
                   href={lp("/contact")}
                   className="block px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md"

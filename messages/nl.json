@@ -245,6 +245,7 @@
         "features": "Functies",
         "pricing": "Prijzen",
         "blog": "Blog",
+        "roadmap": "Roadmap",
         "helpCenter": "Hulpcentrum",
         "about": "Over ons",
         "contact": "Contact",
@@ -292,6 +293,7 @@
             "pricing": "Prijzen",
             "integrations": "Integraties",
             "blog": "Blog",
+            "roadmap": "Roadmap",
             "helpCenter": "Hulpcentrum",
             "about": "Over ons",
             "contact": "Contact",
@@ -852,6 +854,15 @@
                 }
             }
         }
+    },
+    "roadmap": {
+        "ctaTitle": "Probeer Declair gratis",
+        "ctaDescription": "Start vandaag met factureren en ontdek wat we nog meer voor je bouwen. Geen creditcard nodig.",
+        "ctaButton1": "Start gratis",
+        "ctaButton2": "Bekijk prijzen",
+        "ctaCheck1": "14 dagen gratis",
+        "ctaCheck2": "Geen creditcard nodig",
+        "ctaCheck3": "Opzeggen wanneer je wilt"
     },
     "help": {
         "title": "Hulpcentrum",

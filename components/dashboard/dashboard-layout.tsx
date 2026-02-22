@@ -47,6 +47,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     pathname === "/help/videos" ||
     pathname === "/over-ons" ||
     pathname === "/nieuwsbrief" ||
+    pathname === "/roadmap" ||
     pathname?.startsWith("/en") ||
     pathname?.startsWith("/uitnodiging") ||
     pathname?.startsWith("/pay")

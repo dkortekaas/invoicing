@@ -13,6 +13,7 @@ const segmentMap: Record<string, string> = {
   help: "help",
   nieuwsbrief: "newsletter",
   blog: "blog",
+  roadmap: "roadmap",
 };
 
 // Reverse: EN → NL
@@ -50,6 +51,7 @@ export function getEnToNlPathMap(): Record<string, string> {
     "/en/help": "/help",
     "/en/newsletter": "/nieuwsbrief",
     "/en/blog": "/blog",
+    "/en/roadmap": "/roadmap",
   };
 
   // Feature detail pages
@@ -142,6 +144,7 @@ const marketingPrefixes = [
   "/help",
   "/nieuwsbrief",
   "/blog",
+  "/roadmap",
   "/privacy",
   "/algemene-voorwaarden",
   "/cookie-beleid",

@@ -186,7 +186,7 @@ export async function sendSigningReminder(
   }
 
   try {
-    await sendSigningReminderEmail(quoteId)
+    await sendSigningReminderEmail(quoteId, { reminderType: "MANUAL" })
     return { success: true }
   } catch (err) {
     const message = err instanceof Error ? err.message : "Onbekende fout"

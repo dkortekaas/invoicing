@@ -14,6 +14,7 @@ import { getProfile, getCompanyInfo, getFinancialInfo, getEmailSettings, getMoll
 import { NewsletterForm } from "./newsletter-form"
 import { MollieSettingsForm } from "./mollie-settings-form"
 import { SubscriptionSettings } from "./subscription-settings"
+import { OndertekeningForm } from "./ondertekening-form"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -44,7 +45,7 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
   }
 
   // Fetch all data in parallel
-  const [profile, companyInfo, financialInfo, emailSettings, mollieSettings, fiscalSettings, newsletterStatus, params] = await Promise.all([
+  const [profile, companyInfo, financialInfo, emailSettings, mollieSettings, fiscalSettings, newsletterStatus, signingSettings, params] = await Promise.all([
     getProfile(),
     getCompanyInfo(),
     getFinancialInfo(),
@@ -52,6 +53,7 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
     getMollieSettings(),
     getFiscalSettings(),
     getNewsletterStatus(),
+    db.userSigningSettings.findUnique({ where: { userId: user.id } }),
     searchParams,
   ])
 
@@ -104,6 +106,18 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
 
         <TabsContent value="betalingen" className="mt-6">
           <MollieSettingsForm initialData={mollieSettings} />
+        </TabsContent>
+
+        <TabsContent value="ondertekening" className="mt-6">
+          <OndertekeningForm
+            initialData={{
+              defaultExpiryDays: signingSettings?.defaultExpiryDays ?? 14,
+              autoCreateInvoice: signingSettings?.autoCreateInvoice ?? true,
+              requireDrawnSignature: signingSettings?.requireDrawnSignature ?? false,
+              agreementText: signingSettings?.agreementText,
+              signingPageMessage: signingSettings?.signingPageMessage,
+            }}
+          />
         </TabsContent>
 
         <TabsContent value="abonnement" className="mt-6">

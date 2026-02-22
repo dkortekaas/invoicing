@@ -4,6 +4,63 @@ import speakeasy from "speakeasy"
 import QRCode from "qrcode"
 import { db } from "./db"
 
+// ─── Pre-auth cookie helpers ──────────────────────────────────────────────────
+// Used to communicate a completed 2FA verification from the check-2fa API route
+// to authorize() without relying on NextAuth credential passing.
+
+function getPreAuthSecret(): string {
+  return process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? "dev-fallback-secret"
+}
+
+/**
+ * Generates a short-lived signed cookie value that proves the user passed 2FA.
+ * Format: "<userId>:<expiry>:<hmac-hex>"
+ * Valid for 2 minutes (enough time to call signIn after check-2fa).
+ */
+export function generatePreAuthCookie(userId: string): string {
+  const expiry = Date.now() + 2 * 60 * 1000 // 2 minutes
+  const payload = `${userId}:${expiry}`
+  const sig = crypto
+    .createHmac("sha256", getPreAuthSecret())
+    .update(payload)
+    .digest("hex")
+  return `${payload}:${sig}`
+}
+
+/**
+ * Returns true when the cookie value is a valid, unexpired pre-auth token
+ * for the given userId.
+ */
+export function verifyPreAuthCookie(value: string, userId: string): boolean {
+  try {
+    const lastColon = value.lastIndexOf(":")
+    if (lastColon === -1) return false
+    const payload = value.slice(0, lastColon)
+    const sig = value.slice(lastColon + 1)
+
+    const parts = payload.split(":")
+    if (parts.length < 2) return false
+    const storedUserId = parts.slice(0, -1).join(":")
+    const expiry = parseInt(parts[parts.length - 1]!, 10)
+
+    if (storedUserId !== userId) return false
+    if (isNaN(expiry) || Date.now() > expiry) return false
+
+    const expectedSig = crypto
+      .createHmac("sha256", getPreAuthSecret())
+      .update(payload)
+      .digest("hex")
+
+    // Constant-time comparison to prevent timing attacks
+    const sigBuf = Buffer.from(sig.padEnd(expectedSig.length, "0"), "hex")
+    const expBuf = Buffer.from(expectedSig, "hex")
+    if (sigBuf.length !== expBuf.length) return false
+    return crypto.timingSafeEqual(sigBuf, expBuf)
+  } catch {
+    return false
+  }
+}
+
 /**
  * Hash een wachtwoord
  */
@@ -128,56 +185,55 @@ function normalizeBackupCode(code: string): string {
 }
 
 /**
- * Verifieer een backup code.
- * Compares against SHA-256 hashed codes stored in DB.
- * Also supports legacy plain-text codes for backward compatibility during migration.
+ * Sla gehashte backup codes op in de BackupCode-tabel.
+ * Verwijdert eerst alle bestaande (ongebruikte én gebruikte) codes voor deze user,
+ * zodat regeneratie altijd een schone set oplevert.
+ */
+export async function storeBackupCodes(userId: string, hashedCodes: string[]): Promise<void> {
+  await db.backupCode.deleteMany({ where: { userId } })
+  if (hashedCodes.length > 0) {
+    await db.backupCode.createMany({
+      data: hashedCodes.map((codeHash) => ({ userId, codeHash })),
+    })
+  }
+}
+
+/**
+ * Verifieer een backup code tegen de BackupCode-tabel.
+ * Markeert een gevonden code als gebruikt (usedAt) zodat hij niet opnieuw kan worden ingediend.
+ * Ondersteunt ook legacy plain-text codes die tijdens de JSON-migratie zijn overgezet.
  */
 export async function verifyBackupCode(
   userId: string,
   code: string
 ): Promise<boolean> {
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    select: { backupCodes: true },
-  })
-
-  if (!user || !user.backupCodes) {
-    return false
-  }
-
   const normalizedInput = normalizeBackupCode(code)
   if (!normalizedInput || normalizedInput.length !== 8 || !/^\d{8}$/.test(normalizedInput)) {
     return false
   }
 
-  let codes: string[]
-  try {
-    const parsed = JSON.parse(user.backupCodes) as unknown
-    codes = Array.isArray(parsed)
-      ? (parsed as unknown[]).map((c) => String(c).trim()).filter(Boolean)
-      : []
-  } catch {
-    return false
-  }
-
   const hashedInput = hashBackupCode(normalizedInput)
 
-  // Check hashed codes first, then fall back to legacy plain-text comparison
-  let index = codes.findIndex((c) => c === hashedInput)
-  if (index === -1) {
-    // Legacy: check plain-text codes for users who enabled 2FA before hashing was added
-    index = codes.findIndex((c) => c === normalizedInput)
+  // Check hashed code first
+  let backupCode = await db.backupCode.findFirst({
+    where: { userId, codeHash: hashedInput, usedAt: null },
+  })
+
+  // Legacy: migrated codes that were stored as plain text before hashing was introduced
+  if (!backupCode) {
+    backupCode = await db.backupCode.findFirst({
+      where: { userId, codeHash: normalizedInput, usedAt: null },
+    })
   }
 
-  if (index === -1) {
+  if (!backupCode) {
     return false
   }
 
-  // Remove used backup code
-  codes.splice(index, 1)
-  await db.user.update({
-    where: { id: userId },
-    data: { backupCodes: JSON.stringify(codes) },
+  // Mark as used — kept in the table for audit trail
+  await db.backupCode.update({
+    where: { id: backupCode.id },
+    data: { usedAt: new Date() },
   })
 
   return true

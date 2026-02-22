@@ -6,22 +6,20 @@ import { NewsletterForm } from "@/components/marketing/newsletter-form";
 import { useTranslations } from "@/components/providers/locale-provider";
 
 const Footer = () => {
-  const { t } = useTranslations("footer");
+  const { t, lp } = useTranslations("footer");
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     product: [
-      { labelKey: "features" as const, href: "/functies" },
-      { labelKey: "pricing" as const, href: "/prijzen" },
-      //{ labelKey: "integrations" as const, href: "/functies/koppelingen" },
+      { labelKey: "features" as const, href: lp("/functies") },
+      { labelKey: "pricing" as const, href: lp("/prijzen") },
     ],
     resources: [
-      { labelKey: "blog" as const, href: "/blog" },
-      { labelKey: "helpCenter" as const, href: "/help" },
+      { labelKey: "blog" as const, href: lp("/blog") },
+      { labelKey: "helpCenter" as const, href: lp("/help") },
     ],
     company: [
-      //{ labelKey: "about" as const, href: "/over-ons" },
-      { labelKey: "contact" as const, href: "/contact" },
+      { labelKey: "contact" as const, href: lp("/contact") },
     ],
     legal: [
       { labelKey: "privacy" as const, href: "/privacy" },

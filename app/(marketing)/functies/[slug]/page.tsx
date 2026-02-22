@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/components/providers/locale-provider";
 import CallToActionSection from "@/components/marketing/cta-section";
+import { featureSlugMap } from "@/lib/i18n-routes";
 
 const featureConfig: Record<string, {
   icon: typeof FileText;
@@ -102,7 +103,7 @@ const featureConfig: Record<string, {
 
 const FeatureDetailPage = ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = use(params);
-  const { t } = useTranslations("featurePages");
+  const { t, locale, lp } = useTranslations("featurePages");
 
   const config = featureConfig[slug];
 
@@ -136,7 +137,7 @@ const FeatureDetailPage = ({ params }: { params: Promise<{ slug: string }> }) =>
               className={config.heroImage ? "" : "max-w-3xl"}
             >
               <Link
-                href="/functies"
+                href={lp("/functies")}
                 className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -161,7 +162,7 @@ const FeatureDetailPage = ({ params }: { params: Promise<{ slug: string }> }) =>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
-                <Link href="/prijzen">
+                <Link href={lp("/prijzen")}>
                   <Button variant="outline" size="lg">
                     {t("viewPricing")}
                   </Button>
@@ -306,6 +307,10 @@ const FeatureDetailPage = ({ params }: { params: Promise<{ slug: string }> }) =>
               .slice(0, 3)
               .map(([featureSlug, featureData]) => {
                 const FeatureIcon = featureData.icon;
+                const enSlug = featureSlugMap[featureSlug] ?? featureSlug;
+                const featureHref = locale === "nl"
+                  ? `/functies/${featureSlug}`
+                  : `/en/functions/${enSlug}`;
                 return (
                   <motion.div
                     key={featureSlug}
@@ -314,7 +319,7 @@ const FeatureDetailPage = ({ params }: { params: Promise<{ slug: string }> }) =>
                     viewport={{ once: true }}
                   >
                     <Link
-                      href={`/functies/${featureSlug}`}
+                      href={featureHref}
                       className="group block p-6 rounded-xl bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all"
                     >
                       <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
@@ -341,7 +346,7 @@ const FeatureDetailPage = ({ params }: { params: Promise<{ slug: string }> }) =>
         description={t("ctaDescription")}
         linkHref1="/register"
         linkText1={t("ctaButton1")}
-        linkHref2="/prijzen"
+        linkHref2={lp("/prijzen")}
         linkText2={t("ctaButton2")}
         checkText1={t("ctaCheck1")}
         checkText2={t("ctaCheck2")}

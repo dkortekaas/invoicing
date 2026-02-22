@@ -30,9 +30,11 @@ export async function DELETE(
       data: {
         twoFactorEnabled: false,
         twoFactorSecret: null,
-        backupCodes: null,
       },
     });
+
+    // Remove all backup codes for this user
+    await db.backupCode.deleteMany({ where: { userId: id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -11,7 +11,7 @@ import {
 import { useTranslations } from "@/components/providers/locale-provider";
 
 const FAQSection = () => {
-  const { t } = useTranslations("faq");
+  const { t, lp } = useTranslations("faq");
   
   const faqs = [
     { question: t("question1"), answer: t("answer1") },
@@ -63,7 +63,7 @@ const FAQSection = () => {
 
           <div className="text-center mt-8">
             <Link
-              href="/help"
+              href={lp("/help")}
               className="text-primary hover:underline font-medium"
             >
               {t("viewAllFaqs")} →

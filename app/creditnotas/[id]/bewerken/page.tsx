@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation"
 import { CreditNoteForm } from "@/components/creditnotes/credit-note-form"
-import { getCustomers } from "@/app/klanten/actions"
+import { getCustomersForDropdown } from "@/app/klanten/actions"
 import { getCreditNote } from "../../actions"
 
 export const dynamic = "force-dynamic"
@@ -13,7 +13,7 @@ export default async function BewerkenCreditNotaPage({ params }: BewerkenPagePro
   const { id } = await params
   const [creditNote, customers] = await Promise.all([
     getCreditNote(id),
-    getCustomers(),
+    getCustomersForDropdown(),
   ])
 
   if (!creditNote) {

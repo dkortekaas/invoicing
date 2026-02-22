@@ -7,6 +7,7 @@ import {
   verifyTwoFactorCode,
   generateQRCodeDataURL,
   generateBackupCodes,
+  storeBackupCodes,
   buildOtpauthUrl,
 } from "@/lib/auth-utils"
 
@@ -61,14 +62,14 @@ export async function verify2FASetup(code: string) {
   // Generate backup codes (plain to show user, hashed to store)
   const { plainCodes, hashedCodes } = generateBackupCodes(10)
 
-  // Enable 2FA - store only hashed codes in DB
+  // Enable 2FA
   await db.user.update({
     where: { id: userId },
-    data: {
-      twoFactorEnabled: true,
-      backupCodes: JSON.stringify(hashedCodes),
-    },
+    data: { twoFactorEnabled: true },
   })
+
+  // Persist hashed codes in the dedicated BackupCode table
+  await storeBackupCodes(userId, hashedCodes)
 
   // Return plain codes to show user (only time they'll see them)
   return { backupCodes: plainCodes }
@@ -82,7 +83,9 @@ export async function disable2FA() {
     data: {
       twoFactorEnabled: false,
       twoFactorSecret: null,
-      backupCodes: null,
     },
   })
+
+  // Remove all backup codes for this user
+  await db.backupCode.deleteMany({ where: { userId } })
 }

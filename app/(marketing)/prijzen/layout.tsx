@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { alternatesForPath } from "@/lib/seo";
+import { getLocaleFromHeaders } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  alternates: alternatesForPath("prijzen"),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocaleFromHeaders();
+  return {
+    alternates: alternatesForPath("prijzen", locale),
+  };
+}
 
 export default function PrijzenLayout({
   children,

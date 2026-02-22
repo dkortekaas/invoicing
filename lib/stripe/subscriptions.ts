@@ -8,6 +8,7 @@ export type Feature =
   | 'unlimited_invoices'
   | 'unlimited_emails'
   | 'export'
+  | 'import'
   | 'tax_reporting'
   | 'ocr_extraction'
   | 'credit_notes'
@@ -41,6 +42,7 @@ const FEATURE_ACCESS: Record<Feature, SubscriptionTier[]> = {
   expenses: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
   credit_notes: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
   export: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
+  import: ['STARTER', 'PROFESSIONAL', 'BUSINESS'],
   // Professional features
   time_tracking: ['PROFESSIONAL', 'BUSINESS'],
   analytics: ['PROFESSIONAL', 'BUSINESS'],
@@ -67,6 +69,7 @@ const MINIMUM_TIER: Record<Feature, SubscriptionTier> = {
   expenses: 'STARTER',
   credit_notes: 'STARTER',
   export: 'STARTER',
+  import: 'STARTER',
   time_tracking: 'PROFESSIONAL',
   analytics: 'PROFESSIONAL',
   payment_links: 'PROFESSIONAL',
@@ -277,6 +280,7 @@ export function getFeatureName(feature: Feature): string {
     unlimited_invoices: 'Onbeperkt Facturen',
     unlimited_emails: 'Onbeperkt Emails',
     export: 'Export Functionaliteit',
+    import: 'Import Functionaliteit',
     tax_reporting: 'Inkomstenbelasting Overzicht',
     ocr_extraction: 'OCR Bonnetjes Herkenning',
     credit_notes: 'Credit Nota\'s',

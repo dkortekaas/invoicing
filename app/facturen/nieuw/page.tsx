@@ -1,5 +1,5 @@
 import { InvoiceForm } from "@/components/invoices/invoice-form"
-import { getCustomers } from "@/app/klanten/actions"
+import { getCustomersForDropdown } from "@/app/klanten/actions"
 import { getActiveProducts } from "@/app/producten/actions"
 import { getFiscalSettings } from "@/app/instellingen/actions"
 
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic"
 
 export default async function NieuweFactuurPage() {
   const [customers, products, fiscalSettings] = await Promise.all([
-    getCustomers(),
+    getCustomersForDropdown(),
     getActiveProducts(),
     getFiscalSettings(),
   ])

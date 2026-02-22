@@ -1,10 +1,10 @@
 import { CreditNoteForm } from "@/components/creditnotes/credit-note-form"
-import { getCustomers } from "@/app/klanten/actions"
+import { getCustomersForDropdown } from "@/app/klanten/actions"
 
 export const dynamic = "force-dynamic"
 
 export default async function NieuweCreditNotaPage() {
-  const customers = await getCustomers()
+  const customers = await getCustomersForDropdown()
 
   // Transform data for form
   const customersForForm = customers.map((c: typeof customers[0]) => ({

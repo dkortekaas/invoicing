@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Plus } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table"
 import { SortableTableHead } from "@/components/ui/sortable-table-head"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { getCustomers } from "./actions"
+import { getCustomers, getDeletedCustomerCount } from "./actions"
 import { CustomerActions } from "./customer-actions"
 import { SearchForm } from "./search-form"
 import { Pagination } from "@/components/ui/pagination"
@@ -28,58 +28,28 @@ function isCustomerSortKey(s: string | null | undefined): s is CustomerSortKey {
 }
 
 interface KlantenPageProps {
-  searchParams: Promise<{ search?: string; sortBy?: string; sortOrder?: string; page?: string }>
+  searchParams: Promise<{ search?: string; sortBy?: string; sortOrder?: string; page?: string; deleted?: string }>
 }
 
 export default async function KlantenPage({ searchParams }: KlantenPageProps) {
   const params = await searchParams
+  const showDeleted = params.deleted === "true"
   const search = params.search ?? ""
   const sortBy = isCustomerSortKey(params.sortBy) ? params.sortBy : "name"
   const sortOrder = params.sortOrder === "asc" ? "asc" : "desc"
   const currentPage = Math.max(1, parseInt(params.page || "1", 10) || 1)
 
-  const allCustomers = await getCustomers()
-
-  let customers = search.trim()
-    ? allCustomers.filter(
-        (c: typeof allCustomers[0]) =>
-          c.name.toLowerCase().includes(search.toLowerCase()) ||
-          (c.companyName ?? "").toLowerCase().includes(search.toLowerCase()) ||
-          (c.email ?? "").toLowerCase().includes(search.toLowerCase()) ||
-          (c.city ?? "").toLowerCase().includes(search.toLowerCase())
-      )
-    : allCustomers
-
-  customers = [...customers].sort((a: typeof allCustomers[0], b: typeof allCustomers[0]) => {
-    let cmp = 0
-    switch (sortBy) {
-      case "name":
-        cmp = a.name.localeCompare(b.name)
-        break
-      case "companyName":
-        cmp = (a.companyName ?? "").localeCompare(b.companyName ?? "")
-        break
-      case "email":
-        cmp = (a.email ?? "").localeCompare(b.email ?? "")
-        break
-      case "city":
-        cmp = (a.city ?? "").localeCompare(b.city ?? "")
-        break
-      case "invoiceCount":
-        cmp = a._count.invoices - b._count.invoices
-        break
-      default:
-        cmp = a.name.localeCompare(b.name)
-    }
-    return sortOrder === "asc" ? cmp : -cmp
-  })
-
-  // Pagination
-  const totalItems = customers.length
-  const paginatedCustomers = customers.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
-  )
+  const [{ customers: paginatedCustomers, total: totalItems }, deletedCount] = await Promise.all([
+    getCustomers({
+      search: search.trim() || undefined,
+      sortBy,
+      sortOrder,
+      page: currentPage,
+      pageSize: PAGE_SIZE,
+      deletedOnly: showDeleted,
+    }),
+    getDeletedCustomerCount(),
+  ])
 
   return (
     <div className="space-y-6">
@@ -92,13 +62,29 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
           </p>
         </div>
         <div className="flex gap-2">
-          <ExportButton entityType="CUSTOMERS" totalCount={allCustomers.length} />
-          <Button asChild>
-            <Link href="/klanten/nieuw">
-              <Plus className="mr-2 h-4 w-4" />
-              Nieuwe Klant
-            </Link>
-          </Button>
+          {!showDeleted && <ExportButton entityType="CUSTOMERS" totalCount={totalItems} />}
+          {showDeleted ? (
+            <Button variant="outline" asChild>
+              <Link href="/klanten">Terug naar klanten</Link>
+            </Button>
+          ) : (
+            <>
+              {deletedCount > 0 && (
+                <Button variant="outline" asChild>
+                  <Link href="/klanten?deleted=true">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Prullenbak ({deletedCount})
+                  </Link>
+                </Button>
+              )}
+              <Button asChild>
+                <Link href="/klanten/nieuw">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nieuwe Klant
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -125,15 +111,23 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
               {paginatedCustomers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
-                    <p className="text-muted-foreground">
-                      Nog geen klanten. Voeg je eerste klant toe!
-                    </p>
-                    <Button asChild className="mt-4">
-                      <Link href="/klanten/nieuw">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Nieuwe Klant
-                      </Link>
-                    </Button>
+                    {showDeleted ? (
+                      <p className="text-muted-foreground">
+                        De prullenbak is leeg.
+                      </p>
+                    ) : (
+                      <>
+                        <p className="text-muted-foreground">
+                          Nog geen klanten. Voeg je eerste klant toe!
+                        </p>
+                        <Button asChild className="mt-4">
+                          <Link href="/klanten/nieuw">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Nieuwe Klant
+                          </Link>
+                        </Button>
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -154,7 +148,7 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
                       {customer._count.invoices}
                     </TableCell>
                     <TableCell>
-                      <CustomerActions customer={customer} />
+                      <CustomerActions customer={{ ...customer, deletedAt: customer.deletedAt ?? null }} />
                     </TableCell>
                   </TableRow>
                 ))

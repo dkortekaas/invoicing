@@ -11,6 +11,7 @@ import {
   CheckCircle,
   Send,
   Eye,
+  RotateCcw,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,12 +29,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { updateInvoiceStatus, deleteInvoice } from "./actions"
+import { updateInvoiceStatus, deleteInvoice, restoreInvoice } from "./actions"
 
 interface InvoiceActionsProps {
   invoice: {
     id: string
     status: string
+    deletedAt?: Date | null
   }
 }
 
@@ -65,6 +67,34 @@ export function InvoiceActions({ invoice }: InvoiceActionsProps) {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleRestore = async () => {
+    setIsLoading(true)
+    try {
+      await restoreInvoice(invoice.id)
+      router.refresh()
+    } catch (error) {
+      console.error("Error restoring invoice:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Trash view: only show restore option
+  if (invoice.deletedAt) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        disabled={isLoading}
+        onClick={handleRestore}
+        title="Herstellen uit prullenbak"
+      >
+        <RotateCcw className="h-4 w-4" />
+        <span className="sr-only">Herstellen</span>
+      </Button>
+    )
   }
 
   return (
@@ -137,7 +167,7 @@ export function InvoiceActions({ invoice }: InvoiceActionsProps) {
         <DialogHeader>
           <DialogTitle>Factuur verwijderen</DialogTitle>
           <DialogDescription>
-            Weet je zeker dat je deze factuur wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
+            De factuur wordt naar de prullenbak verplaatst en kan daarna worden hersteld via de prullenbakweergave.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

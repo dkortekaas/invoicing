@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import { CreditNoteForm } from "@/components/creditnotes/credit-note-form"
-import { getCustomers } from "@/app/klanten/actions"
+import { getCustomersForDropdown } from "@/app/klanten/actions"
 import { getInvoiceForCreditNote } from "../../actions"
 
 export const dynamic = "force-dynamic"
@@ -13,7 +13,7 @@ export default async function VanFactuurPage({ params }: VanFactuurPageProps) {
   const { invoiceId } = await params
   const [invoice, customers] = await Promise.all([
     getInvoiceForCreditNote(invoiceId),
-    getCustomers(),
+    getCustomersForDropdown(),
   ])
 
   if (!invoice) {

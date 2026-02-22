@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/components/providers/locale-provider";
 
 const ContactPage = () => {
-  const { t } = useTranslations("contact");
+  const { t, lp } = useTranslations("contact");
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -338,7 +338,7 @@ const ContactPage = () => {
                 </h3>
                 <div className="space-y-4">
                   <Link
-                    href="/help"
+                    href={lp("/help")}
                     className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
@@ -354,7 +354,7 @@ const ContactPage = () => {
                     </div>
                   </Link>
                   <Link
-                    href="/functies"
+                    href={lp("/functies")}
                     className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
@@ -370,7 +370,7 @@ const ContactPage = () => {
                     </div>
                   </Link>
                   <Link
-                    href="/prijzen"
+                    href={lp("/prijzen")}
                     className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
@@ -405,7 +405,7 @@ const ContactPage = () => {
                     </div>
                   ))}
                 </div>
-                <Link href="/help" className="block mt-6">
+                <Link href={lp("/help")} className="block mt-6">
                   <Button variant="outline" className="w-full">
                     {t("viewAllFaq")}
                   </Button>

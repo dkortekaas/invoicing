@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit newsletter subscribe by IP
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
-    const { allowed } = rateLimit(`newsletter:${ip}`, RATE_LIMITS.contact)
+    const { allowed } = await rateLimit(`newsletter:${ip}`, RATE_LIMITS.contact)
     if (!allowed) {
       // Return same success message to prevent enumeration
       return NextResponse.json({

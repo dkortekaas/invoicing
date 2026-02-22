@@ -48,32 +48,74 @@ function LoginForm() {
     setError(null)
 
     try {
-      // First check if user exists and password is correct
       if (!requiresTwoFactor) {
+        // ── Step 1: verify password and detect whether 2FA is required ──────
         const response = await fetch("/api/auth/check-2fa", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: data.email, password: data.password }),
         })
 
+        if (response.status === 429) {
+          const body = await response.json().catch(() => ({}))
+          setError(body.error ?? "Te veel inlogpogingen. Probeer het later opnieuw.")
+          setIsLoading(false)
+          return
+        }
+
         if (response.ok) {
           const { requires2FA } = await response.json()
           if (requires2FA) {
             setRequiresTwoFactor(true)
             setEmail(data.email)
-            setPassword(data.password) // Keep password for next attempt
+            setPassword(data.password)
             form.setValue("password", data.password)
             setIsLoading(false)
             return
           }
         }
+        // No 2FA needed — fall through to signIn below
+      } else {
+        // ── Step 2: verify the 2FA code via check-2fa ────────────────────────
+        // check-2fa verifies the TOTP code and sets a short-lived signed cookie
+        // (2fa_preauth) that authorize() reads directly from the request.
+        // This sidesteps any NextAuth credential-passing issues for this field.
+        const twoFactorCode = (data.twoFactorCode ?? "").trim()
+        if (!twoFactorCode) {
+          setError("Voer je 2FA code in.")
+          setIsLoading(false)
+          return
+        }
+
+        const verifyResponse = await fetch("/api/auth/check-2fa", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, twoFactorCode }),
+        })
+
+        if (verifyResponse.status === 429) {
+          const body = await verifyResponse.json().catch(() => ({}))
+          setError(body.error ?? "Te veel inlogpogingen. Probeer het later opnieuw.")
+          setIsLoading(false)
+          return
+        }
+
+        if (!verifyResponse.ok) {
+          const body = await verifyResponse.json().catch(() => ({}))
+          setError(body.error ?? "Ongeldige 2FA code. Probeer het opnieuw.")
+          setIsLoading(false)
+          return
+        }
+        // Cookie is now set by check-2fa — proceed to signIn
       }
 
-      // Now try to sign in (altijd twoFactorCode meesturen zodat de key in de body zit)
+      // Sign in. For 2FA flows, authorize() first checks the pre-auth cookie set
+      // by check-2fa; if the cookie is inaccessible it falls back to verifying
+      // the actual TOTP code passed here directly.
       const result = await signIn("credentials", {
         email: requiresTwoFactor ? email : data.email,
         password: requiresTwoFactor ? password : data.password,
-        twoFactorCode: requiresTwoFactor ? (data.twoFactorCode ?? "") : "",
+        twoFactorCode: requiresTwoFactor ? ((data.twoFactorCode ?? "").trim()) : "",
         redirect: false,
       })
 
@@ -83,13 +125,10 @@ function LoginForm() {
       }
 
       if (result?.error) {
-        // Handle specific error messages
         if (result.error === "CredentialsSignin") {
-          if (requiresTwoFactor) {
-            setError("Ongeldige 2FA code. Probeer het opnieuw.")
-          } else {
-            setError("Ongeldige inloggegevens. Controleer je email en wachtwoord.")
-          }
+          // 2FA codes are validated in check-2fa before signIn is called.
+          // A CredentialsSignin error here means the password is wrong.
+          setError("Ongeldige inloggegevens. Controleer je e-mailadres en wachtwoord.")
         } else {
           setError(result.error)
         }

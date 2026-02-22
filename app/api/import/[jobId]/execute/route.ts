@@ -3,6 +3,7 @@ import { readFile, unlink } from 'fs/promises';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { parseFile, executeImport } from '@/lib/import-export/import-service';
+import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
 import type { EntityType } from '@/lib/import-export/fields';
 
 async function getFileBuffer(job: {
@@ -27,6 +28,14 @@ export async function POST(
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Niet ingelogd' }, { status: 401 });
+    }
+
+    const hasAccess = await hasFeatureAccess(session.user.id, 'import');
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'Import is alleen beschikbaar vanaf het Starter abonnement' },
+        { status: 403 }
+      );
     }
 
     const { jobId } = await params;

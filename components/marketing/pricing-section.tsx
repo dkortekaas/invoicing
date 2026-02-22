@@ -22,7 +22,7 @@ const item = {
 };
 
 const PricingSection = () => {
-  const { t } = useTranslations("pricingSection");
+  const { t, lp } = useTranslations("pricingSection");
 
   const plans = [
     {
@@ -202,7 +202,7 @@ const PricingSection = () => {
         >
           {t("allPricesAreExclVAT")} {t("freeTrial")}.{" "}
           <Link
-            href="/prijzen"
+            href={lp("/prijzen")}
             className="text-primary hover:underline font-medium"
           >
             {t("viewFullComparison")} →

@@ -45,7 +45,7 @@ const item = {
 };
 
 const HelpPage = () => {
-  const { t } = useTranslations("help");
+  const { t, lp } = useTranslations("help");
   const [searchQuery, setSearchQuery] = useState("");
 
   const categories = [
@@ -265,7 +265,7 @@ const HelpPage = () => {
             viewport={{ once: true }}
             className="text-center mt-10"
           >
-            <Link href="/help/aan-de-slag">
+            <Link href={lp("/help") + "/aan-de-slag"}>
               <Button size="lg" variant="outline" className="gap-2">
                 {t("viewFullGuide")}
                 <ArrowRight className="w-4 h-4" />
@@ -432,7 +432,7 @@ const HelpPage = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 {t("contactVideo.description")}
               </p>
-              <Link href="/help/videos">
+              <Link href={lp("/help") + "/videos"}>
                 <Button variant="outline" size="sm">
                   {t("contactVideo.button")}
                 </Button>

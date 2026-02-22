@@ -9,6 +9,7 @@ import {
   Send,
   AlertCircle,
   FileCheck,
+  Download,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -16,11 +17,14 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge"
 import { SigningStatusBadge } from "@/components/quotes/signing-status-badge"
+import SigningPanelActivate from "@/components/quotes/SigningPanelActivate"
+import SigningPanelActions from "@/components/quotes/SigningPanelActions"
 import { getQuoteById } from "../actions"
 
 interface QuoteDetailPageProps {
@@ -37,6 +41,7 @@ const SIGNING_EVENT_LABELS: Record<string, string> = {
   EXPIRED: "Verlopen",
   REMINDER_SENT: "Herinnering verstuurd",
   INVOICE_CREATED: "Factuur aangemaakt",
+  DOWNLOADED: "PDF gedownload",
 }
 
 const SIGNING_EVENT_ICONS: Record<string, React.ReactNode> = {
@@ -202,105 +207,156 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Ondertekeningsstatus */}
-          {quote.signingEnabled && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileCheck className="h-4 w-4" />
-                  Digitale ondertekening
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Status</span>
-                  <SigningStatusBadge status={quote.signingStatus} />
-                </div>
+          {/* Ondertekeningspaneel */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <FileCheck className="h-4 w-4" />
+                Digitale ondertekening
+              </CardTitle>
+              {!quote.signingEnabled && (
+                <CardDescription>
+                  Laat de klant de offerte digitaal accorderen via een beveiligde link.
+                </CardDescription>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Staat 1: Niet actief */}
+              {!quote.signingEnabled && (
+                <SigningPanelActivate quoteId={quote.id} />
+              )}
 
-                {quote.signingExpiresAt && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Geldig tot</span>
-                    <span className={isExpired ? "text-red-600 font-medium" : ""}>
-                      {formatDate(quote.signingExpiresAt)}
-                    </span>
+              {/* Staat 2: Wacht op ondertekening (PENDING / VIEWED) */}
+              {quote.signingEnabled && !isSigned && !isDeclined && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Status</span>
+                    <SigningStatusBadge status={quote.signingStatus} />
                   </div>
-                )}
 
-                {quote.sentAt && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Verzonden op</span>
-                    <span>{formatDate(quote.sentAt)}</span>
-                  </div>
-                )}
-
-                {quote.viewedAt && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Bekeken op</span>
-                    <span>{formatDate(quote.viewedAt)}</span>
-                  </div>
-                )}
-
-                {isSigned && quote.signedAt && (
-                  <>
-                    <Separator />
-                    <div className="flex items-center gap-2 text-green-700 bg-green-50 rounded-md p-3">
-                      <CheckCircle2 className="h-4 w-4 shrink-0" />
-                      <div className="text-sm">
-                        <p className="font-medium">Ondertekend</p>
-                        <p className="text-green-600">{formatDate(quote.signedAt)}</p>
-                      </div>
+                  {quote.signingExpiresAt && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Geldig tot</span>
+                      <span className={isExpired ? "text-red-600 font-medium" : ""}>
+                        {formatDate(quote.signingExpiresAt)}
+                      </span>
                     </div>
-                    {quote.signature && (
-                      <div className="text-sm space-y-1">
-                        <p className="text-muted-foreground">Ondertekenaar</p>
-                        <p className="font-medium">{quote.signature.signerName}</p>
-                        <p className="text-muted-foreground">{quote.signature.signerEmail}</p>
-                      </div>
-                    )}
-                  </>
-                )}
+                  )}
 
-                {isDeclined && quote.declinedAt && (
-                  <>
-                    <Separator />
-                    <div className="flex items-center gap-2 text-red-700 bg-red-50 rounded-md p-3">
-                      <XCircle className="h-4 w-4 shrink-0" />
-                      <div className="text-sm">
-                        <p className="font-medium">Afgewezen</p>
-                        <p className="text-red-600">{formatDate(quote.declinedAt)}</p>
-                      </div>
+                  {quote.sentAt && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Verzonden op</span>
+                      <span>{formatDate(quote.sentAt)}</span>
                     </div>
-                  </>
-                )}
+                  )}
 
-                {/* Signing URL */}
-                {quote.signingUrl && !isSigned && !isDeclined && (
-                  <div className="pt-2">
-                    <p className="text-xs text-muted-foreground mb-1">Ondertekeningslink</p>
-                    <code className="text-xs bg-muted p-2 rounded block break-all">
-                      {quote.signingUrl}
-                    </code>
-                  </div>
-                )}
+                  {quote.viewedAt && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Bekeken op</span>
+                      <span>{formatDate(quote.viewedAt)}</span>
+                    </div>
+                  )}
 
-                {/* Omgezette factuur */}
-                {quote.convertedInvoice && (
-                  <>
-                    <Separator />
+                  {quote.signingUrl && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1.5">Ondertekeningslink</p>
+                        <code className="text-xs bg-muted px-2 py-1.5 rounded block break-all mb-2">
+                          {quote.signingUrl}
+                        </code>
+                        <SigningPanelActions
+                          quoteId={quote.id}
+                          signingUrl={quote.signingUrl}
+                        />
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* Staat 3: Ondertekend */}
+              {isSigned && quote.signedAt && (
+                <>
+                  <div className="flex items-center gap-2 text-green-700 bg-green-50 rounded-md p-3">
+                    <CheckCircle2 className="h-4 w-4 shrink-0" />
                     <div className="text-sm">
-                      <p className="text-muted-foreground mb-1">Factuur aangemaakt</p>
-                      <Link
-                        href={`/facturen/${quote.convertedInvoice.id}`}
-                        className="font-medium text-primary hover:underline"
-                      >
-                        {quote.convertedInvoice.invoiceNumber}
-                      </Link>
+                      <p className="font-medium">Ondertekend</p>
+                      <p className="text-green-600">{formatDate(quote.signedAt)}</p>
                     </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                  </div>
+
+                  {quote.signature && (
+                    <div className="text-sm space-y-1 pt-1">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Ondertekenaar</p>
+                      <p className="font-medium">{quote.signature.signerName}</p>
+                      {quote.signature.signerRole && (
+                        <p className="text-muted-foreground text-xs">{quote.signature.signerRole}</p>
+                      )}
+                      <p className="text-muted-foreground text-xs">{quote.signature.signerEmail}</p>
+                      {quote.signature.remarks && (
+                        <div className="mt-2 pt-2 border-t">
+                          <p className="text-xs text-muted-foreground mb-0.5">Opmerkingen klant</p>
+                          <p className="text-xs italic">&ldquo;{quote.signature.remarks}&rdquo;</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {quote.signingToken && (
+                    <>
+                      <Separator />
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <a
+                          href={`/api/signing/${quote.signingToken}/pdf`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Download className="h-3.5 w-3.5 mr-1.5" />
+                          Getekende PDF downloaden
+                        </a>
+                      </Button>
+                    </>
+                  )}
+
+                  {quote.convertedInvoice && (
+                    <>
+                      <Separator />
+                      <div className="text-sm">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Factuur aangemaakt</p>
+                        <Link
+                          href={`/facturen/${quote.convertedInvoice.id}`}
+                          className="font-medium text-primary hover:underline"
+                        >
+                          {quote.convertedInvoice.invoiceNumber}
+                        </Link>
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* Staat 4: Afgewezen */}
+              {isDeclined && quote.declinedAt && (
+                <>
+                  <div className="flex items-center gap-2 text-red-700 bg-red-50 rounded-md p-3">
+                    <XCircle className="h-4 w-4 shrink-0" />
+                    <div className="text-sm">
+                      <p className="font-medium">Afgewezen</p>
+                      <p className="text-red-600">{formatDate(quote.declinedAt)}</p>
+                    </div>
+                  </div>
+
+                  {quote.signature?.remarks && (
+                    <div className="text-sm pt-1">
+                      <p className="text-xs text-muted-foreground mb-0.5">Reden van afwijzing</p>
+                      <p className="text-xs italic">&ldquo;{quote.signature.remarks}&rdquo;</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Audittrail / signing events */}
           {quote.signingEvents.length > 0 && (

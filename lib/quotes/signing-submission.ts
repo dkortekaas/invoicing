@@ -14,6 +14,7 @@ import { db } from "@/lib/db"
 import { logSigningEvent } from "./signing-events"
 import { QuoteSigningEventType, SignatureMethod } from "@prisma/client"
 import { generateSignedPdf } from "./generate-signed-pdf"
+import { createInvoiceFromQuote } from "./auto-invoice"
 import {
   sendSignedConfirmationEmail,
   sendSignedNotificationEmail,
@@ -230,13 +231,18 @@ export async function processSignRequest(
     },
   })
 
-  // E-mailnotificaties + PDF-generatie — fire-and-forget
+  // E-mailnotificaties + PDF-generatie + auto-factuur — fire-and-forget
   // PDF-generatie mislukt → bevestigingse-mail wordt zonder bijlage verstuurd
+  // Auto-factuur mislukt → notificatie wordt zonder factuurlink verstuurd
   Promise.allSettled([
     generateSignedPdf(quoteId)
       .then((pdfBuffer) => sendSignedConfirmationEmail(quoteId, pdfBuffer))
       .catch(() => sendSignedConfirmationEmail(quoteId)),
-    sendSignedNotificationEmail(quoteId),
+    createInvoiceFromQuote(quoteId)
+      .then((invoiceInfo) =>
+        sendSignedNotificationEmail(quoteId, invoiceInfo ?? {}),
+      )
+      .catch(() => sendSignedNotificationEmail(quoteId)),
   ]).catch(() => {
     // Fouten worden gelogd in QuoteEmailLog door de send-functies zelf
   })

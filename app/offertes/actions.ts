@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { Prisma, type QuoteStatus } from "@prisma/client"
+import { sendSigningReminderEmail } from "@/lib/email/send-quote-signing"
 
 interface GetQuotesOptions {
   status?: QuoteStatus | "ALL"
@@ -156,4 +157,39 @@ export async function getQuoteYears(): Promise<number[]> {
     (a, b) => b - a,
   )
   return years
+}
+
+/**
+ * Verstuurt een herinneringse-mail voor het ondertekenen van een offerte.
+ * Controleert eigenaarschap en signing-status voordat de e-mail wordt verstuurd.
+ */
+export async function sendSigningReminder(
+  quoteId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const userId = await getCurrentUserId()
+
+  const quote = await db.quote.findUnique({
+    where: { id: quoteId, userId },
+    select: { signingEnabled: true, signingStatus: true },
+  })
+
+  if (!quote || !quote.signingEnabled) {
+    return { success: false, error: "Offerte niet gevonden of ondertekening niet ingeschakeld" }
+  }
+
+  if (quote.signingStatus === "SIGNED") {
+    return { success: false, error: "De offerte is al ondertekend" }
+  }
+
+  if (quote.signingStatus === "DECLINED") {
+    return { success: false, error: "De offerte is afgewezen" }
+  }
+
+  try {
+    await sendSigningReminderEmail(quoteId)
+    return { success: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Onbekende fout"
+    return { success: false, error: `Herinnering kon niet worden verstuurd: ${message}` }
+  }
 }

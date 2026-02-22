@@ -1957,8 +1957,11 @@ enum ReminderStatus {
 }
 
 enum ReminderType {
-  MANUAL // Handmatig verstuurd door gebruiker
-  AUTO   // Automatisch verstuurd op basis van schema
+  MANUAL      // Handmatig verstuurd door gebruiker
+  AUTO        // Generiek automatisch (fallback)
+  AUTO_7_DAYS // Automatisch 7 dagen voor verloopdatum
+  AUTO_3_DAYS // Automatisch 3 dagen voor verloopdatum
+  AUTO_EXPIRY // Automatisch bij verlopen (dag van/net na expiratie)
 }
 
 // Offerte model
@@ -2183,6 +2186,8 @@ model UserSigningSettings {
   // Huisstijl ondertekeningspagina
   signingPageMessage String? // Persoonlijk bericht op de ondertekeningspagina
   agreementText      String? // Standaard akkoordtekst voor klant
+  logoUrl            String? // Logo-URL voor branding (overschrijft bedrijfslogo)
+  primaryColor       String? // Primaire kleur in hex (#RRGGBB) voor branding
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { AlertCircle, CheckCircle2, Loader2, PenLine } from "lucide-react"
+import { AlertCircle, CheckCircle2, Loader2, Palette, PenLine } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,12 +20,23 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/
+
 const schema = z.object({
   defaultExpiryDays: z.number().int().min(1, "Minimaal 1 dag").max(365, "Maximaal 365 dagen"),
   autoCreateInvoice: z.boolean(),
   requireDrawnSignature: z.boolean(),
   agreementText: z.string().max(2000, "Maximaal 2000 tekens").optional(),
   signingPageMessage: z.string().max(1000, "Maximaal 1000 tekens").optional(),
+  logoUrl: z
+    .string()
+    .max(2048)
+    .refine((v) => !v || v.startsWith("http"), "Voer een geldige URL in (beginnend met http)")
+    .optional(),
+  primaryColor: z
+    .string()
+    .refine((v) => !v || HEX_COLOR_RE.test(v), "Voer een geldige hex-kleur in (#RRGGBB)")
+    .optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -37,6 +48,8 @@ interface OndertekeningFormProps {
     requireDrawnSignature: boolean
     agreementText?: string | null
     signingPageMessage?: string | null
+    logoUrl?: string | null
+    primaryColor?: string | null
   }
 }
 
@@ -58,6 +71,8 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
       requireDrawnSignature: initialData.requireDrawnSignature,
       agreementText: initialData.agreementText ?? "",
       signingPageMessage: initialData.signingPageMessage ?? "",
+      logoUrl: initialData.logoUrl ?? "",
+      primaryColor: initialData.primaryColor ?? "#2563eb",
     },
   })
 
@@ -74,6 +89,8 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
           ...data,
           agreementText: data.agreementText || null,
           signingPageMessage: data.signingPageMessage || null,
+          logoUrl: data.logoUrl || null,
+          primaryColor: data.primaryColor || null,
         }),
       })
 
@@ -189,6 +206,71 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
                 />
               )}
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Branding */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Palette className="h-4 w-4" />
+            Huisstijl ondertekeningspagina
+          </CardTitle>
+          <CardDescription>
+            Pas het logo en de primaire kleur aan zodat de ondertekeningspagina
+            bij uw huisstijl past.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {/* Logo URL */}
+          <div className="space-y-1.5">
+            <Label htmlFor="logoUrl">Logo-URL (optioneel)</Label>
+            <Input
+              id="logoUrl"
+              type="url"
+              placeholder="https://uw-website.nl/logo.png"
+              {...register("logoUrl")}
+            />
+            {errors.logoUrl && (
+              <p className="text-sm text-red-600">{errors.logoUrl.message}</p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Openbaar toegankelijke URL van uw logo. Overschrijft het bedrijfslogo.
+            </p>
+          </div>
+
+          <Separator />
+
+          {/* Primaire kleur */}
+          <div className="space-y-1.5">
+            <Label htmlFor="primaryColor">Primaire kleur</Label>
+            <div className="flex items-center gap-3">
+              <Controller
+                name="primaryColor"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    id="primaryColor"
+                    type="color"
+                    value={field.value ?? "#2563eb"}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    className="h-10 w-14 rounded border cursor-pointer p-1"
+                  />
+                )}
+              />
+              <Input
+                className="w-32 font-mono"
+                placeholder="#2563eb"
+                {...register("primaryColor")}
+              />
+            </div>
+            {errors.primaryColor && (
+              <p className="text-sm text-red-600">{errors.primaryColor.message}</p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Kleur voor de akkoord-knop en accentbalk. Hex-formaat, bijv. #2563eb.
+            </p>
           </div>
         </CardContent>
       </Card>

@@ -13,6 +13,11 @@ import { z } from "zod"
 import { db } from "@/lib/db"
 import { logSigningEvent } from "./signing-events"
 import { QuoteSigningEventType, SignatureMethod } from "@prisma/client"
+import {
+  sendSignedConfirmationEmail,
+  sendSignedNotificationEmail,
+  sendDeclinedNotificationEmail,
+} from "@/lib/email/send-quote-signing"
 
 // ─── Constanten ───────────────────────────────────────────────────────────────
 
@@ -222,6 +227,14 @@ export async function processSignRequest(
     },
   })
 
+  // E-mailnotificaties — fire-and-forget (fouten blokkeren de response niet)
+  Promise.allSettled([
+    sendSignedConfirmationEmail(quoteId),
+    sendSignedNotificationEmail(quoteId),
+  ]).catch(() => {
+    // Fouten worden gelogd in QuoteEmailLog door de send-functies zelf
+  })
+
   return { signedAt: now }
 }
 
@@ -264,6 +277,15 @@ export async function processRejectRequest(
       signerEmail: input.signerEmail,
       remarks: input.remarks ?? null,
     },
+  })
+
+  // Afwijzingsnotificatie naar gebruiker — fire-and-forget
+  sendDeclinedNotificationEmail(quoteId, {
+    signerName: input.signerName,
+    signerEmail: input.signerEmail,
+    remarks: input.remarks,
+  }).catch(() => {
+    // Fout gelogd in QuoteEmailLog
   })
 
   return { declinedAt: now }

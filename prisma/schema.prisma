@@ -2005,6 +2005,9 @@ model Quote {
   convertedInvoiceId String?  @unique
   convertedInvoice   Invoice? @relation("QuoteToInvoice", fields: [convertedInvoiceId], references: [id])
 
+  // E-mail logging
+  emailLogs QuoteEmailLog[]
+
   // Metadata
   pdfPath    String?
   sentAt     DateTime? // Wanneer verzonden
@@ -2116,6 +2119,37 @@ model QuoteSigningReminder {
   @@index([quoteId])
   @@index([scheduledAt])
   @@index([status])
+}
+
+// E-mail type voor offerte-gerelateerde e-mails
+
+enum QuoteEmailType {
+  SIGNING_INVITATION    // Ondertekeningsuitnodiging naar klant
+  SIGNING_REMINDER      // Herinnering ondertekening naar klant
+  SIGNED_CONFIRMATION   // Bevestiging aan klant na ondertekening (met PDF)
+  SIGNED_NOTIFICATION   // Notificatie aan gebruiker na ondertekening (met factuurlink)
+  DECLINED_NOTIFICATION // Notificatie aan gebruiker na afwijzing door klant
+}
+
+model QuoteEmailLog {
+  id      String @id @default(cuid())
+  quoteId String
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  type      QuoteEmailType
+  recipient String
+  subject   String
+  status    EmailStatus @default(PENDING)
+
+  resendId String? // Resend email ID voor tracking
+  error    String?
+  sentAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([quoteId])
+  @@index([type])
 }
 
 // Gebruikersinstellingen voor digitale ondertekening

@@ -195,6 +195,48 @@ export const CREDIT_NOTE_STATUS_COLORS: Record<string, string> = {
   REFUNDED: "bg-emerald-100 text-emerald-800",
 }
 
+// Quote Status labels in Nederlands
+export const QUOTE_STATUS_LABELS: Record<string, string> = {
+  DRAFT: "Concept",
+  SENT: "Verzonden",
+  VIEWED: "Bekeken",
+  SIGNED: "Ondertekend",
+  DECLINED: "Afgewezen",
+  EXPIRED: "Verlopen",
+  CONVERTED: "Omgezet",
+}
+
+// Quote Status kleuren voor badges
+export const QUOTE_STATUS_COLORS: Record<string, string> = {
+  DRAFT: "bg-gray-100 text-gray-800",
+  SENT: "bg-blue-100 text-blue-800",
+  VIEWED: "bg-indigo-100 text-indigo-800",
+  SIGNED: "bg-green-100 text-green-800",
+  DECLINED: "bg-red-100 text-red-800",
+  EXPIRED: "bg-orange-100 text-orange-800",
+  CONVERTED: "bg-purple-100 text-purple-800",
+}
+
+// Signing Status labels (digitale ondertekening) in Nederlands
+export const SIGNING_STATUS_LABELS: Record<string, string> = {
+  NOT_SENT: "Niet verzonden",
+  PENDING: "Wacht op ondertekening",
+  VIEWED: "Bekeken",
+  SIGNED: "Ondertekend",
+  DECLINED: "Afgewezen",
+  EXPIRED: "Verlopen",
+}
+
+// Signing Status kleuren voor badges
+export const SIGNING_STATUS_COLORS: Record<string, string> = {
+  NOT_SENT: "bg-gray-100 text-gray-500",
+  PENDING: "bg-yellow-100 text-yellow-800",
+  VIEWED: "bg-blue-100 text-blue-800",
+  SIGNED: "bg-green-100 text-green-800",
+  DECLINED: "bg-red-100 text-red-800",
+  EXPIRED: "bg-orange-100 text-orange-800",
+}
+
 // Credit Note Reason labels in Nederlands
 export const CREDIT_NOTE_REASON_LABELS: Record<string, string> = {
   PRICE_CORRECTION: "Prijscorrectie",

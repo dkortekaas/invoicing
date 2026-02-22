@@ -1933,14 +1933,15 @@ enum SigningStatus {
 
 enum QuoteSigningEventType {
   CREATED         // Offerte aangemaakt
-  SENT            // Offerte verzonden
-  VIEWED          // Offerte bekeken
+  SENT            // Ondertekeningsuitnodiging verzonden
+  VIEWED          // Offerte bekeken door klant
   SIGNING_STARTED // Ondertekeningspagina geopend
   SIGNED          // Ondertekend
   DECLINED        // Afgewezen
-  EXPIRED         // Verlopen
+  EXPIRED         // Verlopen (link of offerte)
   REMINDER_SENT   // Herinnering verzonden
   INVOICE_CREATED // Factuur aangemaakt na ondertekening
+  DOWNLOADED      // Getekende PDF gedownload
 }
 
 enum SignatureMethod {
@@ -2061,6 +2062,7 @@ model QuoteSignature {
 
   // Ondertekenaar gegevens
   signerName      String  // Naam van de ondertekenaar
+  signerRole      String? // Functie/rol van de ondertekenaar
   signerEmail     String  // E-mailadres van de ondertekenaar
   signerIpAddress String? // IP-adres voor audittrail
   signerUserAgent String? // Browser/device info voor audittrail
@@ -2071,6 +2073,7 @@ model QuoteSignature {
 
   // Juridisch
   agreementText String? // Tekst waarmee de klant heeft ingestemd
+  remarks       String? // Opmerkingen van de ondertekenaar
 
   signedAt  DateTime // Exacte tijdstip van ondertekening
   createdAt DateTime @default(now())

@@ -3,6 +3,7 @@ title: "Factuur niet betaald — wat nu? (stappenplan + templates) — 2026"
 seoTitle: "Factuur niet betaald — wat nu? (stappenplan + templates) — 2026"
 metaDescription: "Je factuur is niet betaald. Wat doe je nu? Complete gids: wanneer mag je herinneringen sturen, hoe escaleer je, incassokosten, en hoe je dit voorkomt."
 excerpt: "Je factuur is niet betaald. Wat doe je nu? Complete gids: wanneer mag je herinneringen sturen, hoe escaleer je, incassokosten, en hoe je dit voorkomt."
+image: blog/factuur-niet-betaald-wat-nu.jpg
 date: "2026-02-17"
 updatedAt: "2026-02-17"
 category: facturatie

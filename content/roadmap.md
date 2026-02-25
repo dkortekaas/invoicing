@@ -5,7 +5,6 @@ description: Ontdek welke functionaliteiten we aan het bouwen zijn en wat er op 
 
 ## In ontwikkeling
 
-- **Digitale offerte-ondertekening** – Klanten kunnen offertes online accepteren met een rechtsgeldige elektronische handtekening (naam + timestamp). Bij akkoord wordt automatisch een factuur gegenereerd. Snellere doorlooptijd en integratie met het klantportaal.
 - **Meerdere talen in facturen** – Facturen en offertes in het Engels aanmaken.
 - **Verbeterde zoekfunctie** – Sneller zoeken in klanten, facturen en producten.
 
@@ -23,6 +22,7 @@ description: Ontdek welke functionaliteiten we aan het bouwen zijn en wat er op 
 
 ## Recent afgerond
 
+- **Digitale offerte-ondertekening** – Klanten kunnen offertes online accepteren met een rechtsgeldige elektronische handtekening (naam + timestamp). Bij akkoord wordt automatisch een factuur gegenereerd. Snellere doorlooptijd en integratie met het klantportaal.
 - **Inkomstenbelasting-overzicht** – Overzicht voor de aangifte inkomstenbelasting, aansluitend op de structuur van de Belastingdienst.
 - **Multi-valuta** – Facturen in vreemde valuta voor internationale klanten, met automatische EUR-conversie (ECB-koersen).
 - **Auto-categorisatie onkosten (OCR/ML)** – Bonnetjes en facturen automatisch uitlezen, categoriseren en BTW extraheren. Lerend systeem, duplicate detection.

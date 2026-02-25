@@ -1,12 +1,14 @@
 "use client"
 
-import { useForm, useFieldArray } from "react-hook-form"
+import { useForm, useFieldArray, Control } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Loader2, Plus, Trash2, CalendarIcon, Info } from "lucide-react"
 import { format, addDays } from "date-fns"
 import { nl } from "date-fns/locale"
+import { toast } from "sonner"
+import { isRedirectError } from "next/dist/client/components/redirect-error"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -74,6 +76,61 @@ interface QuoteFormProps {
   defaultExpiryDays?: number
 }
 
+// ─── DatePicker — buiten component om re-mount bij re-render te voorkomen ────
+
+interface DatePickerFieldProps {
+  control: Control<QuoteFormData>
+  name: "quoteDate" | "expiryDate"
+  label: string
+  optional?: boolean
+}
+
+function DatePickerField({ control, name, label, optional }: DatePickerFieldProps) {
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-col">
+          <FormLabel>
+            {label}
+            {optional && <span className="ml-1 text-muted-foreground">(optioneel)</span>}
+          </FormLabel>
+          <Popover>
+            <PopoverTrigger asChild>
+              <FormControl>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "pl-3 text-left font-normal",
+                    !field.value && "text-muted-foreground",
+                  )}
+                >
+                  {field.value ? (
+                    format(field.value as Date, "d MMMM yyyy", { locale: nl })
+                  ) : (
+                    <span>Selecteer datum</span>
+                  )}
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </FormControl>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={field.value as Date | undefined}
+                onSelect={field.onChange}
+                locale={nl}
+              />
+            </PopoverContent>
+          </Popover>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  )
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function QuoteForm({
@@ -85,6 +142,7 @@ export function QuoteForm({
 }: QuoteFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
 
   const today = new Date()
   const defaultExpiryDate = addDays(today, defaultExpiryDays)
@@ -177,75 +235,26 @@ export function QuoteForm({
 
   async function onSubmit(data: QuoteFormData, status: "DRAFT" | "SENT" = "DRAFT") {
     setIsSubmitting(true)
+    setFormError(null)
     try {
       if (quote?.id) {
         await updateQuote(quote.id, data, status)
       } else {
         await createQuote(data, status)
       }
+      toast.success(status === "SENT" ? "Offerte verstuurd" : "Offerte opgeslagen als concept")
       router.push("/offertes")
       router.refresh()
     } catch (error) {
-      console.error("Fout bij opslaan offerte:", error)
+      // Next.js redirect errors moeten doorpropageren (bijv. vanuit requireCompanyDetails)
+      if (isRedirectError(error)) throw error
+      const message =
+        error instanceof Error ? error.message : "Er is een onbekende fout opgetreden"
+      setFormError(message)
+      toast.error(message)
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  // ─── DatePicker helper ───────────────────────────────────────────────────
-
-  function DatePickerField({
-    name,
-    label,
-    optional,
-  }: {
-    name: "quoteDate" | "expiryDate"
-    label: string
-    optional?: boolean
-  }) {
-    return (
-      <FormField
-        control={form.control}
-        name={name}
-        render={({ field }) => (
-          <FormItem className="flex flex-col">
-            <FormLabel>
-              {label}
-              {optional && <span className="ml-1 text-muted-foreground">(optioneel)</span>}
-            </FormLabel>
-            <Popover>
-              <PopoverTrigger asChild>
-                <FormControl>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "pl-3 text-left font-normal",
-                      !field.value && "text-muted-foreground",
-                    )}
-                  >
-                    {field.value ? (
-                      format(field.value as Date, "d MMMM yyyy", { locale: nl })
-                    ) : (
-                      <span>Selecteer datum</span>
-                    )}
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </FormControl>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={field.value as Date | undefined}
-                  onSelect={field.onChange}
-                  locale={nl}
-                />
-              </PopoverContent>
-            </Popover>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    )
   }
 
   // ─── Render ──────────────────────────────────────────────────────────────
@@ -265,6 +274,13 @@ export function QuoteForm({
               </a>
               .
             </AlertDescription>
+          </Alert>
+        )}
+
+        {formError && (
+          <Alert variant="destructive">
+            <AlertTitle>Fout bij opslaan</AlertTitle>
+            <AlertDescription>{formError}</AlertDescription>
           </Alert>
         )}
 
@@ -307,8 +323,13 @@ export function QuoteForm({
 
                 {/* Datums */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <DatePickerField name="quoteDate" label="Offertedatum" />
-                  <DatePickerField name="expiryDate" label="Verloopdatum" optional />
+                  <DatePickerField control={form.control} name="quoteDate" label="Offertedatum" />
+                  <DatePickerField
+                    control={form.control}
+                    name="expiryDate"
+                    label="Verloopdatum"
+                    optional
+                  />
                 </div>
 
                 {/* Referentie & valuta */}
@@ -368,7 +389,8 @@ export function QuoteForm({
                     <SelectContent>
                       {products.map((product) => (
                         <SelectItem key={product.id} value={product.id}>
-                          {product.name} — {formatCurrencyWithCode(product.unitPrice, watchedCurrencyCode)}
+                          {product.name} —{" "}
+                          {formatCurrencyWithCode(product.unitPrice, watchedCurrencyCode)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -422,7 +444,9 @@ export function QuoteForm({
                                   step="0.01"
                                   min="0"
                                   {...field}
-                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  onChange={(e) =>
+                                    field.onChange(parseFloat(e.target.value) || 0)
+                                  }
                                 />
                               </FormControl>
                               <FormMessage />
@@ -436,7 +460,10 @@ export function QuoteForm({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Eenheid</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue />
@@ -469,12 +496,16 @@ export function QuoteForm({
                                   <Input
                                     type="number"
                                     step={
-                                      getCurrencyDecimals(watchedCurrencyCode) === 0 ? "1" : "0.01"
+                                      getCurrencyDecimals(watchedCurrencyCode) === 0
+                                        ? "1"
+                                        : "0.01"
                                     }
                                     min="0"
                                     className="pl-8"
                                     {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                    onChange={(e) =>
+                                      field.onChange(parseFloat(e.target.value) || 0)
+                                    }
                                   />
                                 </div>
                               </FormControl>
@@ -617,14 +648,17 @@ export function QuoteForm({
                     {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
                       <div key={rate} className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
-                          BTW {rate}% over {formatCurrencyWithCode(subtotal, watchedCurrencyCode)}
+                          BTW {rate}% over{" "}
+                          {formatCurrencyWithCode(subtotal, watchedCurrencyCode)}
                         </span>
                         <span>{formatCurrencyWithCode(vatAmount, watchedCurrencyCode)}</span>
                       </div>
                     ))}
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Totaal BTW</span>
-                      <span>{formatCurrencyWithCode(totals.vatAmount, watchedCurrencyCode)}</span>
+                      <span>
+                        {formatCurrencyWithCode(totals.vatAmount, watchedCurrencyCode)}
+                      </span>
                     </div>
                   </>
                 )}
@@ -655,6 +689,7 @@ export function QuoteForm({
                     disabled={isSubmitting}
                     onClick={form.handleSubmit((data) => onSubmit(data, "DRAFT"))}
                   >
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Opslaan als Concept
                   </Button>
                   <Button

@@ -91,6 +91,13 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
             {quote.customer.companyName && ` · ${quote.customer.name}`}
           </p>
         </div>
+        {!isSigned && quote.status !== "CONVERTED" && (
+          <Button variant="outline" asChild>
+            <Link href={`/offertes/${quote.id}/bewerken`}>
+              Bewerken
+            </Link>
+          </Button>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">

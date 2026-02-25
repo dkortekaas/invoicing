@@ -11,6 +11,7 @@ import Footer from "@/components/marketing/footer"
 const PROTECTED_ROUTE_PREFIXES = [
   "/dashboard",
   "/facturen",
+  "/offertes",
   "/klanten",
   "/producten",
   "/kosten",

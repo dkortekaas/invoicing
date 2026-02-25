@@ -19,6 +19,7 @@ import {
   Euro,
   FileX,
   Calculator,
+  ScrollText,
 } from "lucide-react"
 
 import {
@@ -45,6 +46,11 @@ const navigation = [
     title: "Facturen",
     url: "/facturen",
     icon: FileText,
+  },
+  {
+    title: "Offertes",
+    url: "/offertes",
+    icon: ScrollText,
   },
   {
     title: "Credit Nota's",

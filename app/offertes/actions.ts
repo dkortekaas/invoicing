@@ -255,7 +255,7 @@ export async function getNextQuoteNumber() {
   const result = await db.$queryRaw<[{ max_seq: number | null }]>(
     Prisma.sql`
       SELECT MAX(
-        CAST(SUBSTRING("quoteNumber" FROM POSITION('-' IN "quoteNumber" FROM 5) + 1) AS INTEGER)
+        CAST(split_part("quoteNumber", '-', 3) AS INTEGER)
       ) AS max_seq
       FROM "Quote"
       WHERE "userId" = ${userId} AND "quoteNumber" LIKE ${prefix + "%"}
@@ -349,7 +349,8 @@ export async function createQuote(
   if (!quote) throw new Error("Offerte aanmaken mislukt")
 
   revalidatePath("/offertes")
-  return quote
+  // Alleen serialiseerbare data teruggeven aan client (geen Prisma Decimal)
+  return { id: quote.id, quoteNumber: quote.quoteNumber }
 }
 
 export async function updateQuote(
@@ -434,7 +435,8 @@ export async function updateQuote(
 
   revalidatePath("/offertes")
   revalidatePath(`/offertes/${id}`)
-  return quote
+  // Alleen serialiseerbare data teruggeven aan client (geen Prisma Decimal)
+  return { id: quote.id, quoteNumber: quote.quoteNumber }
 }
 
 /**

@@ -35,10 +35,11 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname()
 
-  // Don't show dashboard layout for auth pages, marketing pages, and payment pages
+  // Don't show dashboard layout for auth pages, marketing pages, payment pages, and signing pages
   if (
     pathname?.startsWith("/login") ||
     pathname?.startsWith("/register") ||
+    pathname?.startsWith("/sign") ||
     pathname.startsWith("/blog") ||
     pathname.startsWith("/functies") ||
     pathname === "/" ||

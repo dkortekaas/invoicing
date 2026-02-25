@@ -1,9 +1,13 @@
 "use server"
 
+import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { getCurrentUserId } from "@/lib/server-utils"
+import { requireCompanyDetails } from "@/lib/company-guard"
 import { Prisma, type QuoteStatus } from "@prisma/client"
 import { sendSigningReminderEmail } from "@/lib/email/send-quote-signing"
+import { roundToTwo } from "@/lib/utils"
+import { quoteSchema, type QuoteFormData } from "@/lib/validations"
 
 interface GetQuotesOptions {
   status?: QuoteStatus | "ALL"
@@ -235,4 +239,232 @@ export async function sendSigningReminder(
     const message = err instanceof Error ? err.message : "Onbekende fout"
     return { success: false, error: `Herinnering kon niet worden verstuurd: ${message}` }
   }
+}
+
+// ─── Offerte aanmaken / bewerken ─────────────────────────────────────────────
+
+/**
+ * Genereert het volgende offertenummer voor de ingelogde gebruiker.
+ * Formaat: OFF-YYYY-0001
+ */
+export async function getNextQuoteNumber() {
+  const userId = await getCurrentUserId()
+  const year = new Date().getFullYear()
+  const prefix = `OFF-${year}-`
+
+  const result = await db.$queryRaw<[{ max_seq: number | null }]>(
+    Prisma.sql`
+      SELECT MAX(
+        CAST(SUBSTRING("quoteNumber" FROM POSITION('-' IN "quoteNumber" FROM 5) + 1) AS INTEGER)
+      ) AS max_seq
+      FROM "Quote"
+      WHERE "userId" = ${userId} AND "quoteNumber" LIKE ${prefix + "%"}
+    `,
+  )
+  const maxSeq = result[0]?.max_seq ?? 0
+  const sequence = maxSeq + 1
+  return `${prefix}${sequence.toString().padStart(4, "0")}`
+}
+
+export async function createQuote(
+  data: QuoteFormData,
+  status: "DRAFT" | "SENT" = "DRAFT",
+) {
+  await requireCompanyDetails()
+  const validated = quoteSchema.parse(data)
+  const userId = await getCurrentUserId()
+
+  const fiscalSettings = await db.fiscalSettings.findUnique({
+    where: { userId },
+    select: { useKOR: true },
+  })
+  const useKOR = fiscalSettings?.useKOR ?? false
+
+  let subtotal = 0
+  let vatAmount = 0
+  let total = 0
+
+  const itemsWithTotals = validated.items.map((item, index) => {
+    const itemSubtotal = roundToTwo(item.quantity * item.unitPrice)
+    const effectiveVatRate = useKOR ? 0 : item.vatRate
+    const itemVatAmount = roundToTwo(itemSubtotal * (effectiveVatRate / 100))
+    const itemTotal = roundToTwo(itemSubtotal + itemVatAmount)
+    subtotal += itemSubtotal
+    vatAmount += itemVatAmount
+    total += itemTotal
+    return {
+      description: item.description,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      vatRate: effectiveVatRate,
+      unit: item.unit,
+      subtotal: itemSubtotal,
+      vatAmount: itemVatAmount,
+      total: itemTotal,
+      sortOrder: index,
+    }
+  })
+
+  const currencyCode = validated.currencyCode ?? "EUR"
+  const currency = await db.currency.findUnique({
+    where: { code: currencyCode },
+    select: { id: true },
+  })
+
+  // Genereer offertenummer met retry bij conflict
+  const maxAttempts = 3
+  let quote
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const quoteNumber = await getNextQuoteNumber()
+    try {
+      quote = await db.quote.create({
+        data: {
+          userId,
+          quoteNumber,
+          customerId: validated.customerId,
+          quoteDate: validated.quoteDate,
+          expiryDate: validated.expiryDate ?? null,
+          status,
+          subtotal: roundToTwo(subtotal),
+          vatAmount: roundToTwo(vatAmount),
+          total: roundToTwo(total),
+          currencyCode,
+          currencyId: currency?.id,
+          reference: validated.reference ?? null,
+          notes: validated.notes ?? null,
+          internalNotes: validated.internalNotes ?? null,
+          sentAt: status === "SENT" ? new Date() : null,
+          items: { create: itemsWithTotals },
+        },
+      })
+      break
+    } catch (err) {
+      const isConflict =
+        err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002"
+      if (!isConflict || attempt === maxAttempts - 1) throw err
+      await new Promise((r) => setTimeout(r, 80))
+    }
+  }
+
+  if (!quote) throw new Error("Offerte aanmaken mislukt")
+
+  revalidatePath("/offertes")
+  return quote
+}
+
+export async function updateQuote(
+  id: string,
+  data: QuoteFormData,
+  status?: "DRAFT" | "SENT",
+) {
+  const validated = quoteSchema.parse(data)
+  const userId = await getCurrentUserId()
+
+  const existing = await db.quote.findUnique({
+    where: { id, userId },
+    select: { status: true, signingEnabled: true },
+  })
+  if (!existing) throw new Error("Offerte niet gevonden")
+  // Geblokkeerd bewerken als al ondertekend
+  if (existing.status === "SIGNED" || existing.status === "CONVERTED") {
+    throw new Error("Een ondertekende of geconverteerde offerte kan niet meer worden bewerkt")
+  }
+
+  const fiscalSettings = await db.fiscalSettings.findUnique({
+    where: { userId },
+    select: { useKOR: true },
+  })
+  const useKOR = fiscalSettings?.useKOR ?? false
+
+  let subtotal = 0
+  let vatAmount = 0
+  let total = 0
+
+  const itemsWithTotals = validated.items.map((item, index) => {
+    const itemSubtotal = roundToTwo(item.quantity * item.unitPrice)
+    const effectiveVatRate = useKOR ? 0 : item.vatRate
+    const itemVatAmount = roundToTwo(itemSubtotal * (effectiveVatRate / 100))
+    const itemTotal = roundToTwo(itemSubtotal + itemVatAmount)
+    subtotal += itemSubtotal
+    vatAmount += itemVatAmount
+    total += itemTotal
+    return {
+      description: item.description,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      vatRate: effectiveVatRate,
+      unit: item.unit,
+      subtotal: itemSubtotal,
+      vatAmount: itemVatAmount,
+      total: itemTotal,
+      sortOrder: index,
+    }
+  })
+
+  const currencyCode = validated.currencyCode ?? "EUR"
+  const currency = await db.currency.findUnique({
+    where: { code: currencyCode },
+    select: { id: true },
+  })
+
+  const newStatus = status ?? (existing.status as "DRAFT" | "SENT")
+
+  const quote = await db.quote.update({
+    where: { id },
+    data: {
+      customerId: validated.customerId,
+      quoteDate: validated.quoteDate,
+      expiryDate: validated.expiryDate ?? null,
+      status: newStatus,
+      subtotal: roundToTwo(subtotal),
+      vatAmount: roundToTwo(vatAmount),
+      total: roundToTwo(total),
+      currencyCode,
+      currencyId: currency?.id,
+      reference: validated.reference ?? null,
+      notes: validated.notes ?? null,
+      internalNotes: validated.internalNotes ?? null,
+      sentAt: newStatus === "SENT" && !existing.status.includes("SENT") ? new Date() : undefined,
+      items: {
+        deleteMany: {},
+        create: itemsWithTotals,
+      },
+    },
+  })
+
+  revalidatePath("/offertes")
+  revalidatePath(`/offertes/${id}`)
+  return quote
+}
+
+/**
+ * Haalt een offerte op voor het bewerkformulier (volledige data incl. items).
+ */
+export async function getQuoteForEdit(id: string) {
+  const userId = await getCurrentUserId()
+  return db.quote.findUnique({
+    where: { id, userId },
+    select: {
+      id: true,
+      quoteNumber: true,
+      status: true,
+      customerId: true,
+      quoteDate: true,
+      expiryDate: true,
+      reference: true,
+      notes: true,
+      internalNotes: true,
+      currencyCode: true,
+      items: {
+        orderBy: { sortOrder: "asc" },
+        select: {
+          description: true,
+          quantity: true,
+          unitPrice: true,
+          vatRate: true,
+          unit: true,
+        },
+      },
+    },
+  })
 }

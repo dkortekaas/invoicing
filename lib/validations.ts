@@ -85,6 +85,22 @@ export const invoiceSchema = z.object({
 
 export type InvoiceFormData = z.infer<typeof invoiceSchema>
 
+// ========== Quote Schema ==========
+export const quoteSchema = z.object({
+  customerId: z.string().min(1, "Selecteer een klant"),
+  quoteDate: z.date(),
+  expiryDate: z.date().optional().nullable(),
+  reference: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  internalNotes: z.string().optional().nullable(),
+  currencyCode: z.string().length(3, "Valutacode moet 3 tekens zijn").optional(),
+  items: z
+    .array(invoiceItemSchema)
+    .min(1, "Voeg minimaal één regel toe"),
+})
+
+export type QuoteFormData = z.infer<typeof quoteSchema>
+
 // ========== Credit Note Item Schema ==========
 export const creditNoteItemSchema = z.object({
   description: z.string().min(1, "Omschrijving is verplicht"),

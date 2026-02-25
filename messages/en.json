@@ -309,11 +309,17 @@
         "twoFactor": "2FA Security",
         "logout": "Log out",
         "user": "User",
+        "sidebar": {
+            "navigation": "Navigation",
+            "auditLog": "Audit Log",
+            "admin": "Admin"
+        },
         "pages": {
             "dashboard": "Dashboard",
             "invoices": "Invoices",
-            "newInvoice": "New Invoice",
-            "invoice": "Invoice",
+            "quotes": "Quotes",
+            "creditNotes": "Credit Notes",
+            "subscriptions": "Subscriptions",
             "time": "Time tracking",
             "timeEntries": "Time Entries",
             "projects": "Projects",
@@ -321,7 +327,53 @@
             "newCustomer": "New Customer",
             "customer": "Customer",
             "products": "Products",
+            "expenses": "Expenses",
+            "vat": "VAT",
+            "tax": "Tax",
             "settings": "Settings"
+        },
+        "home": {
+            "welcomeTitle": "Welcome back!",
+            "welcomeSubtitle": "Here’s an overview of your invoicing",
+            "newInvoice": "New Invoice",
+            "viewAll": "View all",
+            "outstanding": "Outstanding",
+            "overdue": "Overdue",
+            "revenueThisMonth": "Revenue this month",
+            "customers": "Customers",
+            "invoices": "invoices",
+            "recentInvoices": "Recent Invoices",
+            "noInvoicesYet": "No invoices yet",
+            "quickActions": "Quick Actions",
+            "newInvoiceAction": "Create new invoice",
+            "newCustomerAction": "Add new customer",
+            "manageProductsAction": "Manage products & services",
+            "revenueYear": "Revenue {year}",
+            "revenueYearDescription": "Total revenue this year (paid invoices)",
+            "vsLastMonth": "vs last month"
+        },
+        "signing": {
+            "title": "Pending signatures",
+            "viewAll": "View all",
+            "countWaiting": "{count} quote awaiting signature",
+            "countWaitingPlural": "{count} quotes awaiting signature",
+            "countExpiring": "{count} quote expires within 3 days",
+            "countExpiringPlural": "{count} quotes expire within 3 days",
+            "nearlyExpired": "Nearly expired",
+            "viewed": "Viewed",
+            "sentToday": "Sent today",
+            "daysWaiting": "{days} day waiting",
+            "daysWaitingPlural": "{days} days waiting",
+            "expiresOn": "Expires",
+            "moreQuotes": "+ {count} more quote",
+            "moreQuotesPlural": "+ {count} more quotes"
+        },
+        "status": {
+            "DRAFT": "Draft",
+            "SENT": "Sent",
+            "PAID": "Paid",
+            "OVERDUE": "Overdue",
+            "CANCELLED": "Cancelled"
         }
     },
     "featuresPage": {

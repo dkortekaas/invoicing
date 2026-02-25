@@ -11,11 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLocale, useTranslations } from "@/components/providers/locale-provider";
-import { type Locale, locales, localeNames, LOCALE_COOKIE } from "@/lib/i18n";
+import { type Locale, locales, localeNames } from "@/lib/i18n";
 import { nlPathToEn, enPathToNl, isMarketingPath, localeFromPathname } from "@/lib/i18n-routes";
 
 export function LanguageSwitcher() {
-  const { locale } = useLocale();
+  const { locale, setLocale } = useLocale();
   const { t } = useTranslations("common");
   const pathname = usePathname();
   const router = useRouter();
@@ -38,9 +38,8 @@ export function LanguageSwitcher() {
 
       router.push(targetPath);
     } else {
-      // For non-marketing pages: set cookie and refresh
-      document.cookie = `${LOCALE_COOKIE}=${targetLocale}; path=/; max-age=31536000; SameSite=Lax`;
-      router.refresh();
+      // Use setLocale from context: updates React state (instant re-render) + cookie + router.refresh()
+      setLocale(targetLocale);
     }
   }
 

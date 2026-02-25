@@ -317,11 +317,17 @@
         "twoFactor": "2FA Beveiliging",
         "logout": "Uitloggen",
         "user": "Gebruiker",
+        "sidebar": {
+            "navigation": "Navigatie",
+            "auditLog": "Auditlog",
+            "admin": "Beheer"
+        },
         "pages": {
             "dashboard": "Dashboard",
             "invoices": "Facturen",
-            "newInvoice": "Nieuwe Factuur",
-            "invoice": "Factuur",
+            "quotes": "Offertes",
+            "creditNotes": "Credit Nota's",
+            "subscriptions": "Abonnementen",
             "time": "Tijdregistratie",
             "timeEntries": "Time Entries",
             "projects": "Projecten",
@@ -329,7 +335,53 @@
             "newCustomer": "Nieuwe Klant",
             "customer": "Klant",
             "products": "Producten",
+            "expenses": "Kosten",
+            "vat": "BTW",
+            "tax": "Belasting",
             "settings": "Instellingen"
+        },
+        "home": {
+            "welcomeTitle": "Welkom terug!",
+            "welcomeSubtitle": "Hier is een overzicht van je facturatie",
+            "newInvoice": "Nieuwe Factuur",
+            "viewAll": "Bekijk alle",
+            "outstanding": "Openstaand",
+            "overdue": "Achterstallig",
+            "revenueThisMonth": "Omzet deze maand",
+            "customers": "Klanten",
+            "invoices": "facturen",
+            "recentInvoices": "Recente Facturen",
+            "noInvoicesYet": "Nog geen facturen",
+            "quickActions": "Snelle Acties",
+            "newInvoiceAction": "Nieuwe factuur maken",
+            "newCustomerAction": "Nieuwe klant toevoegen",
+            "manageProductsAction": "Product/dienst beheren",
+            "revenueYear": "Omzet {year}",
+            "revenueYearDescription": "Totale omzet dit jaar (betaalde facturen)",
+            "vsLastMonth": "t.o.v. vorige maand"
+        },
+        "signing": {
+            "title": "Openstaande ondertekeningen",
+            "viewAll": "Bekijk alle",
+            "countWaiting": "{count} offerte wachten op ondertekening",
+            "countWaitingPlural": "{count} offertes wachten op ondertekening",
+            "countExpiring": "{count} offerte verloopt binnen 3 dagen",
+            "countExpiringPlural": "{count} offertes verlopen binnen 3 dagen",
+            "nearlyExpired": "Bijna verlopen",
+            "viewed": "Bekeken",
+            "sentToday": "Vandaag verstuurd",
+            "daysWaiting": "{days} dag wachttijd",
+            "daysWaitingPlural": "{days} dagen wachttijd",
+            "expiresOn": "Verloopt",
+            "moreQuotes": "+ {count} meer offerte",
+            "moreQuotesPlural": "+ {count} meer offertes"
+        },
+        "status": {
+            "DRAFT": "Concept",
+            "SENT": "Verzonden",
+            "PAID": "Betaald",
+            "OVERDUE": "Achterstallig",
+            "CANCELLED": "Geannuleerd"
         }
     },
     "featuresPage": {

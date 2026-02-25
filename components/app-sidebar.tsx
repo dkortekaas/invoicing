@@ -35,72 +35,74 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import Logo from "@/components/marketing/logo"
-
-const navigation = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Facturen",
-    url: "/facturen",
-    icon: FileText,
-  },
-  {
-    title: "Offertes",
-    url: "/offertes",
-    icon: ScrollText,
-  },
-  {
-    title: "Credit Nota's",
-    url: "/creditnotas",
-    icon: FileX,
-  },
-  {
-    title: "Abonnementen",
-    url: "/abonnementen",
-    icon: Repeat,
-  },
-  {
-    title: "Tijdregistratie",
-    url: "/tijd",
-    icon: Clock,
-  },
-  {
-    title: "Klanten",
-    url: "/klanten",
-    icon: Users,
-  },
-  {
-    title: "Producten",
-    url: "/producten",
-    icon: Package,
-  },
-  {
-    title: "Kosten",
-    url: "/kosten",
-    icon: Euro,
-  },
-  {
-    title: "BTW",
-    url: "/btw",
-    icon: Receipt,
-  },
-  {
-    title: "Belasting",
-    url: "/belasting",
-    icon: Calculator,
-  },
-  {
-    title: "Instellingen",
-    url: "/instellingen",
-    icon: Settings,
-  },
-]
+import { useTranslations } from "@/components/providers/locale-provider"
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { t } = useTranslations("dashboard")
+
+  const navigation = [
+    {
+      title: t("pages.dashboard"),
+      url: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: t("pages.invoices"),
+      url: "/facturen",
+      icon: FileText,
+    },
+    {
+      title: t("pages.quotes"),
+      url: "/offertes",
+      icon: ScrollText,
+    },
+    {
+      title: t("pages.creditNotes"),
+      url: "/creditnotas",
+      icon: FileX,
+    },
+    {
+      title: t("pages.subscriptions"),
+      url: "/abonnementen",
+      icon: Repeat,
+    },
+    {
+      title: t("pages.time"),
+      url: "/tijd",
+      icon: Clock,
+    },
+    {
+      title: t("pages.customers"),
+      url: "/klanten",
+      icon: Users,
+    },
+    {
+      title: t("pages.products"),
+      url: "/producten",
+      icon: Package,
+    },
+    {
+      title: t("pages.expenses"),
+      url: "/kosten",
+      icon: Euro,
+    },
+    {
+      title: t("pages.vat"),
+      url: "/btw",
+      icon: Receipt,
+    },
+    {
+      title: t("pages.tax"),
+      url: "/belasting",
+      icon: Calculator,
+    },
+    {
+      title: t("pages.settings"),
+      url: "/instellingen",
+      icon: Settings,
+    },
+  ]
   const [isAdmin, setIsAdmin] = useState(false)
   const [isSuperuser, setIsSuperuser] = useState(false)
 
@@ -138,7 +140,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigatie</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("sidebar.navigation")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigation.map((item) => {
@@ -162,7 +164,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild isActive={pathname?.startsWith('/audit-logs')}>
                     <Link href="/audit-logs">
                       <History />
-                      <span>Audit Log</span>
+                      <span>{t("sidebar.auditLog")}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -172,7 +174,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild isActive={pathname?.startsWith('/admin')}>
                     <Link href="/admin">
                       <Shield />
-                      <span>Admin</span>
+                      <span>{t("sidebar.admin")}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -186,7 +188,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout}>
               <LogOut />
-              <span>Uitloggen</span>
+              <span>{t("logout")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

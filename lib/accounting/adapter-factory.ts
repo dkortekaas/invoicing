@@ -11,7 +11,7 @@ import type { AccountingAdapter } from './types'
 export async function getAdapter(provider: AccountingProvider, accessToken: string): Promise<AccountingAdapter> {
   switch (provider) {
     case AccountingProvider.MONEYBIRD: {
-      const { MoneybirdAdapter } = await import('./providers/moneybird')
+      const { MoneybirdAdapter } = await import('./adapters/moneybird')
       return new MoneybirdAdapter(accessToken)
     }
     case AccountingProvider.EBOEKHOUDEN: {

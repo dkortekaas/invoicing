@@ -8,23 +8,23 @@ import type { AccountingAdapter } from './types'
  *
  * @throws {Error} When the provider is not yet supported.
  */
-export async function getAdapter(provider: AccountingProvider): Promise<AccountingAdapter> {
+export async function getAdapter(provider: AccountingProvider, accessToken: string): Promise<AccountingAdapter> {
   switch (provider) {
     case AccountingProvider.MONEYBIRD: {
       const { MoneybirdAdapter } = await import('./providers/moneybird')
-      return new MoneybirdAdapter()
+      return new MoneybirdAdapter(accessToken)
     }
     case AccountingProvider.EBOEKHOUDEN: {
       const { EboekhoudenAdapter } = await import('./providers/eboekhouden')
-      return new EboekhoudenAdapter()
+      return new EboekhoudenAdapter(accessToken)
     }
     case AccountingProvider.EXACT: {
       const { ExactAdapter } = await import('./providers/exact')
-      return new ExactAdapter()
+      return new ExactAdapter(accessToken)
     }
     case AccountingProvider.YUKI: {
       const { YukiAdapter } = await import('./providers/yuki')
-      return new YukiAdapter()
+      return new YukiAdapter(accessToken)
     }
     default: {
       // TypeScript exhaustiveness check — this branch is unreachable if all enum

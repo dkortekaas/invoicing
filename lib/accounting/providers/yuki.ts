@@ -2,6 +2,8 @@
 import type { AccountingAdapter } from '../types'
 
 export class YukiAdapter implements AccountingAdapter {
+  constructor(_accessToken: string) {}
+
   getAuthUrl(): string { throw new Error('Not implemented') }
   exchangeCodeForTokens(): Promise<never> { throw new Error('Not implemented') }
   refreshAccessToken(): Promise<never> { throw new Error('Not implemented') }

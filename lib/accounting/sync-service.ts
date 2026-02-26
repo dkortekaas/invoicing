@@ -110,7 +110,7 @@ async function getActiveAdapter(connectionId: string) {
   if (connection.tokenExpiresAt && connection.tokenExpiresAt <= new Date() && connection.refreshToken) {
     const decryptedRefreshToken = decrypt(connection.refreshToken)
     // Bootstrap a short-lived adapter solely to call the OAuth refresh endpoint
-    const tempAdapter = await getAdapter(connection.provider, accessToken)
+    const tempAdapter = await getAdapter(connection.provider, accessToken, connection.externalAdminId)
     const tokenResponse = await tempAdapter.refreshAccessToken(decryptedRefreshToken)
 
     await db.accountingConnection.update({
@@ -130,7 +130,7 @@ async function getActiveAdapter(connectionId: string) {
     accessToken = tokenResponse.accessToken
   }
 
-  const adapter = await getAdapter(connection.provider, accessToken)
+  const adapter = await getAdapter(connection.provider, accessToken, connection.externalAdminId)
   return { connection, adapter }
 }
 

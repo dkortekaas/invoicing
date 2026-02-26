@@ -8,11 +8,16 @@ import type { AccountingAdapter } from './types'
  *
  * @throws {Error} When the provider is not yet supported.
  */
-export async function getAdapter(provider: AccountingProvider, accessToken: string): Promise<AccountingAdapter> {
+export async function getAdapter(
+  provider: AccountingProvider,
+  accessToken: string,
+  adminId?: string,
+): Promise<AccountingAdapter> {
   switch (provider) {
     case AccountingProvider.MONEYBIRD: {
       const { MoneybirdAdapter } = await import('./adapters/moneybird')
-      return new MoneybirdAdapter(accessToken)
+      if (!adminId) throw new Error('adminId is required for the Moneybird adapter')
+      return new MoneybirdAdapter(accessToken, adminId)
     }
     case AccountingProvider.EBOEKHOUDEN: {
       const { EboekhoudenAdapter } = await import('./providers/eboekhouden')

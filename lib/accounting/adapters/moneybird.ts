@@ -59,12 +59,32 @@ interface MoneybirdAdministration {
   country?: string
 }
 
+interface MoneybirdContact {
+  id: number | string
+  company_name: string
+  firstname: string
+  lastname: string
+  email: string
+  phone: string
+  address1?: string
+  zipcode?: string
+  city?: string
+  country?: string
+  chamber_of_commerce?: string
+  tax_number?: string
+}
+
+type MoneybirdContactPayload = Partial<Omit<MoneybirdContact, 'id'>>
+
 // ============================================================
 // Adapter
 // ============================================================
 
 export class MoneybirdAdapter implements AccountingAdapter {
-  constructor(private readonly token: string) {}
+  constructor(
+    private readonly token: string,
+    private readonly adminId: string,
+  ) {}
 
   // -------------------------------------------------------
   // OAuth
@@ -123,19 +143,60 @@ export class MoneybirdAdapter implements AccountingAdapter {
   }
 
   // -------------------------------------------------------
-  // Customer methods (implemented in a later task)
+  // Customer methods
   // -------------------------------------------------------
 
-  createCustomer(_customer: CustomerPayload): Promise<ExternalCustomer> {
-    throw new Error('Not implemented')
+  async createCustomer(customer: CustomerPayload): Promise<ExternalCustomer> {
+    const payload: MoneybirdContactPayload = {
+      company_name: customer.companyName,
+      firstname: customer.firstName,
+      lastname: customer.lastName,
+      email: customer.email,
+      phone: customer.phone,
+      address1: customer.address,
+      zipcode: customer.zipcode,
+      city: customer.city,
+      country: customer.country,
+      chamber_of_commerce: customer.chamberOfCommerce,
+      tax_number: customer.taxNumber,
+    }
+    const response = await this.makeRequest<{ contact: MoneybirdContact }>(
+      'POST',
+      `/${this.adminId}/contacts`,
+      { contact: payload },
+    )
+    return this.transformContact(response.contact)
   }
 
-  updateCustomer(_externalId: string, _customer: CustomerPayload): Promise<ExternalCustomer> {
-    throw new Error('Not implemented')
+  async updateCustomer(externalId: string, customer: CustomerPayload): Promise<ExternalCustomer> {
+    const payload: MoneybirdContactPayload = {
+      company_name: customer.companyName,
+      firstname: customer.firstName,
+      lastname: customer.lastName,
+      email: customer.email,
+      phone: customer.phone,
+      address1: customer.address,
+      zipcode: customer.zipcode,
+      city: customer.city,
+      country: customer.country,
+      chamber_of_commerce: customer.chamberOfCommerce,
+      tax_number: customer.taxNumber,
+    }
+    const response = await this.makeRequest<{ contact: MoneybirdContact }>(
+      'PATCH',
+      `/${this.adminId}/contacts/${externalId}`,
+      { contact: payload },
+    )
+    return this.transformContact(response.contact)
   }
 
-  findCustomerByEmail(_email: string): Promise<ExternalCustomer | null> {
-    throw new Error('Not implemented')
+  async findCustomerByEmail(email: string): Promise<ExternalCustomer | null> {
+    const data = await this.makeRequest<MoneybirdContact[]>(
+      'GET',
+      `/${this.adminId}/contacts?query=${encodeURIComponent(email)}`,
+    )
+    const match = data.find((c) => c.email === email)
+    return match ? this.transformContact(match) : null
   }
 
   // -------------------------------------------------------
@@ -169,6 +230,18 @@ export class MoneybirdAdapter implements AccountingAdapter {
   // -------------------------------------------------------
   // Private Helpers
   // -------------------------------------------------------
+
+  private transformContact(contact: MoneybirdContact): ExternalCustomer {
+    const name =
+      contact.company_name ||
+      [contact.firstname, contact.lastname].filter(Boolean).join(' ').trim()
+    return {
+      id: String(contact.id),
+      name,
+      email: contact.email,
+      externalUrl: `https://moneybird.com/${this.adminId}/contacts/${contact.id}`,
+    }
+  }
 
   /**
    * Shared handler for both authorization_code and refresh_token grant types.

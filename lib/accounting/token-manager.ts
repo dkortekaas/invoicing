@@ -48,7 +48,7 @@ export async function withValidToken<T>(
         throw new Error('No refresh token available')
       }
 
-      const adapter = await getAdapter(connection.provider, accessToken)
+      const adapter = await getAdapter(connection.provider, accessToken, connection.externalAdminId)
       const decryptedRefreshToken = decrypt(connection.refreshToken)
       const newTokens = await adapter.refreshAccessToken(decryptedRefreshToken)
 

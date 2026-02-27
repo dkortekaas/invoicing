@@ -63,3 +63,24 @@ export interface SyncStatusEntry {
 export interface SyncStatusResponse {
   synced: SyncStatusEntry[]
 }
+
+// ============================================================
+// Bulk Sync Types
+// ============================================================
+
+export interface BulkSyncItemResult {
+  invoiceId: string
+  invoiceNumber: string
+  provider: string
+  providerName: string
+  status: 'success' | 'error' | 'skipped'
+  externalId?: string | null
+  error?: string | null
+}
+
+export interface BulkSyncResult {
+  succeeded: number
+  failed: number
+  skipped: number
+  results: BulkSyncItemResult[]
+}

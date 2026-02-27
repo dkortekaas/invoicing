@@ -46,6 +46,7 @@ Snelle referentie voor Claude Code om nieuwe code te schrijven die aansluit op b
 │   ├── btw/                    # BTW-aangifte (PRO)
 │   ├── abonnementen/           # Terugkerende facturen (PRO)
 │   ├── dashboard/              # Analytics (PRO)
+│   │   └── settings/accounting/logs/page.tsx  # Sync log pagina (filters, tabel, detail-sheet, auto-refresh)
 │   ├── activa/                 # Vaste activa
 │   ├── belasting/              # Belastingrapportage
 │   ├── instellingen/           # Instellingen (import/export, etc.)
@@ -81,7 +82,10 @@ Snelle referentie voor Claude Code om nieuwe code te schrijven die aansluit op b
 │               ├── invoice/[id]/     # POST – sync factuur (optioneel body: { connectionId })
 │               ├── credit-note/[id]/ # POST – sync creditnota (optioneel body: { connectionId })
 │               ├── batch/            # POST – sync meerdere facturen ({ invoiceIds, connectionId? })
-│               └── retry/[logId]/    # POST – herstart gefaalde sync op basis van AccountingSyncLog
+│               ├── retry/[logId]/    # POST – herstart gefaalde sync op basis van AccountingSyncLog
+│               ├── logs/             # GET – pagineerde sync log lijst (filters: provider, entityType, status, dateFrom, dateTo)
+│               ├── logs/[id]/        # GET – volledig log record incl. requestPayload/responsePayload/errorDetails
+│               └── status/[entityType]/[entityId]/ # GET – sync status per entiteit (invoice|customer|credit-note)
 │
 ├── components/
 │   ├── ui/                     # shadcn/ui basiscomponenten
@@ -92,6 +96,8 @@ Snelle referentie voor Claude Code om nieuwe code te schrijven die aansluit op b
 │   ├── expenses/               # Kostenformulier + OCR preview
 │   ├── quotes/                 # Offerte componenten
 │   ├── recurring/              # Terugkerende facturen componenten
+│   ├── accounting/             # Boekhoudkoppelingen UI
+│   │   └── BulkSyncModal.tsx   # 3-staps bulk sync modal (bevestigen → voortgang → resultaat)
 │   ├── vendors/                # Leveranciersbeheer formulier
 │   ├── time/                   # Tijdregistratie componenten
 │   ├── analytics/              # Charts en KPI-kaarten
@@ -151,6 +157,7 @@ Snelle referentie voor Claude Code om nieuwe code te schrijven die aansluit op b
 │
 ├── types/
 │   ├── index.ts                # Gedeelde TypeScript types
+│   ├── accounting.ts           # Boekhoudkoppelingen types: SyncLogItem, SyncLogDetail, SyncLogListResponse, SyncStatusEntry, BulkSyncResult
 │   └── next-auth.d.ts          # NextAuth type augmentaties
 │
 ├── hooks/                      # React client-side hooks
@@ -376,6 +383,10 @@ Alle shadcn/ui basiscomponenten in `components/ui/`:
 | Pagination | `components/ui/pagination.tsx` |
 
 **Domain-specifieke formuliercomponenten** volgen het patroon `components/{domain}/{domain}-form.tsx`, bijv. `components/invoices/invoice-form.tsx`.
+
+**Boekhoudkoppelingen (accounting) componenten**:
+- `components/accounting/BulkSyncModal.tsx` — Bulk sync modal met 3 stappen: bevestigen (provider-selectie + waarschuwingen), voortgang (per-factuur real-time status voor ≤10, grote batch-melding voor >10), resultaat (samenvatting + retry per mislukt item). Props: `{ invoices: InvoiceInput[], onClose, onComplete }`. Gebruikt `GET /api/accounting/status` voor koppelingen en `POST /api/accounting/sync/invoice/[id]` (kleine batch) of `POST /api/accounting/sync/batch` (grote batch).
+- `components/invoices/invoice-table.tsx` — Client component die de factuurlijst weergeeft met checkboxes voor selectie, een bulk-actiebalk (inclusief 'Sync naar boekhouding'-knop als `hasAccountingConnections === true`), en integreert BulkSyncModal. Vervangt de inline tabelrendering in `app/facturen/page.tsx`.
 
 **Toast** aanroepen via `import { toast } from 'sonner'`:
 ```ts

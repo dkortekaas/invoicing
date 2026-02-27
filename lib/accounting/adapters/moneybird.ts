@@ -1,3 +1,5 @@
+import { format } from 'date-fns'
+import { LedgerSourceType } from '@prisma/client'
 import {
   AccountingSyncError,
   SyncErrorType,
@@ -8,10 +10,13 @@ import {
   type ExternalCreditNote,
   type ExternalCustomer,
   type ExternalInvoice,
+  type InvoiceLinePayload,
   type InvoicePayload,
   type LedgerAccount,
+  type LedgerMapping,
   type TokenResponse,
   type VatCode,
+  type VatMapping,
 } from '../types'
 
 // ============================================================
@@ -75,6 +80,36 @@ interface MoneybirdContact {
 }
 
 type MoneybirdContactPayload = Partial<Omit<MoneybirdContact, 'id'>>
+
+interface MoneybirdDetailAttribute {
+  description: string
+  price: string
+  amount: string
+  tax_rate_id: string | null
+  ledger_account_id: string | null
+}
+
+interface MoneybirdInvoicePayload {
+  contact_id: string
+  reference: string
+  invoice_date: string
+  due_date: string
+  currency: string
+  prices_are_incl_tax: boolean
+  details_attributes: MoneybirdDetailAttribute[]
+  credit_invoice_for_id?: string
+}
+
+interface MoneybirdInvoice {
+  id: number | string
+  invoice_id: string
+  contact_id: string | number
+  reference?: string
+  invoice_date: string
+  due_date?: string
+  state?: string
+  currency?: string
+}
 
 // ============================================================
 // Adapter
@@ -200,19 +235,94 @@ export class MoneybirdAdapter implements AccountingAdapter {
   }
 
   // -------------------------------------------------------
-  // Invoice methods (implemented in a later task)
+  // Invoice methods
   // -------------------------------------------------------
 
-  createInvoice(_invoice: InvoicePayload): Promise<ExternalInvoice> {
-    throw new Error('Not implemented')
+  async createInvoice(invoice: InvoicePayload): Promise<ExternalInvoice> {
+    const payload: MoneybirdInvoicePayload = {
+      contact_id: invoice.externalCustomerId,
+      reference: invoice.invoiceNumber,
+      invoice_date: format(invoice.date, 'yyyy-MM-dd'),
+      due_date: format(invoice.dueDate, 'yyyy-MM-dd'),
+      currency: 'EUR',
+      prices_are_incl_tax: false,
+      details_attributes: invoice.items.map((item) => ({
+        description: item.description,
+        price: item.unitPrice.toString(),
+        amount: item.quantity.toString(),
+        tax_rate_id: this.getVatMapping(item.vatRate, invoice.vatMappings)?.externalVatId ?? null,
+        ledger_account_id: this.getLedgerMapping(item, invoice.ledgerMappings)?.externalLedgerId ?? null,
+      })),
+    }
+    const response = await this.makeRequest<{ sales_invoice: MoneybirdInvoice }>(
+      'POST',
+      `/${this.adminId}/sales_invoices`,
+      { sales_invoice: payload },
+    )
+    const res = response.sales_invoice
+    return {
+      id: String(res.id),
+      invoiceNumber: res.invoice_id,
+      externalUrl: `https://moneybird.com/${this.adminId}/sales_invoices/${res.id}`,
+    }
   }
 
-  updateInvoiceStatus(_externalId: string, _status: string): Promise<void> {
-    throw new Error('Not implemented')
+  async updateInvoiceStatus(externalId: string, status: string): Promise<void> {
+    if (status === 'PAID') {
+      await this.makeRequest(
+        'POST',
+        `/${this.adminId}/sales_invoices/${externalId}/register_payment`,
+        {
+          payment: {
+            price_base: 'invoice_total_price_incl_tax',
+            payment_date: format(new Date(), 'yyyy-MM-dd'),
+          },
+        },
+      )
+    } else if (status === 'SENT') {
+      await this.makeRequest(
+        'POST',
+        `/${this.adminId}/sales_invoices/${externalId}/send_invoice`,
+        { sales_invoice: { sending_method: 'email' } },
+      )
+    } else {
+      await this.makeRequest(
+        'PATCH',
+        `/${this.adminId}/sales_invoices/${externalId}`,
+        { sales_invoice: { state: status.toLowerCase() } },
+      )
+    }
   }
 
-  createCreditNote(_creditNote: CreditNotePayload): Promise<ExternalCreditNote> {
-    throw new Error('Not implemented')
+  async createCreditNote(creditNote: CreditNotePayload): Promise<ExternalCreditNote> {
+    const payload: MoneybirdInvoicePayload & { credit_invoice_for_id?: string } = {
+      contact_id: creditNote.externalCustomerId,
+      reference: creditNote.creditNoteNumber,
+      invoice_date: format(creditNote.date, 'yyyy-MM-dd'),
+      due_date: format(creditNote.date, 'yyyy-MM-dd'),
+      currency: 'EUR',
+      prices_are_incl_tax: false,
+      details_attributes: creditNote.items.map((item) => ({
+        description: item.description,
+        price: item.unitPrice.toString(),
+        amount: item.quantity.toString(),
+        tax_rate_id: this.getVatMapping(item.vatRate, creditNote.vatMappings)?.externalVatId ?? null,
+        ledger_account_id: this.getLedgerMapping(item, creditNote.ledgerMappings)?.externalLedgerId ?? null,
+      })),
+      ...(creditNote.originalInvoiceExternalId
+        ? { credit_invoice_for_id: creditNote.originalInvoiceExternalId }
+        : {}),
+    }
+    const response = await this.makeRequest<{ sales_invoice: MoneybirdInvoice }>(
+      'POST',
+      `/${this.adminId}/sales_invoices`,
+      { sales_invoice: payload },
+    )
+    const res = response.sales_invoice
+    return {
+      id: String(res.id),
+      externalUrl: `https://moneybird.com/${this.adminId}/sales_invoices/${res.id}`,
+    }
   }
 
   // -------------------------------------------------------
@@ -230,6 +340,26 @@ export class MoneybirdAdapter implements AccountingAdapter {
   // -------------------------------------------------------
   // Private Helpers
   // -------------------------------------------------------
+
+  private getVatMapping(vatRate: number, mappings: VatMapping[]): VatMapping | undefined {
+    return mappings.find((m) => Number(m.vatRate) === vatRate)
+  }
+
+  private getLedgerMapping(item: InvoiceLinePayload, mappings: LedgerMapping[]): LedgerMapping | undefined {
+    if (item.productId) {
+      const match = mappings.find(
+        (m) => m.sourceType === LedgerSourceType.PRODUCT && m.sourceId === item.productId,
+      )
+      if (match) return match
+    }
+    if (item.categoryId) {
+      const match = mappings.find(
+        (m) => m.sourceType === LedgerSourceType.PRODUCT_CATEGORY && m.sourceId === item.categoryId,
+      )
+      if (match) return match
+    }
+    return mappings.find((m) => m.sourceType === LedgerSourceType.DEFAULT)
+  }
 
   private transformContact(contact: MoneybirdContact): ExternalCustomer {
     const name =

@@ -70,7 +70,18 @@ Snelle referentie voor Claude Code om nieuwe code te schrijven die aansluit op b
 │       ├── tax/report/         # Belastingrapport
 │       ├── analytics/          # kpis, trends, customers
 │       ├── cron/               # generate-recurring, send-reminders, sync-exchange-rates
-│       └── admin/              # users, discount-codes, watermark
+│       ├── admin/              # users, discount-codes, watermark
+│       └── accounting/         # Boekhoudkoppelingen (OAuth + sync)
+│           ├── connect/[provider]/   # GET – start OAuth flow, sla state op in cookie
+│           ├── callback/[provider]/  # GET – verwerk OAuth callback, maak AccountingConnection aan
+│           ├── disconnect/[provider]/# POST – verwijder koppeling + best-effort token revoke
+│           ├── status/               # GET – alle koppelingen voor de gebruiker
+│           └── sync/
+│               ├── customer/[id]/    # POST – sync klant naar alle/geselecteerde koppelingen
+│               ├── invoice/[id]/     # POST – sync factuur (optioneel body: { connectionId })
+│               ├── credit-note/[id]/ # POST – sync creditnota (optioneel body: { connectionId })
+│               ├── batch/            # POST – sync meerdere facturen ({ invoiceIds, connectionId? })
+│               └── retry/[logId]/    # POST – herstart gefaalde sync op basis van AccountingSyncLog
 │
 ├── components/
 │   ├── ui/                     # shadcn/ui basiscomponenten
@@ -126,7 +137,14 @@ Snelle referentie voor Claude Code om nieuwe code te schrijven die aansluit op b
 │   ├── analytics/              # Analytics queries
 │   ├── audit/                  # Audit logging helpers
 │   ├── quotes/                 # Offerte helpers
-│   └── rate-limit.ts           # Rate limiting (Upstash Redis)
+│   ├── rate-limit.ts           # Rate limiting (Upstash Redis)
+│   └── accounting/             # Boekhoudkoppelingen
+│       ├── types.ts            # Adapter interface, payload types, SyncResult, AccountingSyncError
+│       ├── adapter-factory.ts  # getAdapter(provider, token, adminId?) – lazy-import per provider
+│       ├── token-manager.ts    # withValidToken(), getActiveConnectionsForUser(), updateConnectionTokens()
+│       ├── sync-service.ts     # syncCustomer(), syncInvoice(), syncCreditNote(), classifyError()
+│       └── adapters/
+│           └── moneybird.ts    # MoneybirdAdapter + clearCache(adminId?) export
 │
 ├── prisma/
 │   └── schema.prisma           # Database schema

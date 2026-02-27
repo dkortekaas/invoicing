@@ -24,8 +24,9 @@ export async function getAdapter(
       return new EboekhoudenAdapter(accessToken)
     }
     case AccountingProvider.EXACT: {
-      const { ExactAdapter } = await import('./providers/exact')
-      return new ExactAdapter(accessToken)
+      const { ExactAdapter } = await import('./adapters/exact')
+      if (!adminId) throw new Error('adminId (division) is required for the Exact adapter')
+      return new ExactAdapter(accessToken, adminId)
     }
     case AccountingProvider.YUKI: {
       const { YukiAdapter } = await import('./providers/yuki')

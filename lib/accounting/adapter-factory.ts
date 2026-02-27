@@ -29,8 +29,9 @@ export async function getAdapter(
       return new ExactAdapter(accessToken, adminId)
     }
     case AccountingProvider.YUKI: {
-      const { YukiAdapter } = await import('./providers/yuki')
-      return new YukiAdapter(accessToken)
+      const { YukiAdapter } = await import('./adapters/yuki')
+      if (!adminId) throw new Error('adminId (domain) is required for the Yuki adapter')
+      return new YukiAdapter(accessToken, adminId)
     }
     default: {
       // TypeScript exhaustiveness check — this branch is unreachable if all enum

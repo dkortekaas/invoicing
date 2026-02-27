@@ -28,8 +28,9 @@ import { Separator } from "@/components/ui/separator"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import { CreditNoteStatusBadge } from "@/components/creditnotes/credit-note-status-badge"
 import { formatCurrency, formatDate, formatDateLong } from "@/lib/utils"
-import { getInvoiceWithUser, getInvoicePaymentInfo } from "../actions"
+import { getInvoiceWithUser, getInvoicePaymentInfo, checkHasAccountingConnections } from "../actions"
 import { getCreditNotesForInvoice } from "@/app/creditnotas/actions"
+import { InvoiceSyncPanel } from "@/components/accounting/InvoiceSyncPanel"
 import { PaymentSection } from "./payment-section"
 import { InvoiceActionsClient } from "./invoice-actions-client"
 import { InvoicePreview } from "./invoice-preview"
@@ -44,10 +45,11 @@ interface FactuurDetailPageProps {
 
 export default async function FactuurDetailPage({ params }: FactuurDetailPageProps) {
   const { id } = await params
-  const [invoice, paymentInfo, creditNotes] = await Promise.all([
+  const [invoice, paymentInfo, creditNotes, hasAccountingConnections] = await Promise.all([
     getInvoiceWithUser(id),
     getInvoicePaymentInfo(id),
     getCreditNotesForInvoice(id),
+    checkHasAccountingConnections(),
   ])
 
   if (!invoice) {
@@ -537,6 +539,11 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
               )}
             </CardContent>
           </Card>
+
+          {/* Accounting sync panel */}
+          {hasAccountingConnections && (
+            <InvoiceSyncPanel invoiceId={invoice.id} />
+          )}
         </div>
       </div>
       </InvoicePreview>

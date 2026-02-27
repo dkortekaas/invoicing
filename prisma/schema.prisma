@@ -2264,9 +2264,10 @@ model AccountingConnection {
   externalUserId  String
 
   // Sync settings
-  autoSyncInvoices    Boolean @default(false)
-  autoSyncCreditNotes Boolean @default(false)
-  autoSyncCustomers   Boolean @default(true)
+  autoSyncInvoices         Boolean @default(false)
+  autoSyncCreditNotes      Boolean @default(false)
+  autoSyncCustomers        Boolean @default(true)
+  existingCustomerStrategy String? @default("FIND_BY_EMAIL")
 
   // Status
   isActive   Boolean   @default(true)

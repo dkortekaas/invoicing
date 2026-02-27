@@ -2,6 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 
+const SETTINGS_SELECT = {
+  id: true,
+  provider: true,
+  providerName: true,
+  isActive: true,
+  autoSyncInvoices: true,
+  autoSyncCreditNotes: true,
+  autoSyncCustomers: true,
+  existingCustomerStrategy: true,
+} as const
+
 export async function GET() {
   const session = await auth()
   if (!session?.user?.id) {
@@ -10,15 +21,7 @@ export async function GET() {
 
   const connections = await db.accountingConnection.findMany({
     where: { userId: session.user.id },
-    select: {
-      id: true,
-      provider: true,
-      providerName: true,
-      isActive: true,
-      autoSyncInvoices: true,
-      autoSyncCreditNotes: true,
-      autoSyncCustomers: true,
-    },
+    select: SETTINGS_SELECT,
     orderBy: { createdAt: 'asc' },
   })
 
@@ -37,6 +40,7 @@ export async function PATCH(request: NextRequest) {
     autoSyncCreditNotes?: boolean
     autoSyncCustomers?: boolean
     providerName?: string
+    existingCustomerStrategy?: string
   } | null
 
   if (!body?.connectionId) {
@@ -52,6 +56,17 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Connection not found' }, { status: 404 })
   }
 
+  const VALID_STRATEGIES = new Set(['FIND_BY_EMAIL', 'ALWAYS_CREATE', 'ASK'])
+  if (
+    body.existingCustomerStrategy !== undefined &&
+    !VALID_STRATEGIES.has(body.existingCustomerStrategy)
+  ) {
+    return NextResponse.json(
+      { error: 'Invalid existingCustomerStrategy value' },
+      { status: 400 },
+    )
+  }
+
   const updated = await db.accountingConnection.update({
     where: { id: body.connectionId },
     data: {
@@ -59,16 +74,11 @@ export async function PATCH(request: NextRequest) {
       ...(body.autoSyncCreditNotes !== undefined ? { autoSyncCreditNotes: body.autoSyncCreditNotes } : {}),
       ...(body.autoSyncCustomers !== undefined ? { autoSyncCustomers: body.autoSyncCustomers } : {}),
       ...(body.providerName !== undefined ? { providerName: body.providerName } : {}),
+      ...(body.existingCustomerStrategy !== undefined
+        ? { existingCustomerStrategy: body.existingCustomerStrategy }
+        : {}),
     },
-    select: {
-      id: true,
-      provider: true,
-      providerName: true,
-      isActive: true,
-      autoSyncInvoices: true,
-      autoSyncCreditNotes: true,
-      autoSyncCustomers: true,
-    },
+    select: SETTINGS_SELECT,
   })
 
   return NextResponse.json(updated)

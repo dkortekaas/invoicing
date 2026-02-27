@@ -27,6 +27,7 @@ const MONEYBIRD_AUTH_URL = 'https://moneybird.com/oauth/authorize'
 const MONEYBIRD_TOKEN_URL = 'https://moneybird.com/oauth/token'
 const MONEYBIRD_API_URL = 'https://moneybird.com/api/v2'
 const SCOPES = ['sales_invoices', 'documents', 'contacts', 'settings']
+const CACHE_TTL_MS = 15 * 60 * 1000
 
 // ============================================================
 // Runtime Environment Helpers
@@ -81,6 +82,20 @@ interface MoneybirdContact {
 
 type MoneybirdContactPayload = Partial<Omit<MoneybirdContact, 'id'>>
 
+interface MoneybirdLedgerAccount {
+  id: number | string
+  account_id: string
+  name: string
+  account_type: string
+}
+
+interface MoneybirdTaxRate {
+  id: number | string
+  name: string
+  percentage: string
+  tax_rate_type: string
+}
+
 interface MoneybirdDetailAttribute {
   description: string
   price: string
@@ -109,6 +124,24 @@ interface MoneybirdInvoice {
   due_date?: string
   state?: string
   currency?: string
+}
+
+// ============================================================
+// In-memory cache (shared across all MoneybirdAdapter instances)
+// ============================================================
+
+const _cache = new Map<string, { data: unknown; expiresAt: number }>()
+
+export function clearCache(adminId?: string): void {
+  if (adminId === undefined) {
+    _cache.clear()
+  } else {
+    for (const key of _cache.keys()) {
+      if (key.startsWith(`${adminId}:`)) {
+        _cache.delete(key)
+      }
+    }
+  }
 }
 
 // ============================================================
@@ -174,7 +207,12 @@ export class MoneybirdAdapter implements AccountingAdapter {
   }
 
   async validateConnection(): Promise<boolean> {
-    throw new Error('Not implemented')
+    try {
+      const data = await this.makeRequest<MoneybirdAdministration[]>('GET', '/administrations')
+      return Array.isArray(data) && data.length > 0
+    } catch {
+      return false
+    }
   }
 
   // -------------------------------------------------------
@@ -326,20 +364,66 @@ export class MoneybirdAdapter implements AccountingAdapter {
   }
 
   // -------------------------------------------------------
-  // Metadata methods (implemented in a later task)
+  // Metadata methods
   // -------------------------------------------------------
 
-  getLedgerAccounts(): Promise<LedgerAccount[]> {
-    throw new Error('Not implemented')
+  private static readonly REVENUE_TYPES = new Set(['revenue', 'other_income', 'income'])
+
+  async getLedgerAccounts(): Promise<LedgerAccount[]> {
+    const key = `${this.adminId}:ledgers`
+    const cached = this.getCached<LedgerAccount[]>(key)
+    if (cached) return cached
+
+    const data = await this.makeRequest<MoneybirdLedgerAccount[]>(
+      'GET',
+      `/${this.adminId}/ledger_accounts`,
+    )
+    const result = data
+      .filter((a) => MoneybirdAdapter.REVENUE_TYPES.has(a.account_type))
+      .map((a) => ({
+        id: String(a.id),
+        code: a.account_id,
+        name: a.name,
+        accountType: a.account_type,
+      }))
+    this.setCache(key, result)
+    return result
   }
 
-  getVatCodes(): Promise<VatCode[]> {
-    throw new Error('Not implemented')
+  async getVatCodes(): Promise<VatCode[]> {
+    const key = `${this.adminId}:vatcodes`
+    const cached = this.getCached<VatCode[]>(key)
+    if (cached) return cached
+
+    const data = await this.makeRequest<MoneybirdTaxRate[]>(
+      'GET',
+      `/${this.adminId}/tax_rates`,
+    )
+    const result = data
+      .filter((a) => a.tax_rate_type === 'sales_invoice')
+      .map((a) => ({
+        id: String(a.id),
+        name: a.name,
+        percentage: parseFloat(a.percentage),
+        taxRateType: a.tax_rate_type,
+      }))
+    this.setCache(key, result)
+    return result
   }
 
   // -------------------------------------------------------
   // Private Helpers
   // -------------------------------------------------------
+
+  private getCached<T>(key: string): T | null {
+    const entry = _cache.get(key)
+    if (!entry || Date.now() > entry.expiresAt) return null
+    return entry.data as T
+  }
+
+  private setCache(key: string, data: unknown): void {
+    _cache.set(key, { data, expiresAt: Date.now() + CACHE_TTL_MS })
+  }
 
   private getVatMapping(vatRate: number, mappings: VatMapping[]): VatMapping | undefined {
     return mappings.find((m) => Number(m.vatRate) === vatRate)

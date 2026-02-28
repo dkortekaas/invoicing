@@ -179,6 +179,8 @@ function DetailPanel({ logId, retrying, onRetry }: DetailPanelProps) {
 
   useEffect(() => {
     if (!logId) return
+    // Reset to loading state when logId changes – batched in React 18, safe in an effect
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDetail(null)
     setLoading(true)
     fetch(`/api/accounting/sync/logs/${logId}`)
@@ -264,7 +266,7 @@ function DetailPanel({ logId, retrying, onRetry }: DetailPanelProps) {
         </div>
 
         {/* Error section */}
-        {(detail.errorMessage || detail.errorDetails) && (
+        {!!(detail.errorMessage || detail.errorDetails) && (
           <>
             <Separator />
             <div className="space-y-2">
@@ -279,7 +281,7 @@ function DetailPanel({ logId, retrying, onRetry }: DetailPanelProps) {
                   Code: {detail.errorCode}
                 </p>
               )}
-              {detail.errorDetails && (
+              {!!detail.errorDetails && (
                 <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-all rounded-md bg-muted p-3 text-xs">
                   {JSON.stringify(detail.errorDetails, null, 2)}
                 </pre>
@@ -289,7 +291,7 @@ function DetailPanel({ logId, retrying, onRetry }: DetailPanelProps) {
         )}
 
         {/* Request payload */}
-        {detail.requestPayload && (
+        {!!detail.requestPayload && (
           <>
             <Separator />
             <div className="space-y-2">
@@ -304,7 +306,7 @@ function DetailPanel({ logId, retrying, onRetry }: DetailPanelProps) {
         )}
 
         {/* Response payload */}
-        {detail.responsePayload && (
+        {!!detail.responsePayload && (
           <>
             <Separator />
             <div className="space-y-2">

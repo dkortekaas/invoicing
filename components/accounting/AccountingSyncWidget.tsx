@@ -6,7 +6,6 @@ import { formatDistanceToNow } from 'date-fns'
 import { nl } from 'date-fns/locale'
 import {
   Cloud,
-  Loader2,
   RefreshCw,
   Settings,
   XCircle,
@@ -120,7 +119,6 @@ export function AccountingSyncWidget() {
     fetchData()
     const id = setInterval(() => fetchRef.current(), REFRESH_INTERVAL_MS)
     return () => clearInterval(id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const activeConnections   = connections.filter((c) => c.isActive)

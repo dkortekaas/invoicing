@@ -31,7 +31,6 @@ import { AccountingProvider } from '@prisma/client'
 
 const G = '\x1b[32m'   // green
 const R = '\x1b[31m'   // red
-const Y = '\x1b[33m'   // yellow
 const B = '\x1b[1m'    // bold
 const D = '\x1b[2m'    // dim
 const Z = '\x1b[0m'    // reset

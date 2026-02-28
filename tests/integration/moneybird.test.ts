@@ -15,7 +15,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { MoneybirdAdapter, clearCache } from '@/lib/accounting/adapters/moneybird'
-import type { ExternalCustomer, ExternalInvoice, LedgerAccount, VatCode } from '@/lib/accounting/types'
+import type { ExternalCustomer, ExternalInvoice, LedgerAccount, VatCode, VatMapping, LedgerMapping } from '@/lib/accounting/types'
 
 // ── Credentials & skip guard ──────────────────────────────────────────────────
 // process.env is populated by setup.ts before this module is evaluated.
@@ -196,10 +196,10 @@ describe.skipIf(SKIP)('Moneybird integration', () => {
         ],
         // Build minimal mapping objects that satisfy the adapter's internal lookups
         vatMappings: vat21
-          ? ([{ vatRate: 21, externalVatId: vat21.id }] as any)
+          ? ([{ vatRate: 21, externalVatId: vat21.id }] as unknown as VatMapping[])
           : [],
         ledgerMappings: defaultLedger
-          ? ([{ sourceType: 'DEFAULT', sourceId: null, externalLedgerId: defaultLedger.id }] as any)
+          ? ([{ sourceType: 'DEFAULT', sourceId: null, externalLedgerId: defaultLedger.id }] as unknown as LedgerMapping[])
           : [],
       })
 
@@ -239,10 +239,10 @@ describe.skipIf(SKIP)('Moneybird integration', () => {
         externalCustomerId: creditContactId,
         items: [{ description: 'Originele factuur', quantity: 1, unitPrice: 200, vatRate: 21 }],
         vatMappings: vat21
-          ? ([{ vatRate: 21, externalVatId: vat21.id }] as any)
+          ? ([{ vatRate: 21, externalVatId: vat21.id }] as unknown as VatMapping[])
           : [],
         ledgerMappings: defaultLedger
-          ? ([{ sourceType: 'DEFAULT', sourceId: null, externalLedgerId: defaultLedger.id }] as any)
+          ? ([{ sourceType: 'DEFAULT', sourceId: null, externalLedgerId: defaultLedger.id }] as unknown as LedgerMapping[])
           : [],
       })
 
@@ -262,10 +262,10 @@ describe.skipIf(SKIP)('Moneybird integration', () => {
         externalCustomerId: creditContactId,
         items: [{ description: 'Terugboeking', quantity: 1, unitPrice: 200, vatRate: 21 }],
         vatMappings: vat21
-          ? ([{ vatRate: 21, externalVatId: vat21.id }] as any)
+          ? ([{ vatRate: 21, externalVatId: vat21.id }] as unknown as VatMapping[])
           : [],
         ledgerMappings: defaultLedger
-          ? ([{ sourceType: 'DEFAULT', sourceId: null, externalLedgerId: defaultLedger.id }] as any)
+          ? ([{ sourceType: 'DEFAULT', sourceId: null, externalLedgerId: defaultLedger.id }] as unknown as LedgerMapping[])
           : [],
       })
 

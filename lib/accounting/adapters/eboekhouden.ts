@@ -141,12 +141,10 @@ export class EboekhoudenAdapter implements AccountingAdapter {
     throw new Error('e-Boekhouden uses API token auth, not OAuth')
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async exchangeCodeForTokens(_code: string, _redirectUri: string): Promise<TokenResponse> {
     throw new Error('e-Boekhouden uses API token auth, not OAuth')
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async refreshAccessToken(_refreshToken: string): Promise<TokenResponse> {
     throw new Error('e-Boekhouden uses API token auth, not OAuth')
   }

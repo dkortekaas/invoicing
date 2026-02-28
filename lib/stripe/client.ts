@@ -1,13 +1,27 @@
 import Stripe from 'stripe';
 import type { SubscriptionTier } from './subscriptions';
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is not set');
+let _stripe: Stripe | undefined;
+
+function getStripeClient(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY is not set');
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-12-15.clover',
+      typescript: true,
+    });
+  }
+  return _stripe;
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-12-15.clover',
-  typescript: true,
+// Lazy proxy — the Stripe instance is only created on first property access
+// (i.e., inside a request handler), so the build succeeds without the env var.
+export const stripe: Stripe = new Proxy({} as Stripe, {
+  get(_target, prop: PropertyKey) {
+    return Reflect.get(getStripeClient(), prop, getStripeClient());
+  },
 });
 
 // Use server env first, fallback to NEXT_PUBLIC_ so one set of vars works for both client and API validation

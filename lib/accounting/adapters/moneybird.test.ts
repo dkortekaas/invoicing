@@ -29,13 +29,16 @@ function fakeResponse(
 const ADMIN_ID = '112233'
 const TOKEN    = 'mb-test-token'
 
-// Use plain objects cast to `any` so tests run without a generated Prisma client
-const VAT_21 = { vatRate: 21, externalVatId: 'vat-tax-21' } as any
-const VAT_09 = { vatRate: 9,  externalVatId: 'vat-tax-09' } as any
+// Use plain objects cast via unknown so tests run without a generated Prisma client
+type TestVatMapping    = { vatRate: number; externalVatId: string }
+type TestLedgerMapping = { sourceType: string; sourceId: string | null; externalLedgerId: string }
 
-const LEDGER_PRODUCT: any  = { sourceType: 'PRODUCT',          sourceId: 'product-1', externalLedgerId: 'ledger-product-1' }
-const LEDGER_CATEGORY: any = { sourceType: 'PRODUCT_CATEGORY', sourceId: 'cat-1',     externalLedgerId: 'ledger-cat-1' }
-const LEDGER_DEFAULT: any  = { sourceType: 'DEFAULT',          sourceId: null,        externalLedgerId: 'ledger-default' }
+const VAT_21 = { vatRate: 21, externalVatId: 'vat-tax-21' } as unknown as TestVatMapping
+const VAT_09 = { vatRate: 9,  externalVatId: 'vat-tax-09' } as unknown as TestVatMapping
+
+const LEDGER_PRODUCT:  TestLedgerMapping = { sourceType: 'PRODUCT',          sourceId: 'product-1', externalLedgerId: 'ledger-product-1' }
+const LEDGER_CATEGORY: TestLedgerMapping = { sourceType: 'PRODUCT_CATEGORY', sourceId: 'cat-1',     externalLedgerId: 'ledger-cat-1' }
+const LEDGER_DEFAULT:  TestLedgerMapping = { sourceType: 'DEFAULT',          sourceId: null,        externalLedgerId: 'ledger-default' }
 
 function makeInvoice(overrides: Partial<InvoicePayload> = {}): InvoicePayload {
   return {
@@ -180,7 +183,7 @@ describe('createInvoice() — invoice-to-Moneybird payload mapping', () => {
     await adapter.createInvoice(
       makeInvoice({
         items:       [{ description: 'X', quantity: 1, unitPrice: 200, vatRate: 21 }],
-        vatMappings: [{ vatRate: 21, externalVatId: 'vat-id-21' } as any],
+        vatMappings: [{ vatRate: 21, externalVatId: 'vat-id-21' } as unknown as TestVatMapping],
       }),
     )
     expect(sentBody().sales_invoice.details_attributes[0].tax_rate_id).toBe('vat-id-21')
@@ -191,7 +194,7 @@ describe('createInvoice() — invoice-to-Moneybird payload mapping', () => {
     await adapter.createInvoice(
       makeInvoice({
         items:          [{ description: 'Y', quantity: 1, unitPrice: 300, vatRate: 21, productId: 'p-abc' }],
-        ledgerMappings: [{ sourceType: 'PRODUCT', sourceId: 'p-abc', externalLedgerId: 'ledger-77' } as any],
+        ledgerMappings: [{ sourceType: 'PRODUCT', sourceId: 'p-abc', externalLedgerId: 'ledger-77' } as unknown as TestLedgerMapping],
       }),
     )
     expect(sentBody().sales_invoice.details_attributes[0].ledger_account_id).toBe('ledger-77')
@@ -203,8 +206,8 @@ describe('createInvoice() — invoice-to-Moneybird payload mapping', () => {
       makeInvoice({
         items: [{ description: 'Z', quantity: 1, unitPrice: 100, vatRate: 21, productId: 'no-match' }],
         ledgerMappings: [
-          { sourceType: 'PRODUCT', sourceId: 'other-product', externalLedgerId: 'ledger-wrong' } as any,
-          { sourceType: 'DEFAULT', sourceId: null,            externalLedgerId: 'ledger-fallback' } as any,
+          { sourceType: 'PRODUCT', sourceId: 'other-product', externalLedgerId: 'ledger-wrong' } as unknown as TestLedgerMapping,
+          { sourceType: 'DEFAULT', sourceId: null,            externalLedgerId: 'ledger-fallback' } as unknown as TestLedgerMapping,
         ],
       }),
     )

@@ -142,6 +142,9 @@ model User {
   // Offertes
   quotes           Quote[]
   signingSettings  UserSigningSettings?
+
+  // Accounting integrations
+  accountingConnections AccountingConnection[]
 }
 
 /**
@@ -199,6 +202,9 @@ model Customer {
 
   // Offertes
   quotes Quote[]
+
+  // Accounting sync
+  syncedAccounting SyncedCustomer[]
 
   // BTW info
   vatCountry  String? // Land voor ICP
@@ -302,6 +308,9 @@ model Invoice {
 
   // Offerte waaruit deze factuur is aangemaakt (back-reference, geen FK kolom)
   sourceQuote Quote? @relation("QuoteToInvoice")
+
+  // Accounting sync
+  syncedAccounting SyncedInvoice[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -561,6 +570,9 @@ model CreditNote {
   emails          CreditNoteEmailLog[]
   emailsSentCount Int                  @default(0)
   lastEmailSentAt DateTime?
+
+  // Accounting sync
+  syncedAccounting SyncedCreditNote[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2195,4 +2207,184 @@ model UserSigningSettings {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ============================================================
+// Accounting Integration
+// ============================================================
+
+enum AccountingProvider {
+  MONEYBIRD
+  EBOEKHOUDEN
+  EXACT
+  YUKI
+}
+
+enum LedgerSourceType {
+  DEFAULT
+  PRODUCT_CATEGORY
+  PRODUCT
+}
+
+enum SyncEntityType {
+  CUSTOMER
+  INVOICE
+  CREDIT_NOTE
+  PAYMENT
+}
+
+enum SyncAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum SyncStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  SKIPPED
+}
+
+model AccountingConnection {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  provider     AccountingProvider
+  providerName String
+
+  // Encrypted tokens
+  accessToken    String    @db.Text
+  refreshToken   String?   @db.Text
+  tokenExpiresAt DateTime?
+
+  // External identifiers
+  externalAdminId String
+  externalUserId  String
+
+  // Sync settings
+  autoSyncInvoices         Boolean @default(false)
+  autoSyncCreditNotes      Boolean @default(false)
+  autoSyncCustomers        Boolean @default(true)
+  existingCustomerStrategy String? @default("FIND_BY_EMAIL")
+
+  // Status
+  isActive   Boolean   @default(true)
+  lastSyncAt DateTime?
+  lastError  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  ledgerMappings    LedgerMapping[]
+  vatMappings       VatMapping[]
+  syncLogs          AccountingSyncLog[]
+  syncedCustomers   SyncedCustomer[]
+  syncedInvoices    SyncedInvoice[]
+  syncedCreditNotes SyncedCreditNote[]
+
+  @@unique([userId, provider])
+  @@index([userId])
+}
+
+model LedgerMapping {
+  id           String               @id @default(cuid())
+  connectionId String
+  connection   AccountingConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  sourceType         LedgerSourceType
+  sourceId           String?
+  externalLedgerId   String
+  externalLedgerCode String?
+  externalLedgerName String?
+
+  @@unique([connectionId, sourceType, sourceId])
+}
+
+model VatMapping {
+  id           String               @id @default(cuid())
+  connectionId String
+  connection   AccountingConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  vatRate         Decimal @db.Decimal(5, 2)
+  externalVatId   String
+  externalVatCode String?
+  externalVatName String?
+
+  @@unique([connectionId, vatRate])
+}
+
+model SyncedCustomer {
+  id           String               @id @default(cuid())
+  connectionId String
+  connection   AccountingConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  externalId   String
+  lastSyncedAt DateTime
+  lastSyncHash String?
+
+  @@unique([connectionId, customerId])
+}
+
+model SyncedInvoice {
+  id           String               @id @default(cuid())
+  connectionId String
+  connection   AccountingConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  externalId     String
+  externalNumber String?
+  externalUrl    String?
+  lastSyncedAt   DateTime
+  syncedStatus   String?
+
+  @@unique([connectionId, invoiceId])
+}
+
+model SyncedCreditNote {
+  id           String               @id @default(cuid())
+  connectionId String
+  connection   AccountingConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  creditNoteId String
+  creditNote   CreditNote @relation(fields: [creditNoteId], references: [id], onDelete: Cascade)
+
+  externalId     String
+  externalNumber String?
+  externalUrl    String?
+  lastSyncedAt   DateTime
+
+  @@unique([connectionId, creditNoteId])
+}
+
+model AccountingSyncLog {
+  id           String               @id @default(cuid())
+  connectionId String
+  connection   AccountingConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  entityType      SyncEntityType
+  entityId        String
+  action          SyncAction
+  status          SyncStatus
+  externalId      String?
+  errorMessage    String?
+  errorCode       String?
+  errorDetails    Json?
+  requestPayload  Json?
+  responsePayload Json?
+  durationMs      Int?
+
+  createdAt DateTime @default(now())
+
+  @@index([connectionId])
+  @@index([entityType, entityId])
+  @@index([status])
+  @@index([createdAt])
 }

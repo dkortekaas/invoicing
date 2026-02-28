@@ -1,32 +1,22 @@
 import Link from "next/link"
-import { Plus } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 import { Button } from "@/components/ui/button"
 import { ExportButton } from "@/components/import-export"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { SortableTableHead } from "@/components/ui/sortable-table-head"
 import {
   Card,
   CardContent,
   CardHeader,
 } from "@/components/ui/card"
 import { StatusFilterTabs } from "@/components/status-filter-tabs"
-import { formatCurrency, formatDate } from "@/lib/utils"
-import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import { getInvoices, getInvoiceStatusCounts, getInvoiceYears, getDeletedInvoiceCount } from "./actions"
-import { InvoiceActions } from "./invoice-actions"
+import { InvoiceTable } from "@/components/invoices/invoice-table"
 import { SearchForm } from "./search-form"
 import { YearFilterSelect } from "@/components/year-filter-select"
 import { Pagination } from "@/components/ui/pagination"
-import { Trash2 } from "lucide-react"
+import { getCurrentUserId } from "@/lib/server-utils"
+import { db } from "@/lib/db"
 
 const PAGE_SIZE = 50
 
@@ -51,22 +41,46 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
   const sortOrder = params.sortOrder === "asc" ? "asc" : "desc"
   const currentPage = Math.max(1, parseInt(params.page || "1", 10) || 1)
 
-  const [{ invoices: paginatedInvoices, total: totalItems }, statusCounts, years, deletedCount] =
-    await Promise.all([
-      getInvoices({
-        status: showDeleted || status === "ALL" ? undefined : status,
-        search: search || undefined,
-        year: yearParam && !Number.isNaN(yearParam) ? yearParam : undefined,
-        sortBy,
-        sortOrder,
-        page: currentPage,
-        pageSize: PAGE_SIZE,
-        deletedOnly: showDeleted,
-      }),
-      getInvoiceStatusCounts(),
-      getInvoiceYears(),
-      getDeletedInvoiceCount(),
-    ])
+  const userId = await getCurrentUserId()
+
+  const [
+    { invoices: paginatedInvoices, total: totalItems },
+    statusCounts,
+    years,
+    deletedCount,
+    activeConnectionCount,
+  ] = await Promise.all([
+    getInvoices({
+      status: showDeleted || status === "ALL" ? undefined : status,
+      search: search || undefined,
+      year: yearParam && !Number.isNaN(yearParam) ? yearParam : undefined,
+      sortBy,
+      sortOrder,
+      page: currentPage,
+      pageSize: PAGE_SIZE,
+      deletedOnly: showDeleted,
+    }),
+    getInvoiceStatusCounts(),
+    getInvoiceYears(),
+    getDeletedInvoiceCount(),
+    db.accountingConnection.count({ where: { userId, isActive: true } }),
+  ])
+
+  const hasAccountingConnections = activeConnectionCount > 0
+
+  // Serialize for the client component: invoiceDate/dueDate/deletedAt → ISO strings
+  const invoiceRows = paginatedInvoices.map((inv) => ({
+    ...inv,
+    invoiceDate: inv.invoiceDate instanceof Date
+      ? inv.invoiceDate.toISOString()
+      : String(inv.invoiceDate),
+    dueDate: inv.dueDate instanceof Date
+      ? inv.dueDate.toISOString()
+      : String(inv.dueDate),
+    deletedAt: inv.deletedAt
+      ? (inv.deletedAt instanceof Date ? inv.deletedAt.toISOString() : String(inv.deletedAt))
+      : null,
+  }))
 
   return (
     <div className="space-y-6">
@@ -130,90 +144,18 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <SortableTableHead sortKey="invoiceNumber">Factuur</SortableTableHead>
-                <SortableTableHead sortKey="customerName">Klant</SortableTableHead>
-                <SortableTableHead sortKey="invoiceDate">Datum</SortableTableHead>
-                <SortableTableHead sortKey="dueDate">Vervaldatum</SortableTableHead>
-                <SortableTableHead sortKey="total" className="text-right">Bedrag</SortableTableHead>
-                <TableHead className="text-center">Status</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedInvoices.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
-                    {showDeleted ? (
-                      <p className="text-muted-foreground">
-                        De prullenbak is leeg.
-                      </p>
-                    ) : search ? (
-                      <p className="text-muted-foreground">
-                        Geen facturen gevonden voor &ldquo;{search}&rdquo;.
-                      </p>
-                    ) : (
-                      <>
-                        <p className="text-muted-foreground">
-                          Nog geen facturen. Maak je eerste factuur!
-                        </p>
-                        <Button asChild className="mt-4">
-                          <Link href="/facturen/nieuw">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Nieuwe Factuur
-                          </Link>
-                        </Button>
-                      </>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                paginatedInvoices.map((invoice: typeof paginatedInvoices[0]) => (
-                  <TableRow key={invoice.id}>
-                    <TableCell>
-                      <Link
-                        href={`/facturen/${invoice.id}`}
-                        className="font-medium hover:underline"
-                      >
-                        {invoice.invoiceNumber}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">
-                          {invoice.customer.companyName || invoice.customer.name}
-                        </div>
-                        {invoice.customer.companyName && (
-                          <div className="text-sm text-muted-foreground">
-                            {invoice.customer.name}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>{formatDate(invoice.invoiceDate)}</TableCell>
-                    <TableCell>{formatDate(invoice.dueDate)}</TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatCurrency(invoice.total)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <InvoiceStatusBadge status={invoice.status} />
-                    </TableCell>
-                    <TableCell>
-                      <InvoiceActions
-                        invoice={{
-                          id: invoice.id,
-                          status: invoice.status,
-                          deletedAt: invoice.deletedAt,
-                        }}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <InvoiceTable
+            invoices={invoiceRows}
+            hasAccountingConnections={hasAccountingConnections}
+            showDeleted={showDeleted}
+            emptyMessage={
+              showDeleted
+                ? "De prullenbak is leeg."
+                : search
+                ? `Geen facturen gevonden voor "${search}".`
+                : "Nog geen facturen. Maak je eerste factuur!"
+            }
+          />
           <Pagination
             totalItems={totalItems}
             pageSize={PAGE_SIZE}

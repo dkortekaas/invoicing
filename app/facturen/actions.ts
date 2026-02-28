@@ -902,6 +902,15 @@ export async function getInvoicePaymentInfo(invoiceId: string) {
   }
 }
 
+/** Returns true if the current user has at least one active accounting connection. */
+export async function checkHasAccountingConnections(): Promise<boolean> {
+  const userId = await getCurrentUserId()
+  const count = await db.accountingConnection.count({
+    where: { userId, isActive: true },
+  })
+  return count > 0
+}
+
 export async function getRecentPayments(limit = 5) {
   const userId = await getCurrentUserId()
 

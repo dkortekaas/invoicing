@@ -4,17 +4,25 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatsCard } from "@/components/dashboard/stats-card"
 import { SigningPendingWidget } from "@/components/dashboard/signing-pending-widget"
+import { AccountingSyncWidget } from "@/components/accounting/AccountingSyncWidget"
 import { formatCurrency, STATUS_LABELS, STATUS_COLORS, cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { getDashboardStats, getRecentInvoices } from "@/app/facturen/actions"
+import { getCurrentUserId } from "@/lib/server-utils"
+import { db } from "@/lib/db"
 
 export const dynamic = "force-dynamic"
 
 export default async function DashboardPage() {
-  const [stats, recentInvoices] = await Promise.all([
+  const userId = await getCurrentUserId()
+
+  const [stats, recentInvoices, activeConnectionCount] = await Promise.all([
     getDashboardStats(),
     getRecentInvoices(5),
+    db.accountingConnection.count({ where: { userId, isActive: true } }),
   ])
+
+  const hasAccountingConnections = activeConnectionCount > 0
 
   return (
     <div className="space-y-6">
@@ -61,8 +69,11 @@ export default async function DashboardPage() {
         />
       </div>
 
-      {/* Recente facturen */}
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Recente facturen + snelle acties + boekhouding sync widget */}
+      <div className={cn(
+        "grid gap-4",
+        hasAccountingConnections ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2"
+      )}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Recente Facturen</CardTitle>
@@ -136,6 +147,9 @@ export default async function DashboardPage() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Boekhouding sync widget — only when at least one connection is active */}
+        {hasAccountingConnections && <AccountingSyncWidget />}
       </div>
 
       {/* Openstaande ondertekeningen */}

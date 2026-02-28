@@ -26,6 +26,43 @@ export interface SyncResult {
 }
 
 // ============================================================
+// Payload Sanitization (GDPR)
+// ============================================================
+
+/** Customer address / PII fields that must not appear in sync logs. */
+const CUSTOMER_PII_FIELDS = new Set([
+  'phone', 'address', 'zipcode', 'city', 'country',
+  'chamberOfCommerce', 'taxNumber',
+])
+
+/**
+ * Strips customer PII (address, phone, tax identifiers) from a payload
+ * before it is written to AccountingSyncLog.requestPayload.
+ *
+ * Handles:
+ * - Top-level CustomerPayload objects (produced by syncCustomer)
+ * - Nested `customer` fields inside InvoicePayload / CreditNotePayload
+ *
+ * Only name and email are retained per GDPR data-minimisation requirements.
+ */
+export function sanitizePayload(payload: unknown): unknown {
+  if (payload === null || typeof payload !== 'object' || Array.isArray(payload)) {
+    return payload
+  }
+  const obj = payload as Record<string, unknown>
+  const result: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(obj)) {
+    if (CUSTOMER_PII_FIELDS.has(key)) continue
+    if (key === 'customer' && value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      result[key] = sanitizePayload(value) // recurse into nested customer
+    } else {
+      result[key] = value
+    }
+  }
+  return result
+}
+
+// ============================================================
 // Internal Helpers
 // ============================================================
 
@@ -235,7 +272,7 @@ export async function syncCustomer(connectionId: string, customerId: string): Pr
         action,
         status: SyncStatus.SUCCESS,
         externalId: externalCustomer.id,
-        requestPayload: payload as unknown as Prisma.InputJsonValue,
+        requestPayload: sanitizePayload(payload) as Prisma.InputJsonValue,
         responsePayload: externalCustomer as unknown as Prisma.InputJsonValue,
         durationMs: Date.now() - startedAt,
       },
@@ -260,7 +297,7 @@ export async function syncCustomer(connectionId: string, customerId: string): Pr
           status: SyncStatus.FAILED,
           errorMessage,
           errorCode: errorType,
-          requestPayload: requestPayload !== null ? (requestPayload as unknown as Prisma.InputJsonValue) : undefined,
+          requestPayload: requestPayload !== null ? (sanitizePayload(requestPayload) as Prisma.InputJsonValue) : undefined,
           durationMs: Date.now() - startedAt,
         },
       })
@@ -368,7 +405,7 @@ export async function syncInvoice(connectionId: string, invoiceId: string): Prom
         action,
         status: SyncStatus.SUCCESS,
         externalId: externalInvoice.id,
-        requestPayload: requestPayload as unknown as Prisma.InputJsonValue,
+        requestPayload: sanitizePayload(requestPayload) as Prisma.InputJsonValue,
         responsePayload: externalInvoice as unknown as Prisma.InputJsonValue,
         durationMs: Date.now() - startedAt,
       },
@@ -393,7 +430,7 @@ export async function syncInvoice(connectionId: string, invoiceId: string): Prom
           status: SyncStatus.FAILED,
           errorMessage,
           errorCode: errorType,
-          requestPayload: requestPayload !== null ? (requestPayload as unknown as Prisma.InputJsonValue) : undefined,
+          requestPayload: requestPayload !== null ? (sanitizePayload(requestPayload) as Prisma.InputJsonValue) : undefined,
           durationMs: Date.now() - startedAt,
         },
       })
@@ -504,7 +541,7 @@ export async function syncCreditNote(connectionId: string, creditNoteId: string)
         action,
         status: SyncStatus.SUCCESS,
         externalId: externalCreditNote.id,
-        requestPayload: payload as unknown as Prisma.InputJsonValue,
+        requestPayload: sanitizePayload(payload) as Prisma.InputJsonValue,
         responsePayload: externalCreditNote as unknown as Prisma.InputJsonValue,
         durationMs: Date.now() - startedAt,
       },
@@ -529,7 +566,7 @@ export async function syncCreditNote(connectionId: string, creditNoteId: string)
           status: SyncStatus.FAILED,
           errorMessage,
           errorCode: errorType,
-          requestPayload: requestPayload !== null ? (requestPayload as unknown as Prisma.InputJsonValue) : undefined,
+          requestPayload: requestPayload !== null ? (sanitizePayload(requestPayload) as Prisma.InputJsonValue) : undefined,
           durationMs: Date.now() - startedAt,
         },
       })

@@ -18,8 +18,10 @@ import { getProducts } from "./actions"
 import { ProductActions } from "./product-actions"
 import { ProductFormButton } from "./product-form-button"
 import { getServerT } from "@/lib/i18n"
+import { T } from "@/components/t"
 
 export default async function ProductenPage() {
+  // getServerT needed only for the Input placeholder (string prop)
   const t = await getServerT("productsPage")
   const products = await getProducts()
 
@@ -28,9 +30,9 @@ export default async function ProductenPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
+          <h2 className="text-2xl font-bold tracking-tight"><T ns="productsPage" k="title" /></h2>
           <p className="text-muted-foreground">
-            {t("description")}
+            <T ns="productsPage" k="description" />
           </p>
         </div>
         <div className="flex gap-2">
@@ -56,12 +58,12 @@ export default async function ProductenPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t("colName")}</TableHead>
-                <TableHead>{t("colDescription")}</TableHead>
-                <TableHead className="text-right">{t("colPrice")}</TableHead>
-                <TableHead className="text-center">{t("colUnit")}</TableHead>
-                <TableHead className="text-center">{t("colVat")}</TableHead>
-                <TableHead className="text-center">{t("colStatus")}</TableHead>
+                <TableHead><T ns="productsPage" k="colName" /></TableHead>
+                <TableHead><T ns="productsPage" k="colDescription" /></TableHead>
+                <TableHead className="text-right"><T ns="productsPage" k="colPrice" /></TableHead>
+                <TableHead className="text-center"><T ns="productsPage" k="colUnit" /></TableHead>
+                <TableHead className="text-center"><T ns="productsPage" k="colVat" /></TableHead>
+                <TableHead className="text-center"><T ns="productsPage" k="colStatus" /></TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -70,7 +72,7 @@ export default async function ProductenPage() {
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <p className="text-muted-foreground">
-                      {t("noProducts")}
+                      <T ns="productsPage" k="noProducts" />
                     </p>
                     <ProductFormButton />
                   </TableCell>
@@ -109,7 +111,7 @@ export default async function ProductenPage() {
                         <Badge
                           variant={product.isActive ? "default" : "secondary"}
                         >
-                          {product.isActive ? t("statusActive") : t("statusInactive")}
+                          {product.isActive ? <T ns="productsPage" k="statusActive" /> : <T ns="productsPage" k="statusInactive" />}
                         </Badge>
                       </TableCell>
                       <TableCell>

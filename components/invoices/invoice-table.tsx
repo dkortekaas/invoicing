@@ -40,7 +40,9 @@ interface InvoiceTableProps {
   hasAccountingConnections: boolean
   /** True when rendering the trash view — hides checkboxes and bulk bar. */
   showDeleted?: boolean
-  /** Empty-state message */
+  /** Current search query — used to pick the right empty-state message client-side. */
+  searchQuery?: string
+  /** Empty-state message override (deprecated; prefer searchQuery + showDeleted). */
   emptyMessage?: string
 }
 
@@ -50,10 +52,19 @@ export function InvoiceTable({
   invoices,
   hasAccountingConnections,
   showDeleted = false,
+  searchQuery,
   emptyMessage,
 }: InvoiceTableProps) {
   const { t } = useTranslations('invoicesPage')
-  const resolvedEmptyMessage = emptyMessage ?? t('tableEmpty')
+
+  // Compute empty-state message client-side for instant locale switching.
+  // Falls back to the legacy server-passed emptyMessage if neither flag is provided.
+  const resolvedEmptyMessage: string = (() => {
+    if (showDeleted) return t('trashEmpty')
+    if (searchQuery) return t('noResults').replace('{search}', searchQuery)
+    if (emptyMessage) return emptyMessage
+    return t('noInvoices')
+  })()
   const [selectedIds, setSelectedIds]     = useState<Set<string>>(new Set())
   const [bulkSyncOpen, setBulkSyncOpen]   = useState(false)
 

@@ -1340,6 +1340,8 @@
         "description": "Manage your vendors for automatic categorization",
         "newVendor": "New Vendor",
         "noVendors": "No vendors yet.",
+        "emptyState": "No vendors yet. Add your first vendor!",
+        "emptyStateHint": "Vendors are also automatically created when processing receipts.",
         "colName": "Name",
         "colAliases": "Aliases",
         "colCategory": "Default Category",

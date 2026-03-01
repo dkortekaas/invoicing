@@ -2,12 +2,11 @@ import { InvoiceForm } from "@/components/invoices/invoice-form"
 import { getCustomersForDropdown } from "@/app/klanten/actions"
 import { getActiveProducts } from "@/app/producten/actions"
 import { getFiscalSettings } from "@/app/instellingen/actions"
-import { getServerT } from "@/lib/i18n"
+import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
 export default async function NieuweFactuurPage() {
-  const t = await getServerT("invoicesPage")
   const [customers, products, fiscalSettings] = await Promise.all([
     getCustomersForDropdown(),
     getActiveProducts(),
@@ -33,9 +32,9 @@ export default async function NieuweFactuurPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">{t("newInvoiceTitle")}</h2>
+        <h2 className="text-2xl font-bold tracking-tight"><T ns="invoicesPage" k="newInvoiceTitle" /></h2>
         <p className="text-muted-foreground">
-          {t("newInvoiceDescription")}
+          <T ns="invoicesPage" k="newInvoiceDescription" />
         </p>
       </div>
 

@@ -1348,6 +1348,8 @@
         "description": "Beheer je leveranciers voor automatische categorisatie",
         "newVendor": "Nieuwe Leverancier",
         "noVendors": "Nog geen leveranciers.",
+        "emptyState": "Nog geen leveranciers. Voeg je eerste leverancier toe!",
+        "emptyStateHint": "Leveranciers worden ook automatisch aangemaakt bij het verwerken van bonnen.",
         "colName": "Naam",
         "colAliases": "Aliassen",
         "colCategory": "Standaard Categorie",

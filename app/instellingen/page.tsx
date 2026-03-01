@@ -19,7 +19,7 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getServerT } from "@/lib/i18n"
+import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
@@ -28,7 +28,6 @@ interface InstellingenPageProps {
 }
 
 export default async function InstellingenPage({ searchParams }: InstellingenPageProps) {
-  const t = await getServerT("settingsPage")
   const user = await getCurrentUser()
   if (!user) {
     redirect("/login")
@@ -65,9 +64,9 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
+        <h2 className="text-2xl font-bold tracking-tight"><T ns="settingsPage" k="title" /></h2>
         <p className="text-muted-foreground">
-          {t("description")}
+          <T ns="settingsPage" k="description" />
         </p>
       </div>
 
@@ -131,24 +130,24 @@ export default async function InstellingenPage({ searchParams }: InstellingenPag
         <TabsContent value="import-export" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>{t("importExportTitle")}</CardTitle>
+              <CardTitle><T ns="settingsPage" k="importExportTitle" /></CardTitle>
               <CardDescription>
-                Importeer en exporteer je klanten, facturen, producten, kosten en urenregistraties
+                <T ns="settingsPage" k="importExportDescription" />
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                {t("importExportIntro")}
+                <T ns="settingsPage" k="importExportIntro" />
               </p>
               <ul className="list-disc list-inside text-muted-foreground mb-6 space-y-1">
-                <li>{t("importExportItem1")}</li>
-                <li>{t("importExportItem2")}</li>
-                <li>{t("importExportItem3")}</li>
-                <li>{t("importExportItem4")}</li>
+                <li><T ns="settingsPage" k="importExportItem1" /></li>
+                <li><T ns="settingsPage" k="importExportItem2" /></li>
+                <li><T ns="settingsPage" k="importExportItem3" /></li>
+                <li><T ns="settingsPage" k="importExportItem4" /></li>
               </ul>
               <Button asChild>
                 <Link href="/instellingen/import-export">
-                  {t("toImportExport")}
+                  <T ns="settingsPage" k="toImportExport" />
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

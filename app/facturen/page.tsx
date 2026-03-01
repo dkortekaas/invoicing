@@ -17,7 +17,7 @@ import { YearFilterSelect } from "@/components/year-filter-select"
 import { Pagination } from "@/components/ui/pagination"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { db } from "@/lib/db"
-import { getServerT } from "@/lib/i18n"
+import { T } from "@/components/t"
 
 const PAGE_SIZE = 50
 
@@ -32,7 +32,6 @@ interface FacturenPageProps {
 }
 
 export default async function FacturenPage({ searchParams }: FacturenPageProps) {
-  const t = await getServerT("invoicesPage")
   const params = await searchParams
   const currentYearNum = new Date().getFullYear()
   const showDeleted = params.deleted === "true"
@@ -89,16 +88,16 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
+          <h2 className="text-2xl font-bold tracking-tight"><T ns="invoicesPage" k="title" /></h2>
           <p className="text-muted-foreground">
-            {t("description")}
+            <T ns="invoicesPage" k="description" />
           </p>
         </div>
         <div className="flex gap-2">
           {!showDeleted && <ExportButton entityType="INVOICES" totalCount={statusCounts.ALL} />}
           {showDeleted ? (
             <Button variant="outline" asChild>
-              <Link href="/facturen">{t("backToInvoices")}</Link>
+              <Link href="/facturen"><T ns="invoicesPage" k="backToInvoices" /></Link>
             </Button>
           ) : (
             <>
@@ -106,14 +105,14 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
                 <Button variant="outline" asChild>
                   <Link href="/facturen?deleted=true">
                     <Trash2 className="mr-2 h-4 w-4" />
-                    {t("trash")} ({deletedCount})
+                    <T ns="invoicesPage" k="trash" /> ({deletedCount})
                   </Link>
                 </Button>
               )}
               <Button asChild>
                 <Link href="/facturen/nieuw">
                   <Plus className="mr-2 h-4 w-4" />
-                  {t("newInvoice")}
+                  <T ns="invoicesPage" k="newInvoice" />
                 </Link>
               </Button>
             </>
@@ -127,12 +126,13 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <StatusFilterTabs
               currentStatus={status}
+              namespace="invoicesPage"
               options={[
-                { value: "ALL", label: t("statusAll"), count: statusCounts.ALL, href: "/facturen" },
-                { value: "DRAFT", label: t("statusDraft"), count: statusCounts.DRAFT, href: "/facturen?status=DRAFT" },
-                { value: "SENT", label: t("statusSent"), count: statusCounts.SENT, href: "/facturen?status=SENT" },
-                { value: "PAID", label: t("statusPaid"), count: statusCounts.PAID, href: "/facturen?status=PAID" },
-                { value: "OVERDUE", label: t("statusOverdue"), count: statusCounts.OVERDUE, href: "/facturen?status=OVERDUE" },
+                { value: "ALL", labelKey: "statusAll", count: statusCounts.ALL, href: "/facturen" },
+                { value: "DRAFT", labelKey: "statusDraft", count: statusCounts.DRAFT, href: "/facturen?status=DRAFT" },
+                { value: "SENT", labelKey: "statusSent", count: statusCounts.SENT, href: "/facturen?status=SENT" },
+                { value: "PAID", labelKey: "statusPaid", count: statusCounts.PAID, href: "/facturen?status=PAID" },
+                { value: "OVERDUE", labelKey: "statusOverdue", count: statusCounts.OVERDUE, href: "/facturen?status=OVERDUE" },
               ]}
             />
 
@@ -150,13 +150,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
             invoices={invoiceRows}
             hasAccountingConnections={hasAccountingConnections}
             showDeleted={showDeleted}
-            emptyMessage={
-              showDeleted
-                ? t("trashEmpty")
-                : search
-                ? t("noResults").replace("{search}", search)
-                : t("noInvoices")
-            }
+            searchQuery={search}
           />
           <Pagination
             totalItems={totalItems}

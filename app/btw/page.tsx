@@ -7,12 +7,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Plus, FileSpreadsheet, Info } from 'lucide-react';
 import Link from 'next/link';
 import { getCurrentQuarter, getPreviousQuarter } from '@/lib/vat/calculations';
-import { getServerT } from '@/lib/i18n';
+import { T } from '@/components/t';
 
 export default async function BTWPage() {
-  const t = await getServerT('vatPage');
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     return null;
   }
@@ -35,7 +34,7 @@ export default async function BTWPage() {
 
   // Load last 3 quarters
   const quarters = [current, prev1, prev2];
-  
+
   const reports = await Promise.all(
     quarters.map(async (q) => {
       try {
@@ -77,9 +76,9 @@ export default async function BTWPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
+          <h1 className="text-3xl font-bold"><T ns="vatPage" k="title" /></h1>
           <p className="text-muted-foreground">
-            {t('description')}
+            <T ns="vatPage" k="description" />
           </p>
         </div>
 
@@ -87,13 +86,13 @@ export default async function BTWPage() {
           <Button variant="outline" asChild>
             <Link href="/kosten">
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              {t('toExpenses')}
+              <T ns="vatPage" k="toExpenses" />
             </Link>
           </Button>
           <Button asChild>
             <Link href="/kosten/nieuw">
               <Plus className="mr-2 h-4 w-4" />
-              {t('newExpense')}
+              <T ns="vatPage" k="newExpense" />
             </Link>
           </Button>
         </div>
@@ -102,14 +101,14 @@ export default async function BTWPage() {
       {useKOR && (
         <Alert>
           <Info className="h-4 w-4" />
-          <AlertTitle>{t('korTitle')}</AlertTitle>
+          <AlertTitle><T ns="vatPage" k="korTitle" /></AlertTitle>
           <AlertDescription>
-            {t('korDescription')}
+            <T ns="vatPage" k="korDescription" />
           </AlertDescription>
         </Alert>
       )}
 
-      <Suspense fallback={<div>{t('loading')}</div>}>
+      <Suspense fallback={<div><T ns="vatPage" k="loading" /></div>}>
         <VATDashboard quarters={reports} currentQuarter={current} />
       </Suspense>
     </div>

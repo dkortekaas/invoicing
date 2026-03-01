@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/table"
 import { fetchAvailableYears, fetchExistingReports } from "./actions"
 import { GenerateReportButton } from "./generate-report-button"
-import { getServerT } from "@/lib/i18n"
+import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
@@ -51,7 +51,6 @@ const STATUS_VARIANTS: Record<string, "default" | "secondary" | "outline" | "des
 }
 
 export default async function BelastingPage() {
-  const t = await getServerT("taxPage")
   const user = await getCurrentUser()
   if (!user) {
     redirect("/login")
@@ -75,10 +74,10 @@ export default async function BelastingPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
-            {t("title")}
+            <T ns="taxPage" k="title" />
           </h2>
           <p className="text-muted-foreground">
-            {t("description")}
+            <T ns="taxPage" k="description" />
           </p>
         </div>
       </div>
@@ -156,7 +155,7 @@ export default async function BelastingPage() {
           {availableYears.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold">{t("noData")}</h3>
+              <h3 className="text-lg font-semibold"><T ns="taxPage" k="noData" /></h3>
               <p className="text-muted-foreground mb-4">
                 Er zijn nog geen betaalde facturen om een rapport van te
                 genereren.
@@ -166,11 +165,11 @@ export default async function BelastingPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("colYear")}</TableHead>
+                  <TableHead><T ns="taxPage" k="colYear" /></TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Netto omzet</TableHead>
                   <TableHead className="text-right">Bruto winst</TableHead>
-                  <TableHead className="text-right">{t("colTaxableProfit")}</TableHead>
+                  <TableHead className="text-right"><T ns="taxPage" k="colTaxableProfit" /></TableHead>
                   <TableHead className="text-right">Geschatte belasting</TableHead>
                   <TableHead className="text-right">Laatst bijgewerkt</TableHead>
                   <TableHead></TableHead>
@@ -242,15 +241,15 @@ export default async function BelastingPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{t("fiscalSettings")}</CardTitle>
+            <CardTitle className="text-base"><T ns="taxPage" k="fiscalSettings" /></CardTitle>
             <CardDescription>
-              {t("fiscalSettingsDescription")}
+              <T ns="taxPage" k="fiscalSettingsDescription" />
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button variant="outline" asChild>
               <Link href="/instellingen?tab=fiscaal">
-                {t("toSettings")}
+                <T ns="taxPage" k="toSettings" />
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
@@ -259,15 +258,15 @@ export default async function BelastingPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{t("assetsTitle")}</CardTitle>
+            <CardTitle className="text-base"><T ns="taxPage" k="assetsTitle" /></CardTitle>
             <CardDescription>
-              {t("assetsDescription")}
+              <T ns="taxPage" k="assetsDescription" />
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button variant="outline" asChild>
               <Link href="/activa">
-                {t("toAssets")}
+                <T ns="taxPage" k="toAssets" />
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>

@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import { TimerWidget } from '@/components/time/timer-widget';
 import { TimeEntryList } from '@/components/time/time-entry-list';
-import { getServerT } from '@/lib/i18n';
 import { db } from '@/lib/db';
 import { getCurrentUser } from '@/lib/get-session';
 import { Card } from '@/components/ui/card';
@@ -9,16 +8,16 @@ import { Button } from '@/components/ui/button';
 import { Plus, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { ExportButton } from '@/components/import-export';
+import { T } from '@/components/t';
 
 export default async function TijdPage() {
-  const t = await getServerT('timePage');
   const user = await getCurrentUser();
-  
+
   if (!user?.id) {
     return null;
   }
 
-  // Haal recente entries op (laatste 7 dagen)
+  // Fetch recent entries (last 7 days)
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -75,11 +74,9 @@ export default async function TijdPage() {
     }));
   } catch (error) {
     console.error('Error loading time entries:', error);
-    // If timeEntry doesn't exist, it means Prisma client needs to be regenerated
     if (error instanceof Error && (error.message?.includes('timeEntry') || error.message?.includes('Cannot read'))) {
       console.error('Prisma client is not up-to-date. Please restart the dev server.');
     }
-    // Return empty array to prevent crash
     recentEntries = [];
   }
 
@@ -87,9 +84,9 @@ export default async function TijdPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
+          <h1 className="text-3xl font-bold"><T ns="timePage" k="title" /></h1>
           <p className="text-muted-foreground">
-            {t('description')}
+            <T ns="timePage" k="description" />
           </p>
         </div>
 
@@ -98,7 +95,7 @@ export default async function TijdPage() {
           <Button variant="outline" asChild>
             <Link href="/tijd/entries">
               <FileText className="mr-2 h-4 w-4" />
-              {t('allEntries')}
+              <T ns="timePage" k="allEntries" />
             </Link>
           </Button>
         </div>
@@ -110,12 +107,12 @@ export default async function TijdPage() {
         </div>
 
         <Card className="p-6">
-          <h3 className="font-semibold mb-4">{t('quickActions')}</h3>
+          <h3 className="font-semibold mb-4"><T ns="timePage" k="quickActions" /></h3>
           <div className="space-y-2">
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/tijd/entries/nieuw">
                 <Plus className="mr-2 h-4 w-4" />
-                {t('manualEntry')}
+                <T ns="timePage" k="manualEntry" />
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
@@ -128,8 +125,8 @@ export default async function TijdPage() {
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold mb-4">{t('recentEntries')}</h2>
-        <Suspense fallback={<div>{t('loading')}</div>}>
+        <h2 className="text-xl font-semibold mb-4"><T ns="timePage" k="recentEntries" /></h2>
+        <Suspense fallback={<div><T ns="timePage" k="loading" /></div>}>
           <TimeEntryList entries={recentEntries} />
         </Suspense>
       </div>

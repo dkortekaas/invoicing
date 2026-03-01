@@ -10,12 +10,11 @@ import { Badge } from "@/components/ui/badge"
 import { getDashboardStats, getRecentInvoices } from "@/app/facturen/actions"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { db } from "@/lib/db"
-import { getServerT } from "@/lib/i18n"
+import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
 export default async function DashboardPage() {
-  const t = await getServerT("dashboardPage")
   const userId = await getCurrentUserId()
 
   const [stats, recentInvoices, activeConnectionCount] = await Promise.all([
@@ -28,18 +27,18 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header met snelle acties */}
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
+          <h2 className="text-2xl font-bold tracking-tight"><T ns="dashboardPage" k="title" /></h2>
           <p className="text-muted-foreground">
-            {t("description")}
+            <T ns="dashboardPage" k="description" />
           </p>
         </div>
         <Button asChild>
           <Link href="/facturen/nieuw">
             <Plus className="mr-2 h-4 w-4" />
-            {t("newInvoice")}
+            <T ns="dashboardPage" k="newInvoice" />
           </Link>
         </Button>
       </div>
@@ -47,47 +46,47 @@ export default async function DashboardPage() {
       {/* Stats cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title={t("outstanding")}
+          title={<T ns="dashboardPage" k="outstanding" />}
           value={formatCurrency(stats.totalOutstanding)}
-          description={`${stats.invoiceCount} ${t("invoices")}`}
+          description={<>{stats.invoiceCount} <T ns="dashboardPage" k="invoices" /></>}
           icon={Euro}
         />
         <StatsCard
-          title={t("overdue")}
+          title={<T ns="dashboardPage" k="overdue" />}
           value={formatCurrency(stats.overdueAmount)}
-          description={`${stats.overdueCount} ${t("invoices")}`}
+          description={<>{stats.overdueCount} <T ns="dashboardPage" k="invoices" /></>}
           icon={AlertTriangle}
           className={stats.overdueCount > 0 ? "border-red-200 bg-red-50" : ""}
         />
         <StatsCard
-          title={t("revenueThisMonth")}
+          title={<T ns="dashboardPage" k="revenueThisMonth" />}
           value={formatCurrency(stats.revenueThisMonth)}
           icon={FileText}
         />
         <StatsCard
-          title={t("customers")}
+          title={<T ns="dashboardPage" k="customers" />}
           value={stats.customerCount.toString()}
           icon={Users}
         />
       </div>
 
-      {/* Recente facturen + snelle acties + boekhouding sync widget */}
+      {/* Recent invoices + quick actions + accounting sync widget */}
       <div className={cn(
         "grid gap-4",
         hasAccountingConnections ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2"
       )}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>{t("recentInvoices")}</CardTitle>
+            <CardTitle><T ns="dashboardPage" k="recentInvoices" /></CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/facturen">{t("viewAll")}</Link>
+              <Link href="/facturen"><T ns="dashboardPage" k="viewAll" /></Link>
             </Button>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {recentInvoices.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  {t("noInvoices")}
+                  <T ns="dashboardPage" k="noInvoices" />
                 </p>
               ) : (
                 recentInvoices.map((invoice: typeof recentInvoices[0]) => (
@@ -123,51 +122,53 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Snelle acties */}
+        {/* Quick actions */}
         <Card>
           <CardHeader>
-            <CardTitle>{t("quickActions")}</CardTitle>
+            <CardTitle><T ns="dashboardPage" k="quickActions" /></CardTitle>
           </CardHeader>
           <CardContent className="grid gap-2">
             <Button variant="outline" className="justify-start" asChild>
               <Link href="/facturen/nieuw">
                 <FileText className="mr-2 h-4 w-4" />
-                {t("createInvoice")}
+                <T ns="dashboardPage" k="createInvoice" />
               </Link>
             </Button>
             <Button variant="outline" className="justify-start" asChild>
               <Link href="/klanten/nieuw">
                 <Users className="mr-2 h-4 w-4" />
-                {t("addCustomer")}
+                <T ns="dashboardPage" k="addCustomer" />
               </Link>
             </Button>
             <Button variant="outline" className="justify-start" asChild>
               <Link href="/producten">
                 <Plus className="mr-2 h-4 w-4" />
-                {t("manageProducts")}
+                <T ns="dashboardPage" k="manageProducts" />
               </Link>
             </Button>
           </CardContent>
         </Card>
 
-        {/* Boekhouding sync widget — only when at least one connection is active */}
+        {/* Accounting sync widget — only when at least one connection is active */}
         {hasAccountingConnections && <AccountingSyncWidget />}
       </div>
 
-      {/* Openstaande ondertekeningen */}
+      {/* Signing pending widget */}
       <SigningPendingWidget />
 
-      {/* Omzet overzicht */}
+      {/* Revenue overview */}
       <Card>
         <CardHeader>
-          <CardTitle>{t("revenueThisYear").replace("{year}", String(new Date().getFullYear()))}</CardTitle>
+          <CardTitle>
+            <T ns="dashboardPage" k="revenueThisYear" vars={{ year: String(new Date().getFullYear()) }} />
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">
             {formatCurrency(stats.revenueThisYear)}
           </div>
           <p className="text-sm text-muted-foreground">
-            {t("totalRevenueYear")}
+            <T ns="dashboardPage" k="totalRevenueYear" />
           </p>
         </CardContent>
       </Card>

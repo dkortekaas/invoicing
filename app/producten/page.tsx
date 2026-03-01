@@ -17,8 +17,10 @@ import { formatCurrency } from "@/lib/utils"
 import { getProducts } from "./actions"
 import { ProductActions } from "./product-actions"
 import { ProductFormButton } from "./product-form-button"
+import { getServerT } from "@/lib/i18n"
 
 export default async function ProductenPage() {
+  const t = await getServerT("productsPage")
   const products = await getProducts()
 
   return (
@@ -26,9 +28,9 @@ export default async function ProductenPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Producten & Diensten</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
           <p className="text-muted-foreground">
-            Beheer je producten en diensten voor facturatie
+            {t("description")}
           </p>
         </div>
         <div className="flex gap-2">
@@ -44,7 +46,7 @@ export default async function ProductenPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Zoek producten..."
+                placeholder={t("searchPlaceholder")}
                 className="pl-9"
               />
             </div>
@@ -54,12 +56,12 @@ export default async function ProductenPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Naam</TableHead>
-                <TableHead>Omschrijving</TableHead>
-                <TableHead className="text-right">Prijs</TableHead>
-                <TableHead className="text-center">Eenheid</TableHead>
-                <TableHead className="text-center">BTW</TableHead>
-                <TableHead className="text-center">Status</TableHead>
+                <TableHead>{t("colName")}</TableHead>
+                <TableHead>{t("colDescription")}</TableHead>
+                <TableHead className="text-right">{t("colPrice")}</TableHead>
+                <TableHead className="text-center">{t("colUnit")}</TableHead>
+                <TableHead className="text-center">{t("colVat")}</TableHead>
+                <TableHead className="text-center">{t("colStatus")}</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -68,7 +70,7 @@ export default async function ProductenPage() {
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <p className="text-muted-foreground">
-                      Nog geen producten. Voeg je eerste product toe!
+                      {t("noProducts")}
                     </p>
                     <ProductFormButton />
                   </TableCell>
@@ -107,7 +109,7 @@ export default async function ProductenPage() {
                         <Badge
                           variant={product.isActive ? "default" : "secondary"}
                         >
-                          {product.isActive ? "Actief" : "Inactief"}
+                          {product.isActive ? t("statusActive") : t("statusInactive")}
                         </Badge>
                       </TableCell>
                       <TableCell>

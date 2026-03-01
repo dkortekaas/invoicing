@@ -22,6 +22,7 @@ import { formatCurrency, formatDate } from "@/lib/utils"
 import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge"
 import { SigningStatusBadge } from "@/components/quotes/signing-status-badge"
 import { getQuotes, getQuoteStatusCounts } from "./actions"
+import { getServerT } from "@/lib/i18n"
 
 const PAGE_SIZE = 50
 
@@ -36,6 +37,7 @@ interface OffortesPageProps {
 }
 
 export default async function OffertesPage({ searchParams }: OffortesPageProps) {
+  const t = await getServerT("quotesPage")
   const params = await searchParams
   const currentYearNum = new Date().getFullYear()
   const status = params.status || "ALL"
@@ -63,15 +65,15 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Offertes</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
           <p className="text-muted-foreground">
-            Beheer en verstuur je offertes met digitale ondertekening
+            {t("description")}
           </p>
         </div>
         <Button asChild>
           <Link href="/offertes/nieuw">
             <Plus className="mr-2 h-4 w-4" />
-            Nieuwe Offerte
+            {t("newQuote")}
           </Link>
         </Button>
       </div>
@@ -82,13 +84,13 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
           <StatusFilterTabs
             currentStatus={status}
             options={[
-              { value: "ALL", label: "Alle", count: statusCounts.ALL, href: "/offertes" },
-              { value: "DRAFT", label: "Concept", count: statusCounts.DRAFT, href: "/offertes?status=DRAFT" },
-              { value: "SENT", label: "Verzonden", count: statusCounts.SENT, href: "/offertes?status=SENT" },
-              { value: "VIEWED", label: "Bekeken", count: statusCounts.VIEWED, href: "/offertes?status=VIEWED" },
-              { value: "SIGNED", label: "Ondertekend", count: statusCounts.SIGNED, href: "/offertes?status=SIGNED" },
-              { value: "DECLINED", label: "Afgewezen", count: statusCounts.DECLINED, href: "/offertes?status=DECLINED" },
-              { value: "EXPIRED", label: "Verlopen", count: statusCounts.EXPIRED, href: "/offertes?status=EXPIRED" },
+              { value: "ALL", label: t("statusAll"), count: statusCounts.ALL, href: "/offertes" },
+              { value: "DRAFT", label: t("statusDraft"), count: statusCounts.DRAFT, href: "/offertes?status=DRAFT" },
+              { value: "SENT", label: t("statusSent"), count: statusCounts.SENT, href: "/offertes?status=SENT" },
+              { value: "VIEWED", label: t("statusViewed"), count: statusCounts.VIEWED, href: "/offertes?status=VIEWED" },
+              { value: "SIGNED", label: t("statusSigned"), count: statusCounts.SIGNED, href: "/offertes?status=SIGNED" },
+              { value: "DECLINED", label: t("statusDeclined"), count: statusCounts.DECLINED, href: "/offertes?status=DECLINED" },
+              { value: "EXPIRED", label: t("statusExpired"), count: statusCounts.EXPIRED, href: "/offertes?status=EXPIRED" },
             ]}
           />
         </CardHeader>
@@ -100,9 +102,9 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
                 <TableHead>Klant</TableHead>
                 <TableHead>Datum</TableHead>
                 <TableHead>Verloopdatum</TableHead>
-                <TableHead className="text-right">Bedrag</TableHead>
-                <TableHead className="text-center">Status</TableHead>
-                <TableHead className="text-center">Ondertekening</TableHead>
+                <TableHead className="text-right">{t("colAmount")}</TableHead>
+                <TableHead className="text-center">{t("colStatus")}</TableHead>
+                <TableHead className="text-center">{t("colSigning")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -111,17 +113,17 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
                   <TableCell colSpan={7} className="text-center py-8">
                     {search ? (
                       <p className="text-muted-foreground">
-                        Geen offertes gevonden voor &ldquo;{search}&rdquo;.
+                        {t("noResults")}
                       </p>
                     ) : (
                       <>
                         <p className="text-muted-foreground">
-                          Nog geen offertes. Maak je eerste offerte!
+                          {t("noQuotes")}
                         </p>
                         <Button asChild className="mt-4">
                           <Link href="/offertes/nieuw">
                             <Plus className="mr-2 h-4 w-4" />
-                            Nieuwe Offerte
+                            {t("newQuote")}
                           </Link>
                         </Button>
                       </>

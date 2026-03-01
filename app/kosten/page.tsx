@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { redirect } from 'next/navigation';
+import { getServerT } from '@/lib/i18n';
 import { SearchForm } from './search-form';
 import { YearFilterSelect } from '@/components/year-filter-select';
 import { Pagination } from '@/components/ui/pagination';
@@ -54,6 +55,7 @@ interface ExpensesPageProps {
 }
 
 export default async function ExpensesPage({ searchParams }: ExpensesPageProps) {
+  const t = await getServerT('expensesPage');
   await requireFeature('expenses');
 
   const session = await auth();
@@ -155,9 +157,9 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Kosten</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Overzicht van alle uitgaven en voorbelasting
+            {t('description')}
           </p>
         </div>
         <div className="flex gap-2">
@@ -165,7 +167,7 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
           <Button asChild>
             <Link href="/kosten/nieuw">
               <Plus className="mr-2 h-4 w-4" />
-              Nieuwe uitgave
+              {t('newExpense')}
             </Link>
           </Button>
         </div>
@@ -182,17 +184,17 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
           <Table>
             <TableHeader>
               <TableRow>
-                <SortableTableHead sortKey="date">Datum</SortableTableHead>
-                <SortableTableHead sortKey="description">Beschrijving</SortableTableHead>
-                <SortableTableHead sortKey="category">Categorie</SortableTableHead>
+                <SortableTableHead sortKey="date">{t('colDate')}</SortableTableHead>
+                <SortableTableHead sortKey="description">{t('colDescription')}</SortableTableHead>
+                <SortableTableHead sortKey="category">{t('colCategory')}</SortableTableHead>
                 <SortableTableHead sortKey="amount" className="text-right">
-                  Bedrag
+                  {t('colAmount')}
                 </SortableTableHead>
                 <SortableTableHead sortKey="vatAmount" className="text-right">
-                  BTW
+                  {t('colVat')}
                 </SortableTableHead>
-                <TableHead className="text-center">Factuur</TableHead>
-                <TableHead>Aftrekbaar</TableHead>
+                <TableHead className="text-center">{t('colReceipt')}</TableHead>
+                <TableHead>{t('colDeductible')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -200,12 +202,12 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <p className="text-muted-foreground">
-                      Nog geen uitgaven geregistreerd
+                      {t('noExpenses')}
                     </p>
                     <Button asChild className="mt-4">
                       <Link href="/kosten/nieuw">
                         <Plus className="mr-2 h-4 w-4" />
-                        Nieuwe uitgave
+                        {t('newExpense')}
                       </Link>
                     </Button>
                   </TableCell>
@@ -230,12 +232,12 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
                       {expense.receipt ? (
                         <span className="inline-flex items-center gap-1 text-green-600" title="Factuur/bon aanwezig">
                           <FileCheck className="h-4 w-4" />
-                          <span className="sr-only md:not-sr-only md:inline">Ja</span>
+                          <span className="sr-only md:not-sr-only md:inline">{t('receiptYes')}</span>
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-amber-600" title="Geen factuur geüpload – bewaar de bon">
                           <FileX className="h-4 w-4" />
-                          <span className="sr-only md:not-sr-only md:inline">Nee</span>
+                          <span className="sr-only md:not-sr-only md:inline">{t('receiptNo')}</span>
                         </span>
                       )}
                     </TableCell>
@@ -243,7 +245,7 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
                       {expense.deductible ? (
                         <Badge variant="default">{Number(expense.deductiblePerc)}%</Badge>
                       ) : (
-                        <Badge variant="secondary">Nee</Badge>
+                        <Badge variant="secondary">{t('deductibleNo')}</Badge>
                       )}
                     </TableCell>
                   </TableRow>

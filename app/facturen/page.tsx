@@ -17,6 +17,7 @@ import { YearFilterSelect } from "@/components/year-filter-select"
 import { Pagination } from "@/components/ui/pagination"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { db } from "@/lib/db"
+import { getServerT } from "@/lib/i18n"
 
 const PAGE_SIZE = 50
 
@@ -31,6 +32,7 @@ interface FacturenPageProps {
 }
 
 export default async function FacturenPage({ searchParams }: FacturenPageProps) {
+  const t = await getServerT("invoicesPage")
   const params = await searchParams
   const currentYearNum = new Date().getFullYear()
   const showDeleted = params.deleted === "true"
@@ -87,16 +89,16 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Facturen</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
           <p className="text-muted-foreground">
-            Beheer en verstuur je facturen
+            {t("description")}
           </p>
         </div>
         <div className="flex gap-2">
           {!showDeleted && <ExportButton entityType="INVOICES" totalCount={statusCounts.ALL} />}
           {showDeleted ? (
             <Button variant="outline" asChild>
-              <Link href="/facturen">Terug naar facturen</Link>
+              <Link href="/facturen">{t("backToInvoices")}</Link>
             </Button>
           ) : (
             <>
@@ -104,14 +106,14 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
                 <Button variant="outline" asChild>
                   <Link href="/facturen?deleted=true">
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Prullenbak ({deletedCount})
+                    {t("trash")} ({deletedCount})
                   </Link>
                 </Button>
               )}
               <Button asChild>
                 <Link href="/facturen/nieuw">
                   <Plus className="mr-2 h-4 w-4" />
-                  Nieuwe Factuur
+                  {t("newInvoice")}
                 </Link>
               </Button>
             </>
@@ -126,11 +128,11 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
             <StatusFilterTabs
               currentStatus={status}
               options={[
-                { value: "ALL", label: "Alle", count: statusCounts.ALL, href: "/facturen" },
-                { value: "DRAFT", label: "Concept", count: statusCounts.DRAFT, href: "/facturen?status=DRAFT" },
-                { value: "SENT", label: "Verzonden", count: statusCounts.SENT, href: "/facturen?status=SENT" },
-                { value: "PAID", label: "Betaald", count: statusCounts.PAID, href: "/facturen?status=PAID" },
-                { value: "OVERDUE", label: "Achterstallig", count: statusCounts.OVERDUE, href: "/facturen?status=OVERDUE" },
+                { value: "ALL", label: t("statusAll"), count: statusCounts.ALL, href: "/facturen" },
+                { value: "DRAFT", label: t("statusDraft"), count: statusCounts.DRAFT, href: "/facturen?status=DRAFT" },
+                { value: "SENT", label: t("statusSent"), count: statusCounts.SENT, href: "/facturen?status=SENT" },
+                { value: "PAID", label: t("statusPaid"), count: statusCounts.PAID, href: "/facturen?status=PAID" },
+                { value: "OVERDUE", label: t("statusOverdue"), count: statusCounts.OVERDUE, href: "/facturen?status=OVERDUE" },
               ]}
             />
 
@@ -150,10 +152,10 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
             showDeleted={showDeleted}
             emptyMessage={
               showDeleted
-                ? "De prullenbak is leeg."
+                ? t("trashEmpty")
                 : search
-                ? `Geen facturen gevonden voor "${search}".`
-                : "Nog geen facturen. Maak je eerste factuur!"
+                ? t("noResults").replace("{search}", search)
+                : t("noInvoices")
             }
           />
           <Pagination

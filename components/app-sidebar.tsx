@@ -35,74 +35,28 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import Logo from "@/components/marketing/logo"
-
-const navigation = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Facturen",
-    url: "/facturen",
-    icon: FileText,
-  },
-  {
-    title: "Offertes",
-    url: "/offertes",
-    icon: ScrollText,
-  },
-  {
-    title: "Credit Nota's",
-    url: "/creditnotas",
-    icon: FileX,
-  },
-  {
-    title: "Abonnementen",
-    url: "/abonnementen",
-    icon: Repeat,
-  },
-  {
-    title: "Tijdregistratie",
-    url: "/tijd",
-    icon: Clock,
-  },
-  {
-    title: "Klanten",
-    url: "/klanten",
-    icon: Users,
-  },
-  {
-    title: "Producten",
-    url: "/producten",
-    icon: Package,
-  },
-  {
-    title: "Kosten",
-    url: "/kosten",
-    icon: Euro,
-  },
-  {
-    title: "BTW",
-    url: "/btw",
-    icon: Receipt,
-  },
-  {
-    title: "Belasting",
-    url: "/belasting",
-    icon: Calculator,
-  },
-  {
-    title: "Instellingen",
-    url: "/instellingen",
-    icon: Settings,
-  },
-]
+import { useTranslations } from "@/components/providers/locale-provider"
 
 export function AppSidebar() {
   const pathname = usePathname()
   const [isAdmin, setIsAdmin] = useState(false)
   const [isSuperuser, setIsSuperuser] = useState(false)
+  const { t } = useTranslations("sidebar")
+
+  const navigation = [
+    { titleKey: "dashboard", url: "/dashboard", icon: LayoutDashboard },
+    { titleKey: "invoices", url: "/facturen", icon: FileText },
+    { titleKey: "quotes", url: "/offertes", icon: ScrollText },
+    { titleKey: "creditNotes", url: "/creditnotas", icon: FileX },
+    { titleKey: "recurringInvoices", url: "/abonnementen", icon: Repeat },
+    { titleKey: "timeTracking", url: "/tijd", icon: Clock },
+    { titleKey: "customers", url: "/klanten", icon: Users },
+    { titleKey: "products", url: "/producten", icon: Package },
+    { titleKey: "expenses", url: "/kosten", icon: Euro },
+    { titleKey: "vat", url: "/btw", icon: Receipt },
+    { titleKey: "tax", url: "/belasting", icon: Calculator },
+    { titleKey: "settings", url: "/instellingen", icon: Settings },
+  ]
 
   useEffect(() => {
     fetch('/api/admin/check')
@@ -138,7 +92,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigatie</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("navigation")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigation.map((item) => {
@@ -147,11 +101,11 @@ export function AppSidebar() {
                   (item.url !== "/" && pathname.startsWith(item.url))
 
                 return (
-                  <SidebarMenuItem key={item.title} className="py-1">
+                  <SidebarMenuItem key={item.titleKey} className="py-1">
                     <SidebarMenuButton asChild isActive={isActive}>
                       <Link href={item.url}>
                         <item.icon />
-                        <span>{item.title}</span>
+                        <span>{t(item.titleKey)}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -162,7 +116,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild isActive={pathname?.startsWith('/audit-logs')}>
                     <Link href="/audit-logs">
                       <History />
-                      <span>Audit Log</span>
+                      <span>{t("auditLog")}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -172,7 +126,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild isActive={pathname?.startsWith('/admin')}>
                     <Link href="/admin">
                       <Shield />
-                      <span>Admin</span>
+                      <span>{t("admin")}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -186,7 +140,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout}>
               <LogOut />
-              <span>Uitloggen</span>
+              <span>{t("logout")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

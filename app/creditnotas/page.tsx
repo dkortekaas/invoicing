@@ -22,6 +22,7 @@ import { formatCurrency, formatDate, CREDIT_NOTE_REASON_LABELS } from "@/lib/uti
 import { CreditNoteStatusBadge } from "@/components/creditnotes/credit-note-status-badge"
 import { getCreditNotes } from "./actions"
 import { CreditNoteActions } from "./credit-note-actions"
+import { getServerT } from "@/lib/i18n"
 import { SearchForm } from "./search-form"
 import { YearFilterSelect } from "@/components/year-filter-select"
 
@@ -36,6 +37,7 @@ interface CreditNotasPageProps {
 }
 
 export default async function CreditNotasPage({ searchParams }: CreditNotasPageProps) {
+  const t = await getServerT("creditNotesPage")
   const params = await searchParams
   const currentYearNum = new Date().getFullYear()
   const status = params.status || "ALL"
@@ -105,15 +107,15 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Credit Nota&apos;s</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
           <p className="text-muted-foreground">
-            Beheer credit nota&apos;s voor correcties en terugbetalingen
+            {t("description")}
           </p>
         </div>
         <Button asChild>
           <Link href="/creditnotas/nieuw">
             <Plus className="mr-2 h-4 w-4" />
-            Nieuwe Credit Nota
+            {t("newCreditNote")}
           </Link>
         </Button>
       </div>
@@ -125,11 +127,11 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
             <StatusFilterTabs
               currentStatus={status}
               options={[
-                { value: "ALL", label: "Alle", count: statusCounts.ALL, href: "/creditnotas" },
-                { value: "DRAFT", label: "Concept", count: statusCounts.DRAFT, href: "/creditnotas?status=DRAFT" },
-                { value: "FINAL", label: "Definitief", count: statusCounts.FINAL, href: "/creditnotas?status=FINAL" },
-                { value: "SENT", label: "Verzonden", count: statusCounts.SENT, href: "/creditnotas?status=SENT" },
-                { value: "REFUNDED", label: "Terugbetaald", count: statusCounts.REFUNDED, href: "/creditnotas?status=REFUNDED" },
+                { value: "ALL", label: t("statusAll"), count: statusCounts.ALL, href: "/creditnotas" },
+                { value: "DRAFT", label: t("statusDraft"), count: statusCounts.DRAFT, href: "/creditnotas?status=DRAFT" },
+                { value: "FINAL", label: t("statusFinal"), count: statusCounts.FINAL, href: "/creditnotas?status=FINAL" },
+                { value: "SENT", label: t("statusSent"), count: statusCounts.SENT, href: "/creditnotas?status=SENT" },
+                { value: "REFUNDED", label: t("statusRefunded"), count: statusCounts.REFUNDED, href: "/creditnotas?status=REFUNDED" },
               ]}
             />
 
@@ -149,12 +151,12 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
           <Table>
             <TableHeader>
               <TableRow>
-                <SortableTableHead sortKey="creditNoteNumber">Credit Nota</SortableTableHead>
-                <SortableTableHead sortKey="customerName">Klant</SortableTableHead>
-                <SortableTableHead sortKey="creditNoteDate">Datum</SortableTableHead>
-                <SortableTableHead sortKey="reason">Reden</SortableTableHead>
-                <SortableTableHead sortKey="total" className="text-right">Bedrag</SortableTableHead>
-                <TableHead className="text-center">Status</TableHead>
+                <SortableTableHead sortKey="creditNoteNumber">{t("colCreditNote")}</SortableTableHead>
+                <SortableTableHead sortKey="customerName">{t("colCustomer")}</SortableTableHead>
+                <SortableTableHead sortKey="creditNoteDate">{t("colDate")}</SortableTableHead>
+                <SortableTableHead sortKey="reason">{t("colReason")}</SortableTableHead>
+                <SortableTableHead sortKey="total" className="text-right">{t("colAmount")}</SortableTableHead>
+                <TableHead className="text-center">{t("colStatus")}</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -163,12 +165,12 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <p className="text-muted-foreground">
-                      Nog geen credit nota&apos;s.
+                      {t("noCreditNotes")}
                     </p>
                     <Button asChild className="mt-4">
                       <Link href="/creditnotas/nieuw">
                         <Plus className="mr-2 h-4 w-4" />
-                        Nieuwe Credit Nota
+                        {t("newCreditNote")}
                       </Link>
                     </Button>
                   </TableCell>

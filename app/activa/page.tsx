@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { getAssets, getAssetsSummary } from "./actions"
+import { getServerT } from "@/lib/i18n"
 
 export const dynamic = "force-dynamic"
 
@@ -39,6 +40,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 export default async function ActivaPage() {
+  const t = await getServerT("assetsPage")
   const user = await getCurrentUser()
   if (!user) {
     redirect("/login")
@@ -52,15 +54,15 @@ export default async function ActivaPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Bedrijfsmiddelen</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
           <p className="text-muted-foreground">
-            Beheer je activa en afschrijvingen
+            {t("description")}
           </p>
         </div>
         <Button asChild>
           <Link href="/activa/nieuw">
             <Plus className="mr-2 h-4 w-4" />
-            Nieuw activum
+            {t("newAsset")}
           </Link>
         </Button>
       </div>
@@ -69,51 +71,51 @@ export default async function ActivaPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Totaal activa</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("totalAssets")}</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{summary.totalAssets}</div>
-            <p className="text-xs text-muted-foreground">actieve bedrijfsmiddelen</p>
+            <p className="text-xs text-muted-foreground">{t("totalAssetsDescription")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aanschafwaarde</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("purchasePrice")}</CardTitle>
             <Calculator className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {formatCurrency(summary.totalPurchasePrice)}
             </div>
-            <p className="text-xs text-muted-foreground">totale investering</p>
+            <p className="text-xs text-muted-foreground">{t("purchasePriceDescription")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Boekwaarde</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("bookValue")}</CardTitle>
             <Archive className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {formatCurrency(summary.totalBookValue)}
             </div>
-            <p className="text-xs text-muted-foreground">huidige waarde</p>
+            <p className="text-xs text-muted-foreground">{t("bookValueDescription")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Afgeschreven</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("depreciated")}</CardTitle>
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {formatCurrency(summary.totalDepreciation)}
             </div>
-            <p className="text-xs text-muted-foreground">cumulatieve afschrijving</p>
+            <p className="text-xs text-muted-foreground">{t("depreciatedDescription")}</p>
           </CardContent>
         </Card>
       </div>
@@ -121,18 +123,18 @@ export default async function ActivaPage() {
       {/* Assets Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Overzicht</CardTitle>
+          <CardTitle>{t("overview")}</CardTitle>
           <CardDescription>
-            Alle bedrijfsmiddelen met hun boekwaarde
+            {t("overviewDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {assets.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Package className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold">Geen bedrijfsmiddelen</h3>
+              <h3 className="text-lg font-semibold">{t("noAssets")}</h3>
               <p className="text-muted-foreground mb-4">
-                Voeg je eerste activum toe om afschrijvingen bij te houden
+                {t("noAssetsDescription")}
               </p>
               <Button asChild>
                 <Link href="/activa/nieuw">
@@ -145,12 +147,12 @@ export default async function ActivaPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Naam</TableHead>
-                  <TableHead>Categorie</TableHead>
-                  <TableHead>Aankoopdatum</TableHead>
-                  <TableHead className="text-right">Aanschafprijs</TableHead>
-                  <TableHead className="text-right">Boekwaarde</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t("colName")}</TableHead>
+                  <TableHead>{t("colCategory")}</TableHead>
+                  <TableHead>{t("colPurchaseDate")}</TableHead>
+                  <TableHead className="text-right">{t("colPurchasePrice")}</TableHead>
+                  <TableHead className="text-right">{t("colBookValue")}</TableHead>
+                  <TableHead>{t("colStatus")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -187,9 +189,9 @@ export default async function ActivaPage() {
                     </TableCell>
                     <TableCell>
                       {asset.isActive ? (
-                        <Badge variant="default">Actief</Badge>
+                        <Badge variant="default">{t("statusActive")}</Badge>
                       ) : (
-                        <Badge variant="secondary">Verkocht</Badge>
+                        <Badge variant="secondary">{t("statusSold")}</Badge>
                       )}
                     </TableCell>
                   </TableRow>

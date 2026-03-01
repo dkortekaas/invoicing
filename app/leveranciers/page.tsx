@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { getUserVendors } from "./actions"
 import { VendorActions } from "./vendor-actions"
 import { VendorSearchForm } from "./vendor-search-form"
+import { getServerT } from "@/lib/i18n"
 
 const CATEGORY_LABELS: Record<string, string> = {
   OFFICE: 'Kantoorkosten',
@@ -46,6 +47,7 @@ interface LeveranciersPageProps {
 }
 
 export default async function LeveranciersPage({ searchParams }: LeveranciersPageProps) {
+  const t = await getServerT("vendorsPage")
   const params = await searchParams
   const search = params.search ?? ""
   const sortBy = isVendorSortKey(params.sortBy) ? params.sortBy : "name"
@@ -84,16 +86,16 @@ export default async function LeveranciersPage({ searchParams }: LeveranciersPag
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Leveranciers</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
           <p className="text-muted-foreground">
-            Beheer je leveranciers voor automatische categorisatie
+            {t("description")}
           </p>
         </div>
         <div className="flex gap-2">
           <Button asChild>
             <Link href="/leveranciers/nieuw">
               <Plus className="mr-2 h-4 w-4" />
-              Nieuwe Leverancier
+              {t("newVendor")}
             </Link>
           </Button>
         </div>
@@ -110,10 +112,10 @@ export default async function LeveranciersPage({ searchParams }: LeveranciersPag
           <Table>
             <TableHeader>
               <TableRow>
-                <SortableTableHead sortKey="name">Naam</SortableTableHead>
-                <TableHead>Aliassen</TableHead>
-                <SortableTableHead sortKey="defaultCategory">Standaard Categorie</SortableTableHead>
-                <SortableTableHead sortKey="useCount" className="text-center">Gebruikt</SortableTableHead>
+                <SortableTableHead sortKey="name">{t("colName")}</SortableTableHead>
+                <TableHead>{t("colAliases")}</TableHead>
+                <SortableTableHead sortKey="defaultCategory">{t("colCategory")}</SortableTableHead>
+                <SortableTableHead sortKey="useCount" className="text-center">{t("colUsed")}</SortableTableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>

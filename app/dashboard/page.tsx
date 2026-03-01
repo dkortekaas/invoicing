@@ -10,10 +10,12 @@ import { Badge } from "@/components/ui/badge"
 import { getDashboardStats, getRecentInvoices } from "@/app/facturen/actions"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { db } from "@/lib/db"
+import { getServerT } from "@/lib/i18n"
 
 export const dynamic = "force-dynamic"
 
 export default async function DashboardPage() {
+  const t = await getServerT("dashboardPage")
   const userId = await getCurrentUserId()
 
   const [stats, recentInvoices, activeConnectionCount] = await Promise.all([
@@ -29,15 +31,15 @@ export default async function DashboardPage() {
       {/* Header met snelle acties */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Welkom terug!</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("title")}</h2>
           <p className="text-muted-foreground">
-            Hier is een overzicht van je facturatie
+            {t("description")}
           </p>
         </div>
         <Button asChild>
           <Link href="/facturen/nieuw">
             <Plus className="mr-2 h-4 w-4" />
-            Nieuwe Factuur
+            {t("newInvoice")}
           </Link>
         </Button>
       </div>
@@ -45,25 +47,25 @@ export default async function DashboardPage() {
       {/* Stats cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title="Openstaand"
+          title={t("outstanding")}
           value={formatCurrency(stats.totalOutstanding)}
-          description={`${stats.invoiceCount} facturen`}
+          description={`${stats.invoiceCount} ${t("invoices")}`}
           icon={Euro}
         />
         <StatsCard
-          title="Achterstallig"
+          title={t("overdue")}
           value={formatCurrency(stats.overdueAmount)}
-          description={`${stats.overdueCount} facturen`}
+          description={`${stats.overdueCount} ${t("invoices")}`}
           icon={AlertTriangle}
           className={stats.overdueCount > 0 ? "border-red-200 bg-red-50" : ""}
         />
         <StatsCard
-          title="Omzet deze maand"
+          title={t("revenueThisMonth")}
           value={formatCurrency(stats.revenueThisMonth)}
           icon={FileText}
         />
         <StatsCard
-          title="Klanten"
+          title={t("customers")}
           value={stats.customerCount.toString()}
           icon={Users}
         />
@@ -76,16 +78,16 @@ export default async function DashboardPage() {
       )}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Recente Facturen</CardTitle>
+            <CardTitle>{t("recentInvoices")}</CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/facturen">Bekijk alle</Link>
+              <Link href="/facturen">{t("viewAll")}</Link>
             </Button>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {recentInvoices.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  Nog geen facturen
+                  {t("noInvoices")}
                 </p>
               ) : (
                 recentInvoices.map((invoice: typeof recentInvoices[0]) => (
@@ -124,25 +126,25 @@ export default async function DashboardPage() {
         {/* Snelle acties */}
         <Card>
           <CardHeader>
-            <CardTitle>Snelle Acties</CardTitle>
+            <CardTitle>{t("quickActions")}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-2">
             <Button variant="outline" className="justify-start" asChild>
               <Link href="/facturen/nieuw">
                 <FileText className="mr-2 h-4 w-4" />
-                Nieuwe factuur maken
+                {t("createInvoice")}
               </Link>
             </Button>
             <Button variant="outline" className="justify-start" asChild>
               <Link href="/klanten/nieuw">
                 <Users className="mr-2 h-4 w-4" />
-                Nieuwe klant toevoegen
+                {t("addCustomer")}
               </Link>
             </Button>
             <Button variant="outline" className="justify-start" asChild>
               <Link href="/producten">
                 <Plus className="mr-2 h-4 w-4" />
-                Product/dienst beheren
+                {t("manageProducts")}
               </Link>
             </Button>
           </CardContent>
@@ -158,14 +160,14 @@ export default async function DashboardPage() {
       {/* Omzet overzicht */}
       <Card>
         <CardHeader>
-          <CardTitle>Omzet {new Date().getFullYear()}</CardTitle>
+          <CardTitle>{t("revenueThisYear").replace("{year}", String(new Date().getFullYear()))}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">
             {formatCurrency(stats.revenueThisYear)}
           </div>
           <p className="text-sm text-muted-foreground">
-            Totale omzet dit jaar (betaalde facturen)
+            {t("totalRevenueYear")}
           </p>
         </CardContent>
       </Card>

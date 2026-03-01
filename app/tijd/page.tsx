@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { TimerWidget } from '@/components/time/timer-widget';
 import { TimeEntryList } from '@/components/time/time-entry-list';
+import { getServerT } from '@/lib/i18n';
 import { db } from '@/lib/db';
 import { getCurrentUser } from '@/lib/get-session';
 import { Card } from '@/components/ui/card';
@@ -85,9 +86,9 @@ export default async function TijdPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Tijdregistratie</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Registreer je tijd en factureer eenvoudig
+            {t('description')}
           </p>
         </div>
 
@@ -96,7 +97,7 @@ export default async function TijdPage() {
           <Button variant="outline" asChild>
             <Link href="/tijd/entries">
               <FileText className="mr-2 h-4 w-4" />
-              Alle entries
+              {t('allEntries')}
             </Link>
           </Button>
         </div>
@@ -108,12 +109,12 @@ export default async function TijdPage() {
         </div>
 
         <Card className="p-6">
-          <h3 className="font-semibold mb-4">Quick Actions</h3>
+          <h3 className="font-semibold mb-4">{t('quickActions')}</h3>
           <div className="space-y-2">
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/tijd/entries/nieuw">
                 <Plus className="mr-2 h-4 w-4" />
-                Handmatige entry
+                {t('manualEntry')}
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
@@ -126,8 +127,8 @@ export default async function TijdPage() {
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold mb-4">Recente entries</h2>
-        <Suspense fallback={<div>Laden...</div>}>
+        <h2 className="text-xl font-semibold mb-4">{t('recentEntries')}</h2>
+        <Suspense fallback={<div>{t('loading')}</div>}>
           <TimeEntryList entries={recentEntries} />
         </Suspense>
       </div>

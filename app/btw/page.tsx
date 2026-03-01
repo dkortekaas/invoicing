@@ -7,8 +7,10 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Plus, FileSpreadsheet, Info } from 'lucide-react';
 import Link from 'next/link';
 import { getCurrentQuarter, getPreviousQuarter } from '@/lib/vat/calculations';
+import { getServerT } from '@/lib/i18n';
 
 export default async function BTWPage() {
+  const t = await getServerT('vatPage');
   const session = await auth();
   
   if (!session?.user?.id) {
@@ -75,9 +77,9 @@ export default async function BTWPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">BTW Rapportage</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Overzicht BTW aangiftes en voorbelasting
+            {t('description')}
           </p>
         </div>
 
@@ -85,13 +87,13 @@ export default async function BTWPage() {
           <Button variant="outline" asChild>
             <Link href="/kosten">
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              Kosten
+              {t('toExpenses')}
             </Link>
           </Button>
           <Button asChild>
             <Link href="/kosten/nieuw">
               <Plus className="mr-2 h-4 w-4" />
-              Nieuwe uitgave
+              {t('newExpense')}
             </Link>
           </Button>
         </div>
@@ -100,16 +102,14 @@ export default async function BTWPage() {
       {useKOR && (
         <Alert>
           <Info className="h-4 w-4" />
-          <AlertTitle>Kleineondernemersregeling (KOR)</AlertTitle>
+          <AlertTitle>{t('korTitle')}</AlertTitle>
           <AlertDescription>
-            Je maakt gebruik van de KOR. Dit betekent dat je geen BTW-aangifte hoeft te doen
-            en geen BTW in rekening brengt of terugvraagt. De onderstaande overzichten zijn
-            alleen ter informatie.
+            {t('korDescription')}
           </AlertDescription>
         </Alert>
       )}
 
-      <Suspense fallback={<div>Laden...</div>}>
+      <Suspense fallback={<div>{t('loading')}</div>}>
         <VATDashboard quarters={reports} currentQuarter={current} />
       </Suspense>
     </div>

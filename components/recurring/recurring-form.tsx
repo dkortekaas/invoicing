@@ -34,6 +34,7 @@ import { nl } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { getCurrencySymbol } from '@/lib/currency/formatting';
 import { CurrencySelector } from '@/components/currency/currency-selector';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 const recurringSchema = z.object({
   name: z.string().min(1, 'Naam is verplicht'),
@@ -67,6 +68,7 @@ interface RecurringFormProps {
 
 export function RecurringForm({ customerId, initialData, customers }: RecurringFormProps) {
   const router = useRouter();
+  const { t } = useTranslations('recurringPage');
   const [loading, setLoading] = useState(false);
 
   const form = useForm<RecurringFormData>({
@@ -129,10 +131,10 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
       const recurring = await response.json();
       router.push(`/abonnementen/${recurring.id}`);
       router.refresh();
-      toast.success('Abonnement opgeslagen');
+      toast.success(t('saveSuccess'));
     } catch (error) {
       console.error('Submit error:', error);
-      toast.error(error instanceof Error ? error.message : 'Er is een fout opgetreden');
+      toast.error(error instanceof Error ? error.message : t('saveError'));
     } finally {
       setLoading(false);
     }
@@ -147,9 +149,9 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Naam *</FormLabel>
+                <FormLabel>{t('formNameLabel')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="Bijv. Retainer Q1 2025" {...field} />
+                  <Input placeholder={t('formNamePlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -161,9 +163,9 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
             name="reference"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Referentie</FormLabel>
+                <FormLabel>{t('formReferenceLabel')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="Contract nummer" {...field} />
+                  <Input placeholder={t('formReferencePlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -176,10 +178,10 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Beschrijving</FormLabel>
+              <FormLabel>{t('formDescriptionLabel')}</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Extra informatie die op de factuur komt"
+                <Textarea
+                  placeholder={t('formDescriptionPlaceholder')}
                   {...field}
                 />
               </FormControl>
@@ -194,11 +196,11 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
             name="customerId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Klant *</FormLabel>
+                <FormLabel>{t('formCustomerLabel')}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecteer een klant" />
+                      <SelectValue placeholder={t('formCustomerPlaceholder')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -221,7 +223,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
             name="currencyCode"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Valuta</FormLabel>
+                <FormLabel>{t('formCurrencyLabel')}</FormLabel>
                 <FormControl>
                   <CurrencySelector
                     value={field.value || 'EUR'}
@@ -241,7 +243,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
             name="frequency"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Frequentie *</FormLabel>
+                <FormLabel>{t('formFrequencyLabel')}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -249,12 +251,12 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="WEEKLY">Wekelijks</SelectItem>
-                    <SelectItem value="BIWEEKLY">Tweewekelijks</SelectItem>
-                    <SelectItem value="MONTHLY">Maandelijks</SelectItem>
-                    <SelectItem value="QUARTERLY">Kwartaal</SelectItem>
-                    <SelectItem value="BIANNUAL">Halfjaarlijks</SelectItem>
-                    <SelectItem value="ANNUAL">Jaarlijks</SelectItem>
+                    <SelectItem value="WEEKLY">{t('freqWeekly')}</SelectItem>
+                    <SelectItem value="BIWEEKLY">{t('freqBiweekly')}</SelectItem>
+                    <SelectItem value="MONTHLY">{t('freqMonthly')}</SelectItem>
+                    <SelectItem value="QUARTERLY">{t('freqQuarterly')}</SelectItem>
+                    <SelectItem value="BIANNUAL">{t('freqBiannual')}</SelectItem>
+                    <SelectItem value="ANNUAL">{t('freqAnnual')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -267,7 +269,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
             name="interval"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Interval</FormLabel>
+                <FormLabel>{t('formIntervalLabel')}</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -277,7 +279,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
                   />
                 </FormControl>
                 <FormDescription>
-                  Elke X {frequency === 'MONTHLY' ? 'maanden' : 'periodes'}
+                  {frequency === 'MONTHLY' ? t('formIntervalDescMonths') : t('formIntervalDescPeriods')}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -290,19 +292,19 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
               name="dayOfMonth"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dag van maand</FormLabel>
+                  <FormLabel>{t('formDayOfMonthLabel')}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       min={1}
                       max={28}
-                      placeholder="1-28"
+                      placeholder={t('formDayOfMonthPlaceholder')}
                       {...field}
                       value={field.value || ''}
                       onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
                     />
                   </FormControl>
-                  <FormDescription>Laat leeg voor huidige dag</FormDescription>
+                  <FormDescription>{t('formDayOfMonthDesc')}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -316,7 +318,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
             name="startDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Startdatum *</FormLabel>
+                <FormLabel>{t('formStartDateLabel')}</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -330,7 +332,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
                         {field.value ? (
                           format(field.value, 'PPP', { locale: nl })
                         ) : (
-                          <span>Kies een datum</span>
+                          <span>{t('formDatePlaceholder')}</span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
@@ -355,7 +357,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
             name="endDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Einddatum (optioneel)</FormLabel>
+                <FormLabel>{t('formEndDateLabel')}</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -369,7 +371,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
                         {field.value ? (
                           format(field.value, 'PPP', { locale: nl })
                         ) : (
-                          <span>Onbeperkt</span>
+                          <span>{t('formEndDatePlaceholder')}</span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
@@ -392,10 +394,10 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Items</h3>
+            <h3 className="text-lg font-semibold">{t('formItemsTitle')}</h3>
             <Button type="button" variant="outline" size="sm" onClick={addItem}>
               <Plus className="h-4 w-4 mr-2" />
-              Item toevoegen
+              {t('formAddItem')}
             </Button>
           </div>
 
@@ -406,9 +408,9 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
                 name={`items.${index}.description`}
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    {index === 0 && <FormLabel>Omschrijving</FormLabel>}
+                    {index === 0 && <FormLabel>{t('formItemDescription')}</FormLabel>}
                     <FormControl>
-                      <Input placeholder="Bijv. Retainer uren" {...field} />
+                      <Input placeholder={t('formItemDescriptionPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -420,7 +422,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
                 name={`items.${index}.quantity`}
                 render={({ field }) => (
                   <FormItem className="w-24">
-                    {index === 0 && <FormLabel>Aantal</FormLabel>}
+                    {index === 0 && <FormLabel>{t('formItemQuantity')}</FormLabel>}
                     <FormControl>
                       <Input
                         type="number"
@@ -439,7 +441,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
                 name={`items.${index}.unitPrice`}
                 render={({ field }) => (
                   <FormItem className="w-32">
-                    {index === 0 && <FormLabel>Prijs</FormLabel>}
+                    {index === 0 && <FormLabel>{t('formItemPrice')}</FormLabel>}
                     <FormControl>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -464,7 +466,7 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
                 name={`items.${index}.vatRate`}
                 render={({ field }) => (
                   <FormItem className="w-24">
-                    {index === 0 && <FormLabel>BTW%</FormLabel>}
+                    {index === 0 && <FormLabel>{t('formItemVat')}</FormLabel>}
                     <Select
                       onValueChange={(value) => field.onChange(parseFloat(value))}
                       defaultValue={field.value.toString()}
@@ -507,9 +509,9 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
             render={({ field }) => (
               <FormItem className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-base">Automatisch versturen</FormLabel>
+                  <FormLabel className="text-base">{t('formAutoSendLabel')}</FormLabel>
                   <FormDescription>
-                    Facturen automatisch per email versturen na generatie
+                    {t('formAutoSendDesc')}
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -529,10 +531,10 @@ export function RecurringForm({ customerId, initialData, customers }: RecurringF
             variant="outline"
             onClick={() => router.back()}
           >
-            Annuleren
+            {t('formCancel')}
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? 'Opslaan...' : 'Opslaan'}
+            {loading ? t('formSaving') : t('formSave')}
           </Button>
         </div>
       </form>

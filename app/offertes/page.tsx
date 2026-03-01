@@ -98,10 +98,10 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Offerte</TableHead>
-                <TableHead>Klant</TableHead>
-                <TableHead>Datum</TableHead>
-                <TableHead>Verloopdatum</TableHead>
+                <TableHead><T ns="quotesPage" k="colQuote" /></TableHead>
+                <TableHead><T ns="quotesPage" k="colCustomer" /></TableHead>
+                <TableHead><T ns="quotesPage" k="colDate" /></TableHead>
+                <TableHead><T ns="quotesPage" k="colExpiry" /></TableHead>
                 <TableHead className="text-right"><T ns="quotesPage" k="colAmount" /></TableHead>
                 <TableHead className="text-center"><T ns="quotesPage" k="colStatus" /></TableHead>
                 <TableHead className="text-center"><T ns="quotesPage" k="colSigning" /></TableHead>
@@ -171,7 +171,7 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
                       ) : (
                         <span className="text-muted-foreground text-sm flex items-center justify-center gap-1">
                           <FileSignature className="h-3 w-3" />
-                          Uit
+                          <T ns="quotesPage" k="signingDisabled" />
                         </span>
                       )}
                     </TableCell>
@@ -185,7 +185,7 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-4">
               <p className="text-sm text-muted-foreground">
-                {totalItems} offerte{totalItems !== 1 ? "s" : ""} totaal
+                <T ns="quotesPage" k="paginationTotal" vars={{ count: String(totalItems) }} />
               </p>
               <div className="flex gap-2">
                 {currentPage > 1 && (
@@ -193,19 +193,19 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
                     <Link
                       href={`/offertes?page=${currentPage - 1}${status !== "ALL" ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
                     >
-                      Vorige
+                      <T ns="quotesPage" k="paginationPrev" />
                     </Link>
                   </Button>
                 )}
                 <span className="flex items-center text-sm text-muted-foreground px-2">
-                  Pagina {currentPage} van {totalPages}
+                  <T ns="quotesPage" k="paginationPage" vars={{ current: String(currentPage), total: String(totalPages) }} />
                 </span>
                 {currentPage < totalPages && (
                   <Button variant="outline" size="sm" asChild>
                     <Link
                       href={`/offertes?page=${currentPage + 1}${status !== "ALL" ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
                     >
-                      Volgende
+                      <T ns="quotesPage" k="paginationNext" />
                     </Link>
                   </Button>
                 )}

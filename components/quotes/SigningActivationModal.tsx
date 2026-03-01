@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 interface SigningActivationModalProps {
   quoteId: string
@@ -29,6 +30,7 @@ export default function SigningActivationModal({
   onOpenChange,
 }: SigningActivationModalProps) {
   const router = useRouter()
+  const { t } = useTranslations("quotesPage")
   const [validityDays, setValidityDays] = useState(14)
   const [autoCreateInvoice, setAutoCreateInvoice] = useState(true)
   const [loading, setLoading] = useState(false)
@@ -52,40 +54,43 @@ export default function SigningActivationModal({
       }
 
       if (!res.ok) {
-        toast.error(data.error ?? "Er is een fout opgetreden")
+        toast.error(data.error ?? t("activateError"))
         return
       }
 
       if (data.warning) {
         toast.warning(data.warning)
       } else {
-        toast.success("Ondertekeningsverzoek verstuurd naar de klant")
+        toast.success(t("activateSuccess"))
       }
 
       onOpenChange(false)
       router.refresh()
     } catch {
-      toast.error("Er is een onverwachte fout opgetreden. Probeer het opnieuw.")
+      toast.error(t("activateGenericError"))
     } finally {
       setLoading(false)
     }
   }
 
+  const validityHint = validityDays === 1
+    ? t("validityHintSingle").replace("{days}", String(validityDays))
+    : t("validityHintPlural").replace("{days}", String(validityDays))
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Digitale ondertekening activeren</DialogTitle>
+          <DialogTitle>{t("activateTitle")}</DialogTitle>
           <DialogDescription>
-            De klant ontvangt een e-mail met een persoonlijke link om de offerte
-            digitaal te ondertekenen.
+            {t("activateDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Geldigheid */}
+          {/* Validity */}
           <div className="space-y-1.5">
-            <Label htmlFor="validityDays">Link geldig voor (dagen)</Label>
+            <Label htmlFor="validityDays">{t("validityLabel")}</Label>
             <Input
               id="validityDays"
               type="number"
@@ -95,18 +100,18 @@ export default function SigningActivationModal({
               onChange={(e) => setValidityDays(Math.max(1, Number(e.target.value)))}
             />
             <p className="text-xs text-muted-foreground">
-              Na {validityDays} {validityDays === 1 ? "dag" : "dagen"} verloopt de ondertekeningslink automatisch.
+              {validityHint}
             </p>
           </div>
 
-          {/* Auto-factuur */}
+          {/* Auto-invoice */}
           <div className="flex items-start justify-between gap-4 rounded-lg border p-3">
             <div className="space-y-0.5">
               <Label htmlFor="autoCreateInvoice" className="text-sm font-medium">
-                Automatisch factuur aanmaken
+                {t("autoInvoiceLabel")}
               </Label>
               <p className="text-xs text-muted-foreground">
-                Maak direct een conceptfactuur aan zodra de offerte wordt ondertekend.
+                {t("autoInvoiceDesc")}
               </p>
             </div>
             <Switch
@@ -123,11 +128,11 @@ export default function SigningActivationModal({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              Annuleren
+              {t("cancelButton")}
             </Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Verstuur uitnodiging
+              {t("sendInviteButton")}
             </Button>
           </DialogFooter>
         </form>

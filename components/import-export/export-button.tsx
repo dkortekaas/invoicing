@@ -5,6 +5,7 @@ import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExportModal } from './export-modal';
 import type { EntityType } from '@/lib/import-export/fields';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 interface ExportButtonProps {
   entityType: EntityType;
@@ -22,12 +23,13 @@ export function ExportButton({
   size = 'default',
 }: ExportButtonProps) {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslations('exportModal');
 
   return (
     <>
       <Button variant={variant} size={size} onClick={() => setOpen(true)}>
         <Download className="mr-2 h-4 w-4" />
-        Exporteren
+        {t('exportButton')}
       </Button>
       <ExportModal
         open={open}

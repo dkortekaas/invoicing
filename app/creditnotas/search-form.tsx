@@ -5,6 +5,7 @@ import { Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 interface SearchFormProps {
   currentStatus?: string
@@ -13,6 +14,7 @@ interface SearchFormProps {
 export function SearchForm({ currentStatus }: SearchFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useTranslations("creditNotesPage")
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export function SearchForm({ currentStatus }: SearchFormProps) {
     <div className="relative w-full md:w-64">
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
-        placeholder="Zoek credit nota's..."
+        placeholder={t("searchPlaceholder")}
         className={searchTerm ? "pl-9 pr-9" : "pl-9"}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -54,7 +56,7 @@ export function SearchForm({ currentStatus }: SearchFormProps) {
           size="icon"
           className="absolute right-0 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           onClick={() => setSearchTerm("")}
-          aria-label="Zoekterm wissen"
+          aria-label={t("searchClearAriaLabel")}
         >
           <X className="h-4 w-4" />
         </Button>

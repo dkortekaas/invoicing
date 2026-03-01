@@ -46,6 +46,19 @@ import {
 import { getCurrencySymbol } from "@/lib/currency/formatting"
 import { createCreditNote, updateCreditNote } from "@/app/creditnotas/actions"
 import { CurrencySelector } from "@/components/currency/currency-selector"
+import { useTranslations } from "@/components/providers/locale-provider"
+
+const REASON_KEY_MAP: Record<string, string> = {
+  PRICE_CORRECTION: "reasonPriceCorrection",
+  QUANTITY_CORRECTION: "reasonQuantityCorrection",
+  RETURN: "reasonReturn",
+  CANCELLATION: "reasonCancellation",
+  DISCOUNT_AFTER: "reasonDiscountAfter",
+  VAT_CORRECTION: "reasonVatCorrection",
+  DUPLICATE_INVOICE: "reasonDuplicateInvoice",
+  GOODWILL: "reasonGoodwill",
+  OTHER: "reasonOther",
+}
 
 interface Customer {
   id: string
@@ -78,6 +91,7 @@ export function CreditNoteForm({
   defaultItems,
 }: CreditNoteFormProps) {
   const router = useRouter()
+  const { t } = useTranslations("creditNotesPage")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const today = new Date()
@@ -94,7 +108,7 @@ export function CreditNoteForm({
       originalInvoiceId: preselectedInvoice?.id || null,
       originalInvoiceNumber: preselectedInvoice?.invoiceNumber || null,
       description: preselectedInvoice
-        ? `Credit nota voor factuur ${preselectedInvoice.invoiceNumber}`
+        ? t("formDefaultDescription").replace("{number}", preselectedInvoice.invoiceNumber)
         : "",
       notes: "",
       internalNotes: "",
@@ -186,7 +200,7 @@ export function CreditNoteForm({
             {/* Customer selection */}
             <Card>
               <CardHeader>
-                <CardTitle>Klant & Details</CardTitle>
+                <CardTitle>{t("formCardCustomerDetails")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -195,7 +209,7 @@ export function CreditNoteForm({
                     name="customerId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Selecteer klant *</FormLabel>
+                        <FormLabel>{t("formSelectCustomer")}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -203,7 +217,7 @@ export function CreditNoteForm({
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Kies een klant..." />
+                              <SelectValue placeholder={t("formSelectCustomerPlaceholder")} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -226,7 +240,7 @@ export function CreditNoteForm({
                     name="creditNoteDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>Datum credit nota</FormLabel>
+                        <FormLabel>{t("formDateLabel")}</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -240,7 +254,7 @@ export function CreditNoteForm({
                                 {field.value ? (
                                   format(field.value, "d MMMM yyyy", { locale: nl })
                                 ) : (
-                                  <span>Selecteer datum</span>
+                                  <span>{t("formDatePlaceholder")}</span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
@@ -267,7 +281,7 @@ export function CreditNoteForm({
                     name="currencyCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Valuta</FormLabel>
+                        <FormLabel>{t("formCurrencyLabel")}</FormLabel>
                         <FormControl>
                           <CurrencySelector
                             value={field.value || "EUR"}
@@ -285,20 +299,20 @@ export function CreditNoteForm({
                     name="reason"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Reden *</FormLabel>
+                        <FormLabel>{t("formReasonLabel")}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Selecteer reden..." />
+                              <SelectValue placeholder={t("formReasonPlaceholder")} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {CREDIT_NOTE_REASONS.map((reason) => (
                               <SelectItem key={reason.value} value={reason.value}>
-                                {reason.label}
+                                {t(REASON_KEY_MAP[reason.value] ?? "reasonOther")}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -317,7 +331,7 @@ export function CreditNoteForm({
                       name="originalInvoiceId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Originele factuur</FormLabel>
+                          <FormLabel>{t("formOriginalInvoiceLabel")}</FormLabel>
                           <Select
                             onValueChange={(value) => {
                               field.onChange(value)
@@ -331,7 +345,7 @@ export function CreditNoteForm({
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Selecteer factuur..." />
+                                <SelectValue placeholder={t("formOriginalInvoicePlaceholder")} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -355,11 +369,11 @@ export function CreditNoteForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Omschrijving {watchedReason === "OTHER" && "*"}
+                        {t("formDescriptionLabel")}{watchedReason === "OTHER" && " *"}
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Bijv. Correctie voor verkeerde prijs..."
+                          placeholder={t("formDescriptionPlaceholder")}
                           {...field}
                           value={field.value ?? ""}
                         />
@@ -374,7 +388,7 @@ export function CreditNoteForm({
             {/* Credit note items */}
             <Card>
               <CardHeader>
-                <CardTitle>Credit nota regels</CardTitle>
+                <CardTitle>{t("formItemsCardTitle")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {fields.map((field, index) => {
@@ -390,9 +404,9 @@ export function CreditNoteForm({
                           name={`items.${index}.description`}
                           render={({ field }) => (
                             <FormItem className="flex-1">
-                              <FormLabel>Omschrijving</FormLabel>
+                              <FormLabel>{t("formItemDescription")}</FormLabel>
                               <FormControl>
-                                <Input placeholder="Omschrijving..." {...field} />
+                                <Input placeholder={t("formItemDescriptionPlaceholder")} {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -416,7 +430,7 @@ export function CreditNoteForm({
                           name={`items.${index}.quantity`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Aantal</FormLabel>
+                              <FormLabel>{t("formItemQuantity")}</FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
@@ -438,7 +452,7 @@ export function CreditNoteForm({
                           name={`items.${index}.unit`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Eenheid</FormLabel>
+                              <FormLabel>{t("formItemUnit")}</FormLabel>
                               <Select
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
@@ -466,7 +480,7 @@ export function CreditNoteForm({
                           name={`items.${index}.unitPrice`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Prijs</FormLabel>
+                              <FormLabel>{t("formItemPrice")}</FormLabel>
                               <FormControl>
                                 <div className="relative">
                                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -494,7 +508,7 @@ export function CreditNoteForm({
                           name={`items.${index}.vatRate`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>BTW</FormLabel>
+                              <FormLabel>{t("formItemVat")}</FormLabel>
                               <Select
                                 onValueChange={(v) => field.onChange(parseInt(v))}
                                 defaultValue={field.value?.toString()}
@@ -518,7 +532,7 @@ export function CreditNoteForm({
                         />
 
                         <div>
-                          <FormLabel>Totaal</FormLabel>
+                          <FormLabel>{t("formItemTotal")}</FormLabel>
                           <div className="flex h-10 items-center font-medium">
                             {formatCurrencyWithCode(itemTotals.subtotal, watchedCurrencyCode)}
                           </div>
@@ -544,7 +558,7 @@ export function CreditNoteForm({
                   }
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Regel toevoegen
+                  {t("formAddLine")}
                 </Button>
               </CardContent>
             </Card>
@@ -552,7 +566,7 @@ export function CreditNoteForm({
             {/* Notes */}
             <Card>
               <CardHeader>
-                <CardTitle>Notities</CardTitle>
+                <CardTitle>{t("formNotesCardTitle")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -560,10 +574,10 @@ export function CreditNoteForm({
                   name="notes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Notities op credit nota</FormLabel>
+                      <FormLabel>{t("formNotesLabel")}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Wordt getoond op de credit nota..."
+                          placeholder={t("formNotesPlaceholder")}
                           {...field}
                           value={field.value ?? ""}
                         />
@@ -578,10 +592,10 @@ export function CreditNoteForm({
                   name="internalNotes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Interne notities</FormLabel>
+                      <FormLabel>{t("formInternalNotesLabel")}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Alleen voor intern gebruik..."
+                          placeholder={t("formInternalNotesPlaceholder")}
                           {...field}
                           value={field.value ?? ""}
                         />
@@ -599,11 +613,11 @@ export function CreditNoteForm({
             {/* Totals summary */}
             <Card className="sticky top-6">
               <CardHeader>
-                <CardTitle>Credit Bedrag</CardTitle>
+                <CardTitle>{t("formCreditAmountCardTitle")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotaal</span>
+                  <span className="text-muted-foreground">{t("formSubtotal")}</span>
                   <span className="text-red-600">-{formatCurrencyWithCode(totals.subtotal, watchedCurrencyCode)}</span>
                 </div>
 
@@ -613,21 +627,21 @@ export function CreditNoteForm({
                 {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
                   <div key={rate} className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
-                      BTW {rate}% over {formatCurrencyWithCode(subtotal, watchedCurrencyCode)}
+                      {t("formVatLine").replace("{rate}", rate).replace("{amount}", formatCurrencyWithCode(subtotal, watchedCurrencyCode))}
                     </span>
                     <span className="text-red-600">-{formatCurrencyWithCode(vatAmount, watchedCurrencyCode)}</span>
                   </div>
                 ))}
 
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Totaal BTW</span>
+                  <span className="text-muted-foreground">{t("formTotalVat")}</span>
                   <span className="text-red-600">-{formatCurrencyWithCode(totals.vatAmount, watchedCurrencyCode)}</span>
                 </div>
 
                 <Separator />
 
                 <div className="flex justify-between text-lg font-bold">
-                  <span>Credit Totaal</span>
+                  <span>{t("formCreditTotal")}</span>
                   <span className="text-red-600">-{formatCurrencyWithCode(totals.total, watchedCurrencyCode)}</span>
                 </div>
 
@@ -644,7 +658,7 @@ export function CreditNoteForm({
                     {isSubmitting && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    Opslaan als Definitief
+                    {t("formSaveFinal")}
                   </Button>
                   <Button
                     type="button"
@@ -653,7 +667,7 @@ export function CreditNoteForm({
                     disabled={isSubmitting}
                     onClick={form.handleSubmit((data) => onSubmit(data, "DRAFT"))}
                   >
-                    Opslaan als Concept
+                    {t("formSaveDraft")}
                   </Button>
                   <Button
                     type="button"
@@ -661,7 +675,7 @@ export function CreditNoteForm({
                     className="w-full"
                     onClick={() => router.back()}
                   >
-                    Annuleren
+                    {t("formCancel")}
                   </Button>
                 </div>
               </CardContent>

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import packageJson from "@/package.json";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://declair.nl";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://declair.app";
 
 function buildLlmsTxt(): string {
   const generatedAt = new Date().toISOString();

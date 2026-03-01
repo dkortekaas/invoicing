@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { ExportButton } from '@/components/import-export';
 
 export default async function TijdPage() {
+  const t = await getServerT('timePage');
   const user = await getCurrentUser();
   
   if (!user?.id) {

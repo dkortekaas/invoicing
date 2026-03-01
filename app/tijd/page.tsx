@@ -117,7 +117,7 @@ export default async function TijdPage() {
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href="/tijd/projecten">
-                Projecten beheren
+                <T ns="timePage" k="manageProjects" />
               </Link>
             </Button>
           </div>

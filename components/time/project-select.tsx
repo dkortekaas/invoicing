@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 interface Project {
   id: string;
@@ -25,6 +26,7 @@ interface ProjectSelectProps {
 }
 
 export function ProjectSelect({ value, onChange, customerId }: ProjectSelectProps) {
+  const { t } = useTranslations('timePage');
   const [projects, setProjects] = useState<Project[]>([]);
   const NONE_VALUE = '__none__';
 
@@ -58,10 +60,10 @@ export function ProjectSelect({ value, onChange, customerId }: ProjectSelectProp
   return (
     <Select value={selectValue} onValueChange={handleValueChange}>
       <SelectTrigger>
-        <SelectValue placeholder="Selecteer project (optioneel)" />
+        <SelectValue placeholder={t('projectSelectPlaceholder')} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value={NONE_VALUE}>Geen project</SelectItem>
+        <SelectItem value={NONE_VALUE}>{t('projectSelectNone')}</SelectItem>
         {projects.map((project) => (
           <SelectItem key={project.id} value={project.id}>
             <div className="flex items-center gap-2">

@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/time/formatters';
+import { T } from '@/components/t';
 
 export default async function ProjectsPage() {
   const user = await getCurrentUser();
@@ -33,16 +34,16 @@ export default async function ProjectsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Projecten</h1>
+          <h1 className="text-3xl font-bold"><T ns="timePage" k="projectsTitle" /></h1>
           <p className="text-muted-foreground">
-            Beheer je projecten en koppel tijdregistraties
+            <T ns="timePage" k="projectsDescription" />
           </p>
         </div>
 
         <Button asChild>
           <Link href="/tijd/projecten/nieuw">
             <Plus className="mr-2 h-4 w-4" />
-            Nieuw project
+            <T ns="timePage" k="projectsNewButton" />
           </Link>
         </Button>
       </div>
@@ -72,28 +73,28 @@ export default async function ProjectsPage() {
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Klant:</span>
+                  <span className="text-muted-foreground"><T ns="timePage" k="projectCustomerLabel" /></span>
                   <span>{project.customer.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Status:</span>
+                  <span className="text-muted-foreground"><T ns="timePage" k="projectStatusLabel" /></span>
                   <span>{project.status}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Entries:</span>
+                  <span className="text-muted-foreground"><T ns="timePage" k="projectEntriesLabel" /></span>
                   <span>{project._count.timeEntries}</span>
                 </div>
                 {project.defaultHourlyRate && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tarief:</span>
-                    <span>{formatCurrency(Number(project.defaultHourlyRate))}/u</span>
+                    <span className="text-muted-foreground"><T ns="timePage" k="projectRateLabel" /></span>
+                    <span>{formatCurrency(Number(project.defaultHourlyRate))}<T ns="timePage" k="projectRateUnit" /></span>
                   </div>
                 )}
               </div>
 
               <Button variant="outline" className="w-full" asChild>
                 <Link href={`/tijd/projecten/${project.id}`}>
-                  Bekijk details
+                  <T ns="timePage" k="projectViewDetails" />
                 </Link>
               </Button>
             </div>
@@ -103,11 +104,11 @@ export default async function ProjectsPage() {
 
       {projects.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          <p>Nog geen projecten aangemaakt</p>
+          <p><T ns="timePage" k="projectsEmpty" /></p>
           <Button asChild className="mt-4">
             <Link href="/tijd/projecten/nieuw">
               <Plus className="mr-2 h-4 w-4" />
-              Eerste project aanmaken
+              <T ns="timePage" k="projectsFirstCreate" />
             </Link>
           </Button>
         </div>

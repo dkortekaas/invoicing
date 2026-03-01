@@ -26,6 +26,18 @@ import { SearchForm } from "./search-form"
 import { YearFilterSelect } from "@/components/year-filter-select"
 import { T } from "@/components/t"
 
+const REASON_KEY_MAP: Record<string, string> = {
+  PRICE_CORRECTION: "reasonPriceCorrection",
+  QUANTITY_CORRECTION: "reasonQuantityCorrection",
+  RETURN: "reasonReturn",
+  CANCELLATION: "reasonCancellation",
+  DISCOUNT_AFTER: "reasonDiscountAfter",
+  VAT_CORRECTION: "reasonVatCorrection",
+  DUPLICATE_INVOICE: "reasonDuplicateInvoice",
+  GOODWILL: "reasonGoodwill",
+  OTHER: "reasonOther",
+}
+
 const CREDIT_NOTE_SORT_KEYS = ["creditNoteNumber", "customerName", "creditNoteDate", "reason", "total"] as const
 type CreditNoteSortKey = (typeof CREDIT_NOTE_SORT_KEYS)[number]
 function isCreditNoteSortKey(s: string | null | undefined): s is CreditNoteSortKey {
@@ -187,7 +199,7 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
                       </Link>
                       {creditNote.originalInvoice && (
                         <div className="text-sm text-muted-foreground">
-                          voor {creditNote.originalInvoice.invoiceNumber}
+                          <T ns="creditNotesPage" k="forInvoice" vars={{ number: creditNote.originalInvoice.invoiceNumber }} />
                         </div>
                       )}
                     </TableCell>
@@ -206,7 +218,7 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
                     <TableCell>{formatDate(creditNote.creditNoteDate)}</TableCell>
                     <TableCell>
                       <span className="text-sm">
-                        {CREDIT_NOTE_REASON_LABELS[creditNote.reason] || creditNote.reason}
+                        <T ns="creditNotesPage" k={REASON_KEY_MAP[creditNote.reason] || "reasonOther"} />
                       </span>
                     </TableCell>
                     <TableCell className="text-right font-medium text-red-600">

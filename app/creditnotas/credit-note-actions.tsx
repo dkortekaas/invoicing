@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dialog"
 import { updateCreditNoteStatus, deleteCreditNote } from "./actions"
 import type { CreditNoteStatus } from "@prisma/client"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 interface CreditNoteActionsProps {
   creditNote: {
@@ -42,6 +43,7 @@ interface CreditNoteActionsProps {
 
 export function CreditNoteActions({ creditNote }: CreditNoteActionsProps) {
   const router = useRouter()
+  const { t } = useTranslations("creditNotesPage")
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -76,28 +78,28 @@ export function CreditNoteActions({ creditNote }: CreditNoteActionsProps) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" disabled={isLoading}>
           <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Acties</span>
+          <span className="sr-only">{t("actionsButton")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
           <Link href={`/creditnotas/${creditNote.id}`}>
             <Eye className="mr-2 h-4 w-4" />
-            Bekijken
+            {t("viewAction")}
           </Link>
         </DropdownMenuItem>
         {creditNote.status === "DRAFT" && (
           <DropdownMenuItem asChild>
             <Link href={`/creditnotas/${creditNote.id}/bewerken`}>
               <Pencil className="mr-2 h-4 w-4" />
-              Bewerken
+              {t("editAction")}
             </Link>
           </DropdownMenuItem>
         )}
         <DropdownMenuItem asChild>
           <a href={`/api/creditnotes/${creditNote.id}/pdf`} download>
             <Download className="mr-2 h-4 w-4" />
-            Download PDF
+            {t("downloadPdf")}
           </a>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -107,7 +109,7 @@ export function CreditNoteActions({ creditNote }: CreditNoteActionsProps) {
             disabled={isLoading}
           >
             <Lock className="mr-2 h-4 w-4" />
-            Definitief maken
+            {t("makeFinalAction")}
           </DropdownMenuItem>
         )}
         {creditNote.status === "FINAL" && (
@@ -116,7 +118,7 @@ export function CreditNoteActions({ creditNote }: CreditNoteActionsProps) {
             disabled={isLoading}
           >
             <Send className="mr-2 h-4 w-4" />
-            Markeer als verzonden
+            {t("markSentAction")}
           </DropdownMenuItem>
         )}
         {creditNote.status === "SENT" && (
@@ -126,14 +128,14 @@ export function CreditNoteActions({ creditNote }: CreditNoteActionsProps) {
               disabled={isLoading}
             >
               <CheckCircle className="mr-2 h-4 w-4" />
-              Markeer als verwerkt
+              {t("markProcessedAction")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleStatusUpdate("REFUNDED")}
               disabled={isLoading}
             >
               <CreditCard className="mr-2 h-4 w-4" />
-              Markeer als terugbetaald
+              {t("markRefundedAction")}
             </DropdownMenuItem>
           </>
         )}
@@ -143,7 +145,7 @@ export function CreditNoteActions({ creditNote }: CreditNoteActionsProps) {
             disabled={isLoading}
           >
             <CreditCard className="mr-2 h-4 w-4" />
-            Markeer als terugbetaald
+            {t("markRefundedAction")}
           </DropdownMenuItem>
         )}
         {creditNote.status === "DRAFT" && (
@@ -155,7 +157,7 @@ export function CreditNoteActions({ creditNote }: CreditNoteActionsProps) {
               disabled={isLoading}
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Verwijderen
+              {t("deleteAction")}
             </DropdownMenuItem>
           </>
         )}
@@ -165,9 +167,9 @@ export function CreditNoteActions({ creditNote }: CreditNoteActionsProps) {
     <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Creditnota verwijderen</DialogTitle>
+          <DialogTitle>{t("deleteDialogTitle")}</DialogTitle>
           <DialogDescription>
-            Weet je zeker dat je deze creditnota wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
+            {t("deleteDialogDesc")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -176,14 +178,14 @@ export function CreditNoteActions({ creditNote }: CreditNoteActionsProps) {
             onClick={() => setIsDeleteDialogOpen(false)}
             disabled={isLoading}
           >
-            Annuleren
+            {t("cancelButton")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={isLoading}
           >
-            Verwijderen
+            {t("deleteAction")}
           </Button>
         </DialogFooter>
       </DialogContent>

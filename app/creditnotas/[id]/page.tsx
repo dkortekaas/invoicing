@@ -28,9 +28,22 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { CreditNoteStatusBadge } from "@/components/creditnotes/credit-note-status-badge"
 import { CreditNoteEmailSendButton } from "@/components/creditnotes/credit-note-email-send-button"
-import { formatCurrency, formatDate, formatDateLong, CREDIT_NOTE_REASON_LABELS } from "@/lib/utils"
+import { formatCurrency, formatDate, formatDateLong } from "@/lib/utils"
 import { getCreditNote } from "../actions"
 import { CreditNoteActionsClient } from "./credit-note-actions-client"
+import { T } from "@/components/t"
+
+const REASON_KEY_MAP: Record<string, string> = {
+  PRICE_CORRECTION: "reasonPriceCorrection",
+  QUANTITY_CORRECTION: "reasonQuantityCorrection",
+  RETURN: "reasonReturn",
+  CANCELLATION: "reasonCancellation",
+  DISCOUNT_AFTER: "reasonDiscountAfter",
+  VAT_CORRECTION: "reasonVatCorrection",
+  DUPLICATE_INVOICE: "reasonDuplicateInvoice",
+  GOODWILL: "reasonGoodwill",
+  OTHER: "reasonOther",
+}
 
 interface CreditNotaDetailPageProps {
   params: Promise<{ id: string }>
@@ -68,7 +81,7 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-                Credit Nota {creditNote.creditNoteNumber}
+                <T ns="creditNotesPage" k="headingPrefix" /> {creditNote.creditNoteNumber}
               </h2>
               <CreditNoteStatusBadge status={creditNote.status} />
             </div>
@@ -82,7 +95,7 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
           <Button variant="outline" size="sm" asChild className="sm:size-default">
             <a href={`/api/creditnotes/${creditNote.id}/pdf`} download>
               <Download className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Download PDF</span>
+              <span className="hidden sm:inline"><T ns="creditNotesPage" k="downloadPdf" /></span>
             </a>
           </Button>
 
@@ -111,7 +124,7 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Van
+                  <T ns="creditNotesPage" k="fromLabel" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -123,12 +136,12 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
                   </p>
                   {creditNote.user.vatNumber && (
                     <p className="text-sm text-muted-foreground">
-                      BTW: {creditNote.user.vatNumber}
+                      <T ns="creditNotesPage" k="vatLabel" />: {creditNote.user.vatNumber}
                     </p>
                   )}
                   {creditNote.user.kvkNumber && (
                     <p className="text-sm text-muted-foreground">
-                      KvK: {creditNote.user.kvkNumber}
+                      <T ns="creditNotesPage" k="kvkLabel" />: {creditNote.user.kvkNumber}
                     </p>
                   )}
                 </div>
@@ -138,7 +151,7 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Aan
+                  <T ns="creditNotesPage" k="toLabel" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -155,7 +168,7 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
                   </p>
                   {creditNote.customer.vatNumber && (
                     <p className="text-sm text-muted-foreground">
-                      BTW: {creditNote.customer.vatNumber}
+                      <T ns="creditNotesPage" k="vatLabel" />: {creditNote.customer.vatNumber}
                     </p>
                   )}
                 </div>
@@ -166,18 +179,18 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
           {/* Credit note items */}
           <Card>
             <CardHeader>
-              <CardTitle>Credit nota regels</CardTitle>
+              <CardTitle><T ns="creditNotesPage" k="linesCardTitle" /></CardTitle>
             </CardHeader>
             <CardContent className="-mx-6 px-0 sm:mx-0 sm:px-6">
               <div className="overflow-x-auto">
               <Table className="min-w-[500px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Omschrijving</TableHead>
-                    <TableHead className="text-right">Aantal</TableHead>
-                    <TableHead className="text-right">Prijs</TableHead>
-                    <TableHead className="text-right">BTW</TableHead>
-                    <TableHead className="text-right">Totaal</TableHead>
+                    <TableHead><T ns="creditNotesPage" k="colDescription" /></TableHead>
+                    <TableHead className="text-right"><T ns="creditNotesPage" k="colQuantity" /></TableHead>
+                    <TableHead className="text-right"><T ns="creditNotesPage" k="colPrice" /></TableHead>
+                    <TableHead className="text-right"><T ns="creditNotesPage" k="colVat" /></TableHead>
+                    <TableHead className="text-right"><T ns="creditNotesPage" k="colTotal" /></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -201,7 +214,7 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
                 </TableBody>
                 <TableFooter>
                   <TableRow>
-                    <TableCell colSpan={4}>Subtotaal</TableCell>
+                    <TableCell colSpan={4}><T ns="creditNotesPage" k="subtotalLabel" /></TableCell>
                     <TableCell className="text-right text-red-600">
                       -{formatCurrency(creditNote.subtotal)}
                     </TableCell>
@@ -209,7 +222,7 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
                   {(Object.entries(vatByRate) as Array<[string, { subtotal: number; vatAmount: number }]>).map(([rate, values]) => (
                     <TableRow key={rate}>
                       <TableCell colSpan={4}>
-                        BTW {rate}% over {formatCurrency(values.subtotal)}
+                        <T ns="creditNotesPage" k="vatLineLabel" vars={{ rate, amount: formatCurrency(values.subtotal) }} />
                       </TableCell>
                       <TableCell className="text-right text-red-600">
                         -{formatCurrency(values.vatAmount)}
@@ -217,13 +230,13 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell colSpan={4}>Totaal BTW</TableCell>
+                    <TableCell colSpan={4}><T ns="creditNotesPage" k="totalVatLabel" /></TableCell>
                     <TableCell className="text-right text-red-600">
                       -{formatCurrency(creditNote.vatAmount)}
                     </TableCell>
                   </TableRow>
                   <TableRow className="font-bold">
-                    <TableCell colSpan={4}>Credit Totaal</TableCell>
+                    <TableCell colSpan={4}><T ns="creditNotesPage" k="creditTotalLabel" /></TableCell>
                     <TableCell className="text-right text-red-600">
                       -{formatCurrency(creditNote.total)}
                     </TableCell>
@@ -238,18 +251,22 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
           {(creditNote.description || creditNote.notes) && (
             <Card>
               <CardHeader>
-                <CardTitle>Omschrijving & Notities</CardTitle>
+                <CardTitle><T ns="creditNotesPage" k="descriptionNotesCardTitle" /></CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {creditNote.description && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-1">Omschrijving</p>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">
+                      <T ns="creditNotesPage" k="descriptionLabel" />
+                    </p>
                     <p className="whitespace-pre-wrap">{creditNote.description}</p>
                   </div>
                 )}
                 {creditNote.notes && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-1">Notities</p>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">
+                      <T ns="creditNotesPage" k="notesLabel" />
+                    </p>
                     <p className="text-muted-foreground whitespace-pre-wrap">{creditNote.notes}</p>
                   </div>
                 )}
@@ -263,25 +280,25 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
           {/* Credit note info */}
           <Card>
             <CardHeader>
-              <CardTitle>Credit nota gegevens</CardTitle>
+              <CardTitle><T ns="creditNotesPage" k="infoCardTitle" /></CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Nummer</span>
+                <span className="text-muted-foreground"><T ns="creditNotesPage" k="numberLabel" /></span>
                 <span className="font-medium">{creditNote.creditNoteNumber}</span>
               </div>
               <Separator />
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Datum</span>
+                <span className="text-muted-foreground"><T ns="creditNotesPage" k="dateLabel" /></span>
                 <span>{formatDate(creditNote.creditNoteDate)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Reden</span>
-                <span>{CREDIT_NOTE_REASON_LABELS[creditNote.reason] || creditNote.reason}</span>
+                <span className="text-muted-foreground"><T ns="creditNotesPage" k="reasonLabel" /></span>
+                <span><T ns="creditNotesPage" k={REASON_KEY_MAP[creditNote.reason] || "reasonOther"} /></span>
               </div>
               <Separator />
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Status</span>
+                <span className="text-muted-foreground"><T ns="creditNotesPage" k="statusLabel" /></span>
                 <CreditNoteStatusBadge status={creditNote.status} />
               </div>
             </CardContent>
@@ -291,7 +308,7 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
           {creditNote.originalInvoice && (
             <Card>
               <CardHeader>
-                <CardTitle>Originele factuur</CardTitle>
+                <CardTitle><T ns="creditNotesPage" k="originalInvoiceCardTitle" /></CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
@@ -301,12 +318,12 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
                   </div>
                   <Button variant="outline" size="sm" asChild>
                     <Link href={`/facturen/${creditNote.originalInvoice.id}`}>
-                      Bekijken
+                      <T ns="creditNotesPage" k="viewButton" />
                     </Link>
                   </Button>
                 </div>
                 <div className="mt-2 text-sm text-muted-foreground">
-                  Origineel bedrag: {formatCurrency(creditNote.originalInvoice.total)}
+                  <T ns="creditNotesPage" k="originalAmountLabel" vars={{ amount: formatCurrency(creditNote.originalInvoice.total) }} />
                 </div>
               </CardContent>
             </Card>
@@ -316,7 +333,7 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
           <Card className="bg-red-50">
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-sm text-muted-foreground">Credit bedrag</p>
+                <p className="text-sm text-muted-foreground"><T ns="creditNotesPage" k="creditAmountLabel" /></p>
                 <p className="text-3xl font-bold text-red-600">
                   -{formatCurrency(creditNote.total)}
                 </p>
@@ -330,10 +347,10 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
-                  Email acties
+                  <T ns="creditNotesPage" k="emailActionsCardTitle" />
                 </CardTitle>
                 <CardDescription>
-                  Verstuur emails naar {creditNote.customer.email}
+                  <T ns="creditNotesPage" k="emailActionsDesc" vars={{ email: creditNote.customer.email }} />
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -350,9 +367,9 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
           {creditNote.emails && creditNote.emails.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Email geschiedenis</CardTitle>
+                <CardTitle><T ns="creditNotesPage" k="emailHistoryCardTitle" /></CardTitle>
                 <CardDescription>
-                  Overzicht van verzonden emails
+                  <T ns="creditNotesPage" k="emailHistoryDesc" />
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -373,8 +390,10 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
                           email.status === 'SENT' ? 'text-green-600' :
                           email.status === 'FAILED' ? 'text-red-600' : 'text-yellow-600'
                         }`}>
-                          {email.status === 'SENT' ? 'Verzonden' :
-                           email.status === 'FAILED' ? 'Mislukt' : 'In wachtrij'}
+                          <T ns="creditNotesPage" k={
+                            email.status === 'SENT' ? 'emailStatusSent' :
+                            email.status === 'FAILED' ? 'emailStatusFailed' : 'emailStatusQueued'
+                          } />
                         </p>
                         {email.sentAt && (
                           <p className="text-xs text-muted-foreground">
@@ -393,7 +412,7 @@ export default async function CreditNotaDetailPage({ params }: CreditNotaDetailP
           {creditNote.internalNotes && (
             <Card>
               <CardHeader>
-                <CardTitle>Interne notities</CardTitle>
+                <CardTitle><T ns="creditNotesPage" k="internalNotesCardTitle" /></CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">

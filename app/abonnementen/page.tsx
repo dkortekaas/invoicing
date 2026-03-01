@@ -38,11 +38,11 @@ export default async function AbonnementenPage() {
 
   // Bereken stats
   const activeRecurring = recurring.filter(r => r.status === 'ACTIVE');
-  
+
   let totalMRR = 0;
   activeRecurring.forEach(r => {
     const total = r.items.reduce(
-      (sum, item) => sum + Number(item.quantity) * Number(item.unitPrice),
+      (sum: number, item) => sum + Number(item.quantity) * Number(item.unitPrice),
       0
     );
     totalMRR += calculateMRR(total, r.frequency, r.interval);
@@ -59,7 +59,7 @@ export default async function AbonnementenPage() {
   };
 
   // Transform data for RecurringList component
-  const transformRecurring = (r: typeof recurring[0]) => ({
+  const transformRecurring = (r: (typeof recurring)[0]) => ({
     ...r,
     items: r.items.map(item => ({
       quantity: Number(item.quantity),

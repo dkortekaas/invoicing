@@ -110,7 +110,7 @@ export default async function AbonnementPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {dbUser.subscriptionEvents.map((event) => (
+              {dbUser.subscriptionEvents.map((event: { id: string; type: string; createdAt: Date }) => (
                 <div key={event.id} className="flex items-center justify-between py-2 border-b last:border-0">
                   <div>
                     <p className="font-medium">{getEventLabel(event.type)}</p>

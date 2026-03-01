@@ -58,7 +58,7 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
   });
 
   const total = recurring.items.reduce(
-    (sum, item) => sum + Number(item.quantity) * Number(item.unitPrice),
+    (sum: number, item) => sum + Number(item.quantity) * Number(item.unitPrice),
     0
   );
 
@@ -111,7 +111,7 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
                 reference: recurring.reference || undefined,
                 notes: recurring.notes || undefined,
                 currencyCode: recurring.currencyCode || 'EUR',
-                items: recurring.items.map(item => ({
+                items: recurring.items.map((item) => ({
                   description: item.description,
                   quantity: Number(item.quantity),
                   unitPrice: Number(item.unitPrice),
@@ -166,7 +166,7 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
             <Card className="p-6">
               <h3 className="font-semibold mb-4">Recente facturen</h3>
               <div className="space-y-2">
-                {recurring.invoices.map((invoice) => (
+                {recurring.invoices.map((invoice: { id: string; invoiceNumber: string; invoiceDate: Date }) => (
                   <Link
                     key={invoice.id}
                     href={`/facturen/${invoice.id}`}

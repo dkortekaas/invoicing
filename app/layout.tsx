@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { cookies, headers } from "next/headers"
-import { Inter } from "next/font/google"
+import localFont from "next/font/local"
 import "./globals.css"
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
 import { CookieConsentBanner } from "@/components/marketing/cookie-consent-banner"
@@ -12,8 +12,13 @@ import { LocaleProvider } from "@/components/providers/locale-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { type Locale, defaultLocale, LOCALE_COOKIE } from "@/lib/i18n"
 
-const inter = Inter({
-  subsets: ["latin"],
+const inter = localFont({
+  src: [
+    { path: "../public/fonts/inter-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../public/fonts/inter-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "../public/fonts/inter-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "../public/fonts/inter-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
   display: "swap",
   variable: "--font-inter",
 })

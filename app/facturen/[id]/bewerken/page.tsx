@@ -4,6 +4,7 @@ import { getInvoice } from "@/app/facturen/actions"
 import { getCustomersForDropdown } from "@/app/klanten/actions"
 import { getActiveProducts } from "@/app/producten/actions"
 import { getFiscalSettings } from "@/app/instellingen/actions"
+import { getServerT } from "@/lib/i18n"
 
 export const dynamic = "force-dynamic"
 
@@ -12,6 +13,7 @@ interface FactuurBewerkenPageProps {
 }
 
 export default async function FactuurBewerkenPage({ params }: FactuurBewerkenPageProps) {
+  const t = await getServerT("invoicesPage")
   const { id } = await params
 
   const [invoice, customers, products, fiscalSettings] = await Promise.all([
@@ -70,10 +72,10 @@ export default async function FactuurBewerkenPage({ params }: FactuurBewerkenPag
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-          Factuur {invoice.invoiceNumber} bewerken
+          {t("editInvoiceTitle").replace("{number}", invoice.invoiceNumber)}
         </h2>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Wijzig de factuurgegevens
+          {t("editInvoiceDescription")}
         </p>
       </div>
 

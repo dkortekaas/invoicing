@@ -3,6 +3,7 @@
 import { PaymentLinkGenerator } from "@/components/payments/payment-link-generator"
 import { PaymentStatusBadge } from "@/components/payments/payment-status-badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { generatePaymentLink } from "../actions"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { CreditCard } from "lucide-react"
@@ -36,6 +37,7 @@ export function PaymentSection({
   mollieEnabled,
   payments,
 }: PaymentSectionProps) {
+  const { t } = useTranslations("invoicesPage")
   // Don't show payment section for paid or cancelled invoices
   if (invoiceStatus === "PAID" || invoiceStatus === "CANCELLED") {
     // But show payment history if there are payments
@@ -45,7 +47,7 @@ export function PaymentSection({
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <CreditCard className="h-5 w-5" />
-              Betalingen
+              {t("paymentsCard")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -71,7 +73,7 @@ export function PaymentSection({
       {payments.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium">Betaalgeschiedenis</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("paymentHistoryCard")}</CardTitle>
           </CardHeader>
           <CardContent>
             <PaymentHistory payments={payments} />

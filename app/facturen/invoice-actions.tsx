@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "@/components/providers/locale-provider"
 import {
   MoreHorizontal,
   Pencil,
@@ -41,6 +42,7 @@ interface InvoiceActionsProps {
 
 export function InvoiceActions({ invoice }: InvoiceActionsProps) {
   const router = useRouter()
+  const { t } = useTranslations("invoicesPage")
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -89,10 +91,10 @@ export function InvoiceActions({ invoice }: InvoiceActionsProps) {
         size="icon"
         disabled={isLoading}
         onClick={handleRestore}
-        title="Herstellen uit prullenbak"
+        title={t("actionRestoreTitle")}
       >
         <RotateCcw className="h-4 w-4" />
-        <span className="sr-only">Herstellen</span>
+        <span className="sr-only">{t("actionRestore")}</span>
       </Button>
     )
   }
@@ -103,28 +105,28 @@ export function InvoiceActions({ invoice }: InvoiceActionsProps) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" disabled={isLoading}>
           <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Acties</span>
+          <span className="sr-only">{t("actionActions")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
           <Link href={`/facturen/${invoice.id}`}>
             <Eye className="mr-2 h-4 w-4" />
-            Bekijken
+            {t("actionView")}
           </Link>
         </DropdownMenuItem>
         {invoice.status !== "PAID" && (
           <DropdownMenuItem asChild>
             <Link href={`/facturen/${invoice.id}/bewerken`}>
               <Pencil className="mr-2 h-4 w-4" />
-              Bewerken
+              {t("actionEdit")}
             </Link>
           </DropdownMenuItem>
         )}
         <DropdownMenuItem asChild>
           <a href={`/api/invoices/${invoice.id}/pdf`} download>
             <Download className="mr-2 h-4 w-4" />
-            Download PDF
+            {t("actionDownloadPDF")}
           </a>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -134,7 +136,7 @@ export function InvoiceActions({ invoice }: InvoiceActionsProps) {
             disabled={isLoading}
           >
             <Send className="mr-2 h-4 w-4" />
-            Markeer als verzonden
+            {t("actionMarkSent")}
           </DropdownMenuItem>
         )}
         {(invoice.status === "SENT" || invoice.status === "OVERDUE") && (
@@ -143,7 +145,7 @@ export function InvoiceActions({ invoice }: InvoiceActionsProps) {
             disabled={isLoading}
           >
             <CheckCircle className="mr-2 h-4 w-4" />
-            Markeer als betaald
+            {t("actionMarkPaid")}
           </DropdownMenuItem>
         )}
         {invoice.status !== "PAID" && (
@@ -155,7 +157,7 @@ export function InvoiceActions({ invoice }: InvoiceActionsProps) {
               disabled={isLoading}
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Verwijderen
+              {t("actionDelete")}
             </DropdownMenuItem>
           </>
         )}
@@ -165,9 +167,9 @@ export function InvoiceActions({ invoice }: InvoiceActionsProps) {
     <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Factuur verwijderen</DialogTitle>
+          <DialogTitle>{t("deleteDialogTitle")}</DialogTitle>
           <DialogDescription>
-            De factuur wordt naar de prullenbak verplaatst en kan daarna worden hersteld via de prullenbakweergave.
+            {t("deleteDialogDescTrash")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -176,14 +178,14 @@ export function InvoiceActions({ invoice }: InvoiceActionsProps) {
             onClick={() => setIsDeleteDialogOpen(false)}
             disabled={isLoading}
           >
-            Annuleren
+            {t("cancel")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={isLoading}
           >
-            Verwijderen
+            {t("actionDelete")}
           </Button>
         </DialogFooter>
       </DialogContent>

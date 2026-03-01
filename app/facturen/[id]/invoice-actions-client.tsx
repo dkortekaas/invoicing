@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Send, CheckCircle, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "@/components/providers/locale-provider"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +35,7 @@ interface InvoiceActionsClientProps {
 
 export function InvoiceActionsClient({ invoice }: InvoiceActionsClientProps) {
   const router = useRouter()
+  const { t } = useTranslations("invoicesPage")
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -70,7 +72,7 @@ export function InvoiceActionsClient({ invoice }: InvoiceActionsClientProps) {
           disabled={isLoading}
         >
           <Send className="mr-2 h-4 w-4" />
-          Verzenden
+          {t("actionSend")}
         </Button>
       )}
 
@@ -80,7 +82,7 @@ export function InvoiceActionsClient({ invoice }: InvoiceActionsClientProps) {
           disabled={isLoading}
         >
           <CheckCircle className="mr-2 h-4 w-4" />
-          Markeer als betaald
+          {t("actionMarkPaid")}
         </Button>
       )}
 
@@ -95,7 +97,7 @@ export function InvoiceActionsClient({ invoice }: InvoiceActionsClientProps) {
             <DropdownMenuItem asChild>
               <a href={`/facturen/${invoice.id}/bewerken`}>
                 <Pencil className="mr-2 h-4 w-4" />
-                Bewerken
+                {t("actionEdit")}
               </a>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -105,7 +107,7 @@ export function InvoiceActionsClient({ invoice }: InvoiceActionsClientProps) {
               disabled={isLoading}
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Verwijderen
+              {t("actionDelete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -114,9 +116,9 @@ export function InvoiceActionsClient({ invoice }: InvoiceActionsClientProps) {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Factuur verwijderen</DialogTitle>
+            <DialogTitle>{t("deleteDialogTitle")}</DialogTitle>
             <DialogDescription>
-              Weet je zeker dat je deze factuur wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
+              {t("deleteDialogDescPermanent")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -125,14 +127,14 @@ export function InvoiceActionsClient({ invoice }: InvoiceActionsClientProps) {
               onClick={() => setIsDeleteDialogOpen(false)}
               disabled={isLoading}
             >
-              Annuleren
+              {t("cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isLoading}
             >
-              Verwijderen
+              {t("actionDelete")}
             </Button>
           </DialogFooter>
         </DialogContent>

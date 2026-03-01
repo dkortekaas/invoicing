@@ -3,6 +3,7 @@
 import { FileText, Eye } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 interface InvoicePreviewProps {
   invoiceId: string
@@ -11,6 +12,7 @@ interface InvoicePreviewProps {
 }
 
 export function InvoicePreview({ invoiceId, invoiceNumber, children }: InvoicePreviewProps) {
+  const { t } = useTranslations("invoicesPage")
   const previewUrl = `/api/invoices/${invoiceId}/pdf`
 
   return (
@@ -18,11 +20,11 @@ export function InvoicePreview({ invoiceId, invoiceNumber, children }: InvoicePr
       <TabsList>
         <TabsTrigger value="details">
           <Eye className="mr-2 h-4 w-4" />
-          Details
+          {t("tabDetails")}
         </TabsTrigger>
         <TabsTrigger value="preview">
           <FileText className="mr-2 h-4 w-4" />
-          Preview
+          {t("tabPreview")}
         </TabsTrigger>
       </TabsList>
 

@@ -5,10 +5,12 @@ import { Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 export function SearchForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useTranslations("customersPage")
   const [searchTerm, setSearchTerm] = useState(searchParams.get("search") ?? "")
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export function SearchForm() {
     <div className="relative flex-1 max-w-sm">
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
-        placeholder="Zoek op naam, bedrijf of e-mail..."
+        placeholder={t("searchPlaceholder")}
         className={searchTerm ? "pl-9 pr-9" : "pl-9"}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -44,7 +46,7 @@ export function SearchForm() {
           size="icon"
           className="absolute right-0 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           onClick={() => setSearchTerm("")}
-          aria-label="Zoekterm wissen"
+          aria-label={t("searchClearLabel")}
         >
           <X className="h-4 w-4" />
         </Button>

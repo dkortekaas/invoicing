@@ -29,6 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { customerSchema, type CustomerFormData } from "@/lib/validations"
 import { createCustomer, updateCustomer } from "@/app/klanten/actions"
 import { CurrencySelector } from "@/components/currency/currency-selector"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 interface CustomerFormProps {
   customer?: CustomerFormData & { id: string; currencyId?: string | null }
@@ -36,6 +37,7 @@ interface CustomerFormProps {
 
 export function CustomerForm({ customer }: CustomerFormProps) {
   const router = useRouter()
+  const { t } = useTranslations("customersPage")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<CustomerFormData>({
@@ -83,7 +85,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
           {/* Contactgegevens */}
           <Card>
             <CardHeader>
-              <CardTitle>Contactgegevens</CardTitle>
+              <CardTitle>{t("formContactTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -91,9 +93,9 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Naam *</FormLabel>
+                    <FormLabel>{t("formNameLabel")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Jan Janssen" {...field} />
+                      <Input placeholder={t("formNamePlaceholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -105,10 +107,10 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                 name="companyName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Bedrijfsnaam</FormLabel>
+                    <FormLabel>{t("formCompanyLabel")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Bedrijf B.V."
+                        placeholder={t("formCompanyPlaceholder")}
                         {...field}
                         value={field.value ?? ""}
                       />
@@ -123,11 +125,11 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>E-mailadres *</FormLabel>
+                    <FormLabel>{t("formEmailLabel")}</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="jan@voorbeeld.nl"
+                        placeholder={t("formEmailPlaceholder")}
                         {...field}
                       />
                     </FormControl>
@@ -141,10 +143,10 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Telefoonnummer</FormLabel>
+                    <FormLabel>{t("formPhoneLabel")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="06-12345678"
+                        placeholder={t("formPhonePlaceholder")}
                         {...field}
                         value={field.value ?? ""}
                       />
@@ -159,7 +161,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
           {/* Adresgegevens */}
           <Card>
             <CardHeader>
-              <CardTitle>Adresgegevens</CardTitle>
+              <CardTitle>{t("formAddressTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -167,9 +169,9 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Adres *</FormLabel>
+                    <FormLabel>{t("formAddressLabel")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Straatnaam 123" {...field} />
+                      <Input placeholder={t("formAddressPlaceholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -182,9 +184,9 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                   name="postalCode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Postcode *</FormLabel>
+                      <FormLabel>{t("formPostalLabel")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="1234 AB" {...field} />
+                        <Input placeholder={t("formPostalPlaceholder")} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -196,9 +198,9 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                   name="city"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Plaats *</FormLabel>
+                      <FormLabel>{t("formCityLabel")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Amsterdam" {...field} />
+                        <Input placeholder={t("formCityPlaceholder")} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -211,7 +213,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                 name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Land</FormLabel>
+                    <FormLabel>{t("formCountryLabel")}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -225,7 +227,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
           {/* Financiële gegevens */}
           <Card>
             <CardHeader>
-              <CardTitle>Financiële gegevens</CardTitle>
+              <CardTitle>{t("formFinancialTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -233,7 +235,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                 name="vatNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>BTW-nummer</FormLabel>
+                    <FormLabel>{t("formVatLabel")}</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="NL123456789B01"
@@ -242,7 +244,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                       />
                     </FormControl>
                     <FormDescription>
-                      Nederlands formaat: NL + 9 cijfers + B + 2 cijfers
+                      {t("formVatDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -254,21 +256,21 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                 name="paymentTermDays"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Betalingstermijn (dagen)</FormLabel>
+                    <FormLabel>{t("formPaymentTermLabel")}</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(parseInt(value, 10))}
                       value={field.value?.toString() ?? "30"}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecteer termijn" />
+                          <SelectValue placeholder={t("formPaymentTermPlaceholder")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="14">14 dagen</SelectItem>
-                        <SelectItem value="30">30 dagen</SelectItem>
-                        <SelectItem value="60">60 dagen</SelectItem>
-                        <SelectItem value="90">90 dagen</SelectItem>
+                        <SelectItem value="14">{t("formPaymentTerm14")}</SelectItem>
+                        <SelectItem value="30">{t("formPaymentTerm30")}</SelectItem>
+                        <SelectItem value="60">{t("formPaymentTerm60")}</SelectItem>
+                        <SelectItem value="90">{t("formPaymentTerm90")}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -281,7 +283,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                 name="currencyId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Standaard valuta</FormLabel>
+                    <FormLabel>{t("formCurrencyLabel")}</FormLabel>
                     <FormControl>
                       <CurrencySelector
                         value={field.value ? "custom" : "EUR"}
@@ -296,7 +298,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                       />
                     </FormControl>
                     <FormDescription>
-                      Nieuwe facturen voor deze klant worden standaard in deze valuta aangemaakt
+                      {t("formCurrencyDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -308,7 +310,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
           {/* Notities */}
           <Card>
             <CardHeader>
-              <CardTitle>Notities</CardTitle>
+              <CardTitle>{t("formNotesTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
               <FormField
@@ -316,17 +318,17 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                 name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Interne notities</FormLabel>
+                    <FormLabel>{t("formNotesLabel")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Eventuele notities over deze klant..."
+                        placeholder={t("formNotesPlaceholder")}
                         className="min-h-[100px]"
                         {...field}
                         value={field.value ?? ""}
                       />
                     </FormControl>
                     <FormDescription>
-                      Deze notities zijn alleen voor intern gebruik
+                      {t("formNotesDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -340,14 +342,14 @@ export function CustomerForm({ customer }: CustomerFormProps) {
         <div className="flex gap-4">
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {customer ? "Opslaan" : "Klant toevoegen"}
+            {customer ? t("formSave") : t("formAdd")}
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={() => router.back()}
           >
-            Annuleren
+            {t("formCancel")}
           </Button>
         </div>
       </form>

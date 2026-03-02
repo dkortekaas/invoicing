@@ -6,14 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Play, 
-  Square, 
-  Loader2 
+import {
+  Play,
+  Square,
+  Loader2
 } from 'lucide-react';
 import { ProjectSelect } from './project-select';
 import { formatDuration } from '@/lib/time/calculations';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 interface RunningTimer {
   id: string;
@@ -30,6 +31,7 @@ interface RunningTimer {
 
 export function TimerWidget() {
   const router = useRouter();
+  const { t } = useTranslations('timePage');
   const [description, setDescription] = useState('');
   const [projectId, setProjectId] = useState<string>('');
   const [activityType, setActivityType] = useState('');
@@ -77,7 +79,7 @@ export function TimerWidget() {
 
   const handleStart = async () => {
     if (!description.trim()) {
-      toast.error('Voer een beschrijving in');
+      toast.error(t('timerDescRequired'));
       return;
     }
 
@@ -104,10 +106,10 @@ export function TimerWidget() {
       setProjectId('');
       setActivityType('');
       router.refresh();
-      toast.success('Timer gestart');
+      toast.success(t('timerStarted'));
     } catch (error) {
       console.error('Start timer error:', error);
-      toast.error(error instanceof Error ? error.message : 'Timer starten mislukt');
+      toast.error(error instanceof Error ? error.message : t('timerStartFailed'));
     } finally {
       setLoading(false);
     }
@@ -132,10 +134,10 @@ export function TimerWidget() {
       setRunningTimer(null);
       setElapsed(0);
       router.refresh();
-      toast.success('Timer gestopt');
+      toast.success(t('timerStopped'));
     } catch (error) {
       console.error('Stop timer error:', error);
-      toast.error(error instanceof Error ? error.message : 'Timer stoppen mislukt');
+      toast.error(error instanceof Error ? error.message : t('timerStopFailed'));
     } finally {
       setLoading(false);
     }
@@ -149,7 +151,7 @@ export function TimerWidget() {
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 rounded-full bg-red-500 animate-pulse" />
               <span className="text-sm font-medium text-muted-foreground">
-                Timer loopt...
+                {t('timerRunning')}
               </span>
             </div>
             <div className="text-3xl font-bold tabular-nums">
@@ -186,7 +188,7 @@ export function TimerWidget() {
             ) : (
               <Square className="mr-2 h-4 w-4" />
             )}
-            Stop Timer
+            {t('timerStop')}
           </Button>
         </div>
       </Card>
@@ -197,10 +199,10 @@ export function TimerWidget() {
     <Card className="p-6">
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="description">Wat ben je aan het doen?</Label>
+          <Label htmlFor="description">{t('timerDescLabel')}</Label>
           <Input
             id="description"
-            placeholder="Bijv. Development feature X..."
+            placeholder={t('timerDescPlaceholder')}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onKeyDown={(e) => {
@@ -214,7 +216,7 @@ export function TimerWidget() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Project (optioneel)</Label>
+            <Label>{t('timerProjectLabel')}</Label>
             <ProjectSelect
               value={projectId}
               onChange={setProjectId}
@@ -222,10 +224,10 @@ export function TimerWidget() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="activity">Activiteit</Label>
+            <Label htmlFor="activity">{t('timerActivityLabel')}</Label>
             <Input
               id="activity"
-              placeholder="Development, Meeting..."
+              placeholder={t('timerActivityPlaceholder')}
               value={activityType}
               onChange={(e) => setActivityType(e.target.value)}
             />
@@ -242,7 +244,7 @@ export function TimerWidget() {
           ) : (
             <Play className="mr-2 h-4 w-4" />
           )}
-          Start Timer
+          {t('timerStart')}
         </Button>
       </div>
     </Card>

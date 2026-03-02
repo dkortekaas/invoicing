@@ -4,6 +4,7 @@ import { getCustomersForDropdown } from "@/app/klanten/actions"
 import { getActiveProducts } from "@/app/producten/actions"
 import { getFiscalSettings } from "@/app/instellingen/actions"
 import { getQuoteForEdit } from "@/app/offertes/actions"
+import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
@@ -27,10 +28,12 @@ export default async function BewerkOffertePage({ params }: BewerkOffertePagePro
   if (quote.status === "SIGNED" || quote.status === "CONVERTED") {
     return (
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold tracking-tight">Offerte bewerken</h2>
+        <h2 className="text-2xl font-bold tracking-tight"><T ns="quotesPage" k="editBlockedTitle" /></h2>
         <p className="text-muted-foreground text-red-600">
-          Deze offerte kan niet worden bewerkt omdat hij al{" "}
-          {quote.status === "SIGNED" ? "ondertekend" : "geconverteerd naar factuur"} is.
+          {quote.status === "SIGNED"
+            ? <T ns="quotesPage" k="editBlockedSignedDesc" />
+            : <T ns="quotesPage" k="editBlockedConvertedDesc" />
+          }
         </p>
       </div>
     )
@@ -75,9 +78,9 @@ export default async function BewerkOffertePage({ params }: BewerkOffertePagePro
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">
-          Offerte {quote.quoteNumber} bewerken
+          <T ns="quotesPage" k="editQuoteTitle" vars={{ number: quote.quoteNumber }} />
         </h2>
-        <p className="text-muted-foreground">Wijzig de gegevens van deze offerte</p>
+        <p className="text-muted-foreground"><T ns="quotesPage" k="editQuoteDescription" /></p>
       </div>
 
       <QuoteForm

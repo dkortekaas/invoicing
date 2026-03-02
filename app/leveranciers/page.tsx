@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { getUserVendors } from "./actions"
 import { VendorActions } from "./vendor-actions"
 import { VendorSearchForm } from "./vendor-search-form"
+import { T } from "@/components/t"
 
 const CATEGORY_LABELS: Record<string, string> = {
   OFFICE: 'Kantoorkosten',
@@ -84,16 +85,16 @@ export default async function LeveranciersPage({ searchParams }: LeveranciersPag
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Leveranciers</h2>
+          <h2 className="text-2xl font-bold tracking-tight"><T ns="vendorsPage" k="title" /></h2>
           <p className="text-muted-foreground">
-            Beheer je leveranciers voor automatische categorisatie
+            <T ns="vendorsPage" k="description" />
           </p>
         </div>
         <div className="flex gap-2">
           <Button asChild>
             <Link href="/leveranciers/nieuw">
               <Plus className="mr-2 h-4 w-4" />
-              Nieuwe Leverancier
+              <T ns="vendorsPage" k="newVendor" />
             </Link>
           </Button>
         </div>
@@ -110,10 +111,10 @@ export default async function LeveranciersPage({ searchParams }: LeveranciersPag
           <Table>
             <TableHeader>
               <TableRow>
-                <SortableTableHead sortKey="name">Naam</SortableTableHead>
-                <TableHead>Aliassen</TableHead>
-                <SortableTableHead sortKey="defaultCategory">Standaard Categorie</SortableTableHead>
-                <SortableTableHead sortKey="useCount" className="text-center">Gebruikt</SortableTableHead>
+                <SortableTableHead sortKey="name"><T ns="vendorsPage" k="colName" /></SortableTableHead>
+                <TableHead><T ns="vendorsPage" k="colAliases" /></TableHead>
+                <SortableTableHead sortKey="defaultCategory"><T ns="vendorsPage" k="colCategory" /></SortableTableHead>
+                <SortableTableHead sortKey="useCount" className="text-center"><T ns="vendorsPage" k="colUsed" /></SortableTableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -123,15 +124,15 @@ export default async function LeveranciersPage({ searchParams }: LeveranciersPag
                   <TableCell colSpan={5} className="text-center py-8">
                     <Building2 className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">
-                      Nog geen leveranciers. Voeg je eerste leverancier toe!
+                      <T ns="vendorsPage" k="emptyState" />
                     </p>
                     <p className="text-sm text-muted-foreground mt-2">
-                      Leveranciers worden ook automatisch aangemaakt bij het verwerken van bonnen.
+                      <T ns="vendorsPage" k="emptyStateHint" />
                     </p>
                     <Button asChild className="mt-4">
                       <Link href="/leveranciers/nieuw">
                         <Plus className="mr-2 h-4 w-4" />
-                        Nieuwe Leverancier
+                        <T ns="vendorsPage" k="newVendor" />
                       </Link>
                     </Button>
                   </TableCell>

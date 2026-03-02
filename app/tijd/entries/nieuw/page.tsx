@@ -12,9 +12,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ProjectSelect } from '@/components/time/project-select';
 import { Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 export default function NewTimeEntryPage() {
   const router = useRouter();
+  const { t } = useTranslations('timePage');
   const [loading, setLoading] = useState(false);
   const [description, setDescription] = useState('');
   const [startTime, setStartTime] = useState(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
@@ -27,9 +29,9 @@ export default function NewTimeEntryPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!description.trim()) {
-      toast.error('Beschrijving is verplicht');
+      toast.error(t('newEntryDescRequired'));
       return;
     }
 
@@ -52,14 +54,14 @@ export default function NewTimeEntryPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Entry aanmaken mislukt');
+        throw new Error(error.error || t('newEntryCreateFailed'));
       }
 
       router.push('/tijd/entries');
-      toast.success('Tijdregistratie toegevoegd');
+      toast.success(t('newEntrySuccess'));
     } catch (error) {
       console.error('Create entry error:', error);
-      toast.error(error instanceof Error ? error.message : 'Entry aanmaken mislukt');
+      toast.error(error instanceof Error ? error.message : t('newEntryCreateFailed'));
     } finally {
       setLoading(false);
     }
@@ -68,19 +70,19 @@ export default function NewTimeEntryPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Nieuwe Time Entry</h1>
+        <h1 className="text-3xl font-bold">{t('newEntryTitle')}</h1>
         <p className="text-muted-foreground">
-          Voeg handmatig een tijdregistratie toe
+          {t('newEntryDescription')}
         </p>
       </div>
 
       <Card className="p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="description">Beschrijving *</Label>
+            <Label htmlFor="description">{t('newEntryDescLabel')}</Label>
             <Input
               id="description"
-              placeholder="Wat heb je gedaan?"
+              placeholder={t('newEntryDescPlaceholder')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
@@ -89,7 +91,7 @@ export default function NewTimeEntryPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startTime">Starttijd *</Label>
+              <Label htmlFor="startTime">{t('newEntryStartLabel')}</Label>
               <Input
                 id="startTime"
                 type="datetime-local"
@@ -100,7 +102,7 @@ export default function NewTimeEntryPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="endTime">Eindtijd</Label>
+              <Label htmlFor="endTime">{t('newEntryEndLabel')}</Label>
               <Input
                 id="endTime"
                 type="datetime-local"
@@ -111,7 +113,7 @@ export default function NewTimeEntryPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="duration">Duur (uren, bijv. 1.5 of 1:30)</Label>
+            <Label htmlFor="duration">{t('newEntryDurationLabel')}</Label>
             <Input
               id="duration"
               placeholder="1.5"
@@ -119,13 +121,13 @@ export default function NewTimeEntryPage() {
               onChange={(e) => setDuration(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Laat leeg om automatisch te berekenen op basis van start- en eindtijd
+              {t('newEntryDurationHint')}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Project</Label>
+              <Label>{t('newEntryProjectLabel')}</Label>
               <ProjectSelect
                 value={projectId}
                 onChange={setProjectId}
@@ -133,10 +135,10 @@ export default function NewTimeEntryPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="activityType">Activiteit</Label>
+              <Label htmlFor="activityType">{t('newEntryActivityLabel')}</Label>
               <Input
                 id="activityType"
-                placeholder="Development, Meeting..."
+                placeholder={t('newEntryActivityPlaceholder')}
                 value={activityType}
                 onChange={(e) => setActivityType(e.target.value)}
               />
@@ -150,15 +152,15 @@ export default function NewTimeEntryPage() {
               onCheckedChange={(checked) => setBillable(checked === true)}
             />
             <Label htmlFor="billable" className="cursor-pointer">
-              Factureerbaar
+              {t('newEntryBillableLabel')}
             </Label>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notities</Label>
+            <Label htmlFor="notes">{t('newEntryNotesLabel')}</Label>
             <Textarea
               id="notes"
-              placeholder="Interne notities..."
+              placeholder={t('newEntryNotesPlaceholder')}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
@@ -170,10 +172,10 @@ export default function NewTimeEntryPage() {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Opslaan...
+                  {t('newEntrySaving')}
                 </>
               ) : (
-                'Opslaan'
+                t('newEntrySave')
               )}
             </Button>
             <Button
@@ -181,7 +183,7 @@ export default function NewTimeEntryPage() {
               variant="outline"
               onClick={() => router.back()}
             >
-              Annuleren
+              {t('cancelButton')}
             </Button>
           </div>
         </form>

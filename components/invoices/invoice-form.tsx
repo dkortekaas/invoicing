@@ -3,6 +3,7 @@
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { useState, useEffect } from "react"
 import { Loader2, Plus, Trash2, CalendarIcon, Info } from "lucide-react"
 import { format } from "date-fns"
@@ -75,6 +76,7 @@ interface InvoiceFormProps {
 
 export function InvoiceForm({ invoice, customers, products, useKOR = false }: InvoiceFormProps) {
   const router = useRouter()
+  const { t } = useTranslations("invoicesPage")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [, setSelectedCustomer] = useState<Customer | null>(null)
 
@@ -199,11 +201,11 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
         {useKOR && (
           <Alert>
             <Info className="h-4 w-4" />
-            <AlertTitle>Kleineondernemersregeling (KOR)</AlertTitle>
+            <AlertTitle>{t("formKorTitle")}</AlertTitle>
             <AlertDescription>
-              Je maakt gebruik van de KOR. Er wordt geen BTW in rekening gebracht op deze factuur.
-              Wil je dit wijzigen? Ga naar{" "}
-              <a href="/instellingen" className="underline font-medium">Instellingen &gt; Fiscaal</a>.
+              {t("formKorDesc").split(t("formKorSettings"))[0]}
+              <a href="/instellingen" className="underline font-medium">{t("formKorSettings")}</a>
+              {t("formKorDesc").split(t("formKorSettings"))[1]}
             </AlertDescription>
           </Alert>
         )}
@@ -213,7 +215,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
             {/* Customer selection */}
             <Card>
               <CardHeader>
-                <CardTitle>Klant</CardTitle>
+                <CardTitle>{t("formCustomerCard")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -221,14 +223,14 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                   name="customerId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Selecteer klant *</FormLabel>
+                      <FormLabel>{t("formSelectCustomer")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Kies een klant..." />
+                            <SelectValue placeholder={t("formChooseCustomer")} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -252,7 +254,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                     name="invoiceDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>Factuurdatum</FormLabel>
+                        <FormLabel>{t("formInvoiceDate")}</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -266,7 +268,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                                 {field.value ? (
                                   format(field.value, "d MMMM yyyy", { locale: nl })
                                 ) : (
-                                  <span>Selecteer datum</span>
+                                  <span>{t("formSelectDate")}</span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
@@ -291,7 +293,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                     name="dueDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>Vervaldatum</FormLabel>
+                        <FormLabel>{t("formDueDate")}</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -305,7 +307,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                                 {field.value ? (
                                   format(field.value, "d MMMM yyyy", { locale: nl })
                                 ) : (
-                                  <span>Selecteer datum</span>
+                                  <span>{t("formSelectDate")}</span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
@@ -332,10 +334,10 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                     name="reference"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Referentie klant</FormLabel>
+                        <FormLabel>{t("formCustomerReference")}</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Bijv. PO-12345"
+                            placeholder={t("formReferencePlaceholder")}
                             {...field}
                             value={field.value ?? ""}
                           />
@@ -350,7 +352,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                     name="currencyCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Valuta</FormLabel>
+                        <FormLabel>{t("formCurrency")}</FormLabel>
                         <FormControl>
                           <CurrencySelector
                             value={field.value || "EUR"}
@@ -377,11 +379,11 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
             {/* Invoice items */}
             <Card>
               <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <CardTitle>Factuurregels</CardTitle>
+                <CardTitle>{t("formInvoiceLinesCard")}</CardTitle>
                 {products.length > 0 && (
                   <Select onValueChange={addProduct}>
                     <SelectTrigger className="w-full sm:w-[200px]">
-                      <SelectValue placeholder="Voeg product toe..." />
+                      <SelectValue placeholder={t("formAddProduct")} />
                     </SelectTrigger>
                     <SelectContent>
                       {products.map((product) => (
@@ -407,9 +409,9 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                           name={`items.${index}.description`}
                           render={({ field }) => (
                             <FormItem className="flex-1">
-                              <FormLabel>Omschrijving</FormLabel>
+                              <FormLabel>{t("formItemDescription")}</FormLabel>
                               <FormControl>
-                                <Input placeholder="Omschrijving..." {...field} />
+                                <Input placeholder={t("formDescriptionPlaceholder")} {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -433,7 +435,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                           name={`items.${index}.quantity`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Aantal</FormLabel>
+                              <FormLabel>{t("formQuantity")}</FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
@@ -455,7 +457,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                           name={`items.${index}.unit`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Eenheid</FormLabel>
+                              <FormLabel>{t("formUnit")}</FormLabel>
                               <Select
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
@@ -483,7 +485,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                           name={`items.${index}.unitPrice`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Prijs</FormLabel>
+                              <FormLabel>{t("formPrice")}</FormLabel>
                               <FormControl>
                                 <div className="relative">
                                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -511,10 +513,10 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                           name={`items.${index}.vatRate`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>BTW</FormLabel>
+                              <FormLabel>{t("formVat")}</FormLabel>
                               {useKOR ? (
                                 <div className="flex h-10 items-center rounded-md border bg-muted px-3 text-sm text-muted-foreground">
-                                  0% (KOR)
+                                  {t("formKorVatDisplay")}
                                 </div>
                               ) : (
                                 <Select
@@ -541,7 +543,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                         />
 
                         <div>
-                          <FormLabel>Totaal</FormLabel>
+                          <FormLabel>{t("formLineTotal")}</FormLabel>
                           <div className="flex h-10 items-center font-medium">
                             {formatCurrencyWithCode(itemTotals.subtotal, watchedCurrencyCode)}
                           </div>
@@ -566,7 +568,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                   }
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Regel toevoegen
+                  {t("formAddLine")}
                 </Button>
               </CardContent>
             </Card>
@@ -574,7 +576,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
             {/* Notes */}
             <Card>
               <CardHeader>
-                <CardTitle>Notities</CardTitle>
+                <CardTitle>{t("formNotesCard")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -582,10 +584,10 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                   name="notes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Notities op factuur</FormLabel>
+                      <FormLabel>{t("formNotesLabel")}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Wordt getoond op de factuur..."
+                          placeholder={t("formNotesPlaceholder")}
                           {...field}
                           value={field.value ?? ""}
                         />
@@ -600,10 +602,10 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                   name="internalNotes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Interne notities</FormLabel>
+                      <FormLabel>{t("formInternalNotesLabel")}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Alleen voor intern gebruik..."
+                          placeholder={t("formInternalNotesPlaceholder")}
                           {...field}
                           value={field.value ?? ""}
                         />
@@ -621,11 +623,11 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
             {/* Totals summary */}
             <Card className="sticky top-6">
               <CardHeader>
-                <CardTitle>Totalen</CardTitle>
+                <CardTitle>{t("formTotalsCard")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotaal</span>
+                  <span className="text-muted-foreground">{t("formSubtotal")}</span>
                   <span>{formatCurrencyWithCode(totals.subtotal, watchedCurrencyCode)}</span>
                 </div>
 
@@ -633,7 +635,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
 
                 {useKOR ? (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">BTW (KOR - vrijgesteld)</span>
+                    <span className="text-muted-foreground">{t("formVatExempt")}</span>
                     <span>{formatCurrencyWithCode(0, watchedCurrencyCode)}</span>
                   </div>
                 ) : (
@@ -642,14 +644,14 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                     {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
                       <div key={rate} className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
-                          BTW {rate}% over {formatCurrencyWithCode(subtotal, watchedCurrencyCode)}
+                          {t("vatLine").replace("{rate}", rate).replace("{amount}", formatCurrencyWithCode(subtotal, watchedCurrencyCode))}
                         </span>
                         <span>{formatCurrencyWithCode(vatAmount, watchedCurrencyCode)}</span>
                       </div>
                     ))}
 
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Totaal BTW</span>
+                      <span className="text-muted-foreground">{t("formTotalVat")}</span>
                       <span>{formatCurrencyWithCode(totals.vatAmount, watchedCurrencyCode)}</span>
                     </div>
                   </>
@@ -658,7 +660,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                 <Separator />
 
                 <div className="flex justify-between text-lg font-bold">
-                  <span>Totaal</span>
+                  <span>{t("formTotal")}</span>
                   <span>{formatCurrencyWithCode(totals.total, watchedCurrencyCode)}</span>
                 </div>
 
@@ -675,7 +677,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                     {isSubmitting && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    Opslaan en Verzenden
+                    {t("formSaveAndSend")}
                   </Button>
                   <Button
                     type="button"
@@ -684,7 +686,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                     disabled={isSubmitting}
                     onClick={form.handleSubmit((data) => onSubmit(data, "DRAFT"))}
                   >
-                    Opslaan als Concept
+                    {t("formSaveAsDraft")}
                   </Button>
                   <Button
                     type="button"
@@ -692,7 +694,7 @@ export function InvoiceForm({ invoice, customers, products, useKOR = false }: In
                     className="w-full"
                     onClick={() => router.back()}
                   >
-                    Annuleren
+                    {t("formCancel")}
                   </Button>
                 </div>
               </CardContent>

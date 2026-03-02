@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatDuration, groupEntriesByDay, type TimeEntry } from '@/lib/time/calculations';
 import { formatCurrency } from '@/lib/time/formatters';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 // Extended TimeEntry interface for the component
 interface TimeEntryWithDetails extends TimeEntry {
@@ -38,11 +39,13 @@ export function TimeEntryList({
   onDelete,
   grouped = true,
 }: TimeEntryListProps) {
+  const { t } = useTranslations('timePage');
+
   if (entries.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
         <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
-        <p>Geen time entries gevonden</p>
+        <p>{t('entriesEmpty')}</p>
       </div>
     );
   }
@@ -114,6 +117,7 @@ function TimeEntryCard({
   onEdit?: (entry: TimeEntryWithDetails) => void;
   onDelete?: (id: string) => void;
 }) {
+  const { t } = useTranslations('timePage');
   const startTime = typeof entry.startTime === 'string' ? new Date(entry.startTime) : entry.startTime;
   const endTime = entry.endTime ? (typeof entry.endTime === 'string' ? new Date(entry.endTime) : entry.endTime) : null;
 
@@ -149,10 +153,10 @@ function TimeEntryCard({
 
           <div className="flex items-center gap-2">
             {!entry.billable && (
-              <Badge variant="secondary">Niet facturabel</Badge>
+              <Badge variant="secondary">{t('entryNotBillable')}</Badge>
             )}
             {entry.invoiced && (
-              <Badge variant="outline">Gefactureerd</Badge>
+              <Badge variant="outline">{t('entryInvoiced')}</Badge>
             )}
           </div>
         </div>

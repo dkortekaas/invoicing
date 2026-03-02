@@ -2,12 +2,13 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { RecurringForm } from '@/components/recurring/recurring-form';
 import { redirect } from 'next/navigation';
+import { T } from '@/components/t';
 
 export const dynamic = 'force-dynamic';
 
 export default async function NieuwAbonnementPage() {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     redirect('/login');
   }
@@ -25,9 +26,11 @@ export default async function NieuwAbonnementPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Nieuw Abonnement</h2>
+        <h2 className="text-2xl font-bold tracking-tight">
+          <T ns="recurringPage" k="newTitle" />
+        </h2>
         <p className="text-muted-foreground">
-          Maak een nieuwe terugkerende factuur aan
+          <T ns="recurringPage" k="newDescription" />
         </p>
       </div>
 

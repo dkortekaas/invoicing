@@ -15,7 +15,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { ENTITY_LABELS, type EntityType, getExportColumnsForEntity, getFieldsForEntity } from '@/lib/import-export/fields';
+import { getExportColumnsForEntity, getFieldsForEntity, type EntityType } from '@/lib/import-export/fields';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 interface ExportModalProps {
   open: boolean;
@@ -32,6 +33,7 @@ export function ExportModal({
   selectedIds,
   totalCount,
 }: ExportModalProps) {
+  const { t } = useTranslations('exportModal');
   const [format, setFormat] = useState<'xlsx' | 'csv'>('xlsx');
   const [exportScope, setExportScope] = useState<'all' | 'selected'>('all');
   const [includeHeader, setIncludeHeader] = useState(true);
@@ -42,7 +44,14 @@ export function ExportModal({
   const defaultColumns = getExportColumnsForEntity(entityType);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(defaultColumns);
 
-  const entityLabel = ENTITY_LABELS[entityType];
+  const entityLabels: Record<EntityType, string> = {
+    CUSTOMERS: t('entityCustomers'),
+    INVOICES: t('entityInvoices'),
+    EXPENSES: t('entityExpenses'),
+    PRODUCTS: t('entityProducts'),
+    TIME_ENTRIES: t('entityTimeEntries'),
+  };
+  const entityLabel = entityLabels[entityType];
 
   const handleColumnToggle = (column: string) => {
     setSelectedColumns((prev) =>
@@ -62,7 +71,7 @@ export function ExportModal({
 
   const handleExport = async () => {
     if (selectedColumns.length === 0) {
-      toast.error('Selecteer minimaal 1 kolom');
+      toast.error(t('toastNoColumns'));
       return;
     }
 
@@ -90,7 +99,7 @@ export function ExportModal({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Export mislukt');
+        throw new Error(error.error || t('toastError'));
       }
 
       // Download file
@@ -109,11 +118,11 @@ export function ExportModal({
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      toast.success('Export gedownload');
+      toast.success(t('toastSuccess'));
       onOpenChange(false);
     } catch (error) {
       console.error('Export error:', error);
-      toast.error(error instanceof Error ? error.message : 'Export mislukt');
+      toast.error(error instanceof Error ? error.message : t('toastError'));
     } finally {
       setIsExporting(false);
     }
@@ -123,9 +132,9 @@ export function ExportModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Exporteren</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Exporteer {entityLabel.toLowerCase()} naar Excel of CSV
+            {t('description').replace('{entity}', entityLabel.toLowerCase())}
           </DialogDescription>
         </DialogHeader>
 
@@ -133,18 +142,18 @@ export function ExportModal({
           {/* Scope selection */}
           {selectedIds && selectedIds.length > 0 && (
             <div className="space-y-3">
-              <Label>Wat exporteren</Label>
+              <Label>{t('scopeLabel')}</Label>
               <RadioGroup value={exportScope} onValueChange={(v) => setExportScope(v as 'all' | 'selected')}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="all" id="all" />
                   <Label htmlFor="all" className="font-normal">
-                    Alle {entityLabel.toLowerCase()} {totalCount && `(${totalCount})`}
+                    {t('scopeAll').replace('{entity}', entityLabel.toLowerCase()).replace('{count}', String(totalCount ?? ''))}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="selected" id="selected" />
                   <Label htmlFor="selected" className="font-normal">
-                    Geselecteerde {entityLabel.toLowerCase()} ({selectedIds.length})
+                    {t('scopeSelected').replace('{entity}', entityLabel.toLowerCase()).replace('{count}', String(selectedIds.length))}
                   </Label>
                 </div>
               </RadioGroup>
@@ -153,18 +162,18 @@ export function ExportModal({
 
           {/* Format selection */}
           <div className="space-y-3">
-            <Label>Formaat</Label>
+            <Label>{t('formatLabel')}</Label>
             <RadioGroup value={format} onValueChange={(v) => setFormat(v as 'xlsx' | 'csv')}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="xlsx" id="xlsx" />
                 <Label htmlFor="xlsx" className="font-normal">
-                  Excel (.xlsx) - Aanbevolen
+                  {t('formatExcel')}
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="csv" id="csv" />
                 <Label htmlFor="csv" className="font-normal">
-                  CSV (.csv) - Voor andere software
+                  {t('formatCsv')}
                 </Label>
               </div>
             </RadioGroup>
@@ -172,7 +181,7 @@ export function ExportModal({
 
           {/* Options */}
           <div className="space-y-3">
-            <Label>Opties</Label>
+            <Label>{t('optionsLabel')}</Label>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -181,7 +190,7 @@ export function ExportModal({
                   onCheckedChange={(checked) => setIncludeHeader(checked === true)}
                 />
                 <Label htmlFor="includeHeader" className="font-normal">
-                  Inclusief kolomnamen (header rij)
+                  {t('optionHeader')}
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
@@ -191,7 +200,7 @@ export function ExportModal({
                   onCheckedChange={(checked) => setDutchFormat(checked === true)}
                 />
                 <Label htmlFor="dutchFormat" className="font-normal">
-                  Nederlandse notatie (DD-MM-YYYY, komma als decimaal)
+                  {t('optionDutchFormat')}
                 </Label>
               </div>
             </div>
@@ -200,7 +209,7 @@ export function ExportModal({
           {/* Column selection */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Kolommen</Label>
+              <Label>{t('columnsLabel')}</Label>
               <div className="space-x-2">
                 <Button
                   type="button"
@@ -208,7 +217,7 @@ export function ExportModal({
                   size="sm"
                   onClick={handleSelectAllColumns}
                 >
-                  Alles
+                  {t('selectAll')}
                 </Button>
                 <Button
                   type="button"
@@ -216,7 +225,7 @@ export function ExportModal({
                   size="sm"
                   onClick={handleSelectNoColumns}
                 >
-                  Niets
+                  {t('selectNone')}
                 </Button>
               </div>
             </div>
@@ -239,12 +248,12 @@ export function ExportModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Annuleren
+            {t('cancel')}
           </Button>
           <Button onClick={handleExport} disabled={isExporting}>
             {isExporting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             <Download className="mr-2 h-4 w-4" />
-            Exporteren
+            {t('exportButton')}
           </Button>
         </DialogFooter>
       </DialogContent>

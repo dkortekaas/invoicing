@@ -17,8 +17,12 @@ import { formatCurrency } from "@/lib/utils"
 import { getProducts } from "./actions"
 import { ProductActions } from "./product-actions"
 import { ProductFormButton } from "./product-form-button"
+import { getServerT } from "@/lib/i18n"
+import { T } from "@/components/t"
 
 export default async function ProductenPage() {
+  // getServerT needed only for the Input placeholder (string prop)
+  const t = await getServerT("productsPage")
   const products = await getProducts()
 
   return (
@@ -26,9 +30,9 @@ export default async function ProductenPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Producten & Diensten</h2>
+          <h2 className="text-2xl font-bold tracking-tight"><T ns="productsPage" k="title" /></h2>
           <p className="text-muted-foreground">
-            Beheer je producten en diensten voor facturatie
+            <T ns="productsPage" k="description" />
           </p>
         </div>
         <div className="flex gap-2">
@@ -44,7 +48,7 @@ export default async function ProductenPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Zoek producten..."
+                placeholder={t("searchPlaceholder")}
                 className="pl-9"
               />
             </div>
@@ -54,12 +58,12 @@ export default async function ProductenPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Naam</TableHead>
-                <TableHead>Omschrijving</TableHead>
-                <TableHead className="text-right">Prijs</TableHead>
-                <TableHead className="text-center">Eenheid</TableHead>
-                <TableHead className="text-center">BTW</TableHead>
-                <TableHead className="text-center">Status</TableHead>
+                <TableHead><T ns="productsPage" k="colName" /></TableHead>
+                <TableHead><T ns="productsPage" k="colDescription" /></TableHead>
+                <TableHead className="text-right"><T ns="productsPage" k="colPrice" /></TableHead>
+                <TableHead className="text-center"><T ns="productsPage" k="colUnit" /></TableHead>
+                <TableHead className="text-center"><T ns="productsPage" k="colVat" /></TableHead>
+                <TableHead className="text-center"><T ns="productsPage" k="colStatus" /></TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -68,7 +72,7 @@ export default async function ProductenPage() {
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <p className="text-muted-foreground">
-                      Nog geen producten. Voeg je eerste product toe!
+                      <T ns="productsPage" k="noProducts" />
                     </p>
                     <ProductFormButton />
                   </TableCell>
@@ -107,7 +111,7 @@ export default async function ProductenPage() {
                         <Badge
                           variant={product.isActive ? "default" : "secondary"}
                         >
-                          {product.isActive ? "Actief" : "Inactief"}
+                          {product.isActive ? <T ns="productsPage" k="statusActive" /> : <T ns="productsPage" k="statusInactive" />}
                         </Badge>
                       </TableCell>
                       <TableCell>

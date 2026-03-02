@@ -19,16 +19,39 @@ import {
 import { useTranslations } from "@/components/providers/locale-provider"
 
 const pathToPageKey: Record<string, string> = {
-  "/": "dashboard",
+  "/dashboard": "dashboard",
   "/facturen": "invoices",
   "/facturen/nieuw": "newInvoice",
-  "/tijd": "time",
-  "/tijd/entries": "timeEntries",
-  "/tijd/projecten": "projects",
+  "/offertes": "quotes",
+  "/offertes/nieuw": "newQuote",
+  "/creditnotas": "creditNotes",
+  "/creditnotas/nieuw": "newCreditNote",
   "/klanten": "customers",
   "/klanten/nieuw": "newCustomer",
   "/producten": "products",
+  "/kosten": "expenses",
+  "/kosten/nieuw": "newExpense",
+  "/leveranciers": "vendors",
+  "/leveranciers/nieuw": "newVendor",
+  "/abonnementen": "recurringInvoices",
+  "/abonnementen/nieuw": "newRecurringInvoice",
+  "/tijd": "timeTracking",
+  "/tijd/entries": "timeEntries",
+  "/tijd/entries/nieuw": "newTimeEntry",
+  "/tijd/projecten": "projects",
+  "/btw": "vat",
+  "/belasting": "tax",
+  "/activa": "assets",
+  "/activa/nieuw": "newAsset",
   "/instellingen": "settings",
+  "/instellingen/import-export": "importExport",
+  "/instellingen/2fa": "twoFactorSettings",
+  "/instellingen/valuta": "currencySettings",
+  "/abonnement": "subscription",
+  "/audit-logs": "auditLogs",
+  "/upgrade": "upgrade",
+  "/admin": "admin",
+  "/dashboard/settings/accounting": "accountingSettings",
 }
 
 export function Header() {
@@ -38,9 +61,24 @@ export function Header() {
 
   let pageKey = pathToPageKey[pathname]
   if (!pageKey) {
-    if (pathname.startsWith("/facturen/")) pageKey = "invoice"
+    if (pathname.startsWith("/facturen/") && pathname.endsWith("/bewerken")) pageKey = "editInvoice"
+    else if (pathname.startsWith("/facturen/")) pageKey = "invoice"
+    else if (pathname.startsWith("/offertes/") && pathname.endsWith("/bewerken")) pageKey = "editQuote"
+    else if (pathname.startsWith("/offertes/")) pageKey = "quote"
+    else if (pathname.startsWith("/creditnotas/") && pathname.endsWith("/bewerken")) pageKey = "editCreditNote"
+    else if (pathname.startsWith("/creditnotas/")) pageKey = "creditNote"
     else if (pathname.startsWith("/klanten/")) pageKey = "customer"
-    else if (pathname.startsWith("/tijd/")) pageKey = "time"
+    else if (pathname.startsWith("/kosten/")) pageKey = "expense"
+    else if (pathname.startsWith("/leveranciers/")) pageKey = "vendor"
+    else if (pathname.startsWith("/abonnementen/")) pageKey = "recurringInvoice"
+    else if (pathname.startsWith("/tijd/")) pageKey = "timeTracking"
+    else if (pathname.startsWith("/btw/")) pageKey = "vatReport"
+    else if (pathname.startsWith("/belasting/")) pageKey = "taxReport"
+    else if (pathname.startsWith("/activa/")) pageKey = "asset"
+    else if (pathname.startsWith("/instellingen/")) pageKey = "settings"
+    else if (pathname.startsWith("/abonnement/")) pageKey = "subscription"
+    else if (pathname.startsWith("/admin/")) pageKey = "admin"
+    else if (pathname.startsWith("/dashboard/settings/")) pageKey = "accountingSettings"
     else pageKey = "dashboard"
   }
   const title = t(`pages.${pageKey}`)

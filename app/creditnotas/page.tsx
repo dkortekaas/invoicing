@@ -24,6 +24,19 @@ import { getCreditNotes } from "./actions"
 import { CreditNoteActions } from "./credit-note-actions"
 import { SearchForm } from "./search-form"
 import { YearFilterSelect } from "@/components/year-filter-select"
+import { T } from "@/components/t"
+
+const REASON_KEY_MAP: Record<string, string> = {
+  PRICE_CORRECTION: "reasonPriceCorrection",
+  QUANTITY_CORRECTION: "reasonQuantityCorrection",
+  RETURN: "reasonReturn",
+  CANCELLATION: "reasonCancellation",
+  DISCOUNT_AFTER: "reasonDiscountAfter",
+  VAT_CORRECTION: "reasonVatCorrection",
+  DUPLICATE_INVOICE: "reasonDuplicateInvoice",
+  GOODWILL: "reasonGoodwill",
+  OTHER: "reasonOther",
+}
 
 const CREDIT_NOTE_SORT_KEYS = ["creditNoteNumber", "customerName", "creditNoteDate", "reason", "total"] as const
 type CreditNoteSortKey = (typeof CREDIT_NOTE_SORT_KEYS)[number]
@@ -46,7 +59,7 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
 
   const creditNotes = await getCreditNotes(status === "ALL" ? undefined : status)
 
-  // Filter op search term
+  // Filter by search term
   let filteredCreditNotes = search
     ? creditNotes.filter(
         (cn: typeof creditNotes[0]) =>
@@ -56,7 +69,7 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
       )
     : creditNotes
 
-  // Filter op jaar
+  // Filter by year
   if (yearParam && !Number.isNaN(yearParam)) {
     filteredCreditNotes = filteredCreditNotes.filter((cn: typeof creditNotes[0]) => {
       const y = new Date(cn.creditNoteDate).getFullYear()
@@ -64,7 +77,7 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
     })
   }
 
-  // Sorteren
+  // Sort
   filteredCreditNotes = [...filteredCreditNotes].sort((a: typeof creditNotes[0], b: typeof creditNotes[0]) => {
     let cmp = 0
     switch (sortBy) {
@@ -89,7 +102,7 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
     return sortOrder === "asc" ? cmp : -cmp
   })
 
-  // Bereken status counts
+  // Calculate status counts
   const allCreditNotes = await getCreditNotes()
   const statusCounts = {
     ALL: allCreditNotes.length,
@@ -105,15 +118,15 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Credit Nota&apos;s</h2>
+          <h2 className="text-2xl font-bold tracking-tight"><T ns="creditNotesPage" k="title" /></h2>
           <p className="text-muted-foreground">
-            Beheer credit nota&apos;s voor correcties en terugbetalingen
+            <T ns="creditNotesPage" k="description" />
           </p>
         </div>
         <Button asChild>
           <Link href="/creditnotas/nieuw">
             <Plus className="mr-2 h-4 w-4" />
-            Nieuwe Credit Nota
+            <T ns="creditNotesPage" k="newCreditNote" />
           </Link>
         </Button>
       </div>
@@ -124,12 +137,13 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <StatusFilterTabs
               currentStatus={status}
+              namespace="creditNotesPage"
               options={[
-                { value: "ALL", label: "Alle", count: statusCounts.ALL, href: "/creditnotas" },
-                { value: "DRAFT", label: "Concept", count: statusCounts.DRAFT, href: "/creditnotas?status=DRAFT" },
-                { value: "FINAL", label: "Definitief", count: statusCounts.FINAL, href: "/creditnotas?status=FINAL" },
-                { value: "SENT", label: "Verzonden", count: statusCounts.SENT, href: "/creditnotas?status=SENT" },
-                { value: "REFUNDED", label: "Terugbetaald", count: statusCounts.REFUNDED, href: "/creditnotas?status=REFUNDED" },
+                { value: "ALL", labelKey: "statusAll", count: statusCounts.ALL, href: "/creditnotas" },
+                { value: "DRAFT", labelKey: "statusDraft", count: statusCounts.DRAFT, href: "/creditnotas?status=DRAFT" },
+                { value: "FINAL", labelKey: "statusFinal", count: statusCounts.FINAL, href: "/creditnotas?status=FINAL" },
+                { value: "SENT", labelKey: "statusSent", count: statusCounts.SENT, href: "/creditnotas?status=SENT" },
+                { value: "REFUNDED", labelKey: "statusRefunded", count: statusCounts.REFUNDED, href: "/creditnotas?status=REFUNDED" },
               ]}
             />
 
@@ -149,12 +163,12 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
           <Table>
             <TableHeader>
               <TableRow>
-                <SortableTableHead sortKey="creditNoteNumber">Credit Nota</SortableTableHead>
-                <SortableTableHead sortKey="customerName">Klant</SortableTableHead>
-                <SortableTableHead sortKey="creditNoteDate">Datum</SortableTableHead>
-                <SortableTableHead sortKey="reason">Reden</SortableTableHead>
-                <SortableTableHead sortKey="total" className="text-right">Bedrag</SortableTableHead>
-                <TableHead className="text-center">Status</TableHead>
+                <SortableTableHead sortKey="creditNoteNumber"><T ns="creditNotesPage" k="colCreditNote" /></SortableTableHead>
+                <SortableTableHead sortKey="customerName"><T ns="creditNotesPage" k="colCustomer" /></SortableTableHead>
+                <SortableTableHead sortKey="creditNoteDate"><T ns="creditNotesPage" k="colDate" /></SortableTableHead>
+                <SortableTableHead sortKey="reason"><T ns="creditNotesPage" k="colReason" /></SortableTableHead>
+                <SortableTableHead sortKey="total" className="text-right"><T ns="creditNotesPage" k="colAmount" /></SortableTableHead>
+                <TableHead className="text-center"><T ns="creditNotesPage" k="colStatus" /></TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -163,12 +177,12 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <p className="text-muted-foreground">
-                      Nog geen credit nota&apos;s.
+                      <T ns="creditNotesPage" k="noCreditNotes" />
                     </p>
                     <Button asChild className="mt-4">
                       <Link href="/creditnotas/nieuw">
                         <Plus className="mr-2 h-4 w-4" />
-                        Nieuwe Credit Nota
+                        <T ns="creditNotesPage" k="newCreditNote" />
                       </Link>
                     </Button>
                   </TableCell>
@@ -185,7 +199,7 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
                       </Link>
                       {creditNote.originalInvoice && (
                         <div className="text-sm text-muted-foreground">
-                          voor {creditNote.originalInvoice.invoiceNumber}
+                          <T ns="creditNotesPage" k="forInvoice" vars={{ number: creditNote.originalInvoice.invoiceNumber }} />
                         </div>
                       )}
                     </TableCell>
@@ -204,7 +218,7 @@ export default async function CreditNotasPage({ searchParams }: CreditNotasPageP
                     <TableCell>{formatDate(creditNote.creditNoteDate)}</TableCell>
                     <TableCell>
                       <span className="text-sm">
-                        {CREDIT_NOTE_REASON_LABELS[creditNote.reason] || creditNote.reason}
+                        <T ns="creditNotesPage" k={REASON_KEY_MAP[creditNote.reason] || "reasonOther"} />
                       </span>
                     </TableCell>
                     <TableCell className="text-right font-medium text-red-600">

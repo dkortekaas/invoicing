@@ -1,12 +1,12 @@
 import { CreditNoteForm } from "@/components/creditnotes/credit-note-form"
 import { getCustomersForDropdown } from "@/app/klanten/actions"
+import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
 export default async function NieuweCreditNotaPage() {
   const customers = await getCustomersForDropdown()
 
-  // Transform data for form
   const customersForForm = customers.map((c: typeof customers[0]) => ({
     id: c.id,
     name: c.name,
@@ -16,9 +16,9 @@ export default async function NieuweCreditNotaPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Nieuwe Credit Nota</h2>
+        <h2 className="text-2xl font-bold tracking-tight"><T ns="creditNotesPage" k="newCreditNoteTitle" /></h2>
         <p className="text-muted-foreground">
-          Maak een nieuwe credit nota aan
+          <T ns="creditNotesPage" k="newCreditNoteDescription" />
         </p>
       </div>
 

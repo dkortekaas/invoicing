@@ -18,6 +18,7 @@ import { getCustomers, getDeletedCustomerCount } from "./actions"
 import { CustomerActions } from "./customer-actions"
 import { SearchForm } from "./search-form"
 import { Pagination } from "@/components/ui/pagination"
+import { T } from "@/components/t"
 
 const PAGE_SIZE = 50
 
@@ -56,16 +57,16 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Klanten</h2>
+          <h2 className="text-2xl font-bold tracking-tight"><T ns="customersPage" k="title" /></h2>
           <p className="text-muted-foreground">
-            Beheer je klantenbestand
+            <T ns="customersPage" k="description" />
           </p>
         </div>
         <div className="flex gap-2">
           {!showDeleted && <ExportButton entityType="CUSTOMERS" totalCount={totalItems} />}
           {showDeleted ? (
             <Button variant="outline" asChild>
-              <Link href="/klanten">Terug naar klanten</Link>
+              <Link href="/klanten"><T ns="customersPage" k="backToCustomers" /></Link>
             </Button>
           ) : (
             <>
@@ -73,14 +74,14 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
                 <Button variant="outline" asChild>
                   <Link href="/klanten?deleted=true">
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Prullenbak ({deletedCount})
+                    <T ns="customersPage" k="trash" /> ({deletedCount})
                   </Link>
                 </Button>
               )}
               <Button asChild>
                 <Link href="/klanten/nieuw">
                   <Plus className="mr-2 h-4 w-4" />
-                  Nieuwe Klant
+                  <T ns="customersPage" k="newCustomer" />
                 </Link>
               </Button>
             </>
@@ -99,11 +100,11 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <SortableTableHead sortKey="name">Naam</SortableTableHead>
-                <SortableTableHead sortKey="companyName">Bedrijf</SortableTableHead>
-                <SortableTableHead sortKey="email">E-mail</SortableTableHead>
-                <SortableTableHead sortKey="city">Plaats</SortableTableHead>
-                <SortableTableHead sortKey="invoiceCount" className="text-center">Facturen</SortableTableHead>
+                <SortableTableHead sortKey="name"><T ns="customersPage" k="colName" /></SortableTableHead>
+                <SortableTableHead sortKey="companyName"><T ns="customersPage" k="colCompany" /></SortableTableHead>
+                <SortableTableHead sortKey="email"><T ns="customersPage" k="colEmail" /></SortableTableHead>
+                <SortableTableHead sortKey="city"><T ns="customersPage" k="colCity" /></SortableTableHead>
+                <SortableTableHead sortKey="invoiceCount" className="text-center"><T ns="customersPage" k="colInvoices" /></SortableTableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -113,17 +114,17 @@ export default async function KlantenPage({ searchParams }: KlantenPageProps) {
                   <TableCell colSpan={6} className="text-center py-8">
                     {showDeleted ? (
                       <p className="text-muted-foreground">
-                        De prullenbak is leeg.
+                        <T ns="customersPage" k="noResults" />
                       </p>
                     ) : (
                       <>
                         <p className="text-muted-foreground">
-                          Nog geen klanten. Voeg je eerste klant toe!
+                          <T ns="customersPage" k="noCustomers" />
                         </p>
                         <Button asChild className="mt-4">
                           <Link href="/klanten/nieuw">
                             <Plus className="mr-2 h-4 w-4" />
-                            Nieuwe Klant
+                            <T ns="customersPage" k="newCustomer" />
                           </Link>
                         </Button>
                       </>

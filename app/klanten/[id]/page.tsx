@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { CustomerForm } from "@/components/customers/customer-form"
 import { PortalLink } from "@/components/customers/portal-link"
 import { getCustomer } from "../actions"
+import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
@@ -37,9 +38,9 @@ export default async function KlantDetailPage({ params }: KlantDetailPageProps) 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Klant bewerken</h2>
+        <h2 className="text-2xl font-bold tracking-tight"><T ns="customersPage" k="editTitle" /></h2>
         <p className="text-muted-foreground">
-          Wijzig de gegevens van {customer.name}
+          <T ns="customersPage" k="editDescription" vars={{ name: customer.name }} />
         </p>
       </div>
 

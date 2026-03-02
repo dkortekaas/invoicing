@@ -21,6 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { deleteCustomer, restoreCustomer } from "./actions"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 interface CustomerActionsProps {
   customer: {
@@ -33,6 +34,7 @@ interface CustomerActionsProps {
 
 export function CustomerActions({ customer }: CustomerActionsProps) {
   const router = useRouter()
+  const { t } = useTranslations("customersPage")
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -42,10 +44,10 @@ export function CustomerActions({ customer }: CustomerActionsProps) {
       await deleteCustomer(customer.id)
       setIsDeleteDialogOpen(false)
       router.refresh()
-      toast.success("Klant naar prullenbak verplaatst")
+      toast.success(t("actionMoveToTrash"))
     } catch (error) {
       console.error("Error deleting customer:", error)
-      toast.error("Fout bij verwijderen klant")
+      toast.error(t("actionDeleteError"))
     } finally {
       setIsLoading(false)
     }
@@ -56,10 +58,10 @@ export function CustomerActions({ customer }: CustomerActionsProps) {
     try {
       await restoreCustomer(customer.id)
       router.refresh()
-      toast.success("Klant hersteld")
+      toast.success(t("actionRestored"))
     } catch (error) {
       console.error("Error restoring customer:", error)
-      toast.error("Fout bij herstellen klant")
+      toast.error(t("actionRestoreError"))
     } finally {
       setIsLoading(false)
     }
@@ -73,10 +75,10 @@ export function CustomerActions({ customer }: CustomerActionsProps) {
         size="icon"
         disabled={isLoading}
         onClick={handleRestore}
-        title="Herstellen uit prullenbak"
+        title={t("actionRestoreTitle")}
       >
         <RotateCcw className="h-4 w-4" />
-        <span className="sr-only">Herstellen</span>
+        <span className="sr-only">{t("actionRestoreLabel")}</span>
       </Button>
     )
   }
@@ -87,20 +89,20 @@ export function CustomerActions({ customer }: CustomerActionsProps) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" disabled={isLoading}>
           <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Acties</span>
+          <span className="sr-only">{t("actionActionsLabel")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
           <Link href={`/klanten/${customer.id}`}>
             <Pencil className="mr-2 h-4 w-4" />
-            Bewerken
+            {t("actionEdit")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href={`/facturen/nieuw?klant=${customer.id}`}>
             <FileText className="mr-2 h-4 w-4" />
-            Nieuwe factuur
+            {t("actionNewInvoice")}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -109,7 +111,7 @@ export function CustomerActions({ customer }: CustomerActionsProps) {
           disabled={isLoading}
         >
           <Trash2 className="mr-2 h-4 w-4" />
-          Verwijderen
+          {t("actionDelete")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -117,9 +119,9 @@ export function CustomerActions({ customer }: CustomerActionsProps) {
     <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Klant verwijderen</DialogTitle>
+          <DialogTitle>{t("actionDeleteTitle")}</DialogTitle>
           <DialogDescription>
-            De klant wordt naar de prullenbak verplaatst en kan daarna worden hersteld via de prullenbakweergave.
+            {t("actionDeleteDescription")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -128,14 +130,14 @@ export function CustomerActions({ customer }: CustomerActionsProps) {
             onClick={() => setIsDeleteDialogOpen(false)}
             disabled={isLoading}
           >
-            Annuleren
+            {t("actionCancel")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={isLoading}
           >
-            Verwijderen
+            {t("actionDelete")}
           </Button>
         </DialogFooter>
       </DialogContent>

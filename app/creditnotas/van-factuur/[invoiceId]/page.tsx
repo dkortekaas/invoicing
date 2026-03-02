@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { CreditNoteForm } from "@/components/creditnotes/credit-note-form"
 import { getCustomersForDropdown } from "@/app/klanten/actions"
 import { getInvoiceForCreditNote } from "../../actions"
+import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
@@ -20,14 +21,12 @@ export default async function VanFactuurPage({ params }: VanFactuurPageProps) {
     notFound()
   }
 
-  // Transform data for form
   const customersForForm = customers.map((c: typeof customers[0]) => ({
     id: c.id,
     name: c.name,
     companyName: c.companyName,
   }))
 
-  // Create default items from invoice items
   const defaultItems = invoice.items.map((item: typeof invoice.items[0]) => ({
     description: item.description,
     quantity: item.quantity,
@@ -43,19 +42,21 @@ export default async function VanFactuurPage({ params }: VanFactuurPageProps) {
     total: invoice.total,
   }
 
+  const creditedAmount = new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(invoice.creditedAmount)
+  const remainingAmount = new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(invoice.remainingAmount)
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">
-          Credit Nota voor {invoice.invoiceNumber}
+          <T ns="creditNotesPage" k="fromInvoiceTitle" vars={{ number: invoice.invoiceNumber }} />
         </h2>
         <p className="text-muted-foreground">
-          Maak een credit nota aan voor factuur {invoice.invoiceNumber}
+          <T ns="creditNotesPage" k="fromInvoiceDescription" vars={{ number: invoice.invoiceNumber }} />
         </p>
         {invoice.creditedAmount > 0 && (
           <p className="text-sm text-amber-600 mt-2">
-            Let op: Er is al {new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(invoice.creditedAmount)} gecrediteerd voor deze factuur.
-            Resterend bedrag: {new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(invoice.remainingAmount)}
+            <T ns="creditNotesPage" k="alreadyCreditedWarning" vars={{ amount: creditedAmount, remaining: remainingAmount }} />
           </p>
         )}
       </div>

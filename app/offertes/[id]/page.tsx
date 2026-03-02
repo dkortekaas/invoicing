@@ -26,22 +26,10 @@ import { SigningStatusBadge } from "@/components/quotes/signing-status-badge"
 import SigningPanelActivate from "@/components/quotes/SigningPanelActivate"
 import SigningPanelActions from "@/components/quotes/SigningPanelActions"
 import { getQuoteById } from "../actions"
+import { T } from "@/components/t"
 
 interface QuoteDetailPageProps {
   params: Promise<{ id: string }>
-}
-
-const SIGNING_EVENT_LABELS: Record<string, string> = {
-  CREATED: "Offerte aangemaakt",
-  SENT: "Ondertekeningsverzoek verstuurd",
-  VIEWED: "Offerte bekeken",
-  SIGNING_STARTED: "Ondertekeningspagina geopend",
-  SIGNED: "Ondertekend",
-  DECLINED: "Afgewezen",
-  EXPIRED: "Verlopen",
-  REMINDER_SENT: "Herinnering verstuurd",
-  INVOICE_CREATED: "Factuur aangemaakt",
-  DOWNLOADED: "PDF gedownload",
 }
 
 const SIGNING_EVENT_ICONS: Record<string, React.ReactNode> = {
@@ -94,33 +82,33 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         {!isSigned && quote.status !== "CONVERTED" && (
           <Button variant="outline" asChild>
             <Link href={`/offertes/${quote.id}/bewerken`}>
-              Bewerken
+              <T ns="quotesPage" k="editButton" />
             </Link>
           </Button>
         )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Hoofd inhoud */}
+        {/* Main content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Offerte details */}
+          {/* Quote details */}
           <Card>
             <CardHeader>
-              <CardTitle>Offerte details</CardTitle>
+              <CardTitle><T ns="quotesPage" k="detailsCardTitle" /></CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Offertenummer</p>
+                  <p className="text-muted-foreground"><T ns="quotesPage" k="quoteNumberLabel" /></p>
                   <p className="font-medium">{quote.quoteNumber}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Offertedatum</p>
+                  <p className="text-muted-foreground"><T ns="quotesPage" k="quoteDateLabel" /></p>
                   <p className="font-medium">{formatDate(quote.quoteDate)}</p>
                 </div>
                 {quote.expiryDate && (
                   <div>
-                    <p className="text-muted-foreground">Geldig tot</p>
+                    <p className="text-muted-foreground"><T ns="quotesPage" k="validUntilLabel" /></p>
                     <p className={`font-medium ${isExpired ? "text-red-600" : ""}`}>
                       {formatDate(quote.expiryDate)}
                     </p>
@@ -128,16 +116,16 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                 )}
                 {quote.reference && (
                   <div>
-                    <p className="text-muted-foreground">Referentie</p>
+                    <p className="text-muted-foreground"><T ns="quotesPage" k="referenceLabel" /></p>
                     <p className="font-medium">{quote.reference}</p>
                   </div>
                 )}
               </div>
 
-              {/* Klant */}
+              {/* Customer */}
               <Separator />
               <div className="text-sm">
-                <p className="text-muted-foreground mb-1">Klant</p>
+                <p className="text-muted-foreground mb-1"><T ns="quotesPage" k="customerLabel" /></p>
                 <p className="font-medium">{quote.customer.companyName || quote.customer.name}</p>
                 {quote.customer.companyName && (
                   <p className="text-muted-foreground">{quote.customer.name}</p>
@@ -149,24 +137,26 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
             </CardContent>
           </Card>
 
-          {/* Regelitems */}
+          {/* Line items */}
           <Card>
             <CardHeader>
-              <CardTitle>Regelitems</CardTitle>
+              <CardTitle><T ns="quotesPage" k="linesCardTitle" /></CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div className="grid grid-cols-12 text-xs font-medium text-muted-foreground uppercase tracking-wide pb-2 border-b">
-                  <span className="col-span-6">Omschrijving</span>
-                  <span className="col-span-2 text-right">Aantal</span>
-                  <span className="col-span-2 text-right">Prijs</span>
-                  <span className="col-span-2 text-right">Totaal</span>
+                  <span className="col-span-6"><T ns="quotesPage" k="colLineDescription" /></span>
+                  <span className="col-span-2 text-right"><T ns="quotesPage" k="colLineQuantity" /></span>
+                  <span className="col-span-2 text-right"><T ns="quotesPage" k="colLinePrice" /></span>
+                  <span className="col-span-2 text-right"><T ns="quotesPage" k="colLineTotal" /></span>
                 </div>
                 {quote.items.map((item) => (
                   <div key={item.id} className="grid grid-cols-12 text-sm py-2">
                     <div className="col-span-6">
                       <p className="font-medium">{item.description}</p>
-                      <p className="text-xs text-muted-foreground">BTW {Number(item.vatRate)}%</p>
+                      <p className="text-xs text-muted-foreground">
+                        <T ns="quotesPage" k="vatRateLabel" vars={{ rate: String(Number(item.vatRate)) }} />
+                      </p>
                     </div>
                     <span className="col-span-2 text-right text-muted-foreground">
                       {Number(item.quantity)} {item.unit}
@@ -183,15 +173,15 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                 <Separator />
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Subtotaal</span>
+                    <span className="text-muted-foreground"><T ns="quotesPage" k="subtotalLabel" /></span>
                     <span>{formatCurrency(subtotal)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">BTW</span>
+                    <span className="text-muted-foreground"><T ns="quotesPage" k="vatLabel" /></span>
                     <span>{formatCurrency(vatAmount)}</span>
                   </div>
                   <div className="flex justify-between font-semibold text-base pt-1">
-                    <span>Totaal</span>
+                    <span><T ns="quotesPage" k="totalLabel" /></span>
                     <span>{formatCurrency(total)}</span>
                   </div>
                 </div>
@@ -199,11 +189,11 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
             </CardContent>
           </Card>
 
-          {/* Notities */}
+          {/* Notes */}
           {quote.notes && (
             <Card>
               <CardHeader>
-                <CardTitle>Notities</CardTitle>
+                <CardTitle><T ns="quotesPage" k="notesCardTitle" /></CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm whitespace-pre-wrap">{quote.notes}</p>
@@ -214,36 +204,36 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Ondertekeningspaneel */}
+          {/* Signing panel */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <FileCheck className="h-4 w-4" />
-                Digitale ondertekening
+                <T ns="quotesPage" k="signingCardTitle" />
               </CardTitle>
               {!quote.signingEnabled && (
                 <CardDescription>
-                  Laat de klant de offerte digitaal accorderen via een beveiligde link.
+                  <T ns="quotesPage" k="signingCardDesc" />
                 </CardDescription>
               )}
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Staat 1: Niet actief */}
+              {/* State 1: Not active */}
               {!quote.signingEnabled && (
                 <SigningPanelActivate quoteId={quote.id} />
               )}
 
-              {/* Staat 2: Wacht op ondertekening (PENDING / VIEWED) */}
+              {/* State 2: Awaiting signing (PENDING / VIEWED) */}
               {quote.signingEnabled && !isSigned && !isDeclined && (
                 <>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Status</span>
+                    <span className="text-sm text-muted-foreground"><T ns="quotesPage" k="signingStatusLabel" /></span>
                     <SigningStatusBadge status={quote.signingStatus} />
                   </div>
 
                   {quote.signingExpiresAt && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Geldig tot</span>
+                      <span className="text-muted-foreground"><T ns="quotesPage" k="signingValidUntilLabel" /></span>
                       <span className={isExpired ? "text-red-600 font-medium" : ""}>
                         {formatDate(quote.signingExpiresAt)}
                       </span>
@@ -252,14 +242,14 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
 
                   {quote.sentAt && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Verzonden op</span>
+                      <span className="text-muted-foreground"><T ns="quotesPage" k="signingSentAtLabel" /></span>
                       <span>{formatDate(quote.sentAt)}</span>
                     </div>
                   )}
 
                   {quote.viewedAt && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Bekeken op</span>
+                      <span className="text-muted-foreground"><T ns="quotesPage" k="signingViewedAtLabel" /></span>
                       <span>{formatDate(quote.viewedAt)}</span>
                     </div>
                   )}
@@ -268,7 +258,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                     <>
                       <Separator />
                       <div>
-                        <p className="text-xs text-muted-foreground mb-1.5">Ondertekeningslink</p>
+                        <p className="text-xs text-muted-foreground mb-1.5"><T ns="quotesPage" k="signingLinkLabel" /></p>
                         <code className="text-xs bg-muted px-2 py-1.5 rounded block break-all mb-2">
                           {quote.signingUrl}
                         </code>
@@ -282,20 +272,20 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                 </>
               )}
 
-              {/* Staat 3: Ondertekend */}
+              {/* State 3: Signed */}
               {isSigned && quote.signedAt && (
                 <>
                   <div className="flex items-center gap-2 text-green-700 bg-green-50 rounded-md p-3">
                     <CheckCircle2 className="h-4 w-4 shrink-0" />
                     <div className="text-sm">
-                      <p className="font-medium">Ondertekend</p>
+                      <p className="font-medium"><T ns="quotesPage" k="signedStateLabel" /></p>
                       <p className="text-green-600">{formatDate(quote.signedAt)}</p>
                     </div>
                   </div>
 
                   {quote.signature && (
                     <div className="text-sm space-y-1 pt-1">
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Ondertekenaar</p>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide"><T ns="quotesPage" k="signerLabel" /></p>
                       <p className="font-medium">{quote.signature.signerName}</p>
                       {quote.signature.signerRole && (
                         <p className="text-muted-foreground text-xs">{quote.signature.signerRole}</p>
@@ -303,7 +293,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                       <p className="text-muted-foreground text-xs">{quote.signature.signerEmail}</p>
                       {quote.signature.remarks && (
                         <div className="mt-2 pt-2 border-t">
-                          <p className="text-xs text-muted-foreground mb-0.5">Opmerkingen klant</p>
+                          <p className="text-xs text-muted-foreground mb-0.5"><T ns="quotesPage" k="customerRemarksLabel" /></p>
                           <p className="text-xs italic">&ldquo;{quote.signature.remarks}&rdquo;</p>
                         </div>
                       )}
@@ -320,7 +310,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                           rel="noopener noreferrer"
                         >
                           <Download className="h-3.5 w-3.5 mr-1.5" />
-                          Getekende PDF downloaden
+                          <T ns="quotesPage" k="downloadSignedPdf" />
                         </a>
                       </Button>
                     </>
@@ -330,7 +320,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                     <>
                       <Separator />
                       <div className="text-sm">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Factuur aangemaakt</p>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1"><T ns="quotesPage" k="invoiceCreatedLabel" /></p>
                         <Link
                           href={`/facturen/${quote.convertedInvoice.id}`}
                           className="font-medium text-primary hover:underline"
@@ -343,20 +333,20 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                 </>
               )}
 
-              {/* Staat 4: Afgewezen */}
+              {/* State 4: Declined */}
               {isDeclined && quote.declinedAt && (
                 <>
                   <div className="flex items-center gap-2 text-red-700 bg-red-50 rounded-md p-3">
                     <XCircle className="h-4 w-4 shrink-0" />
                     <div className="text-sm">
-                      <p className="font-medium">Afgewezen</p>
+                      <p className="font-medium"><T ns="quotesPage" k="declinedStateLabel" /></p>
                       <p className="text-red-600">{formatDate(quote.declinedAt)}</p>
                     </div>
                   </div>
 
                   {quote.signature?.remarks && (
                     <div className="text-sm pt-1">
-                      <p className="text-xs text-muted-foreground mb-0.5">Reden van afwijzing</p>
+                      <p className="text-xs text-muted-foreground mb-0.5"><T ns="quotesPage" k="declineReasonLabel" /></p>
                       <p className="text-xs italic">&ldquo;{quote.signature.remarks}&rdquo;</p>
                     </div>
                   )}
@@ -365,11 +355,11 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
             </CardContent>
           </Card>
 
-          {/* Audittrail / signing events */}
+          {/* Audit trail / signing events */}
           {quote.signingEvents.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Geschiedenis</CardTitle>
+                <CardTitle><T ns="quotesPage" k="historyCardTitle" /></CardTitle>
               </CardHeader>
               <CardContent>
                 <ol className="relative border-l border-muted-foreground/20 ml-2 space-y-4">
@@ -381,7 +371,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
                         )}
                       </div>
                       <p className="text-sm font-medium">
-                        {SIGNING_EVENT_LABELS[event.eventType] ?? event.eventType}
+                        <T ns="quotesPage" k={`signingEvent_${event.eventType}`} />
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {new Intl.DateTimeFormat("nl-NL", {

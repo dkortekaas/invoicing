@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation"
 import { CreditNoteForm } from "@/components/creditnotes/credit-note-form"
 import { getCustomersForDropdown } from "@/app/klanten/actions"
 import { getCreditNote } from "../../actions"
+import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
@@ -20,12 +21,10 @@ export default async function BewerkenCreditNotaPage({ params }: BewerkenPagePro
     notFound()
   }
 
-  // Only allow editing draft credit notes
   if (creditNote.status !== "DRAFT") {
     redirect(`/creditnotas/${id}`)
   }
 
-  // Transform data for form
   const customersForForm = customers.map((c: typeof customers[0]) => ({
     id: c.id,
     name: c.name,
@@ -57,10 +56,10 @@ export default async function BewerkenCreditNotaPage({ params }: BewerkenPagePro
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-          Credit Nota {creditNote.creditNoteNumber} bewerken
+          <T ns="creditNotesPage" k="editCreditNoteTitle" vars={{ number: creditNote.creditNoteNumber }} />
         </h2>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Pas de credit nota aan
+          <T ns="creditNotesPage" k="editCreditNoteDescription" />
         </p>
       </div>
 

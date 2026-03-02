@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { RecurringCard } from './recurring-card';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 interface RecurringListProps {
   recurring: Array<{
@@ -38,6 +39,7 @@ interface RecurringListProps {
 
 export function RecurringList({ recurring }: RecurringListProps) {
   const router = useRouter();
+  const { t } = useTranslations('recurringPage');
   const [_loading, setLoading] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null);
   const [pauseDialogOpen, setPauseDialogOpen] = useState<string | null>(null);
@@ -51,15 +53,15 @@ export function RecurringList({ recurring }: RecurringListProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Pauzeren mislukt');
+        throw new Error(t('pauseError'));
       }
 
       setPauseDialogOpen(null);
       router.refresh();
-      toast.success('Abonnement gepauzeerd');
+      toast.success(t('pauseSuccess'));
     } catch (error) {
       console.error('Pause error:', error);
-      toast.error('Er is een fout opgetreden bij het pauzeren');
+      toast.error(t('pauseError'));
     } finally {
       setLoading(null);
     }
@@ -73,14 +75,14 @@ export function RecurringList({ recurring }: RecurringListProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Hervatten mislukt');
+        throw new Error(t('resumeError'));
       }
 
       router.refresh();
-      toast.success('Abonnement hervat');
+      toast.success(t('resumeSuccess'));
     } catch (error) {
       console.error('Resume error:', error);
-      toast.error('Er is een fout opgetreden bij het hervatten');
+      toast.error(t('resumeError'));
     } finally {
       setLoading(null);
     }
@@ -96,16 +98,16 @@ export function RecurringList({ recurring }: RecurringListProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Genereren mislukt');
+        throw new Error(t('generateError'));
       }
 
       const invoice = await response.json();
       setGenerateDialogOpen(null);
-      toast.success('Factuur gegenereerd');
+      toast.success(t('generateSuccess'));
       router.push(`/facturen/${invoice.id}`);
     } catch (error) {
       console.error('Generate error:', error);
-      toast.error('Er is een fout opgetreden bij het genereren');
+      toast.error(t('generateError'));
     } finally {
       setLoading(null);
     }
@@ -119,15 +121,15 @@ export function RecurringList({ recurring }: RecurringListProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Verwijderen mislukt');
+        throw new Error(t('deleteError'));
       }
 
       setDeleteDialogOpen(null);
       router.refresh();
-      toast.success('Abonnement verwijderd');
+      toast.success(t('deleteSuccess'));
     } catch (error) {
       console.error('Delete error:', error);
-      toast.error('Er is een fout opgetreden bij het verwijderen');
+      toast.error(t('deleteError'));
     } finally {
       setLoading(null);
     }
@@ -150,10 +152,8 @@ export function RecurringList({ recurring }: RecurringListProps) {
       <Dialog open={deleteDialogOpen !== null} onOpenChange={(open) => !open && setDeleteDialogOpen(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Abonnement verwijderen</DialogTitle>
-            <DialogDescription>
-              Weet je zeker dat je dit abonnement wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.
-            </DialogDescription>
+            <DialogTitle>{t('deleteDialogTitle')}</DialogTitle>
+            <DialogDescription>{t('deleteDialogDesc')}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button
@@ -161,14 +161,14 @@ export function RecurringList({ recurring }: RecurringListProps) {
               onClick={() => setDeleteDialogOpen(null)}
               disabled={_loading !== null}
             >
-              Annuleren
+              {t('cancelButton')}
             </Button>
             <Button
               variant="destructive"
               onClick={() => deleteDialogOpen && handleDelete(deleteDialogOpen)}
               disabled={_loading !== null}
             >
-              Verwijderen
+              {t('deleteButton')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -177,10 +177,8 @@ export function RecurringList({ recurring }: RecurringListProps) {
       <Dialog open={pauseDialogOpen !== null} onOpenChange={(open) => !open && setPauseDialogOpen(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Abonnement pauzeren</DialogTitle>
-            <DialogDescription>
-              Weet je zeker dat je dit abonnement wilt pauzeren? Er worden geen nieuwe facturen meer gegenereerd totdat je het abonnement hervat.
-            </DialogDescription>
+            <DialogTitle>{t('pauseDialogTitle')}</DialogTitle>
+            <DialogDescription>{t('pauseDialogDesc')}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button
@@ -188,13 +186,13 @@ export function RecurringList({ recurring }: RecurringListProps) {
               onClick={() => setPauseDialogOpen(null)}
               disabled={_loading !== null}
             >
-              Annuleren
+              {t('cancelButton')}
             </Button>
             <Button
               onClick={() => pauseDialogOpen && handlePause(pauseDialogOpen)}
               disabled={_loading !== null}
             >
-              Pauzeren
+              {t('pauseButton')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -203,10 +201,8 @@ export function RecurringList({ recurring }: RecurringListProps) {
       <Dialog open={generateDialogOpen !== null} onOpenChange={(open) => !open && setGenerateDialogOpen(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Factuur genereren</DialogTitle>
-            <DialogDescription>
-              Weet je zeker dat je nu een factuur wilt genereren? Dit wordt direct aangemaakt en je wordt doorgestuurd naar de factuur.
-            </DialogDescription>
+            <DialogTitle>{t('generateDialogTitle')}</DialogTitle>
+            <DialogDescription>{t('generateDialogDesc')}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button
@@ -214,13 +210,13 @@ export function RecurringList({ recurring }: RecurringListProps) {
               onClick={() => setGenerateDialogOpen(null)}
               disabled={_loading !== null}
             >
-              Annuleren
+              {t('cancelButton')}
             </Button>
             <Button
               onClick={() => generateDialogOpen && handleGenerate(generateDialogOpen)}
               disabled={_loading !== null}
             >
-              Genereren
+              {t('generateButton')}
             </Button>
           </DialogFooter>
         </DialogContent>

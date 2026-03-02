@@ -5,6 +5,7 @@ import { Bell, Check, Copy, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { sendSigningReminder } from "@/app/offertes/actions"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 interface SigningPanelActionsProps {
   quoteId: string
@@ -17,6 +18,7 @@ export default function SigningPanelActions({
 }: SigningPanelActionsProps) {
   const [copied, setCopied] = useState(false)
   const [sendingReminder, setSendingReminder] = useState(false)
+  const { t } = useTranslations("quotesPage")
 
   async function handleCopyLink() {
     try {
@@ -24,7 +26,7 @@ export default function SigningPanelActions({
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      toast.error("Kopiëren mislukt — kopieer de link handmatig")
+      toast.error(t("copyError"))
     }
   }
 
@@ -33,9 +35,9 @@ export default function SigningPanelActions({
     try {
       const result = await sendSigningReminder(quoteId)
       if (result.success) {
-        toast.success("Herinnering verstuurd")
+        toast.success(t("reminderSent"))
       } else {
-        toast.error(result.error ?? "Herinnering kon niet worden verstuurd")
+        toast.error(result.error ?? t("reminderError"))
       }
     } finally {
       setSendingReminder(false)
@@ -55,7 +57,7 @@ export default function SigningPanelActions({
         ) : (
           <Copy className="h-3.5 w-3.5 mr-1.5" />
         )}
-        {copied ? "Gekopieerd!" : "Kopieer link"}
+        {copied ? t("copySuccess") : t("copyLink")}
       </Button>
 
       <Button
@@ -70,7 +72,7 @@ export default function SigningPanelActions({
         ) : (
           <Bell className="h-3.5 w-3.5 mr-1.5" />
         )}
-        Herinnering
+        {t("reminderButton")}
       </Button>
     </div>
   )

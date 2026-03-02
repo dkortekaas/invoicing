@@ -38,6 +38,7 @@ import { EmailSendButton } from "@/components/email/email-send-button"
 import { EmailHistoryList } from "@/components/email/email-history-list"
 import { EmailPreviewDialog } from "@/components/email/email-preview-dialog"
 import { differenceInDays } from "date-fns"
+import { T } from "@/components/t"
 
 interface FactuurDetailPageProps {
   params: Promise<{ id: string }>
@@ -80,7 +81,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-                Factuur {invoice.invoiceNumber}
+                <T ns="invoicesPage" k="title" /> {invoice.invoiceNumber}
               </h2>
               <InvoiceStatusBadge status={invoice.status} />
             </div>
@@ -94,7 +95,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           <Button variant="outline" size="sm" asChild className="sm:size-default">
             <a href={`/api/invoices/${invoice.id}/pdf`} download>
               <Download className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Download PDF</span>
+              <span className="hidden sm:inline"><T ns="invoicesPage" k="downloadPDF" /></span>
             </a>
           </Button>
 
@@ -131,7 +132,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Van
+                  <T ns="invoicesPage" k="from" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -143,12 +144,12 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                   </p>
                   {invoice.user.vatNumber && (
                     <p className="text-sm text-muted-foreground">
-                      BTW: {invoice.user.vatNumber}
+                      <T ns="invoicesPage" k="vatLabel" /> {invoice.user.vatNumber}
                     </p>
                   )}
                   {invoice.user.kvkNumber && (
                     <p className="text-sm text-muted-foreground">
-                      KvK: {invoice.user.kvkNumber}
+                      <T ns="invoicesPage" k="kvkLabel" /> {invoice.user.kvkNumber}
                     </p>
                   )}
                 </div>
@@ -158,7 +159,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Aan
+                  <T ns="invoicesPage" k="to" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -175,7 +176,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                   </p>
                   {invoice.customer.vatNumber && (
                     <p className="text-sm text-muted-foreground">
-                      BTW: {invoice.customer.vatNumber}
+                      <T ns="invoicesPage" k="vatLabel" /> {invoice.customer.vatNumber}
                     </p>
                   )}
                 </div>
@@ -186,7 +187,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           {/* Invoice items */}
           <Card>
             <CardHeader>
-              <CardTitle>Factuurregels</CardTitle>
+              <CardTitle><T ns="invoicesPage" k="invoiceLines" /></CardTitle>
             </CardHeader>
             <CardContent className="-mx-6 px-0 sm:mx-0 sm:px-6">
               {/* Mobile card layout */}
@@ -196,20 +197,20 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                     <p className="font-medium">{item.description}</p>
                     <div className="grid grid-cols-3 gap-2 text-sm">
                       <div>
-                        <span className="text-muted-foreground">Aantal</span>
+                        <span className="text-muted-foreground"><T ns="invoicesPage" k="colQuantity" /></span>
                         <p>{formatCurrency(item.quantity)} {item.unit}</p>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Prijs</span>
+                        <span className="text-muted-foreground"><T ns="invoicesPage" k="colPrice" /></span>
                         <p>{formatCurrency(item.unitPrice)}</p>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">BTW</span>
+                        <span className="text-muted-foreground"><T ns="invoicesPage" k="colVat" /></span>
                         <p>{item.vatRate}%</p>
                       </div>
                     </div>
                     <div className="flex justify-between items-center pt-1 border-t">
-                      <span className="text-sm text-muted-foreground">Totaal</span>
+                      <span className="text-sm text-muted-foreground"><T ns="invoicesPage" k="colTotal" /></span>
                       <span className="font-medium">{formatCurrency(item.subtotal)}</span>
                     </div>
                   </div>
@@ -217,21 +218,23 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                 <Separator />
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Subtotaal</span>
+                    <span className="text-muted-foreground"><T ns="invoicesPage" k="subtotal" /></span>
                     <span>{formatCurrency(invoice.subtotal)}</span>
                   </div>
                   {(Object.entries(vatByRate) as Array<[string, { subtotal: number; vatAmount: number }]>).map(([rate, values]) => (
                     <div key={rate} className="flex justify-between">
-                      <span className="text-muted-foreground">BTW {rate}% over {formatCurrency(values.subtotal)}</span>
+                      <span className="text-muted-foreground">
+                        <T ns="invoicesPage" k="vatLine" vars={{ rate, amount: formatCurrency(values.subtotal) }} />
+                      </span>
                       <span>{formatCurrency(values.vatAmount)}</span>
                     </div>
                   ))}
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Totaal BTW</span>
+                    <span className="text-muted-foreground"><T ns="invoicesPage" k="totalVat" /></span>
                     <span>{formatCurrency(invoice.vatAmount)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-base pt-1 border-t">
-                    <span>Totaal</span>
+                    <span><T ns="invoicesPage" k="total" /></span>
                     <span>{formatCurrency(invoice.total)}</span>
                   </div>
                 </div>
@@ -241,11 +244,11 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Omschrijving</TableHead>
-                    <TableHead className="text-right">Aantal</TableHead>
-                    <TableHead className="text-right">Prijs</TableHead>
-                    <TableHead className="text-right">BTW</TableHead>
-                    <TableHead className="text-right">Totaal</TableHead>
+                    <TableHead><T ns="invoicesPage" k="colDescription" /></TableHead>
+                    <TableHead className="text-right"><T ns="invoicesPage" k="colQuantity" /></TableHead>
+                    <TableHead className="text-right"><T ns="invoicesPage" k="colPrice" /></TableHead>
+                    <TableHead className="text-right"><T ns="invoicesPage" k="colVat" /></TableHead>
+                    <TableHead className="text-right"><T ns="invoicesPage" k="colTotal" /></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -269,7 +272,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                 </TableBody>
                 <TableFooter>
                   <TableRow>
-                    <TableCell colSpan={4}>Subtotaal</TableCell>
+                    <TableCell colSpan={4}><T ns="invoicesPage" k="subtotal" /></TableCell>
                     <TableCell className="text-right">
                       {formatCurrency(invoice.subtotal)}
                     </TableCell>
@@ -277,7 +280,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                   {(Object.entries(vatByRate) as Array<[string, { subtotal: number; vatAmount: number }]>).map(([rate, values]) => (
                     <TableRow key={rate}>
                       <TableCell colSpan={4}>
-                        BTW {rate}% over {formatCurrency(values.subtotal)}
+                        <T ns="invoicesPage" k="vatLine" vars={{ rate, amount: formatCurrency(values.subtotal) }} />
                       </TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(values.vatAmount)}
@@ -285,13 +288,13 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell colSpan={4}>Totaal BTW</TableCell>
+                    <TableCell colSpan={4}><T ns="invoicesPage" k="totalVat" /></TableCell>
                     <TableCell className="text-right">
                       {formatCurrency(invoice.vatAmount)}
                     </TableCell>
                   </TableRow>
                   <TableRow className="font-bold">
-                    <TableCell colSpan={4}>Totaal</TableCell>
+                    <TableCell colSpan={4}><T ns="invoicesPage" k="total" /></TableCell>
                     <TableCell className="text-right">
                       {formatCurrency(invoice.total)}
                     </TableCell>
@@ -306,7 +309,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           {invoice.notes && (
             <Card>
               <CardHeader>
-                <CardTitle>Notities</CardTitle>
+                <CardTitle><T ns="invoicesPage" k="sectionNotes" /></CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground whitespace-pre-wrap">{invoice.notes}</p>
@@ -320,34 +323,34 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           {/* Invoice info */}
           <Card>
             <CardHeader>
-              <CardTitle>Factuurgegevens</CardTitle>
+              <CardTitle><T ns="invoicesPage" k="invoiceDetailsCard" /></CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Factuurnummer</span>
+                <span className="text-muted-foreground"><T ns="invoicesPage" k="labelInvoiceNumber" /></span>
                 <span className="font-medium">{invoice.invoiceNumber}</span>
               </div>
               <Separator />
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Factuurdatum</span>
+                <span className="text-muted-foreground"><T ns="invoicesPage" k="labelInvoiceDate" /></span>
                 <span>{formatDate(invoice.invoiceDate)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Vervaldatum</span>
+                <span className="text-muted-foreground"><T ns="invoicesPage" k="labelDueDate" /></span>
                 <span>{formatDate(invoice.dueDate)}</span>
               </div>
               {invoice.reference && (
                 <>
                   <Separator />
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Referentie</span>
+                    <span className="text-muted-foreground"><T ns="invoicesPage" k="labelReference" /></span>
                     <span>{invoice.reference}</span>
                   </div>
                 </>
               )}
               <Separator />
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Status</span>
+                <span className="text-muted-foreground"><T ns="invoicesPage" k="labelStatus" /></span>
                 <InvoiceStatusBadge status={invoice.status} />
               </div>
             </CardContent>
@@ -357,15 +360,15 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           {invoice.user.iban && (
             <Card>
               <CardHeader>
-                <CardTitle>Betalingsgegevens</CardTitle>
+                <CardTitle><T ns="invoicesPage" k="paymentDetailsCard" /></CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">IBAN</span>
+                  <span className="text-muted-foreground"><T ns="invoicesPage" k="labelIban" /></span>
                   <span className="font-mono text-sm">{invoice.user.iban}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">T.n.v.</span>
+                  <span className="text-muted-foreground"><T ns="invoicesPage" k="labelTnv" /></span>
                   <span>{invoice.user.company?.name ?? ""}</span>
                 </div>
               </CardContent>
@@ -376,7 +379,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           <Card className="bg-gray-50">
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-sm text-muted-foreground">Te betalen</p>
+                <p className="text-sm text-muted-foreground"><T ns="invoicesPage" k="amountDue" /></p>
                 <p className="text-3xl font-bold">
                   {formatCurrency(invoice.total)}
                 </p>
@@ -401,9 +404,9 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           {invoice.customer.email && (
             <Card>
               <CardHeader>
-                <CardTitle>Email acties</CardTitle>
+                <CardTitle><T ns="invoicesPage" k="emailActionsCard" /></CardTitle>
                 <CardDescription>
-                  Verstuur emails naar {invoice.customer.email}
+                  <T ns="invoicesPage" k="emailActionsDesc" vars={{ email: invoice.customer.email }} />
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -423,18 +426,18 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                     </div>
                     {invoice.status === 'SENT' || invoice.status === 'OVERDUE' ? (
                       <div className="space-y-2">
-                        <p className="text-sm font-medium">Herinneringen:</p>
+                        <p className="text-sm font-medium"><T ns="invoicesPage" k="reminders" /></p>
                         <div className="flex flex-wrap gap-2">
                           {(() => {
                             const daysOverdue = differenceInDays(new Date(), invoice.dueDate);
                             const reminderTypes: Array<'friendly' | 'first' | 'second' | 'final'> = [];
-                            
+
                             if (daysOverdue < 0) {
                               reminderTypes.push('friendly');
                             } else {
                               reminderTypes.push('first', 'second', 'final');
                             }
-                            
+
                             return reminderTypes.map((type: 'friendly' | 'first' | 'second' | 'final') => (
                               <div key={type} className="flex gap-2">
                                 <EmailSendButton
@@ -473,9 +476,9 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
           {invoice.emails && invoice.emails.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Email geschiedenis</CardTitle>
+                <CardTitle><T ns="invoicesPage" k="emailHistoryCard" /></CardTitle>
                 <CardDescription>
-                  Overzicht van verzonden emails
+                  <T ns="invoicesPage" k="emailHistoryDesc" />
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -489,17 +492,17 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <div className="space-y-2">
                 <CardTitle className="flex items-center gap-2">
-                  Credit Nota&apos;s
+                  <T ns="invoicesPage" k="creditNotesCard" />
                 </CardTitle>
                 <CardDescription>
-                  Credit nota&apos;s voor deze factuur
+                  <T ns="invoicesPage" k="creditNotesDesc" />
                 </CardDescription>
               </div>
               {invoice.status !== 'DRAFT' && invoice.status !== 'CANCELLED' && (
                 <Button variant="outline" size="sm" asChild>
                   <Link href={`/creditnotas/van-factuur/${invoice.id}`}>
                     <Plus className="mr-2 h-4 w-4" />
-                    Crediteren
+                    <T ns="invoicesPage" k="creditNoteButton" />
                   </Link>
                 </Button>
               )}
@@ -507,7 +510,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
             <CardContent>
               {creditNotes.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Geen credit nota&apos;s voor deze factuur
+                  <T ns="invoicesPage" k="noCreditNotes" />
                 </p>
               ) : (
                 <div className="space-y-3">

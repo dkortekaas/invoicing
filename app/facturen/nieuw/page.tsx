@@ -2,6 +2,7 @@ import { InvoiceForm } from "@/components/invoices/invoice-form"
 import { getCustomersForDropdown } from "@/app/klanten/actions"
 import { getActiveProducts } from "@/app/producten/actions"
 import { getFiscalSettings } from "@/app/instellingen/actions"
+import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
@@ -31,9 +32,9 @@ export default async function NieuweFactuurPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Nieuwe Factuur</h2>
+        <h2 className="text-2xl font-bold tracking-tight"><T ns="invoicesPage" k="newInvoiceTitle" /></h2>
         <p className="text-muted-foreground">
-          Maak een nieuwe factuur aan
+          <T ns="invoicesPage" k="newInvoiceDescription" />
         </p>
       </div>
 

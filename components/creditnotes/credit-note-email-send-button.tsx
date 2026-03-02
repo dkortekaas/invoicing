@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/dialog';
 import { Mail, Send, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTranslations } from '@/components/providers/locale-provider';
+import { T } from '@/components/t';
 
 interface CreditNoteEmailSendButtonProps {
   creditNoteId: string;
@@ -28,6 +30,7 @@ export function CreditNoteEmailSendButton({
   onSuccess,
 }: CreditNoteEmailSendButtonProps) {
   const router = useRouter();
+  const { t } = useTranslations('creditNotesPage');
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +52,7 @@ export function CreditNoteEmailSendButton({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Email verzenden mislukt');
+        throw new Error(data.error || t('emailSendError'));
       }
 
       setSuccess(true);
@@ -62,7 +65,7 @@ export function CreditNoteEmailSendButton({
         }
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Er is een fout opgetreden');
+      setError(err instanceof Error ? err.message : t('emailSendError'));
     } finally {
       setLoading(false);
     }
@@ -72,15 +75,15 @@ export function CreditNoteEmailSendButton({
     <>
       <Button onClick={() => setOpen(true)} disabled={loading} variant="outline">
         <Mail className="mr-2 h-4 w-4" />
-        Credit nota versturen
+        {t('emailSendButton')}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Credit nota versturen</DialogTitle>
+            <DialogTitle>{t('emailDialogTitle')}</DialogTitle>
             <DialogDescription>
-              Email wordt verzonden naar {customerEmail}
+              <T ns="creditNotesPage" k="emailDialogDesc" vars={{ email: customerEmail }} />
             </DialogDescription>
           </DialogHeader>
 
@@ -96,30 +99,30 @@ export function CreditNoteEmailSendButton({
               <Alert className="mb-4 border-green-500 bg-green-50">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-800">
-                  Credit nota succesvol verzonden!
+                  {t('emailSuccess')}
                 </AlertDescription>
               </Alert>
             )}
 
             {!success && (
               <div className="space-y-2 text-sm">
-                <p><strong>Aan:</strong> {customerEmail}</p>
-                <p><strong>Credit nota:</strong> {creditNoteNumber}</p>
+                <p><strong>{t('emailToLabel')}:</strong> {customerEmail}</p>
+                <p><strong>{t('emailCreditNoteLabel')}:</strong> {creditNoteNumber}</p>
               </div>
             )}
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>
-              Annuleren
+              {t('cancelButton')}
             </Button>
             <Button onClick={handleSend} disabled={loading || success}>
               {loading ? (
-                <>Verzenden...</>
+                <>{t('emailSending')}</>
               ) : (
                 <>
                   <Send className="mr-2 h-4 w-4" />
-                  Verstuur
+                  {t('emailSendAction')}
                 </>
               )}
             </Button>

@@ -22,6 +22,7 @@ import { formatCurrency, formatDate } from "@/lib/utils"
 import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge"
 import { SigningStatusBadge } from "@/components/quotes/signing-status-badge"
 import { getQuotes, getQuoteStatusCounts } from "./actions"
+import { T } from "@/components/t"
 
 const PAGE_SIZE = 50
 
@@ -63,15 +64,15 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Offertes</h2>
+          <h2 className="text-2xl font-bold tracking-tight"><T ns="quotesPage" k="title" /></h2>
           <p className="text-muted-foreground">
-            Beheer en verstuur je offertes met digitale ondertekening
+            <T ns="quotesPage" k="description" />
           </p>
         </div>
         <Button asChild>
           <Link href="/offertes/nieuw">
             <Plus className="mr-2 h-4 w-4" />
-            Nieuwe Offerte
+            <T ns="quotesPage" k="newQuote" />
           </Link>
         </Button>
       </div>
@@ -81,14 +82,15 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
         <CardHeader className="pb-3">
           <StatusFilterTabs
             currentStatus={status}
+            namespace="quotesPage"
             options={[
-              { value: "ALL", label: "Alle", count: statusCounts.ALL, href: "/offertes" },
-              { value: "DRAFT", label: "Concept", count: statusCounts.DRAFT, href: "/offertes?status=DRAFT" },
-              { value: "SENT", label: "Verzonden", count: statusCounts.SENT, href: "/offertes?status=SENT" },
-              { value: "VIEWED", label: "Bekeken", count: statusCounts.VIEWED, href: "/offertes?status=VIEWED" },
-              { value: "SIGNED", label: "Ondertekend", count: statusCounts.SIGNED, href: "/offertes?status=SIGNED" },
-              { value: "DECLINED", label: "Afgewezen", count: statusCounts.DECLINED, href: "/offertes?status=DECLINED" },
-              { value: "EXPIRED", label: "Verlopen", count: statusCounts.EXPIRED, href: "/offertes?status=EXPIRED" },
+              { value: "ALL", labelKey: "statusAll", count: statusCounts.ALL, href: "/offertes" },
+              { value: "DRAFT", labelKey: "statusDraft", count: statusCounts.DRAFT, href: "/offertes?status=DRAFT" },
+              { value: "SENT", labelKey: "statusSent", count: statusCounts.SENT, href: "/offertes?status=SENT" },
+              { value: "VIEWED", labelKey: "statusViewed", count: statusCounts.VIEWED, href: "/offertes?status=VIEWED" },
+              { value: "SIGNED", labelKey: "statusSigned", count: statusCounts.SIGNED, href: "/offertes?status=SIGNED" },
+              { value: "DECLINED", labelKey: "statusDeclined", count: statusCounts.DECLINED, href: "/offertes?status=DECLINED" },
+              { value: "EXPIRED", labelKey: "statusExpired", count: statusCounts.EXPIRED, href: "/offertes?status=EXPIRED" },
             ]}
           />
         </CardHeader>
@@ -96,13 +98,13 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Offerte</TableHead>
-                <TableHead>Klant</TableHead>
-                <TableHead>Datum</TableHead>
-                <TableHead>Verloopdatum</TableHead>
-                <TableHead className="text-right">Bedrag</TableHead>
-                <TableHead className="text-center">Status</TableHead>
-                <TableHead className="text-center">Ondertekening</TableHead>
+                <TableHead><T ns="quotesPage" k="colQuote" /></TableHead>
+                <TableHead><T ns="quotesPage" k="colCustomer" /></TableHead>
+                <TableHead><T ns="quotesPage" k="colDate" /></TableHead>
+                <TableHead><T ns="quotesPage" k="colExpiry" /></TableHead>
+                <TableHead className="text-right"><T ns="quotesPage" k="colAmount" /></TableHead>
+                <TableHead className="text-center"><T ns="quotesPage" k="colStatus" /></TableHead>
+                <TableHead className="text-center"><T ns="quotesPage" k="colSigning" /></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -111,17 +113,17 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
                   <TableCell colSpan={7} className="text-center py-8">
                     {search ? (
                       <p className="text-muted-foreground">
-                        Geen offertes gevonden voor &ldquo;{search}&rdquo;.
+                        <T ns="quotesPage" k="noResults" />
                       </p>
                     ) : (
                       <>
                         <p className="text-muted-foreground">
-                          Nog geen offertes. Maak je eerste offerte!
+                          <T ns="quotesPage" k="noQuotes" />
                         </p>
                         <Button asChild className="mt-4">
                           <Link href="/offertes/nieuw">
                             <Plus className="mr-2 h-4 w-4" />
-                            Nieuwe Offerte
+                            <T ns="quotesPage" k="newQuote" />
                           </Link>
                         </Button>
                       </>
@@ -169,7 +171,7 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
                       ) : (
                         <span className="text-muted-foreground text-sm flex items-center justify-center gap-1">
                           <FileSignature className="h-3 w-3" />
-                          Uit
+                          <T ns="quotesPage" k="signingDisabled" />
                         </span>
                       )}
                     </TableCell>
@@ -179,11 +181,11 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
             </TableBody>
           </Table>
 
-          {/* Paginering */}
+          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-4">
               <p className="text-sm text-muted-foreground">
-                {totalItems} offerte{totalItems !== 1 ? "s" : ""} totaal
+                <T ns="quotesPage" k="paginationTotal" vars={{ count: String(totalItems) }} />
               </p>
               <div className="flex gap-2">
                 {currentPage > 1 && (
@@ -191,19 +193,19 @@ export default async function OffertesPage({ searchParams }: OffortesPageProps) 
                     <Link
                       href={`/offertes?page=${currentPage - 1}${status !== "ALL" ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
                     >
-                      Vorige
+                      <T ns="quotesPage" k="paginationPrev" />
                     </Link>
                   </Button>
                 )}
                 <span className="flex items-center text-sm text-muted-foreground px-2">
-                  Pagina {currentPage} van {totalPages}
+                  <T ns="quotesPage" k="paginationPage" vars={{ current: String(currentPage), total: String(totalPages) }} />
                 </span>
                 {currentPage < totalPages && (
                   <Button variant="outline" size="sm" asChild>
                     <Link
                       href={`/offertes?page=${currentPage + 1}${status !== "ALL" ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
                     >
-                      Volgende
+                      <T ns="quotesPage" k="paginationNext" />
                     </Link>
                   </Button>
                 )}

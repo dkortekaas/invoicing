@@ -4,6 +4,7 @@ import { getActiveProducts } from "@/app/producten/actions"
 import { getFiscalSettings } from "@/app/instellingen/actions"
 import { db } from "@/lib/db"
 import { getCurrentUserId } from "@/lib/server-utils"
+import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
@@ -38,8 +39,8 @@ export default async function NieuweOffertePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Nieuwe Offerte</h2>
-        <p className="text-muted-foreground">Maak een nieuwe offerte aan</p>
+        <h2 className="text-2xl font-bold tracking-tight"><T ns="quotesPage" k="newQuoteTitle" /></h2>
+        <p className="text-muted-foreground"><T ns="quotesPage" k="newQuoteDescription" /></p>
       </div>
 
       <QuoteForm

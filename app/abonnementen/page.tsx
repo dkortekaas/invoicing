@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Plus, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { calculateMRR } from '@/lib/recurring/calculations';
+import { T } from '@/components/t';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AbonnementenPage() {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     return null;
   }
@@ -34,13 +35,13 @@ export default async function AbonnementenPage() {
     },
   });
 
-  // Bereken stats
+  // Calculate stats
   const activeRecurring = recurring.filter(r => r.status === 'ACTIVE');
-  
+
   let totalMRR = 0;
   activeRecurring.forEach(r => {
     const total = r.items.reduce(
-      (sum, item) => sum + Number(item.quantity) * Number(item.unitPrice),
+      (sum: number, item) => sum + Number(item.quantity) * Number(item.unitPrice),
       0
     );
     totalMRR += calculateMRR(total, r.frequency, r.interval);
@@ -57,7 +58,7 @@ export default async function AbonnementenPage() {
   };
 
   // Transform data for RecurringList component
-  const transformRecurring = (r: typeof recurring[0]) => ({
+  const transformRecurring = (r: (typeof recurring)[0]) => ({
     ...r,
     items: r.items.map(item => ({
       quantity: Number(item.quantity),
@@ -75,16 +76,16 @@ export default async function AbonnementenPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Abonnementen</h1>
+          <h1 className="text-3xl font-bold"><T ns="recurringPage" k="title" /></h1>
           <p className="text-muted-foreground">
-            Beheer terugkerende facturen en retainers
+            <T ns="recurringPage" k="description" />
           </p>
         </div>
 
         <Button asChild>
           <Link href="/abonnementen/nieuw">
             <Plus className="mr-2 h-4 w-4" />
-            Nieuw abonnement
+            <T ns="recurringPage" k="newRecurring" />
           </Link>
         </Button>
       </div>
@@ -94,7 +95,7 @@ export default async function AbonnementenPage() {
       <div className="space-y-6">
         {grouped.active.length > 0 && (
           <div>
-            <h2 className="text-xl font-semibold mb-4">Actief</h2>
+            <h2 className="text-xl font-semibold mb-4"><T ns="recurringPage" k="statusActive" /></h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <RecurringList recurring={grouped.active} />
             </div>
@@ -103,7 +104,7 @@ export default async function AbonnementenPage() {
 
         {grouped.paused.length > 0 && (
           <div>
-            <h2 className="text-xl font-semibold mb-4">Gepauzeerd</h2>
+            <h2 className="text-xl font-semibold mb-4"><T ns="recurringPage" k="statusPaused" /></h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <RecurringList recurring={grouped.paused} />
             </div>
@@ -112,7 +113,7 @@ export default async function AbonnementenPage() {
 
         {grouped.ended.length > 0 && (
           <div>
-            <h2 className="text-xl font-semibold mb-4">Afgelopen</h2>
+            <h2 className="text-xl font-semibold mb-4"><T ns="recurringPage" k="statusEnded" /></h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <RecurringList recurring={grouped.ended} />
             </div>
@@ -122,14 +123,14 @@ export default async function AbonnementenPage() {
         {recurring.length === 0 && (
           <div className="text-center py-12">
             <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-lg font-medium mb-2">Geen abonnementen</h3>
+            <h3 className="text-lg font-medium mb-2"><T ns="recurringPage" k="noRecurring" /></h3>
             <p className="text-muted-foreground mb-4">
-              Maak je eerste terugkerende factuur aan
+              <T ns="recurringPage" k="noRecurringDescription" />
             </p>
             <Button asChild>
               <Link href="/abonnementen/nieuw">
                 <Plus className="mr-2 h-4 w-4" />
-                Nieuw abonnement
+                <T ns="recurringPage" k="newRecurring" />
               </Link>
             </Button>
           </div>

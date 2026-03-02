@@ -23,6 +23,21 @@ import {
 import { formatFrequency, calculateMRR } from '@/lib/recurring/calculations';
 import { RecurringFrequency } from '@prisma/client';
 import Link from 'next/link';
+import { useTranslations } from '@/components/providers/locale-provider';
+
+const STATUS_VARIANT_MAP: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
+  ACTIVE: 'default',
+  PAUSED: 'secondary',
+  ENDED: 'outline',
+  CANCELLED: 'destructive',
+};
+
+const STATUS_KEY_MAP: Record<string, string> = {
+  ACTIVE: 'statusActive',
+  PAUSED: 'statusPaused',
+  ENDED: 'statusEnded',
+  CANCELLED: 'statusCancelled',
+};
 
 interface RecurringCardProps {
   recurring: {
@@ -50,13 +65,6 @@ interface RecurringCardProps {
   onGenerate?: (id: string) => void;
 }
 
-const STATUS_CONFIG = {
-  ACTIVE: { label: 'Actief', variant: 'default' as const },
-  PAUSED: { label: 'Gepauzeerd', variant: 'secondary' as const },
-  ENDED: { label: 'Afgelopen', variant: 'outline' as const },
-  CANCELLED: { label: 'Geannuleerd', variant: 'destructive' as const },
-};
-
 export function RecurringCard({
   recurring,
   onPause,
@@ -64,14 +72,15 @@ export function RecurringCard({
   onDelete,
   onGenerate,
 }: RecurringCardProps) {
+  const { t } = useTranslations('recurringPage');
+
   const total = recurring.items.reduce(
     (sum, item) => sum + Number(item.quantity) * Number(item.unitPrice),
     0
   );
 
   const mrr = calculateMRR(total, recurring.frequency as RecurringFrequency, recurring.interval);
-
-  const statusConfig = STATUS_CONFIG[recurring.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.ACTIVE;
+  const statusVariant = STATUS_VARIANT_MAP[recurring.status] ?? 'default';
 
   return (
     <Card className="p-6">
@@ -79,7 +88,9 @@ export function RecurringCard({
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <h3 className="font-semibold text-lg">{recurring.name}</h3>
-            <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
+            <Badge variant={statusVariant}>
+              {t(STATUS_KEY_MAP[recurring.status] ?? 'statusActive')}
+            </Badge>
           </div>
           <p className="text-sm text-muted-foreground">{recurring.customer.name}</p>
           {recurring.description && (
@@ -99,28 +110,28 @@ export function RecurringCard({
             <DropdownMenuItem asChild>
               <Link href={`/abonnementen/${recurring.id}`}>
                 <Edit className="mr-2 h-4 w-4" />
-                Bewerken
+                {t('actionEdit')}
               </Link>
             </DropdownMenuItem>
             
             {recurring.status === 'ACTIVE' && onGenerate && (
               <DropdownMenuItem onClick={() => onGenerate(recurring.id)}>
                 <FileText className="mr-2 h-4 w-4" />
-                Nu genereren
+                {t('actionGenerateNow')}
               </DropdownMenuItem>
             )}
 
             {recurring.status === 'ACTIVE' && onPause && (
               <DropdownMenuItem onClick={() => onPause(recurring.id)}>
                 <Pause className="mr-2 h-4 w-4" />
-                Pauzeren
+                {t('actionPause')}
               </DropdownMenuItem>
             )}
 
             {recurring.status === 'PAUSED' && onResume && (
               <DropdownMenuItem onClick={() => onResume(recurring.id)}>
                 <Play className="mr-2 h-4 w-4" />
-                Hervatten
+                {t('actionResume')}
               </DropdownMenuItem>
             )}
 
@@ -130,7 +141,7 @@ export function RecurringCard({
                 className="text-red-600"
               >
                 <Trash className="mr-2 h-4 w-4" />
-                Verwijderen
+                {t('actionDelete')}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -139,14 +150,14 @@ export function RecurringCard({
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         <div>
-          <div className="text-sm text-muted-foreground">Frequentie</div>
+          <div className="text-sm text-muted-foreground">{t('frequencyLabel')}</div>
           <div className="font-medium">
             {formatFrequency(recurring.frequency as RecurringFrequency, recurring.interval)}
           </div>
         </div>
 
         <div>
-          <div className="text-sm text-muted-foreground">Bedrag</div>
+          <div className="text-sm text-muted-foreground">{t('amountLabel')}</div>
           <div className="font-medium">
             {new Intl.NumberFormat('nl-NL', {
               style: 'currency',
@@ -156,7 +167,7 @@ export function RecurringCard({
         </div>
 
         <div>
-          <div className="text-sm text-muted-foreground">MRR</div>
+          <div className="text-sm text-muted-foreground">{t('mrrLabel')}</div>
           <div className="font-medium">
             {new Intl.NumberFormat('nl-NL', {
               style: 'currency',
@@ -166,7 +177,7 @@ export function RecurringCard({
         </div>
 
         <div>
-          <div className="text-sm text-muted-foreground">Facturen</div>
+          <div className="text-sm text-muted-foreground">{t('invoicesCount')}</div>
           <div className="font-medium">{recurring._count.invoices}</div>
         </div>
       </div>
@@ -175,7 +186,7 @@ export function RecurringCard({
         <div className="flex items-center gap-2 text-sm text-muted-foreground pt-4 border-t">
           <Calendar className="h-4 w-4" />
           <span>
-            Volgende factuur:{' '}
+            {t('nextInvoicePrefix')}{' '}
             <span className="font-medium text-foreground">
               {format(new Date(recurring.nextDate), 'dd MMM yyyy', { locale: nl })}
             </span>

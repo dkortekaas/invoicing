@@ -17,6 +17,7 @@ import { YearFilterSelect } from "@/components/year-filter-select"
 import { Pagination } from "@/components/ui/pagination"
 import { getCurrentUserId } from "@/lib/server-utils"
 import { db } from "@/lib/db"
+import { T } from "@/components/t"
 
 const PAGE_SIZE = 50
 
@@ -87,16 +88,16 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Facturen</h2>
+          <h2 className="text-2xl font-bold tracking-tight"><T ns="invoicesPage" k="title" /></h2>
           <p className="text-muted-foreground">
-            Beheer en verstuur je facturen
+            <T ns="invoicesPage" k="description" />
           </p>
         </div>
         <div className="flex gap-2">
           {!showDeleted && <ExportButton entityType="INVOICES" totalCount={statusCounts.ALL} />}
           {showDeleted ? (
             <Button variant="outline" asChild>
-              <Link href="/facturen">Terug naar facturen</Link>
+              <Link href="/facturen"><T ns="invoicesPage" k="backToInvoices" /></Link>
             </Button>
           ) : (
             <>
@@ -104,14 +105,14 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
                 <Button variant="outline" asChild>
                   <Link href="/facturen?deleted=true">
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Prullenbak ({deletedCount})
+                    <T ns="invoicesPage" k="trash" /> ({deletedCount})
                   </Link>
                 </Button>
               )}
               <Button asChild>
                 <Link href="/facturen/nieuw">
                   <Plus className="mr-2 h-4 w-4" />
-                  Nieuwe Factuur
+                  <T ns="invoicesPage" k="newInvoice" />
                 </Link>
               </Button>
             </>
@@ -125,12 +126,13 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <StatusFilterTabs
               currentStatus={status}
+              namespace="invoicesPage"
               options={[
-                { value: "ALL", label: "Alle", count: statusCounts.ALL, href: "/facturen" },
-                { value: "DRAFT", label: "Concept", count: statusCounts.DRAFT, href: "/facturen?status=DRAFT" },
-                { value: "SENT", label: "Verzonden", count: statusCounts.SENT, href: "/facturen?status=SENT" },
-                { value: "PAID", label: "Betaald", count: statusCounts.PAID, href: "/facturen?status=PAID" },
-                { value: "OVERDUE", label: "Achterstallig", count: statusCounts.OVERDUE, href: "/facturen?status=OVERDUE" },
+                { value: "ALL", labelKey: "statusAll", count: statusCounts.ALL, href: "/facturen" },
+                { value: "DRAFT", labelKey: "statusDraft", count: statusCounts.DRAFT, href: "/facturen?status=DRAFT" },
+                { value: "SENT", labelKey: "statusSent", count: statusCounts.SENT, href: "/facturen?status=SENT" },
+                { value: "PAID", labelKey: "statusPaid", count: statusCounts.PAID, href: "/facturen?status=PAID" },
+                { value: "OVERDUE", labelKey: "statusOverdue", count: statusCounts.OVERDUE, href: "/facturen?status=OVERDUE" },
               ]}
             />
 
@@ -148,13 +150,7 @@ export default async function FacturenPage({ searchParams }: FacturenPageProps) 
             invoices={invoiceRows}
             hasAccountingConnections={hasAccountingConnections}
             showDeleted={showDeleted}
-            emptyMessage={
-              showDeleted
-                ? "De prullenbak is leeg."
-                : search
-                ? `Geen facturen gevonden voor "${search}".`
-                : "Nog geen facturen. Maak je eerste factuur!"
-            }
+            searchQuery={search}
           />
           <Pagination
             totalItems={totalItems}

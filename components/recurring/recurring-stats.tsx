@@ -2,6 +2,7 @@
 
 import { Card } from '@/components/ui/card';
 import { TrendingUp, Calendar, DollarSign, Users } from 'lucide-react';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 interface RecurringStatsProps {
   stats: {
@@ -13,6 +14,7 @@ interface RecurringStatsProps {
 }
 
 export function RecurringStats({ stats }: RecurringStatsProps) {
+  const { t } = useTranslations('recurringPage');
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('nl-NL', {
       style: 'currency',
@@ -30,7 +32,7 @@ export function RecurringStats({ stats }: RecurringStatsProps) {
             <TrendingUp className="h-6 w-6 text-blue-600" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">MRR</p>
+            <p className="text-sm text-muted-foreground">{t('mrrLabel')}</p>
             <p className="text-2xl font-bold">{formatCurrency(stats.totalMRR)}</p>
           </div>
         </div>
@@ -42,7 +44,7 @@ export function RecurringStats({ stats }: RecurringStatsProps) {
             <DollarSign className="h-6 w-6 text-green-600" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">ARR</p>
+            <p className="text-sm text-muted-foreground">{t('arrLabel')}</p>
             <p className="text-2xl font-bold">{formatCurrency(stats.totalARR)}</p>
           </div>
         </div>
@@ -54,7 +56,7 @@ export function RecurringStats({ stats }: RecurringStatsProps) {
             <Calendar className="h-6 w-6 text-purple-600" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Actieve abonnementen</p>
+            <p className="text-sm text-muted-foreground">{t('statsActiveSubscriptions')}</p>
             <p className="text-2xl font-bold">{stats.activeSubscriptions}</p>
           </div>
         </div>
@@ -66,7 +68,7 @@ export function RecurringStats({ stats }: RecurringStatsProps) {
             <Users className="h-6 w-6 text-orange-600" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Klanten</p>
+            <p className="text-sm text-muted-foreground">{t('statsCustomers')}</p>
             <p className="text-2xl font-bold">{stats.totalCustomers}</p>
           </div>
         </div>

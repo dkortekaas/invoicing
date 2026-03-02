@@ -10,6 +10,7 @@ import { ArrowLeft, FileText, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { formatFrequency, calculateMRR } from '@/lib/recurring/calculations';
+import { T } from '@/components/t';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,9 +18,23 @@ interface AbonnementDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
+const STATUS_KEY_MAP: Record<string, string> = {
+  ACTIVE: 'statusActive',
+  PAUSED: 'statusPaused',
+  ENDED: 'statusEnded',
+  CANCELLED: 'statusCancelled',
+};
+
+const STATUS_VARIANT_MAP: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
+  ACTIVE: 'default',
+  PAUSED: 'secondary',
+  ENDED: 'outline',
+  CANCELLED: 'destructive',
+};
+
 export default async function AbonnementDetailPage({ params }: AbonnementDetailPageProps) {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     redirect('/login');
   }
@@ -58,20 +73,12 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
   });
 
   const total = recurring.items.reduce(
-    (sum, item) => sum + Number(item.quantity) * Number(item.unitPrice),
+    (sum: number, item) => sum + Number(item.quantity) * Number(item.unitPrice),
     0
   );
 
   const mrr = calculateMRR(total, recurring.frequency, recurring.interval);
-
-  const STATUS_CONFIG = {
-    ACTIVE: { label: 'Actief', variant: 'default' as const },
-    PAUSED: { label: 'Gepauzeerd', variant: 'secondary' as const },
-    ENDED: { label: 'Afgelopen', variant: 'outline' as const },
-    CANCELLED: { label: 'Geannuleerd', variant: 'destructive' as const },
-  };
-
-  const statusConfig = STATUS_CONFIG[recurring.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.ACTIVE;
+  const statusVariant = STATUS_VARIANT_MAP[recurring.status] ?? 'default';
 
   return (
     <div className="space-y-6">
@@ -87,13 +94,17 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
             <p className="text-muted-foreground">{recurring.customer.name}</p>
           </div>
         </div>
-        <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
+        <Badge variant={statusVariant}>
+          <T ns="recurringPage" k={STATUS_KEY_MAP[recurring.status] ?? 'statusActive'} />
+        </Badge>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Details</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              <T ns="recurringPage" k="detailsSectionTitle" />
+            </h2>
             <RecurringForm
               customers={customers}
               initialData={{
@@ -111,7 +122,7 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
                 reference: recurring.reference || undefined,
                 notes: recurring.notes || undefined,
                 currencyCode: recurring.currencyCode || 'EUR',
-                items: recurring.items.map(item => ({
+                items: recurring.items.map((item) => ({
                   description: item.description,
                   quantity: Number(item.quantity),
                   unitPrice: Number(item.unitPrice),
@@ -124,16 +135,22 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
 
         <div className="space-y-6">
           <Card className="p-6">
-            <h3 className="font-semibold mb-4">Overzicht</h3>
+            <h3 className="font-semibold mb-4">
+              <T ns="recurringPage" k="overviewSectionTitle" />
+            </h3>
             <div className="space-y-4">
               <div>
-                <div className="text-sm text-muted-foreground">Frequentie</div>
+                <div className="text-sm text-muted-foreground">
+                  <T ns="recurringPage" k="frequencyLabel" />
+                </div>
                 <div className="font-medium">
                   {formatFrequency(recurring.frequency, recurring.interval)}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">Bedrag</div>
+                <div className="text-sm text-muted-foreground">
+                  <T ns="recurringPage" k="amountLabel" />
+                </div>
                 <div className="font-medium">
                   {new Intl.NumberFormat('nl-NL', {
                     style: 'currency',
@@ -142,7 +159,9 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
                 </div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">MRR</div>
+                <div className="text-sm text-muted-foreground">
+                  <T ns="recurringPage" k="mrrLabel" />
+                </div>
                 <div className="font-medium">
                   {new Intl.NumberFormat('nl-NL', {
                     style: 'currency',
@@ -152,7 +171,9 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
               </div>
               {recurring.status === 'ACTIVE' && (
                 <div>
-                  <div className="text-sm text-muted-foreground">Volgende factuur</div>
+                  <div className="text-sm text-muted-foreground">
+                    <T ns="recurringPage" k="nextInvoiceLabel" />
+                  </div>
                   <div className="font-medium flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
                     {format(new Date(recurring.nextDate), 'dd MMM yyyy', { locale: nl })}
@@ -164,9 +185,11 @@ export default async function AbonnementDetailPage({ params }: AbonnementDetailP
 
           {recurring.invoices.length > 0 && (
             <Card className="p-6">
-              <h3 className="font-semibold mb-4">Recente facturen</h3>
+              <h3 className="font-semibold mb-4">
+                <T ns="recurringPage" k="recentInvoicesTitle" />
+              </h3>
               <div className="space-y-2">
-                {recurring.invoices.map((invoice) => (
+                {recurring.invoices.map((invoice: { id: string; invoiceNumber: string; invoiceDate: Date }) => (
                   <Link
                     key={invoice.id}
                     href={`/facturen/${invoice.id}`}

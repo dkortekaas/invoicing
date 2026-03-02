@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Cloud } from 'lucide-react'
+import { useTranslations } from '@/components/providers/locale-provider'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -39,7 +40,9 @@ interface InvoiceTableProps {
   hasAccountingConnections: boolean
   /** True when rendering the trash view — hides checkboxes and bulk bar. */
   showDeleted?: boolean
-  /** Empty-state message */
+  /** Current search query — used to pick the right empty-state message client-side. */
+  searchQuery?: string
+  /** Empty-state message override (deprecated; prefer searchQuery + showDeleted). */
   emptyMessage?: string
 }
 
@@ -49,8 +52,19 @@ export function InvoiceTable({
   invoices,
   hasAccountingConnections,
   showDeleted = false,
-  emptyMessage = 'Geen facturen gevonden.',
+  searchQuery,
+  emptyMessage,
 }: InvoiceTableProps) {
+  const { t } = useTranslations('invoicesPage')
+
+  // Compute empty-state message client-side for instant locale switching.
+  // Falls back to the legacy server-passed emptyMessage if neither flag is provided.
+  const resolvedEmptyMessage: string = (() => {
+    if (showDeleted) return t('trashEmpty')
+    if (searchQuery) return t('noResults').replace('{search}', searchQuery)
+    if (emptyMessage) return emptyMessage
+    return t('noInvoices')
+  })()
   const [selectedIds, setSelectedIds]     = useState<Set<string>>(new Set())
   const [bulkSyncOpen, setBulkSyncOpen]   = useState(false)
 
@@ -93,7 +107,7 @@ export function InvoiceTable({
         <div className="mb-3 flex items-center gap-3 rounded-md border bg-muted/40 px-4 py-2">
           <span className="text-sm text-muted-foreground">
             {selectedIds.size}{' '}
-            {selectedIds.size === 1 ? 'factuur geselecteerd' : 'facturen geselecteerd'}
+            {selectedIds.size === 1 ? t('tableSelectedSingle') : t('tableSelectedPlural')}
           </span>
 
           <div className="ml-auto flex items-center gap-2">
@@ -104,11 +118,11 @@ export function InvoiceTable({
                 onClick={() => setBulkSyncOpen(true)}
               >
                 <Cloud className="mr-2 h-4 w-4" />
-                Sync naar boekhouding
+                {t('tableSyncAccounting')}
               </Button>
             )}
             <Button size="sm" variant="ghost" onClick={clearSelection}>
-              Selectie wissen
+              {t('tableClearSelection')}
             </Button>
           </div>
         </div>
@@ -123,16 +137,16 @@ export function InvoiceTable({
                 <Checkbox
                   checked={allSelected}
                   onCheckedChange={toggleAll}
-                  aria-label="Alles selecteren"
+                  aria-label={t('tableSelectAll')}
                 />
               </TableHead>
             )}
-            <TableHead>Factuur</TableHead>
-            <TableHead>Klant</TableHead>
-            <TableHead>Datum</TableHead>
-            <TableHead>Vervaldatum</TableHead>
-            <TableHead className="text-right">Bedrag</TableHead>
-            <TableHead className="text-center">Status</TableHead>
+            <TableHead>{t('tableColInvoice')}</TableHead>
+            <TableHead>{t('tableColCustomer')}</TableHead>
+            <TableHead>{t('tableColDate')}</TableHead>
+            <TableHead>{t('tableColDueDate')}</TableHead>
+            <TableHead className="text-right">{t('tableColAmount')}</TableHead>
+            <TableHead className="text-center">{t('tableColStatus')}</TableHead>
             <TableHead className="w-[50px]" />
           </TableRow>
         </TableHeader>
@@ -141,7 +155,7 @@ export function InvoiceTable({
           {invoices.length === 0 ? (
             <TableRow>
               <TableCell colSpan={colSpan} className="py-8 text-center text-muted-foreground">
-                {emptyMessage}
+                {resolvedEmptyMessage}
               </TableCell>
             </TableRow>
           ) : (
@@ -155,7 +169,7 @@ export function InvoiceTable({
                     <Checkbox
                       checked={selectedIds.has(invoice.id)}
                       onCheckedChange={() => toggleOne(invoice.id)}
-                      aria-label={`${invoice.invoiceNumber} selecteren`}
+                      aria-label={`${invoice.invoiceNumber} ${t('tableSelectedSingle')}`}
                     />
                   </TableCell>
                 )}

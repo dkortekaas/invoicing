@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 interface YearFilterSelectProps {
   years: number[]
@@ -18,6 +19,7 @@ export function YearFilterSelect({ years, currentYear }: YearFilterSelectProps) 
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const { t } = useTranslations("common")
 
   function onValueChange(value: string) {
     const params = new URLSearchParams(searchParams.toString())
@@ -32,10 +34,10 @@ export function YearFilterSelect({ years, currentYear }: YearFilterSelectProps) 
   return (
     <Select value={currentYear === "all" ? "all" : (currentYear ?? String(new Date().getFullYear()))} onValueChange={onValueChange}>
       <SelectTrigger className="w-[140px]">
-        <SelectValue placeholder="Jaar" />
+        <SelectValue placeholder={t("yearFilterPlaceholder")} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">Alle jaren</SelectItem>
+        <SelectItem value="all">{t("yearFilterAllYears")}</SelectItem>
         {years.map((y) => (
           <SelectItem key={y} value={String(y)}>
             {y}

@@ -10,10 +10,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import type { Messages } from "@/lib/i18n"
+import { useLocale } from "@/components/providers/locale-provider"
 
 interface StatusOption {
   value: string
-  label: string
+  /** Pre-translated label (legacy). */
+  label?: string
+  /** Translation key — used together with the parent's namespace prop. */
+  labelKey?: string
   count: number
   href: string
 }
@@ -21,10 +26,19 @@ interface StatusOption {
 interface StatusFilterTabsProps {
   currentStatus: string
   options: StatusOption[]
+  /** When provided, labels are translated client-side via labelKey (instant on locale change). */
+  namespace?: keyof Messages
 }
 
-export function StatusFilterTabs({ currentStatus, options }: StatusFilterTabsProps) {
+export function StatusFilterTabs({ currentStatus, options, namespace }: StatusFilterTabsProps) {
   const router = useRouter()
+  const { t } = useLocale()
+
+  function getLabel(option: StatusOption): string {
+    if (namespace && option.labelKey) return t(namespace, option.labelKey)
+    return option.label ?? option.value
+  }
+
   const activeOption = options.find((o) => o.value === currentStatus)
 
   return (
@@ -40,13 +54,13 @@ export function StatusFilterTabs({ currentStatus, options }: StatusFilterTabsPro
         >
           <SelectTrigger className="w-full">
             <SelectValue>
-              {activeOption && `${activeOption.label} (${activeOption.count})`}
+              {activeOption && `${getLabel(activeOption)} (${activeOption.count})`}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {options.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label} ({option.count})
+                {getLabel(option)} ({option.count})
               </SelectItem>
             ))}
           </SelectContent>
@@ -60,7 +74,7 @@ export function StatusFilterTabs({ currentStatus, options }: StatusFilterTabsPro
             {options.map((option) => (
               <TabsTrigger key={option.value} value={option.value} asChild>
                 <Link href={option.href}>
-                  {option.label} ({option.count})
+                  {getLabel(option)} ({option.count})
                 </Link>
               </TabsTrigger>
             ))}

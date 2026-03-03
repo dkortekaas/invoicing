@@ -40,8 +40,6 @@ import {
 import { quoteSchema, type QuoteFormData } from "@/lib/validations"
 import {
   formatCurrencyWithCode,
-  VAT_RATES,
-  UNITS,
   roundToTwo,
   cn,
   getCurrencyDecimals,
@@ -50,6 +48,7 @@ import { getCurrencySymbol } from "@/lib/currency/formatting"
 import { createQuote, updateQuote } from "@/app/offertes/actions"
 import { CurrencySelector } from "@/components/currency/currency-selector"
 import { ExchangeRateDisplay } from "@/components/currency/exchange-rate-display"
+import { useTranslatedUtils } from "@/components/providers/locale-provider"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -141,6 +140,7 @@ export function QuoteForm({
   defaultExpiryDays = 30,
 }: QuoteFormProps) {
   const router = useRouter()
+  const { VAT_RATES, UNITS } = useTranslatedUtils()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 

@@ -20,9 +20,11 @@ import { validateSigningAccess } from "@/lib/quotes/signing-guard"
 import { logSigningEvent, markQuoteViewed, markSigningExpired } from "@/lib/quotes/signing-events"
 import { formatDate, formatDateLong, formatCurrencyWithCode } from "@/lib/utils"
 import { db } from "@/lib/db"
+import { getServerT } from "@/lib/i18n"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { T } from "@/components/t"
 import { QuoteSigningEventType } from "@prisma/client"
 import SigningForm from "@/components/quotes/SigningForm"
 import { DEFAULT_AGREEMENT_TEXT } from "@/lib/quotes/signing-submission"
@@ -37,10 +39,11 @@ export async function generateMetadata({
   params: Promise<{ token: string }>
 }): Promise<Metadata> {
   const { token } = await params
+  const t = await getServerT("signPage")
   const result = await validateSigningAccess(token)
-  if (!result.valid) return { title: "Offerte ondertekening" }
+  if (!result.valid) return { title: t("metaTitle") }
   return {
-    title: `Offerte ${result.quote.quoteNumber} — ter goedkeuring`,
+    title: t("metaTitleWithQuote").replace("{quoteNumber}", result.quote.quoteNumber),
     robots: { index: false, follow: false },
   }
 }
@@ -53,6 +56,7 @@ interface Props {
 
 export default async function SignPage({ params }: Props) {
   const { token } = await params
+  const t = await getServerT("signPage")
 
   const headersList = await headers()
   const ip =
@@ -65,7 +69,11 @@ export default async function SignPage({ params }: Props) {
   if (!result.valid) {
     return (
       <SigningLayout>
-        <ErrorCard reason={result.reason} retryAfter={result.httpStatus === 429 ? result.retryAfterSeconds : undefined} />
+        <ErrorCard
+          t={t}
+          reason={result.reason}
+          retryAfter={result.httpStatus === 429 ? result.retryAfterSeconds : undefined}
+        />
       </SigningLayout>
     )
   }
@@ -125,7 +133,7 @@ export default async function SignPage({ params }: Props) {
           <div className="flex justify-center">
             <Image
               src={logoSrc}
-              alt={company?.name ?? "Bedrijfslogo"}
+              alt={company?.name ?? t("logoAlt")}
               width={140}
               height={70}
               className="max-h-[70px] w-auto object-contain"
@@ -148,7 +156,7 @@ export default async function SignPage({ params }: Props) {
           icon={<CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />}
           className="bg-green-50 border-green-200 text-green-800"
         >
-          Ondertekend op {formatDateLong(quote.signedAt!)}
+          <T ns="signPage" k="signedOn" vars={{ date: formatDateLong(quote.signedAt!) }} />
         </StatusBanner>
       )}
       {isDeclined && (
@@ -156,7 +164,7 @@ export default async function SignPage({ params }: Props) {
           icon={<XCircle className="h-5 w-5 shrink-0 text-red-600" />}
           className="bg-red-50 border-red-200 text-red-800"
         >
-          Afgewezen op {formatDateLong(quote.declinedAt!)}
+          <T ns="signPage" k="declinedOn" vars={{ date: formatDateLong(quote.declinedAt!) }} />
         </StatusBanner>
       )}
       {isExpired && (
@@ -164,7 +172,7 @@ export default async function SignPage({ params }: Props) {
           icon={<Clock className="h-5 w-5 shrink-0 text-amber-600" />}
           className="bg-amber-50 border-amber-200 text-amber-800"
         >
-          Verlopen op {formatDateLong(quote.signingExpiresAt!)}
+          <T ns="signPage" k="expiredOn" vars={{ date: formatDateLong(quote.signingExpiresAt!) }} />
         </StatusBanner>
       )}
 
@@ -174,7 +182,7 @@ export default async function SignPage({ params }: Props) {
           <div className="flex items-start justify-between gap-4">
             <div>
               <CardDescription className="text-xs uppercase tracking-wide">
-                Offerte ter goedkeuring
+                <T ns="signPage" k="quoteForApproval" />
               </CardDescription>
               <CardTitle className="mt-1 text-xl">
                 {quote.quoteNumber}
@@ -184,6 +192,7 @@ export default async function SignPage({ params }: Props) {
               </p>
             </div>
             <SigningStatusBadge
+              t={t}
               signingStatus={quote.signingStatus}
               quoteStatus={quote.status}
               isExpired={isExpired}
@@ -193,25 +202,25 @@ export default async function SignPage({ params }: Props) {
         <CardContent>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
             <div>
-              <dt className="text-muted-foreground">Offertedatum</dt>
+              <dt className="text-muted-foreground"><T ns="signPage" k="quoteDate" /></dt>
               <dd className="font-medium mt-0.5">{formatDate(quote.quoteDate)}</dd>
             </div>
             {quote.expiryDate && (
               <div>
-                <dt className="text-muted-foreground">Offerte geldig tot</dt>
+                <dt className="text-muted-foreground"><T ns="signPage" k="quoteValidUntil" /></dt>
                 <dd className="font-medium mt-0.5">{formatDate(quote.expiryDate)}</dd>
               </div>
             )}
             {quote.reference && (
               <div>
-                <dt className="text-muted-foreground">Referentie</dt>
+                <dt className="text-muted-foreground"><T ns="signPage" k="reference" /></dt>
                 <dd className="font-medium mt-0.5">{quote.reference}</dd>
               </div>
             )}
             {quote.signingExpiresAt && !isExpired && !isSigned && !isDeclined && (
               <div>
                 <dt className="text-muted-foreground text-amber-700">
-                  Ondertekenen vóór
+                  <T ns="signPage" k="signBefore" />
                 </dt>
                 <dd className="font-semibold text-amber-700 mt-0.5">
                   {formatDate(quote.signingExpiresAt)}
@@ -228,12 +237,12 @@ export default async function SignPage({ params }: Props) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-muted-foreground">
-                <th className="pb-3 text-left font-medium">Omschrijving</th>
-                <th className="pb-3 text-right font-medium">Aantal</th>
+                <th className="pb-3 text-left font-medium"><T ns="signPage" k="description" /></th>
+                <th className="pb-3 text-right font-medium"><T ns="signPage" k="quantity" /></th>
                 <th className="pb-3 text-right font-medium hidden sm:table-cell">
-                  Prijs
+                  <T ns="signPage" k="price" />
                 </th>
-                <th className="pb-3 text-right font-medium">Totaal</th>
+                <th className="pb-3 text-right font-medium"><T ns="signPage" k="total" /></th>
               </tr>
             </thead>
             <tbody>
@@ -280,7 +289,7 @@ export default async function SignPage({ params }: Props) {
       {quote.notes && (
         <Card>
           <CardContent className="pt-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Opmerkingen</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-2"><T ns="signPage" k="notes" /></h3>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
               {quote.notes}
             </p>
@@ -302,7 +311,7 @@ export default async function SignPage({ params }: Props) {
 
       {/* Footer */}
       <footer className="text-center text-xs text-muted-foreground pb-4">
-        Beveiligd via Declair
+        <T ns="signPage" k="footer" />
       </footer>
     </SigningLayout>
   )
@@ -347,65 +356,61 @@ function StatusBanner({
 }
 
 function SigningStatusBadge({
+  t,
   signingStatus,
   quoteStatus,
   isExpired,
 }: {
+  t: (key: string) => string
   signingStatus: string | null
   quoteStatus: string
   isExpired: boolean
 }) {
   if (signingStatus === "SIGNED")
-    return <Badge className="bg-green-100 text-green-800 border-green-200">Ondertekend</Badge>
+    return <Badge className="bg-green-100 text-green-800 border-green-200">{t("badgeSigned")}</Badge>
   if (signingStatus === "DECLINED")
-    return <Badge variant="destructive">Afgewezen</Badge>
+    return <Badge variant="destructive">{t("badgeDeclined")}</Badge>
   if (isExpired)
-    return <Badge className="bg-amber-100 text-amber-800 border-amber-200">Verlopen</Badge>
+    return <Badge className="bg-amber-100 text-amber-800 border-amber-200">{t("badgeExpired")}</Badge>
   if (signingStatus === "VIEWED" || signingStatus === "PENDING")
-    return <Badge variant="outline">Ter goedkeuring</Badge>
+    return <Badge variant="outline">{t("badgePending")}</Badge>
   return <Badge variant="secondary">{quoteStatus}</Badge>
 }
 
 function ErrorCard({
+  t,
   reason,
   retryAfter,
 }: {
+  t: (key: string) => string
   reason: string
   retryAfter?: number
 }) {
-  const messages: Record<string, { title: string; body: string }> = {
-    rate_limited: {
-      title: "Te veel pogingen",
-      body: retryAfter
-        ? `Probeer het over ${Math.ceil(retryAfter / 60)} minuten opnieuw.`
-        : "Probeer het later opnieuw.",
-    },
-    not_found: {
-      title: "Link onbekend",
-      body: "Deze ondertekeningslink is ongeldig of bestaat niet meer.",
-    },
-    expired: {
-      title: "Link verlopen",
-      body: "De geldigheidsperiode voor ondertekening is verstreken. Neem contact op met de afzender.",
-    },
-    already_signed: {
-      title: "Al ondertekend",
-      body: "Deze offerte is al ondertekend.",
-    },
-    already_declined: {
-      title: "Al afgewezen",
-      body: "Deze offerte is al afgewezen.",
-    },
-    signing_disabled: {
-      title: "Ondertekening niet beschikbaar",
-      body: "Digitale ondertekening is niet ingeschakeld voor deze offerte.",
-    },
+  const getMessage = (): { title: string; body: string } => {
+    switch (reason) {
+      case "rate_limited":
+        return {
+          title: t("errorRateLimited"),
+          body: retryAfter
+            ? t("errorRateLimitedRetry").replace("{minutes}", String(Math.ceil(retryAfter / 60)))
+            : t("errorRateLimitedGeneric"),
+        }
+      case "not_found":
+        return { title: t("errorNotFound"), body: t("errorNotFoundBody") }
+      case "expired":
+        return { title: t("errorExpired"), body: t("errorExpiredBody") }
+      case "already_signed":
+        return { title: t("errorAlreadySigned"), body: t("errorAlreadySignedBody") }
+      case "already_declined":
+        return { title: t("errorAlreadyDeclined"), body: t("errorAlreadyDeclinedBody") }
+      case "signing_disabled":
+        return { title: t("errorSigningDisabled"), body: t("errorSigningDisabledBody") }
+      default:
+        return { title: t("errorGeneric"), body: t("errorGenericBody") }
+    }
   }
 
-  const msg = messages[reason] ?? {
-    title: "Fout",
-    body: "Er is een onbekende fout opgetreden.",
-  }
+  const msg = getMessage()
 
   return (
     <Card>

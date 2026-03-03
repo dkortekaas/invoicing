@@ -10,6 +10,7 @@ import { Loader2, Link as LinkIcon, Copy, Check, RefreshCw, ExternalLink, QrCode
 import { formatDate } from "@/lib/utils"
 import { toast } from "sonner"
 import { PaymentQRCode } from "./payment-qr-code"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 interface PaymentLinkGeneratorProps {
   invoiceId: string
@@ -28,6 +29,7 @@ export function PaymentLinkGenerator({
   mollieEnabled,
   onGenerateLink,
 }: PaymentLinkGeneratorProps) {
+  const { t } = useTranslations('invoicesPage')
   const [isGenerating, setIsGenerating] = useState(false)
   const [token, setToken] = useState<string | null>(currentToken || null)
   const [linkExpiresAt, setLinkExpiresAt] = useState<Date | null>(expiresAt || null)
@@ -45,9 +47,9 @@ export function PaymentLinkGenerator({
       const result = await onGenerateLink(invoiceId)
       setToken(result.token)
       setLinkExpiresAt(result.expiresAt)
-      toast.success("Betaallink aangemaakt")
+      toast.success(t('paymentLinkGeneratorCreated'))
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Fout bij aanmaken betaallink")
+      toast.error(error instanceof Error ? error.message : t('paymentLinkGeneratorCreateError'))
     } finally {
       setIsGenerating(false)
     }
@@ -59,10 +61,10 @@ export function PaymentLinkGenerator({
     try {
       await navigator.clipboard.writeText(paymentUrl)
       setCopied(true)
-      toast.success("Link gekopieerd naar klembord")
+      toast.success(t('paymentLinkGeneratorCopied'))
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      toast.error("Kopiëren mislukt")
+      toast.error(t('paymentLinkGeneratorCopyError'))
     }
   }
 
@@ -72,20 +74,20 @@ export function PaymentLinkGenerator({
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <LinkIcon className="h-5 w-5" />
-            Betaallink
+            {t('paymentLinkGeneratorTitle')}
           </CardTitle>
           <CardDescription>
-            Stel Mollie in om betaallinks te gebruiken
+            {t('paymentLinkGeneratorDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Alert>
             <AlertDescription>
-              Configureer je Mollie API key in{" "}
+              {t('paymentLinkGeneratorAlertDescription')}
               <a href="/instellingen?tab=betalingen" className="underline text-primary">
-                Instellingen → Betalingen
+                {t('paymentLinkGeneratorAlertLink')}
               </a>{" "}
-              om betaallinks te activeren.
+              {t('paymentLinkGeneratorAlertDescription2')}
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -100,20 +102,20 @@ export function PaymentLinkGenerator({
           <div>
             <CardTitle className="text-lg flex items-center gap-2">
               <LinkIcon className="h-5 w-5" />
-              Betaallink
+              {t('paymentLinkGeneratorTitle')}
             </CardTitle>
             <CardDescription>
-              Deel een betaallink zodat klanten direct kunnen betalen
+              {t('paymentLinkGeneratorDescription')}
             </CardDescription>
           </div>
           {token && !isExpired && (
             <Badge variant="outline" className="shrink-0">
-              Geldig t/m {formatDate(linkExpiresAt!)}
+              {t('paymentLinkGeneratorValidUntil').replace('{date}', formatDate(linkExpiresAt!))}
             </Badge>
           )}
           {isExpired && (
             <Badge variant="destructive" className="shrink-0">
-              Verlopen
+              {t('paymentLinkGeneratorExpired')}
             </Badge>
           )}
         </div>
@@ -124,12 +126,12 @@ export function PaymentLinkGenerator({
             {isGenerating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Genereren...
+                {t('paymentLinkGeneratorGenerating')}
               </>
             ) : (
               <>
                 <LinkIcon className="mr-2 h-4 w-4" />
-                Genereer betaallink
+                {t('paymentLinkGeneratorGenerateLink')}
               </>
             )}
           </Button>
@@ -180,7 +182,7 @@ export function PaymentLinkGenerator({
               >
                 <a href={paymentUrl || "#"} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="mr-2 h-4 w-4" />
-                  Open betaalpagina
+                  {t('paymentLinkGeneratorOpenPaymentPage')}
                 </a>
               </Button>
               <Button
@@ -190,7 +192,7 @@ export function PaymentLinkGenerator({
                 disabled={isGenerating}
               >
                 <RefreshCw className={`mr-2 h-4 w-4 ${isGenerating ? "animate-spin" : ""}`} />
-                {isExpired ? "Nieuwe link genereren" : "Link vernieuwen"}
+                {isExpired ? t('paymentLinkGeneratorGenerateNewLink') : t('paymentLinkGeneratorRefreshLink')}
               </Button>
             </div>
           </>

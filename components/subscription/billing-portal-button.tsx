@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Settings, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 export function BillingPortalButton() {
+  const { t } = useTranslations('subscriptionPage');
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
@@ -16,13 +18,13 @@ export function BillingPortalButton() {
       });
 
       const { url } = await response.json();
-      
+
       if (url) {
         window.open(url, "_blank", "noopener,noreferrer");
       }
     } catch (error) {
       console.error('Portal error:', error);
-      toast.error('Er is een fout opgetreden');
+      toast.error(t('errorGeneric'));
     } finally {
       setLoading(false);
     }
@@ -35,7 +37,7 @@ export function BillingPortalButton() {
       ) : (
         <Settings className="mr-2 h-4 w-4" />
       )}
-      Beheer abonnement
+      {t('manageSubscription')}
     </Button>
   );
 }

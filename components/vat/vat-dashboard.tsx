@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Download, TrendingUp, TrendingDown } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 interface Quarter {
   year: number;
@@ -28,6 +29,7 @@ const STATUS_CONFIG = {
 };
 
 export function VATDashboard({ quarters, currentQuarter }: VATDashboardProps) {
+  const { t } = useTranslations('vatPage');
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('nl-NL', {
       style: 'currency',
@@ -44,12 +46,12 @@ export function VATDashboard({ quarters, currentQuarter }: VATDashboardProps) {
 
           return (
             <Card key={`${q.year}-${q.quarter}`}>
-              <CardContent className="p-6">
+              <CardContent className="px-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="font-semibold text-lg">{q.label}</h3>
                     {isCurrent && (
-                      <Badge variant="secondary" className="mt-1">Huidig kwartaal</Badge>
+                      <Badge variant="secondary" className="mt-1">{t('currentQuarter')}</Badge>
                     )}
                   </div>
                   <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
@@ -57,18 +59,18 @@ export function VATDashboard({ quarters, currentQuarter }: VATDashboardProps) {
 
                 <div className="space-y-3">
                   <div>
-                    <div className="text-sm text-muted-foreground">Omzet</div>
+                    <div className="text-sm text-muted-foreground">{t('revenue')}</div>
                     <div className="text-xl font-semibold">{formatCurrency(q.totalRevenue)}</div>
                   </div>
 
                   <div>
-                    <div className="text-sm text-muted-foreground">Kosten</div>
+                    <div className="text-sm text-muted-foreground">{t('expenses')}</div>
                     <div className="text-xl font-semibold">{formatCurrency(q.totalExpenses)}</div>
                   </div>
 
                   <div className="pt-3 border-t">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">BTW saldo</span>
+                      <span className="text-sm text-muted-foreground">{t('vatBalance')}</span>
                       <div className="flex items-center gap-2">
                         {q.vatBalance >= 0 ? (
                           <TrendingDown className="h-4 w-4 text-red-500" />
@@ -81,7 +83,7 @@ export function VATDashboard({ quarters, currentQuarter }: VATDashboardProps) {
                       </div>
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
-                      {q.vatBalance >= 0 ? 'Te betalen' : 'Terug te ontvangen'}
+                      {q.vatBalance >= 0 ? t('toPay') : t('toReceive')}
                     </div>
                   </div>
                 </div>
@@ -89,7 +91,7 @@ export function VATDashboard({ quarters, currentQuarter }: VATDashboardProps) {
                 <div className="mt-4 flex gap-2">
                   <Button variant="outline" size="sm" className="flex-1" asChild>
                     <Link href={`/btw/kwartaal/${q.year}/${q.quarter}`}>
-                      Details
+                      {t('details')}
                     </Link>
                   </Button>
                   <Button variant="ghost" size="sm" asChild>

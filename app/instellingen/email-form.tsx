@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 const emailSettingsSchema = z.object({
   autoSendInvoice: z.boolean(),
@@ -49,6 +50,7 @@ interface EmailSettingsFormProps {
 }
 
 export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
+  const { t } = useTranslations('settingsPage');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,13 +89,13 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Instellingen opslaan mislukt');
+        throw new Error(errorData.error || t('emailFormSaveError'));
       }
 
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Er is een fout opgetreden');
+      setError(err instanceof Error ? err.message : t('emailFormGenericError'));
     } finally {
       setLoading(false);
     }
@@ -112,7 +114,7 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
         <Alert className="border-green-500 bg-green-50">
           <CheckCircle2 className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-800">
-            Instellingen succesvol opgeslagen!
+            {t('emailFormSaveSuccess')}
           </AlertDescription>
         </Alert>
       )}
@@ -120,17 +122,17 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
       {/* Auto-send settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Automatisch verzenden</CardTitle>
+          <CardTitle>{t('emailFormAutoSendTitle')}</CardTitle>
           <CardDescription>
-            Configureer automatische email verzending
+            {t('emailFormAutoSendDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="autoSendInvoice">Automatisch facturen versturen</Label>
+              <Label htmlFor="autoSendInvoice">{t('emailFormAutoSendInvoice')}</Label>
               <p className="text-sm text-muted-foreground">
-                Verstuur automatisch een email wanneer een factuur wordt aangemaakt
+                {t('emailFormAutoSendInvoiceDesc')}
               </p>
             </div>
             <Controller
@@ -150,9 +152,9 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="autoSendReminders">Automatisch herinneringen versturen</Label>
+              <Label htmlFor="autoSendReminders">{t('emailFormAutoSendReminders')}</Label>
               <p className="text-sm text-muted-foreground">
-                Verstuur automatisch herinneringen op basis van het schema hieronder
+                {t('emailFormAutoSendRemindersDesc')}
               </p>
             </div>
             <Controller
@@ -172,9 +174,9 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="autoSendPaymentConfirm">Automatisch betalingsbevestigingen versturen</Label>
+              <Label htmlFor="autoSendPaymentConfirm">{t('emailFormAutoSendPayment')}</Label>
               <p className="text-sm text-muted-foreground">
-                Verstuur automatisch een bevestiging wanneer een factuur wordt betaald
+                {t('emailFormAutoSendPaymentDesc')}
               </p>
             </div>
             <Controller
@@ -195,15 +197,15 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
       {/* Reminder timing */}
       <Card>
         <CardHeader>
-          <CardTitle>Herinnering schema</CardTitle>
+          <CardTitle>{t('emailFormReminderTitle')}</CardTitle>
           <CardDescription>
-            Configureer wanneer herinneringen worden verstuurd
+            {t('emailFormReminderDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="friendlyReminderDays">
-              Vriendelijke herinnering (dagen voor vervaldatum)
+              {t('emailFormFriendlyReminder')}
             </Label>
             <Input
               type="number"
@@ -212,7 +214,7 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
               className="w-32"
             />
             <p className="text-sm text-muted-foreground">
-              Negatief getal: -3 betekent 3 dagen voor vervaldatum
+              {t('emailFormFriendlyReminderHelp')}
             </p>
             {errors.friendlyReminderDays && (
               <p className="text-sm text-red-600">
@@ -225,7 +227,7 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="firstReminderDays">
-              Eerste herinnering (dagen na vervaldatum)
+              {t('emailFormFirstReminder')}
             </Label>
             <Input
               type="number"
@@ -242,7 +244,7 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="secondReminderDays">
-              Tweede herinnering (dagen na vervaldatum)
+              {t('emailFormSecondReminder')}
             </Label>
             <Input
               type="number"
@@ -259,7 +261,7 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="finalReminderDays">
-              Finale herinnering (dagen na vervaldatum)
+              {t('emailFormFinalReminder')}
             </Label>
             <Input
               type="number"
@@ -279,35 +281,35 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
       {/* Email customization */}
       <Card>
         <CardHeader>
-          <CardTitle>Email aanpassingen</CardTitle>
+          <CardTitle>{t('emailFormCustomizationTitle')}</CardTitle>
           <CardDescription>
-            Pas de email templates aan
+            {t('emailFormCustomizationDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="emailSignature">Email handtekening</Label>
+            <Label htmlFor="emailSignature">{t('emailFormSignature')}</Label>
             <Textarea
               id="emailSignature"
               {...register('emailSignature')}
-              placeholder="Met vriendelijke groet,&#10;Jouw naam"
+              placeholder={t('emailFormSignaturePlaceholder')}
               rows={4}
             />
             <p className="text-sm text-muted-foreground">
-              Deze handtekening wordt toegevoegd aan alle emails
+              {t('emailFormSignatureHelp')}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="invoiceEmailCc">CC voor factuur emails</Label>
+            <Label htmlFor="invoiceEmailCc">{t('emailFormCcLabel')}</Label>
             <Input
               type="email"
               id="invoiceEmailCc"
               {...register('invoiceEmailCc')}
-              placeholder="cc@example.com"
+              placeholder={t('emailFormCcPlaceholder')}
             />
             <p className="text-sm text-muted-foreground">
-              Optioneel: voeg een CC email toe aan alle factuur emails
+              {t('emailFormCcHelp')}
             </p>
             {errors.invoiceEmailCc && (
               <p className="text-sm text-red-600">
@@ -322,10 +324,10 @@ export function EmailSettingsForm({ initialData }: EmailSettingsFormProps) {
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Opslaan...
+            {t('emailFormSaving')}
           </>
         ) : (
-          'Instellingen opslaan'
+          t('emailFormSave')
         )}
       </Button>
     </form>

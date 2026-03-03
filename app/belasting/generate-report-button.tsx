@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { Plus, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { generateReport } from "./actions"
 
 interface GenerateReportButtonProps {
@@ -14,18 +15,19 @@ interface GenerateReportButtonProps {
 
 export function GenerateReportButton({ year }: GenerateReportButtonProps) {
   const router = useRouter()
+  const { t } = useTranslations("taxPage")
   const [isGenerating, setIsGenerating] = useState(false)
 
   async function handleGenerate() {
     setIsGenerating(true)
     try {
       await generateReport(year)
-      toast.success(`Rapport ${year} gegenereerd`)
+      toast.success(`${t("generateSuccess")} ${year}`)
       router.refresh()
       router.push(`/belasting/${year}`)
     } catch (error) {
-      console.error("Error generating report:", error)
-      toast.error("Fout bij genereren rapport")
+      console.error("Generate report error:", error)
+      toast.error(t("generateError"))
     } finally {
       setIsGenerating(false)
     }
@@ -43,7 +45,7 @@ export function GenerateReportButton({ year }: GenerateReportButtonProps) {
       ) : (
         <Plus className="mr-1 h-4 w-4" />
       )}
-      Genereer
+      {t("generateReport")}
     </Button>
   )
 }

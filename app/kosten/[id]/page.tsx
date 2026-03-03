@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { ExpenseForm } from '@/components/expenses/expense-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { T } from '@/components/t';
 import { redirect } from 'next/navigation';
 import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
 import { requireFeature } from '@/lib/auth/subscription-guard';
@@ -55,15 +56,15 @@ export default async function EditExpensePage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Uitgave bewerken</h1>
+        <h1 className="text-3xl font-bold"><T ns="expensesPage" k="editExpenseTitle" /></h1>
         <p className="text-muted-foreground">
-          Bewerk uitgave details
+          <T ns="expensesPage" k="editExpenseDescription" />
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Uitgave details</CardTitle>
+          <CardTitle><T ns="expensesPage" k="expenseDetails" /></CardTitle>
         </CardHeader>
         <CardContent>
           <ExpenseForm expense={serializedExpense} useKOR={useKOR} hasOcrAccess={hasOcrAccess} />

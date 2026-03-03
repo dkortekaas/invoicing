@@ -1,7 +1,7 @@
 import { redirect, notFound } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
-import { nl } from "date-fns/locale"
+import { nl, enUS } from "date-fns/locale"
 import {
   ChevronLeft,
   Download,
@@ -18,6 +18,7 @@ import { getCurrentUser } from "@/lib/get-session"
 import { requireFeature } from "@/lib/auth/subscription-guard"
 import { formatCurrency } from "@/lib/utils"
 import { TAX_RATES_2026 } from "@/lib/tax/rates"
+import { getAppLocale, getServerT } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -34,19 +35,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { T } from "@/components/t"
 import { fetchTaxReport, generateReport } from "../actions"
 import { RefreshReportButton } from "./refresh-button"
 import { StatusSelector } from "./status-selector"
 
 interface BelastingJaarPageProps {
   params: Promise<{ year: string }>
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  DRAFT: "Concept",
-  PROVISIONAL: "Voorlopig",
-  FINAL: "Definitief",
-  FILED: "Ingediend",
 }
 
 export default async function BelastingJaarPage({
@@ -78,6 +73,16 @@ export default async function BelastingJaarPage({
     notFound()
   }
 
+  const locale = await getAppLocale()
+  const dateLocale = locale === "en" ? enUS : nl
+  const t = await getServerT("taxPage")
+  const STATUS_LABELS: Record<string, string> = {
+    DRAFT: t("statusDraft"),
+    PROVISIONAL: t("statusProvisional"),
+    FINAL: t("statusFinal"),
+    FILED: t("statusFiled"),
+  }
+
   return (
     <TooltipProvider>
       <div className="space-y-6">
@@ -91,7 +96,7 @@ export default async function BelastingJaarPage({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl font-bold tracking-tight">
-                  Belastingjaar {year}
+                  <T ns="taxPage" k="yearDetail.taxYear" /> {year}
                 </h2>
                 <Badge
                   variant={
@@ -104,9 +109,9 @@ export default async function BelastingJaarPage({
                 </Badge>
               </div>
               <p className="text-muted-foreground">
-                Laatst bijgewerkt:{" "}
+                <T ns="taxPage" k="yearDetail.lastUpdated" />{" "}
                 {format(new Date(report.updatedAt), "d MMMM yyyy HH:mm", {
-                  locale: nl,
+                  locale: dateLocale,
                 })}
               </p>
             </div>
@@ -117,7 +122,7 @@ export default async function BelastingJaarPage({
             <Button asChild>
               <Link href={`/api/tax/report/${year}/export`}>
                 <Download className="mr-2 h-4 w-4" />
-                Exporteren
+                <T ns="taxPage" k="yearDetail.export" />
               </Link>
             </Button>
           </div>
@@ -127,7 +132,9 @@ export default async function BelastingJaarPage({
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Netto omzet</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                <T ns="taxPage" k="yearDetail.netRevenue" />
+              </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -136,7 +143,7 @@ export default async function BelastingJaarPage({
               </div>
               {report.creditNotesTotal > 0 && (
                 <p className="text-xs text-muted-foreground">
-                  Minus {formatCurrency(report.creditNotesTotal)} credit nota&apos;s
+                  <T ns="taxPage" k="yearDetail.minusCreditNotes" vars={{ amount: formatCurrency(report.creditNotesTotal) }} />
                 </p>
               )}
             </CardContent>
@@ -144,7 +151,9 @@ export default async function BelastingJaarPage({
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Bruto winst</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                <T ns="taxPage" k="yearDetail.grossProfit" />
+              </CardTitle>
               <Calculator className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -152,7 +161,7 @@ export default async function BelastingJaarPage({
                 {formatCurrency(report.grossProfit)}
               </div>
               <p className="text-xs text-muted-foreground">
-                Na kosten en afschrijvingen
+                <T ns="taxPage" k="yearDetail.afterCostsDepreciation" />
               </p>
             </CardContent>
           </Card>
@@ -160,7 +169,7 @@ export default async function BelastingJaarPage({
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Belastbaar inkomen
+                <T ns="taxPage" k="yearDetail.taxableIncome" />
               </CardTitle>
               <TrendingDown className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -169,7 +178,7 @@ export default async function BelastingJaarPage({
                 {formatCurrency(report.taxableProfit)}
               </div>
               <p className="text-xs text-muted-foreground">
-                Na alle aftrekposten
+                <T ns="taxPage" k="yearDetail.afterAllDeductions" />
               </p>
             </CardContent>
           </Card>
@@ -177,7 +186,7 @@ export default async function BelastingJaarPage({
           <Card className="border-destructive/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Geschatte belasting
+                <T ns="taxPage" k="yearDetail.estimatedTax" />
               </CardTitle>
               <AlertCircle className="h-4 w-4 text-destructive" />
             </CardHeader>
@@ -186,7 +195,7 @@ export default async function BelastingJaarPage({
                 {formatCurrency(report.estimatedTaxBox1)}
               </div>
               <p className="text-xs text-muted-foreground">
-                Box 1 inkomstenbelasting
+                <T ns="taxPage" k="yearDetail.box1IncomeTax" />
               </p>
             </CardContent>
           </Card>
@@ -210,19 +219,32 @@ export default async function BelastingJaarPage({
                 )}
                 <div>
                   <h3 className="font-semibold">
-                    {report.meetsHoursCriterion
-                      ? "Je voldoet aan het urencriterium"
-                      : "Je voldoet niet aan het urencriterium"}
+                    {report.meetsHoursCriterion ? (
+                      <T ns="taxPage" k="yearDetail.meetsHoursCriterion" />
+                    ) : (
+                      <T ns="taxPage" k="yearDetail.notMeetsHoursCriterion" />
+                    )}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {report.hoursWorked} uur geregistreerd (minimaal{" "}
-                    {TAX_RATES_2026.hoursCriterionMin} uur vereist)
+                    <T
+                      ns="taxPage"
+                      k="yearDetail.hoursRegistered"
+                      vars={{
+                        hours: String(report.hoursWorked),
+                        min: String(TAX_RATES_2026.hoursCriterionMin),
+                      }}
+                    />
                     {!report.meetsHoursCriterion && (
                       <span>
                         {" "}
-                        - nog{" "}
-                        {TAX_RATES_2026.hoursCriterionMin - report.hoursWorked}{" "}
-                        uur nodig
+                        -{" "}
+                        <T
+                          ns="taxPage"
+                          k="yearDetail.moreHoursNeeded"
+                          vars={{
+                            hours: String(TAX_RATES_2026.hoursCriterionMin - report.hoursWorked),
+                          }}
+                        />
                       </span>
                     )}
                   </p>
@@ -236,25 +258,27 @@ export default async function BelastingJaarPage({
           {/* Revenue & Expenses */}
           <Card>
             <CardHeader>
-              <CardTitle>Omzet en kosten</CardTitle>
-              <CardDescription>Overzicht van inkomsten en uitgaven</CardDescription>
+              <CardTitle><T ns="taxPage" k="yearDetail.revenueAndExpenses" /></CardTitle>
+              <CardDescription>
+                <T ns="taxPage" k="yearDetail.revenueExpensesDescription" />
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span>Bruto omzet</span>
+                  <span><T ns="taxPage" k="yearDetail.grossRevenue" /></span>
                   <span className="font-medium">
                     {formatCurrency(report.revenueGross)}
                   </span>
                 </div>
                 {report.creditNotesTotal > 0 && (
                   <div className="flex justify-between text-muted-foreground">
-                    <span>Credit nota&apos;s</span>
+                    <span><T ns="taxPage" k="yearDetail.creditNotes" /></span>
                     <span>-{formatCurrency(report.creditNotesTotal)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-semibold">
-                  <span>Netto omzet</span>
+                  <span><T ns="taxPage" k="yearDetail.netRevenueLabel" /></span>
                   <span>{formatCurrency(report.revenueNet)}</span>
                 </div>
               </div>
@@ -262,55 +286,67 @@ export default async function BelastingJaarPage({
               <Separator />
 
               <div className="space-y-2">
-                <h4 className="font-medium">Kosten per categorie</h4>
+                <h4 className="font-medium">
+                  <T ns="taxPage" k="yearDetail.costsByCategory" />
+                </h4>
                 {report.expensesTransport > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Vervoerskosten</span>
+                    <span className="text-muted-foreground">
+                      <T ns="taxPage" k="yearDetail.transportCosts" />
+                    </span>
                     <span>-{formatCurrency(report.expensesTransport)}</span>
                   </div>
                 )}
                 {report.expensesHousing > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
-                      Huisvestingskosten
+                      <T ns="taxPage" k="yearDetail.housingCosts" />
                     </span>
                     <span>-{formatCurrency(report.expensesHousing)}</span>
                   </div>
                 )}
                 {report.expensesGeneral > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Algemene kosten</span>
+                    <span className="text-muted-foreground">
+                      <T ns="taxPage" k="yearDetail.generalCosts" />
+                    </span>
                     <span>-{formatCurrency(report.expensesGeneral)}</span>
                   </div>
                 )}
                 {report.expensesOffice > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Kantoorkosten</span>
+                    <span className="text-muted-foreground">
+                      <T ns="taxPage" k="yearDetail.officeCosts" />
+                    </span>
                     <span>-{formatCurrency(report.expensesOffice)}</span>
                   </div>
                 )}
                 {report.expensesOutsourced > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Uitbesteed werk</span>
+                    <span className="text-muted-foreground">
+                      <T ns="taxPage" k="yearDetail.outsourcedWork" />
+                    </span>
                     <span>-{formatCurrency(report.expensesOutsourced)}</span>
                   </div>
                 )}
                 {report.expensesRepresentation > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
-                      Representatiekosten
+                      <T ns="taxPage" k="yearDetail.representationCosts" />
                     </span>
                     <span>-{formatCurrency(report.expensesRepresentation)}</span>
                   </div>
                 )}
                 {report.expensesOther > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Overige kosten</span>
+                    <span className="text-muted-foreground">
+                      <T ns="taxPage" k="yearDetail.otherCosts" />
+                    </span>
                     <span>-{formatCurrency(report.expensesOther)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-medium pt-2 border-t">
-                  <span>Totaal kosten</span>
+                  <span><T ns="taxPage" k="yearDetail.totalCosts" /></span>
                   <span>-{formatCurrency(report.expensesTotal)}</span>
                 </div>
               </div>
@@ -319,7 +355,7 @@ export default async function BelastingJaarPage({
                 <>
                   <Separator />
                   <div className="flex justify-between">
-                    <span>Afschrijvingen</span>
+                    <span><T ns="taxPage" k="yearDetail.depreciation" /></span>
                     <span>-{formatCurrency(report.depreciationTotal)}</span>
                   </div>
                 </>
@@ -328,7 +364,7 @@ export default async function BelastingJaarPage({
               <Separator />
 
               <div className="flex justify-between text-lg font-bold">
-                <span>Bruto winst</span>
+                <span><T ns="taxPage" k="yearDetail.grossProfitLabel" /></span>
                 <span>{formatCurrency(report.grossProfit)}</span>
               </div>
             </CardContent>
@@ -337,15 +373,15 @@ export default async function BelastingJaarPage({
           {/* Deductions */}
           <Card>
             <CardHeader>
-              <CardTitle>Aftrekposten</CardTitle>
+              <CardTitle><T ns="taxPage" k="yearDetail.deductions" /></CardTitle>
               <CardDescription>
-                Ondernemersaftrekken en investeringsaftrek
+                <T ns="taxPage" k="yearDetail.deductionsDescription" />
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span>Bruto winst</span>
+                  <span><T ns="taxPage" k="yearDetail.grossProfitLabel2" /></span>
                   <span className="font-medium">
                     {formatCurrency(report.grossProfit)}
                   </span>
@@ -358,16 +394,22 @@ export default async function BelastingJaarPage({
                 {/* KIA */}
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
-                    <span>Kleinschaligheidsinvesteringsaftrek (KIA)</span>
+                    <span><T ns="taxPage" k="yearDetail.kia" /></span>
                     <Tooltip>
                       <TooltipTrigger>
                         <Info className="h-4 w-4 text-muted-foreground" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
                         <p>
-                          Bij investeringen tussen €{TAX_RATES_2026.kia.minInvestment.toLocaleString()} en
-                          €{TAX_RATES_2026.kia.maxInvestment.toLocaleString()} krijg je een extra aftrek.
-                          Jouw investeringen: {formatCurrency(report.kiaInvestments)}
+                          <T
+                            ns="taxPage"
+                            k="yearDetail.kiaTooltip"
+                            vars={{
+                              min: TAX_RATES_2026.kia.minInvestment.toLocaleString(),
+                              max: TAX_RATES_2026.kia.maxInvestment.toLocaleString(),
+                              amount: formatCurrency(report.kiaInvestments),
+                            }}
+                          />
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -386,15 +428,21 @@ export default async function BelastingJaarPage({
                 {/* Zelfstandigenaftrek */}
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
-                    <span>Zelfstandigenaftrek</span>
+                    <span><T ns="taxPage" k="yearDetail.zelfstandigenaftrek" /></span>
                     <Tooltip>
                       <TooltipTrigger>
                         <Info className="h-4 w-4 text-muted-foreground" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
                         <p>
-                          €{TAX_RATES_2026.zelfstandigenaftrek.toLocaleString()} aftrek als je voldoet aan het
-                          urencriterium (minimaal {TAX_RATES_2026.hoursCriterionMin} uur).
+                          <T
+                            ns="taxPage"
+                            k="yearDetail.zelfstandigenaftrekTooltip"
+                            vars={{
+                              amount: TAX_RATES_2026.zelfstandigenaftrek.toLocaleString(),
+                              hours: String(TAX_RATES_2026.hoursCriterionMin),
+                            }}
+                          />
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -415,15 +463,20 @@ export default async function BelastingJaarPage({
                 {/* Startersaftrek */}
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
-                    <span>Startersaftrek</span>
+                    <span><T ns="taxPage" k="yearDetail.startersaftrek" /></span>
                     <Tooltip>
                       <TooltipTrigger>
                         <Info className="h-4 w-4 text-muted-foreground" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
                         <p>
-                          Extra €{TAX_RATES_2026.startersaftrek.toLocaleString()} aftrek voor starters, maximaal 3
-                          jaar.
+                          <T
+                            ns="taxPage"
+                            k="yearDetail.startersaftrekTooltip"
+                            vars={{
+                              amount: TAX_RATES_2026.startersaftrek.toLocaleString(),
+                            }}
+                          />
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -444,15 +497,21 @@ export default async function BelastingJaarPage({
                 {/* FOR */}
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
-                    <span>Fiscale Oudedagsreserve (FOR)</span>
+                    <span><T ns="taxPage" k="yearDetail.for" /></span>
                     <Tooltip>
                       <TooltipTrigger>
                         <Info className="h-4 w-4 text-muted-foreground" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
                         <p>
-                          Maximaal {TAX_RATES_2026.for.maxPercentage}% van de winst (max. €
-                          {TAX_RATES_2026.for.maxAmount.toLocaleString()}) reserveren voor pensioen.
+                          <T
+                            ns="taxPage"
+                            k="yearDetail.forTooltip"
+                            vars={{
+                              percentage: String(TAX_RATES_2026.for.maxPercentage),
+                              max: TAX_RATES_2026.for.maxAmount.toLocaleString(),
+                            }}
+                          />
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -474,7 +533,7 @@ export default async function BelastingJaarPage({
               <Separator />
 
               <div className="flex justify-between">
-                <span>Winst voor MKB-vrijstelling</span>
+                <span><T ns="taxPage" k="yearDetail.profitBeforeMKB" /></span>
                 <span className="font-medium">
                   {formatCurrency(report.profitBeforeMKB)}
                 </span>
@@ -483,15 +542,20 @@ export default async function BelastingJaarPage({
               {/* MKB Vrijstelling */}
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2">
-                  <span>MKB-winstvrijstelling</span>
+                  <span><T ns="taxPage" k="yearDetail.mkbExemption" /></span>
                   <Tooltip>
                     <TooltipTrigger>
                       <Info className="h-4 w-4 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <p>
-                        {TAX_RATES_2026.mkbVrijstellingPercentage}% van de winst na aftrekposten is
-                        vrijgesteld. Alleen bij urencriterium.
+                        <T
+                          ns="taxPage"
+                          k="yearDetail.mkbTooltip"
+                          vars={{
+                            percentage: String(TAX_RATES_2026.mkbVrijstellingPercentage),
+                          }}
+                        />
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -512,12 +576,12 @@ export default async function BelastingJaarPage({
               <Separator />
 
               <div className="flex justify-between text-lg font-bold">
-                <span>Belastbaar inkomen</span>
+                <span><T ns="taxPage" k="yearDetail.taxableIncomeLabel" /></span>
                 <span>{formatCurrency(report.taxableProfit)}</span>
               </div>
 
               <div className="flex justify-between text-lg font-bold text-destructive pt-2 border-t">
-                <span>Geschatte belasting Box 1</span>
+                <span><T ns="taxPage" k="yearDetail.estimatedTaxBox1" /></span>
                 <span>{formatCurrency(report.estimatedTaxBox1)}</span>
               </div>
             </CardContent>
@@ -530,12 +594,11 @@ export default async function BelastingJaarPage({
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div className="text-sm text-muted-foreground">
-                <p className="font-medium">Disclaimer</p>
+                <p className="font-medium">
+                  <T ns="taxPage" k="yearDetail.disclaimer" />
+                </p>
                 <p>
-                  Dit is een indicatieve berekening. De daadwerkelijke belasting
-                  kan afwijken door persoonlijke omstandigheden, andere
-                  inkomsten, heffingskortingen en wijzigingen in belastingtarieven.
-                  Raadpleeg een belastingadviseur voor je officiële aangifte.
+                  <T ns="taxPage" k="yearDetail.disclaimerText" />
                 </p>
               </div>
             </div>

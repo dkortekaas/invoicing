@@ -14,6 +14,7 @@ import { Loader2, CheckCircle, XCircle, ExternalLink, Eye, EyeOff, CreditCard } 
 import { mollieSettingsSchema, type MollieSettingsFormData } from "@/lib/validations"
 import { updateMollieSettings, testMollieConnection } from "./actions"
 import { toast } from "sonner"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 interface MollieSettingsFormProps {
   initialData: {
@@ -24,6 +25,7 @@ interface MollieSettingsFormProps {
 }
 
 export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
+  const { t } = useTranslations('settingsPage')
   const [isLoading, setIsLoading] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
   const [showApiKey, setShowApiKey] = useState(false)
@@ -56,10 +58,10 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
     setIsLoading(true)
     try {
       await updateMollieSettings(data)
-      toast.success("Mollie instellingen opgeslagen")
+      toast.success(t('mollieSettingsFormSaved'))
       setConnectionStatus(null)
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Opslaan mislukt")
+      toast.error(error instanceof Error ? error.message : t('mollieSettingsFormSaveFailed'))
     } finally {
       setIsLoading(false)
     }
@@ -77,17 +79,17 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
         error: result.error,
       })
       if (result.success) {
-        toast.success(`Verbinding succesvol (${result.mode} mode)`)
+        toast.success(t('mollieSettingsFormConnectionSuccess').replace('{mode}', result.mode ?? ''))
       } else {
-        toast.error(result.error || "Verbinding mislukt")
+        toast.error(result.error || t('mollieSettingsFormConnectionFailed'))
       }
     } catch (error) {
       setConnectionStatus({
         tested: true,
         success: false,
-        error: error instanceof Error ? error.message : "Test mislukt",
+        error: error instanceof Error ? error.message : t('mollieSettingsFormTestFailed'),
       })
-      toast.error("Verbinding testen mislukt")
+      toast.error(t('mollieSettingsFormTestFailed'))
     } finally {
       setIsTesting(false)
     }
@@ -102,9 +104,9 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
               <CreditCard className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <CardTitle>Mollie Betalingen</CardTitle>
+              <CardTitle>{t('mollieSettingsFormTitle')}</CardTitle>
               <CardDescription>
-                Ontvang betalingen via iDEAL, Bancontact en andere betaalmethoden
+                {t('mollieSettingsFormDescription')}
               </CardDescription>
             </div>
           </div>
@@ -114,7 +116,7 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
             rel="noopener noreferrer"
             className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
           >
-            Account aanmaken
+            {t('mollieSettingsFormCreateAccount')}
             <ExternalLink className="h-3 w-3" />
           </a>
         </div>
@@ -125,10 +127,10 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="space-y-0.5">
               <Label htmlFor="mollieEnabled" className="text-base font-medium">
-                Mollie betalingen inschakelen
+                {t('mollieSettingsFormTitle')}
               </Label>
               <p className="text-sm text-muted-foreground">
-                Voeg betaallinks toe aan je facturen
+                {t('mollieSettingsFormDescription')}
               </p>
             </div>
             <Switch
@@ -141,7 +143,7 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
           {/* API Key */}
           <div className="space-y-2">
             <Label htmlFor="mollieApiKey">
-              API Key {initialData.hasApiKey && <Badge variant="outline" className="ml-2">Geconfigureerd</Badge>}
+              API Key {initialData.hasApiKey && <Badge variant="outline" className="ml-2">{t('mollieSettingsFormConfigured')}</Badge>}
             </Label>
             <div className="relative">
               <Input
@@ -169,14 +171,14 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
               <p className="text-sm text-destructive">{errors.mollieApiKey.message}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              Vind je API key in het{" "}
+              {t('mollieSettingsFormFindApiKey')}
               <a
                 href="https://my.mollie.com/dashboard/developers/api-keys"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                Mollie Dashboard → Developers → API Keys
+                {t('mollieSettingsFormDashboard')}
               </a>
             </p>
           </div>
@@ -186,7 +188,7 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
                 <Label htmlFor="mollieTestMode" className="text-base font-medium">
-                  Test modus
+                  {t('mollieSettingsFormTestMode')}
                 </Label>
                 {isTestMode ? (
                   <Badge variant="secondary">Test</Badge>
@@ -196,8 +198,8 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
               </div>
               <p className="text-sm text-muted-foreground">
                 {isTestMode
-                  ? "Gebruik test API key voor het testen van betalingen"
-                  : "Gebruik live API key voor echte betalingen"}
+                  ? t('mollieSettingsFormTestModeDescription')
+                  : t('mollieSettingsFormLiveModeDescription')}
               </p>
             </div>
             <Switch
@@ -218,8 +220,8 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
                 )}
                 <AlertDescription>
                   {connectionStatus.success
-                    ? `Verbinding succesvol! Mollie is in ${connectionStatus.mode} modus.`
-                    : connectionStatus.error || "Verbinding mislukt"}
+                      ? t('mollieSettingsFormConnectionSuccess').replace('{mode}', connectionStatus.mode ?? '')
+                    : connectionStatus.error || t('mollieSettingsFormConnectionFailed')}
                 </AlertDescription>
               </div>
             </Alert>
@@ -229,12 +231,12 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
           {!initialData.hasApiKey && (
             <Alert>
               <AlertDescription>
-                <strong>Hoe werkt het?</strong>
+                <strong>{t('mollieSettingsFormHowItWorks')}</strong>
                 <ol className="mt-2 list-decimal list-inside space-y-1 text-sm">
-                  <li>Maak een Mollie account aan of log in</li>
-                  <li>Kopieer je API key (test_ of live_)</li>
-                  <li>Plak de key hierboven en sla op</li>
-                  <li>Klanten kunnen nu betalen via de betaallink op facturen</li>
+                  <li>{t('mollieSettingsFormHowItWorksStep1')}</li>
+                  <li>{t('mollieSettingsFormHowItWorksStep2')}</li>
+                  <li>{t('mollieSettingsFormHowItWorksStep3')}</li>
+                  <li>{t('mollieSettingsFormHowItWorksStep4')}</li>
                 </ol>
               </AlertDescription>
             </Alert>
@@ -244,7 +246,7 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
           <div className="flex gap-3">
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Opslaan
+              {t('mollieSettingsFormSave')}
             </Button>
             {initialData.hasApiKey && (
               <Button
@@ -254,7 +256,7 @@ export function MollieSettingsForm({ initialData }: MollieSettingsFormProps) {
                 disabled={isTesting}
               >
                 {isTesting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Test verbinding
+                {t('mollieSettingsFormTestConnection')}
               </Button>
             )}
           </div>

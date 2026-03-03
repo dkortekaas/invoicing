@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { profileSchema, type ProfileFormData } from "@/lib/validations"
 import { updateProfile } from "./actions"
 
@@ -27,6 +28,7 @@ interface ProfielFormProps {
 
 export function ProfielForm({ initialData }: ProfielFormProps) {
   const router = useRouter()
+  const { t } = useTranslations("settingsPage")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<ProfileFormData>({
@@ -39,10 +41,10 @@ export function ProfielForm({ initialData }: ProfielFormProps) {
     try {
       await updateProfile(data)
       router.refresh()
-      toast.success("Profiel opgeslagen")
+      toast.success(t("profileFormSaveSuccess"))
     } catch (error) {
       console.error("Error saving profile:", error)
-      toast.error("Fout bij opslaan profiel")
+      toast.error(t("profileFormSaveError"))
     } finally {
       setIsSubmitting(false)
     }
@@ -53,9 +55,9 @@ export function ProfielForm({ initialData }: ProfielFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Profiel</CardTitle>
+            <CardTitle>{t("profileFormTitle")}</CardTitle>
             <CardDescription>
-              Je persoonlijke gegevens
+              {t("profileFormDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -64,9 +66,9 @@ export function ProfielForm({ initialData }: ProfielFormProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Naam</FormLabel>
+                  <FormLabel>{t("profileFormName")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Jan Jansen" {...field} value={field.value ?? ""} />
+                    <Input placeholder={t("profileFormPlaceholderName")} {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -78,11 +80,11 @@ export function ProfielForm({ initialData }: ProfielFormProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>E-mailadres *</FormLabel>
+                  <FormLabel>{t("profileFormEmail")}</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
-                      placeholder="jan@voorbeeld.nl"
+                      placeholder={t("profileFormPlaceholderEmail")}
                       {...field}
                     />
                   </FormControl>
@@ -94,7 +96,7 @@ export function ProfielForm({ initialData }: ProfielFormProps) {
             <div className="flex justify-end pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Opslaan
+                {t("profileFormSave")}
               </Button>
             </div>
           </CardContent>

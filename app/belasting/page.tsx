@@ -33,15 +33,9 @@ import {
 import { fetchAvailableYears, fetchExistingReports } from "./actions"
 import { GenerateReportButton } from "./generate-report-button"
 import { T } from "@/components/t"
+import { getServerT } from "@/lib/i18n"
 
 export const dynamic = "force-dynamic"
-
-const STATUS_LABELS: Record<string, string> = {
-  DRAFT: "Concept",
-  PROVISIONAL: "Voorlopig",
-  FINAL: "Definitief",
-  FILED: "Ingediend",
-}
 
 const STATUS_VARIANTS: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   DRAFT: "outline",
@@ -57,6 +51,14 @@ export default async function BelastingPage() {
   }
 
   await requireFeature("tax_reporting")
+
+  const t = await getServerT("taxPage")
+  const STATUS_LABELS: Record<string, string> = {
+    DRAFT: t("statusDraft"),
+    PROVISIONAL: t("statusProvisional"),
+    FINAL: t("statusFinal"),
+    FILED: t("statusFiled"),
+  }
 
   const [availableYears, existingReports] = await Promise.all([
     fetchAvailableYears(),
@@ -88,7 +90,7 @@ export default async function BelastingPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Netto omzet {latestReport.year}
+                <T ns="taxPage" k="summaryRevenue" /> {latestReport.year}
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -102,7 +104,7 @@ export default async function BelastingPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Bruto winst {latestReport.year}
+                <T ns="taxPage" k="summaryProfit" /> {latestReport.year}
               </CardTitle>
               <Calculator className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -116,7 +118,7 @@ export default async function BelastingPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Belastbaar inkomen
+                <T ns="taxPage" k="summaryTaxableProfit" />
               </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -130,7 +132,7 @@ export default async function BelastingPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Geschatte belasting
+                <T ns="taxPage" k="summaryEstimatedTax" />
               </CardTitle>
               <AlertCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -146,9 +148,9 @@ export default async function BelastingPage() {
       {/* Reports Overview */}
       <Card>
         <CardHeader>
-          <CardTitle>Jaarrapporten</CardTitle>
+          <CardTitle><T ns="taxPage" k="reportsTitle" /></CardTitle>
           <CardDescription>
-            Overzicht van alle belastingrapporten per jaar
+            <T ns="taxPage" k="reportsDescription" />
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -157,8 +159,7 @@ export default async function BelastingPage() {
               <FileText className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold"><T ns="taxPage" k="noData" /></h3>
               <p className="text-muted-foreground mb-4">
-                Er zijn nog geen betaalde facturen om een rapport van te
-                genereren.
+                <T ns="taxPage" k="noDataDescription" />
               </p>
             </div>
           ) : (
@@ -166,12 +167,12 @@ export default async function BelastingPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead><T ns="taxPage" k="colYear" /></TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Netto omzet</TableHead>
-                  <TableHead className="text-right">Bruto winst</TableHead>
+                  <TableHead><T ns="taxPage" k="colStatus" /></TableHead>
+                  <TableHead className="text-right"><T ns="taxPage" k="colRevenue" /></TableHead>
+                  <TableHead className="text-right"><T ns="taxPage" k="colGrossProfit" /></TableHead>
                   <TableHead className="text-right"><T ns="taxPage" k="colTaxableProfit" /></TableHead>
-                  <TableHead className="text-right">Geschatte belasting</TableHead>
-                  <TableHead className="text-right">Laatst bijgewerkt</TableHead>
+                  <TableHead className="text-right"><T ns="taxPage" k="colTax" /></TableHead>
+                  <TableHead className="text-right"><T ns="taxPage" k="colUpdated" /></TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
@@ -184,7 +185,7 @@ export default async function BelastingPage() {
                         {year}
                         {year === currentYear && (
                           <Badge variant="outline" className="ml-2">
-                            Huidig
+                            <T ns="taxPage" k="currentYear" />
                           </Badge>
                         )}
                       </TableCell>
@@ -194,7 +195,7 @@ export default async function BelastingPage() {
                             {STATUS_LABELS[report.status]}
                           </Badge>
                         ) : (
-                          <Badge variant="outline">Niet gegenereerd</Badge>
+                          <Badge variant="outline"><T ns="taxPage" k="notGenerated" /></Badge>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -220,7 +221,7 @@ export default async function BelastingPage() {
                         {report ? (
                           <Button variant="ghost" size="sm" asChild>
                             <Link href={`/belasting/${year}`}>
-                              Bekijken
+                              <T ns="taxPage" k="view" />
                               <ChevronRight className="ml-1 h-4 w-4" />
                             </Link>
                           </Button>

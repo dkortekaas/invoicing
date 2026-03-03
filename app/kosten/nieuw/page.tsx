@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { redirect } from 'next/navigation';
 import { hasFeatureAccess } from '@/lib/stripe/subscriptions';
 import { requireFeature } from '@/lib/auth/subscription-guard';
+import { getServerT } from '@/lib/i18n';
 
 export default async function NewExpensePage() {
   await requireFeature('expenses');
@@ -14,6 +15,8 @@ export default async function NewExpensePage() {
   if (!session?.user?.id) {
     redirect('/login');
   }
+
+  const t = await getServerT('expensesPage');
 
   // Check if user has KOR enabled and OCR access in parallel
   const [fiscalSettings, hasOcrAccess] = await Promise.all([
@@ -29,15 +32,13 @@ export default async function NewExpensePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Nieuwe uitgave</h1>
-        <p className="text-muted-foreground">
-          Voeg een nieuwe uitgave toe voor BTW voorbelasting
-        </p>
+        <h1 className="text-3xl font-bold">{t("newExpense")}</h1>
+        <p className="text-muted-foreground">{t("newExpenseDescription")}</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Uitgave details</CardTitle>
+          <CardTitle>{t("expenseDetails")}</CardTitle>
         </CardHeader>
         <CardContent>
           <ExpenseForm useKOR={useKOR} hasOcrAccess={hasOcrAccess} />

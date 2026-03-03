@@ -1,14 +1,19 @@
-import { Metadata } from "next"
+import type { Metadata } from "next"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, Mail } from "lucide-react"
-
-export const metadata: Metadata = {
-  title: "Betaling geslaagd",
-  description: "Je betaling is succesvol verwerkt",
-}
+import { getServerT } from "@/lib/i18n"
+import { T } from "@/components/t"
 
 interface SuccessPageProps {
   searchParams: Promise<{ already?: string }>
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getServerT("payPage")
+  return {
+    title: t("successTitle"),
+    description: t("successDescription"),
+  }
 }
 
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
@@ -24,25 +29,23 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
             <CardTitle className="text-xl">
-              {alreadyPaid ? "Factuur al betaald" : "Betaling geslaagd!"}
+              {alreadyPaid ? <T ns="payPage" k="alreadyPaidCardTitle" /> : <T ns="payPage" k="successCardTitle" />}
             </CardTitle>
             <CardDescription>
-              {alreadyPaid
-                ? "Deze factuur was al eerder betaald."
-                : "Je betaling is succesvol verwerkt. Je ontvangt een bevestiging per e-mail."}
+              {alreadyPaid ? <T ns="payPage" k="alreadyPaidCardDesc" /> : <T ns="payPage" k="successCardDesc" />}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-lg bg-muted p-4 text-center">
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span>Bevestiging verzonden naar je e-mail</span>
+                <span><T ns="payPage" k="successEmailSent" /></span>
               </div>
             </div>
 
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Bedankt voor je betaling. Je kunt dit venster nu sluiten.
+                <T ns="payPage" k="successThankYou" />
               </p>
             </div>
           </CardContent>

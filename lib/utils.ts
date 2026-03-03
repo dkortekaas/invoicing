@@ -2,6 +2,89 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
+import type { Locale } from "@/lib/i18n"
+import { getMessages, getNested } from "@/lib/i18n"
+
+function getUtilsT(locale: Locale) {
+  const utilsMessages = getNested(
+    getMessages(locale) as Record<string, unknown>,
+    "utils"
+  ) as Record<string, string> | undefined
+  return (key: string): string => (utilsMessages?.[key] as string) ?? key
+}
+
+/** Get all translated utils constants for a locale. Use in server components with getAppLocale(). */
+export function getTranslatedUtils(locale: Locale) {
+  const t = getUtilsT(locale)
+  return {
+    VAT_RATES: [
+      { value: "21", label: t("vatRate21") },
+      { value: "9", label: t("vatRate9") },
+      { value: "0", label: t("vatRate0") },
+    ] as const,
+    UNITS: [
+      { value: "uur", label: t("unitHour") },
+      { value: "dag", label: t("unitDay") },
+      { value: "stuk", label: t("unitPiece") },
+      { value: "maand", label: t("unitMonth") },
+      { value: "project", label: t("unitProject") },
+      { value: "km", label: t("unitKilometer") },
+    ] as const,
+    STATUS_LABELS: {
+      DRAFT: t("statusDraft"),
+      SENT: t("statusSent"),
+      PAID: t("statusPaid"),
+      OVERDUE: t("statusOverdue"),
+      CANCELLED: t("statusCancelled"),
+    } as Record<string, string>,
+    CREDIT_NOTE_STATUS_LABELS: {
+      DRAFT: t("statusDraft"),
+      FINAL: t("statusFinal"),
+      SENT: t("statusSent"),
+      PROCESSED: t("statusProcessed"),
+      REFUNDED: t("statusRefunded"),
+    } as Record<string, string>,
+    QUOTE_STATUS_LABELS: {
+      DRAFT: t("statusDraft"),
+      SENT: t("statusSent"),
+      VIEWED: t("statusViewed"),
+      SIGNED: t("statusSigned"),
+      DECLINED: t("statusDeclined"),
+      EXPIRED: t("statusExpired"),
+      CONVERTED: t("statusConverted"),
+    } as Record<string, string>,
+    SIGNING_STATUS_LABELS: {
+      NOT_SENT: t("statusNotSent"),
+      PENDING: t("statusPending"),
+      VIEWED: t("statusViewed"),
+      SIGNED: t("statusSigned"),
+      DECLINED: t("statusDeclined"),
+      EXPIRED: t("statusExpired"),
+    } as Record<string, string>,
+    CREDIT_NOTE_REASON_LABELS: {
+      PRICE_CORRECTION: t("creditNoteReasonPriceCorrection"),
+      QUANTITY_CORRECTION: t("creditNoteReasonQuantityCorrection"),
+      RETURN: t("creditNoteReasonReturn"),
+      CANCELLATION: t("creditNoteReasonCancellation"),
+      DISCOUNT_AFTER: t("creditNoteReasonDiscountAfter"),
+      VAT_CORRECTION: t("creditNoteReasonVatCorrection"),
+      DUPLICATE_INVOICE: t("creditNoteReasonDuplicateInvoice"),
+      GOODWILL: t("creditNoteReasonGoodwill"),
+      OTHER: t("creditNoteReasonOther"),
+    } as Record<string, string>,
+    CREDIT_NOTE_REASONS: [
+      { value: "PRICE_CORRECTION", label: t("creditNoteReasonPriceCorrection") },
+      { value: "QUANTITY_CORRECTION", label: t("creditNoteReasonQuantityCorrection") },
+      { value: "RETURN", label: t("creditNoteReasonReturn") },
+      { value: "CANCELLATION", label: t("creditNoteReasonCancellation") },
+      { value: "DISCOUNT_AFTER", label: t("creditNoteReasonDiscountAfter") },
+      { value: "VAT_CORRECTION", label: t("creditNoteReasonVatCorrection") },
+      { value: "DUPLICATE_INVOICE", label: t("creditNoteReasonDuplicateInvoice") },
+      { value: "GOODWILL", label: t("creditNoteReasonGoodwill") },
+      { value: "OTHER", label: t("creditNoteReasonOther") },
+    ] as const,
+  }
+}
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -137,31 +220,14 @@ export function isOverdue(dueDate: Date, status: string): boolean {
   return new Date() > new Date(dueDate)
 }
 
-// BTW tarieven in Nederland
-export const VAT_RATES = [
-  { value: "21", label: "21% (hoog tarief)" },
-  { value: "9", label: "9% (laag tarief)" },
-  { value: "0", label: "0% (geen BTW)" },
-] as const
+// BTW tarieven (default nl, use getTranslatedUtils(locale) for locale-aware)
+export const VAT_RATES = getTranslatedUtils("nl").VAT_RATES
 
-// Eenheden
-export const UNITS = [
-  { value: "uur", label: "Uur" },
-  { value: "dag", label: "Dag" },
-  { value: "stuk", label: "Stuk" },
-  { value: "maand", label: "Maand" },
-  { value: "project", label: "Project" },
-  { value: "km", label: "Kilometer" },
-] as const
+// Eenheden (default nl, use getTranslatedUtils(locale) for locale-aware)
+export const UNITS = getTranslatedUtils("nl").UNITS
 
-// Invoice Status labels in Nederlands
-export const STATUS_LABELS: Record<string, string> = {
-  DRAFT: "Concept",
-  SENT: "Verzonden",
-  PAID: "Betaald",
-  OVERDUE: "Achterstallig",
-  CANCELLED: "Geannuleerd",
-}
+// Invoice Status labels (default nl, use getTranslatedUtils(locale) for locale-aware)
+export const STATUS_LABELS: Record<string, string> = getTranslatedUtils("nl").STATUS_LABELS
 
 // Invoice Status kleuren voor badges
 export const STATUS_COLORS: Record<string, string> = {
@@ -177,14 +243,9 @@ export function generateCreditNoteNumber(year: number, sequence: number): string
   return `CN-${year}-${sequence.toString().padStart(4, "0")}`
 }
 
-// Credit Note Status labels in Nederlands
-export const CREDIT_NOTE_STATUS_LABELS: Record<string, string> = {
-  DRAFT: "Concept",
-  FINAL: "Definitief",
-  SENT: "Verzonden",
-  PROCESSED: "Verwerkt",
-  REFUNDED: "Terugbetaald",
-}
+// Credit Note Status labels (default nl, use getTranslatedUtils(locale) for locale-aware)
+export const CREDIT_NOTE_STATUS_LABELS: Record<string, string> =
+  getTranslatedUtils("nl").CREDIT_NOTE_STATUS_LABELS
 
 // Credit Note Status kleuren voor badges
 export const CREDIT_NOTE_STATUS_COLORS: Record<string, string> = {
@@ -195,16 +256,9 @@ export const CREDIT_NOTE_STATUS_COLORS: Record<string, string> = {
   REFUNDED: "bg-emerald-100 text-emerald-800",
 }
 
-// Quote Status labels in Nederlands
-export const QUOTE_STATUS_LABELS: Record<string, string> = {
-  DRAFT: "Concept",
-  SENT: "Verzonden",
-  VIEWED: "Bekeken",
-  SIGNED: "Ondertekend",
-  DECLINED: "Afgewezen",
-  EXPIRED: "Verlopen",
-  CONVERTED: "Omgezet",
-}
+// Quote Status labels (default nl, use getTranslatedUtils(locale) for locale-aware)
+export const QUOTE_STATUS_LABELS: Record<string, string> =
+  getTranslatedUtils("nl").QUOTE_STATUS_LABELS
 
 // Quote Status kleuren voor badges
 export const QUOTE_STATUS_COLORS: Record<string, string> = {
@@ -217,15 +271,9 @@ export const QUOTE_STATUS_COLORS: Record<string, string> = {
   CONVERTED: "bg-purple-100 text-purple-800",
 }
 
-// Signing Status labels (digitale ondertekening) in Nederlands
-export const SIGNING_STATUS_LABELS: Record<string, string> = {
-  NOT_SENT: "Niet verzonden",
-  PENDING: "Wacht op ondertekening",
-  VIEWED: "Bekeken",
-  SIGNED: "Ondertekend",
-  DECLINED: "Afgewezen",
-  EXPIRED: "Verlopen",
-}
+// Signing Status labels (default nl, use getTranslatedUtils(locale) for locale-aware)
+export const SIGNING_STATUS_LABELS: Record<string, string> =
+  getTranslatedUtils("nl").SIGNING_STATUS_LABELS
 
 // Signing Status kleuren voor badges
 export const SIGNING_STATUS_COLORS: Record<string, string> = {
@@ -237,28 +285,9 @@ export const SIGNING_STATUS_COLORS: Record<string, string> = {
   EXPIRED: "bg-orange-100 text-orange-800",
 }
 
-// Credit Note Reason labels in Nederlands
-export const CREDIT_NOTE_REASON_LABELS: Record<string, string> = {
-  PRICE_CORRECTION: "Prijscorrectie",
-  QUANTITY_CORRECTION: "Aantalaanpassing",
-  RETURN: "Retour",
-  CANCELLATION: "Annulering",
-  DISCOUNT_AFTER: "Korting achteraf",
-  VAT_CORRECTION: "BTW correctie",
-  DUPLICATE_INVOICE: "Dubbele factuur",
-  GOODWILL: "Coulance",
-  OTHER: "Overig",
-}
+// Credit Note Reason labels (default nl, use getTranslatedUtils(locale) for locale-aware)
+export const CREDIT_NOTE_REASON_LABELS: Record<string, string> =
+  getTranslatedUtils("nl").CREDIT_NOTE_REASON_LABELS
 
-// Credit Note Reason options for forms
-export const CREDIT_NOTE_REASONS = [
-  { value: "PRICE_CORRECTION", label: "Prijscorrectie" },
-  { value: "QUANTITY_CORRECTION", label: "Aantalaanpassing" },
-  { value: "RETURN", label: "Retour" },
-  { value: "CANCELLATION", label: "Annulering" },
-  { value: "DISCOUNT_AFTER", label: "Korting achteraf" },
-  { value: "VAT_CORRECTION", label: "BTW correctie" },
-  { value: "DUPLICATE_INVOICE", label: "Dubbele factuur" },
-  { value: "GOODWILL", label: "Coulance" },
-  { value: "OTHER", label: "Overig" },
-] as const
+// Credit Note Reason options for forms (default nl, use getTranslatedUtils(locale) for locale-aware)
+export const CREDIT_NOTE_REASONS = getTranslatedUtils("nl").CREDIT_NOTE_REASONS

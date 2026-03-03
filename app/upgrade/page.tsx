@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { toast } from 'sonner';
 import { PricingCard } from '@/components/subscription/pricing-card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 type PriceIds = {
   starter: { monthly: string | null; yearly: string | null };
@@ -14,41 +15,42 @@ type PriceIds = {
   business: { monthly: string | null; yearly: string | null };
 };
 
-const FREE_FEATURES = [
-  'Tot 5 facturen per maand',
-  'Klantenbeheer',
-  'Productencatalogus',
-  'PDF generatie',
-];
-
-const STARTER_FEATURES = [
-  'Onbeperkt facturen',
-  'OCR bonnetjes scannen',
-  'Onkosten bijhouden',
-  'BTW-overzichten',
-  'Credit nota\'s',
-  'Terugkerende facturen',
-  'Export naar Excel/CSV',
-];
-
-const PROFESSIONAL_FEATURES = [
-  'Alles van Starter',
-  'iDEAL betaallinks',
-  'Projecten & urenregistratie',
-  'Slimme herinneringen',
-  'Boekhoudkoppelingen',
-  'Analytics dashboard',
-];
-
-const BUSINESS_FEATURES = [
-  'Alles van Professional',
-  'Multi-valuta',
-  'Klantportaal',
-  'Cashflow voorspellingen',
-  'API toegang',
-];
-
 function UpgradePageContent() {
+  const { t } = useTranslations('upgradePage');
+
+  const freeFeatures = useMemo(() => [
+    t('freeFeature1'),
+    t('freeFeature2'),
+    t('freeFeature3'),
+    t('freeFeature4'),
+  ], [t]);
+
+  const starterFeatures = useMemo(() => [
+    t('starterFeature1'),
+    t('starterFeature2'),
+    t('starterFeature3'),
+    t('starterFeature4'),
+    t('starterFeature5'),
+    t('starterFeature6'),
+    t('starterFeature7'),
+  ], [t]);
+
+  const professionalFeatures = useMemo(() => [
+    t('professionalFeature1'),
+    t('professionalFeature2'),
+    t('professionalFeature3'),
+    t('professionalFeature4'),
+    t('professionalFeature5'),
+    t('professionalFeature6'),
+  ], [t]);
+
+  const businessFeatures = useMemo(() => [
+    t('businessFeature1'),
+    t('businessFeature2'),
+    t('businessFeature3'),
+    t('businessFeature4'),
+    t('businessFeature5'),
+  ], [t]);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [priceIds, setPriceIds] = useState<PriceIds | null>(null);
   const searchParams = useSearchParams();
@@ -120,23 +122,23 @@ function UpgradePageContent() {
     <div className="container max-w-7xl py-12">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">
-          Kies het plan dat bij je past
+          {t('title')}
         </h1>
         <p className="text-xl text-muted-foreground mb-8">
-          Start gratis, upgrade wanneer je klaar bent
+          {t('subtitle')}
         </p>
 
         {feature && (
           <div className="bg-primary/10 border border-primary rounded-lg p-4 max-w-2xl mx-auto mb-8">
             <p className="text-sm">
-              <strong>Let op:</strong> Deze feature vereist een betaald abonnement
+              {t('featureRequiredNotice')}
             </p>
           </div>
         )}
 
         <div className="flex items-center justify-center gap-4">
           <Label htmlFor="billing-toggle" className={billingCycle === 'monthly' ? 'font-semibold' : ''}>
-            Maandelijks
+            {t('monthly')}
           </Label>
           <Switch
             id="billing-toggle"
@@ -144,54 +146,54 @@ function UpgradePageContent() {
             onCheckedChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
           />
           <Label htmlFor="billing-toggle" className={billingCycle === 'yearly' ? 'font-semibold' : ''}>
-            Jaarlijks
-            <span className="ml-2 text-green-600 text-sm">(Bespaar 17%)</span>
+            {t('yearly')}
+            <span className="ml-2 text-green-600 text-sm">{t('yearlySave')}</span>
           </Label>
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
         <PricingCard
-          name="Gratis"
+          name={t('planFree')}
           price={0}
           interval="month"
           priceId=""
-          features={FREE_FEATURES}
+          features={freeFeatures}
           currentPlan={true}
         />
 
         <PricingCard
-          name="Starter"
+          name={t('planStarter')}
           price={billingCycle === 'monthly' ? 995 : 9900}
           interval={billingCycle === 'monthly' ? 'month' : 'year'}
           priceId={getStarterPriceId()}
-          features={STARTER_FEATURES}
+          features={starterFeatures}
           onSubscribe={handleSubscribe}
         />
 
         <PricingCard
-          name="Professional"
+          name={t('planProfessional')}
           price={billingCycle === 'monthly' ? 1995 : 19900}
           interval={billingCycle === 'monthly' ? 'month' : 'year'}
           priceId={getProfessionalPriceId()}
-          features={PROFESSIONAL_FEATURES}
+          features={professionalFeatures}
           popular={true}
           onSubscribe={handleSubscribe}
         />
 
         <PricingCard
-          name="Business"
+          name={t('planBusiness')}
           price={billingCycle === 'monthly' ? 3495 : 34900}
           interval={billingCycle === 'monthly' ? 'month' : 'year'}
           priceId={getBusinessPriceId()}
-          features={BUSINESS_FEATURES}
+          features={businessFeatures}
           onSubscribe={handleSubscribe}
         />
       </div>
 
       <div className="mt-12 text-center text-sm text-muted-foreground">
-        <p>Alle prijzen zijn exclusief BTW</p>
-        <p className="mt-2">Je kunt je abonnement op elk moment opzeggen</p>
+        <p>{t('pricesExclVat')}</p>
+        <p className="mt-2">{t('cancelAnytime')}</p>
       </div>
     </div>
   );

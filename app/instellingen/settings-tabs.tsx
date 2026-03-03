@@ -9,19 +9,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 const settingsTabs = [
-  { value: "profiel", label: "Profiel" },
-  { value: "beveiliging", label: "Beveiliging" },
-  { value: "bedrijfsgegevens", label: "Bedrijf" },
-  { value: "financiele-gegevens", label: "Financieel" },
-  { value: "fiscaal", label: "Fiscaal" },
-  { value: "email", label: "Email" },
-  { value: "betalingen", label: "Betalingen" },
-  { value: "ondertekening", label: "Ondertekening" },
-  { value: "abonnement", label: "Abonnement" },
-  { value: "import-export", label: "Import/Export" },
-] as const
+  { value: "profiel", labelKey: "tabProfile" } as const,
+  { value: "beveiliging", labelKey: "tabSecurity" } as const,
+  { value: "bedrijfsgegevens", labelKey: "tabCompany" } as const,
+  { value: "financiele-gegevens", labelKey: "tabFinancial" } as const,
+  { value: "fiscaal", labelKey: "tabFiscal" } as const,
+  { value: "email", labelKey: "tabEmail" } as const,
+  { value: "betalingen", labelKey: "tabPayments" } as const,
+  { value: "ondertekening", labelKey: "tabSigning" } as const,
+  { value: "abonnement", labelKey: "tabSubscription" } as const,
+  { value: "import-export", labelKey: "tabImportExport" } as const,
+]
 
 interface SettingsTabsProps {
   defaultTab: string
@@ -30,6 +31,7 @@ interface SettingsTabsProps {
 
 export function SettingsTabs({ defaultTab, children }: SettingsTabsProps) {
   const [activeTab, setActiveTab] = useState(defaultTab)
+  const { t } = useTranslations("settingsPage")
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -38,13 +40,16 @@ export function SettingsTabs({ defaultTab, children }: SettingsTabsProps) {
         <Select value={activeTab} onValueChange={setActiveTab}>
           <SelectTrigger className="w-full">
             <SelectValue>
-              {settingsTabs.find((t) => t.value === activeTab)?.label}
+              {(() => {
+                const tab = settingsTabs.find((tab) => tab.value === activeTab)
+                return tab ? t(tab.labelKey) : null
+              })()}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {settingsTabs.map((tab) => (
               <SelectItem key={tab.value} value={tab.value}>
-                {tab.label}
+                {t(tab.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -55,7 +60,7 @@ export function SettingsTabs({ defaultTab, children }: SettingsTabsProps) {
       <TabsList className="hidden md:grid w-full grid-cols-10">
         {settingsTabs.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value}>
-            {tab.label}
+            {t(tab.labelKey)}
           </TabsTrigger>
         ))}
       </TabsList>

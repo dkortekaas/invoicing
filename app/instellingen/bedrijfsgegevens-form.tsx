@@ -7,6 +7,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
+import { useTranslations } from "@/components/providers/locale-provider"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -28,6 +29,7 @@ interface BedrijfsgegevensFormProps {
 }
 
 export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps) {
+  const { t } = useTranslations("settingsPage")
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [logoUrl, setLogoUrl] = useState<string | null>(initialData.companyLogo || null)
@@ -48,10 +50,10 @@ export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps)
         companyLogo: logoUrl || null,
       })
       router.refresh()
-      toast.success("Bedrijfsgegevens opgeslagen")
+      toast.success(t("companyFormSaveSuccess"))
     } catch (error) {
       console.error("Error saving company info:", error)
-      toast.error("Fout bij opslaan bedrijfsgegevens")
+      toast.error(t("companyFormSaveError"))
     } finally {
       setIsSubmitting(false)
     }
@@ -67,9 +69,9 @@ export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps)
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Bedrijfsgegevens</CardTitle>
+            <CardTitle>{t("companySettingsFormTitle")}</CardTitle>
             <CardDescription>
-              Deze gegevens worden getoond op je facturen
+              {t("companySettingsFormDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -78,9 +80,9 @@ export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps)
               name="companyName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bedrijfsnaam *</FormLabel>
+                  <FormLabel>{t("companySettingsFormCompanyName")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Mijn Bedrijf B.V." {...field} />
+                    <Input placeholder={t("companySettingsFormCompanyNamePlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -93,11 +95,11 @@ export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps)
                 name="companyEmail"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>E-mailadres *</FormLabel>
+                    <FormLabel>{t("companySettingsFormEmail")}</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="info@bedrijf.nl"
+                        placeholder={t("companySettingsFormEmailPlaceholder")}
                         {...field}
                       />
                     </FormControl>
@@ -111,10 +113,10 @@ export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps)
                 name="companyPhone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Telefoonnummer</FormLabel>
+                    <FormLabel>{t("companySettingsFormPhone")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="020-1234567"
+                        placeholder={t("companySettingsFormPhonePlaceholder")}
                         {...field}
                         value={field.value ?? ""}
                       />
@@ -139,9 +141,9 @@ export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps)
               name="companyAddress"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Adres *</FormLabel>
+                  <FormLabel>{t("companySettingsFormAddress")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Straatnaam 123" {...field} />
+                    <Input placeholder={t("companySettingsFormAddressPlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -154,9 +156,9 @@ export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps)
                 name="companyPostalCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Postcode *</FormLabel>
+                    <FormLabel>{t("companySettingsFormPostalCode")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="1234 AB" {...field} />
+                      <Input placeholder={t("companySettingsFormPostalCodePlaceholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -168,9 +170,9 @@ export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps)
                 name="companyCity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Plaats *</FormLabel>
+                    <FormLabel>{t("companySettingsFormCity")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Amsterdam" {...field} />
+                      <Input placeholder={t("companySettingsFormCityPlaceholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -182,7 +184,7 @@ export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps)
                 name="companyCountry"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Land</FormLabel>
+                    <FormLabel>{t("companySettingsFormCountry")}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -195,7 +197,7 @@ export function BedrijfsgegevensForm({ initialData }: BedrijfsgegevensFormProps)
             <div className="flex justify-end pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Opslaan
+                {t("companySettingsFormSave")}
               </Button>
             </div>
           </CardContent>

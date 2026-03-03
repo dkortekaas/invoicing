@@ -297,19 +297,21 @@ interface CreditNotePDFProps {
   creditNote: CreditNoteData
   watermarkSettings?: SystemSettings | null
   userTier?: string
+  useKOR?: boolean
 }
 
-export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE' }: CreditNotePDFProps) {
+export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE', useKOR = false }: CreditNotePDFProps) {
   const currencyCode = creditNote.currencyCode || "EUR"
 
-  // Group VAT by rate
+  // Group VAT by rate (use 0 when KOR)
   const vatByRate = creditNote.items.reduce((acc, item) => {
-    const rate = item.vatRate.toString()
+    const effectiveRate = useKOR ? 0 : item.vatRate
+    const rate = effectiveRate.toString()
     if (!acc[rate]) {
       acc[rate] = { subtotal: 0, vatAmount: 0 }
     }
     acc[rate].subtotal += item.subtotal
-    acc[rate].vatAmount += item.subtotal * (item.vatRate / 100)
+    acc[rate].vatAmount += item.subtotal * (effectiveRate / 100)
     return acc
   }, {} as Record<string, { subtotal: number; vatAmount: number }>)
 
@@ -421,9 +423,11 @@ export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE'
             <Text style={[styles.tableHeaderCell, styles.colPrice]}>
               Prijs
             </Text>
-            <Text style={[styles.tableHeaderCell, styles.colVat]}>
-              BTW
-            </Text>
+            {!useKOR && (
+              <Text style={[styles.tableHeaderCell, styles.colVat]}>
+                BTW
+              </Text>
+            )}
             <Text style={[styles.tableHeaderCell, styles.colTotal]}>
               Credit
             </Text>
@@ -441,9 +445,11 @@ export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE'
               <Text style={[styles.tableCell, styles.colPrice]}>
                 {formatCurrencyWithCode(item.unitPrice, currencyCode)}
               </Text>
-              <Text style={[styles.tableCell, styles.colVat]}>
-                {item.vatRate}%
-              </Text>
+              {!useKOR && (
+                <Text style={[styles.tableCell, styles.colVat]}>
+                  {item.vatRate}%
+                </Text>
+              )}
               <Text style={[styles.tableCell, styles.colTotal, styles.creditAmount]}>
                 -{formatCurrencyWithCode(item.subtotal, currencyCode)}
               </Text>
@@ -460,16 +466,25 @@ export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE'
             </Text>
           </View>
 
-          {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
-            <View key={rate} style={styles.totalRow}>
-              <Text style={styles.totalLabel}>
-                BTW {rate}% over {formatCurrencyWithCode(subtotal, currencyCode)}
-              </Text>
+          {useKOR ? (
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>BTW (KOR)</Text>
               <Text style={styles.totalValue}>
-                -{formatCurrencyWithCode(vatAmount, currencyCode)}
+                -{formatCurrencyWithCode(0, currencyCode)}
               </Text>
             </View>
-          ))}
+          ) : (
+            Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
+              <View key={rate} style={styles.totalRow}>
+                <Text style={styles.totalLabel}>
+                  BTW {rate}% over {formatCurrencyWithCode(subtotal, currencyCode)}
+                </Text>
+                <Text style={styles.totalValue}>
+                  -{formatCurrencyWithCode(vatAmount, currencyCode)}
+                </Text>
+              </View>
+            ))
+          )}
 
           <View style={styles.totalRowFinal}>
             <Text style={styles.totalLabelFinal}>Credit Totaal</Text>
@@ -478,6 +493,15 @@ export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE'
             </Text>
           </View>
         </View>
+
+        {/* KOR notice - legally required */}
+        {useKOR && (
+          <View style={styles.notes}>
+            <Text style={styles.notesText}>
+              Vrijgesteld van omzetbelasting op grond van de Kleineondernemersregeling (KOR).
+            </Text>
+          </View>
+        )}
 
         {/* Notes */}
         {creditNote.notes && (
@@ -495,10 +519,12 @@ export function CreditNotePDF({ creditNote, watermarkSettings, userTier = 'FREE'
               <Text style={styles.paymentLabel}>IBAN</Text>
               <Text style={styles.paymentValue}>{creditNote.company.iban}</Text>
             </View>
-            <View style={styles.paymentBlock}>
-              <Text style={styles.paymentLabel}>BTW-nummer</Text>
-              <Text style={styles.paymentValue}>{creditNote.company.vatNumber}</Text>
-            </View>
+            {!useKOR && (
+              <View style={styles.paymentBlock}>
+                <Text style={styles.paymentLabel}>BTW-nummer</Text>
+                <Text style={styles.paymentValue}>{creditNote.company.vatNumber}</Text>
+              </View>
+            )}
             <View style={styles.paymentBlock}>
               <Text style={styles.paymentLabel}>KvK-nummer</Text>
               <Text style={styles.paymentValue}>{creditNote.company.kvkNumber}</Text>

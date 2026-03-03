@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import { CreditNoteForm } from "@/components/creditnotes/credit-note-form"
 import { getCustomersForDropdown } from "@/app/klanten/actions"
+import { getFiscalSettings } from "@/app/instellingen/actions"
 import { getCreditNote } from "../../actions"
 import { T } from "@/components/t"
 
@@ -12,9 +13,10 @@ interface BewerkenPageProps {
 
 export default async function BewerkenCreditNotaPage({ params }: BewerkenPageProps) {
   const { id } = await params
-  const [creditNote, customers] = await Promise.all([
+  const [creditNote, customers, fiscalSettings] = await Promise.all([
     getCreditNote(id),
     getCustomersForDropdown(),
+    getFiscalSettings(),
   ])
 
   if (!creditNote) {
@@ -67,6 +69,7 @@ export default async function BewerkenCreditNotaPage({ params }: BewerkenPagePro
         creditNote={creditNoteForForm}
         customers={customersForForm}
         preselectedCustomerId={creditNote.customerId}
+        useKOR={fiscalSettings.useKOR}
       />
     </div>
   )

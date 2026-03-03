@@ -10,7 +10,7 @@ import { PageViewTracker } from "@/components/marketing/page-view-tracker"
 import { AuthProvider } from "@/components/providers/session-provider"
 import { LocaleProvider } from "@/components/providers/locale-provider"
 import { Toaster } from "@/components/ui/sonner"
-import { type Locale, defaultLocale, LOCALE_COOKIE } from "@/lib/i18n"
+import { type Locale, defaultLocale, LOCALE_COOKIE, getMessages, createT } from "@/lib/i18n"
 
 const inter = localFont({
   src: [
@@ -33,15 +33,22 @@ export const viewport: Viewport = {
   ],
 }
 
-export const metadata: Metadata = {
-  title: {
-    default: "Declair",
-    template: "%s | Declair",
-  },
-  description: "Jouw administratie. Helder geregeld.",
-  formatDetection: {
-    telephone: false,
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const [headersList, cookieStore] = await Promise.all([headers(), cookies()])
+  const xLocale = headersList.get("x-locale") as Locale | null
+  const locale = xLocale ?? (cookieStore.get(LOCALE_COOKIE)?.value as Locale | undefined) ?? defaultLocale
+  const messages = getMessages(locale)
+  const t = createT(messages, "layout")
+  return {
+    title: {
+      default: t("titleDefault"),
+      template: t("titleTemplate"),
+    },
+    description: t("description"),
+    formatDetection: {
+      telephone: false,
+    },
+  }
 }
 
 export default async function RootLayout({

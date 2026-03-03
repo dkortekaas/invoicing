@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -19,27 +19,9 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/
-
-const schema = z.object({
-  defaultExpiryDays: z.number().int().min(1, "Minimaal 1 dag").max(365, "Maximaal 365 dagen"),
-  autoCreateInvoice: z.boolean(),
-  requireDrawnSignature: z.boolean(),
-  agreementText: z.string().max(2000, "Maximaal 2000 tekens").optional(),
-  signingPageMessage: z.string().max(1000, "Maximaal 1000 tekens").optional(),
-  logoUrl: z
-    .string()
-    .max(2048)
-    .refine((v) => !v || v.startsWith("http"), "Voer een geldige URL in (beginnend met http)")
-    .optional(),
-  primaryColor: z
-    .string()
-    .refine((v) => !v || HEX_COLOR_RE.test(v), "Voer een geldige hex-kleur in (#RRGGBB)")
-    .optional(),
-})
-
-type FormData = z.infer<typeof schema>
 
 interface OndertekeningFormProps {
   initialData: {
@@ -53,10 +35,42 @@ interface OndertekeningFormProps {
   }
 }
 
+type FormData = {
+  defaultExpiryDays: number
+  autoCreateInvoice: boolean
+  requireDrawnSignature: boolean
+  agreementText?: string
+  signingPageMessage?: string
+  logoUrl?: string
+  primaryColor?: string
+}
+
 export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
+  const { t } = useTranslations("settingsPage")
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const schema = useMemo(
+    () =>
+      z.object({
+        defaultExpiryDays: z.number().int().min(1, t("signingFormValidationMinDays")).max(365, t("signingFormValidationMaxDays")),
+        autoCreateInvoice: z.boolean(),
+        requireDrawnSignature: z.boolean(),
+        agreementText: z.string().max(2000, t("signingFormValidationMaxChars2000")).optional(),
+        signingPageMessage: z.string().max(1000, t("signingFormValidationMaxChars1000")).optional(),
+        logoUrl: z
+          .string()
+          .max(2048)
+          .refine((v) => !v || v.startsWith("http"), t("signingFormValidationUrl"))
+          .optional(),
+        primaryColor: z
+          .string()
+          .refine((v) => !v || HEX_COLOR_RE.test(v), t("signingFormValidationHex"))
+          .optional(),
+      }),
+    [t]
+  )
 
   const {
     register,
@@ -96,13 +110,13 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
 
       if (!res.ok) {
         const body = await res.json() as { error?: string }
-        throw new Error(body.error ?? "Instellingen opslaan mislukt")
+        throw new Error(body.error ?? t("signingFormSaveError"))
       }
 
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Er is een fout opgetreden")
+      setError(err instanceof Error ? err.message : t("signingFormGenericError"))
     } finally {
       setLoading(false)
     }
@@ -153,7 +167,7 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
               <p className="text-sm text-red-600">{errors.defaultExpiryDays.message}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              Na dit aantal dagen verloopt de ondertekeningslink automatisch.
+              {t("signingFormExpiryHelp")}
             </p>
           </div>
 
@@ -163,10 +177,10 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-0.5">
               <Label htmlFor="autoCreateInvoice" className="text-sm font-medium">
-                Automatisch factuur aanmaken
+                {t("signingFormAutoInvoice")}
               </Label>
               <p className="text-xs text-muted-foreground">
-                Maak direct een conceptfactuur aan zodra een offerte wordt ondertekend.
+                {t("signingFormAutoInvoiceHelp")}
               </p>
             </div>
             <Controller
@@ -188,11 +202,10 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-0.5">
               <Label htmlFor="requireDrawnSignature" className="text-sm font-medium">
-                Getekende handtekening vereisen
+                {t("signingFormRequireSignature")}
               </Label>
               <p className="text-xs text-muted-foreground">
-                Klanten kunnen alleen een getekende of geüploade handtekening plaatsen.
-                Een getypte naam wordt niet geaccepteerd.
+                {t("signingFormRequireSignatureHelp")}
               </p>
             </div>
             <Controller
@@ -269,7 +282,7 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
               <p className="text-sm text-red-600">{errors.primaryColor.message}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              Kleur voor de akkoord-knop en accentbalk. Hex-formaat, bijv. #2563eb.
+              {t("signingFormPrimaryColorHelp")}
             </p>
           </div>
         </CardContent>
@@ -278,18 +291,18 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
       {/* Teksten */}
       <Card>
         <CardHeader>
-          <CardTitle>Teksten op de ondertekeningspagina</CardTitle>
+          <CardTitle>{t("signingFormTextsTitle")}</CardTitle>
           <CardDescription>
-            Pas de standaardteksten aan die de klant te zien krijgt bij het ondertekenen.
+            {t("signingFormTextsDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           {/* Persoonlijk bericht */}
           <div className="space-y-1.5">
-            <Label htmlFor="signingPageMessage">Persoonlijk bericht (optioneel)</Label>
+            <Label htmlFor="signingPageMessage">{t("signingFormMessageLabel")}</Label>
             <Textarea
               id="signingPageMessage"
-              placeholder="Geachte klant, hierbij treft u de offerte aan voor uw beoordeling en akkoord..."
+              placeholder={t("signingFormMessagePlaceholder")}
               rows={3}
               {...register("signingPageMessage")}
             />
@@ -297,7 +310,7 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
               <p className="text-sm text-red-600">{errors.signingPageMessage.message}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              Dit bericht wordt bovenaan de ondertekeningspagina getoond.
+              {t("signingFormMessageHelp")}
             </p>
           </div>
 
@@ -305,10 +318,10 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
 
           {/* Akkoordtekst */}
           <div className="space-y-1.5">
-            <Label htmlFor="agreementText">Akkoordtekst</Label>
+            <Label htmlFor="agreementText">{t("signingFormAgreementLabel")}</Label>
             <Textarea
               id="agreementText"
-              placeholder="Door het plaatsen van mijn handtekening ga ik akkoord met de inhoud van deze offerte..."
+              placeholder={t("signingFormAgreementPlaceholder")}
               rows={4}
               {...register("agreementText")}
             />
@@ -316,7 +329,7 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
               <p className="text-sm text-red-600">{errors.agreementText.message}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              De klant gaat akkoord met deze tekst bij het ondertekenen. Laat leeg voor de standaardtekst.
+              {t("signingFormAgreementHelp")}
             </p>
           </div>
         </CardContent>
@@ -326,10 +339,10 @@ export function OndertekeningForm({ initialData }: OndertekeningFormProps) {
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Opslaan...
+            {t("signingFormSaving")}
           </>
         ) : (
-          "Instellingen opslaan"
+          t("signingFormSaveButton")
         )}
       </Button>
     </form>

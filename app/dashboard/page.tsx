@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatsCard } from "@/components/dashboard/stats-card"
 import { SigningPendingWidget } from "@/components/dashboard/signing-pending-widget"
 import { AccountingSyncWidget } from "@/components/accounting/AccountingSyncWidget"
-import { formatCurrency, STATUS_LABELS, STATUS_COLORS, cn } from "@/lib/utils"
+import { formatCurrency, STATUS_COLORS, cn, getTranslatedUtils } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { getDashboardStats, getRecentInvoices } from "@/app/facturen/actions"
 import { getCurrentUserId } from "@/lib/server-utils"
+import { getAppLocale } from "@/lib/i18n"
 import { db } from "@/lib/db"
 import { T } from "@/components/t"
 
@@ -16,6 +17,8 @@ export const dynamic = "force-dynamic"
 
 export default async function DashboardPage() {
   const userId = await getCurrentUserId()
+  const locale = await getAppLocale()
+  const { STATUS_LABELS } = getTranslatedUtils(locale)
 
   const [stats, recentInvoices, activeConnectionCount] = await Promise.all([
     getDashboardStats(),

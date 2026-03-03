@@ -78,7 +78,7 @@ export default async function BTWPage() {
         <div>
           <h1 className="text-3xl font-bold"><T ns="vatPage" k="title" /></h1>
           <p className="text-muted-foreground">
-            <T ns="vatPage" k="description" />
+            <T ns="vatPage" k="pageDescription" />
           </p>
         </div>
 

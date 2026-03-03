@@ -9,23 +9,24 @@ import { formatDate } from "@/lib/utils"
 import { ExternalLink, FileText, CreditCard, Loader2, RefreshCw, Receipt } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { useTranslations } from "@/components/providers/locale-provider"
 
-const TIER_LABELS: Record<string, string> = {
-  FREE: "Gratis",
-  STARTER: "Starter",
-  PROFESSIONAL: "Professional",
-  BUSINESS: "Business",
+const TIER_KEYS: Record<string, string> = {
+  FREE: "subscriptionTierFree",
+  STARTER: "subscriptionTierStarter",
+  PROFESSIONAL: "subscriptionTierProfessional",
+  BUSINESS: "subscriptionTierBusiness",
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  ACTIVE: "Actief",
-  TRIALING: "Proefperiode",
-  PAST_DUE: "Betaling achterstallig",
-  CANCELED: "Opgezegd",
-  INCOMPLETE: "Incompleet",
-  INCOMPLETE_EXPIRED: "Verlopen",
-  UNPAID: "Onbetaald",
-  FREE: "Gratis",
+const STATUS_KEYS: Record<string, string> = {
+  ACTIVE: "subscriptionStatusActive",
+  TRIALING: "subscriptionStatusTrialing",
+  PAST_DUE: "subscriptionStatusPastDue",
+  CANCELED: "subscriptionStatusCanceled",
+  INCOMPLETE: "subscriptionStatusIncomplete",
+  INCOMPLETE_EXPIRED: "subscriptionStatusIncompleteExpired",
+  UNPAID: "subscriptionStatusUnpaid",
+  FREE: "subscriptionTierFree",
 }
 
 interface SubscriptionData {
@@ -41,6 +42,7 @@ interface SubscriptionData {
 }
 
 export function SubscriptionSettings() {
+  const { t } = useTranslations("settingsPage")
   const [data, setData] = useState<SubscriptionData | null>(null)
   const [loading, setLoading] = useState(true)
   const [portalLoading, setPortalLoading] = useState(false)
@@ -80,13 +82,13 @@ export function SubscriptionSettings() {
       const res = await fetch("/api/stripe/sync", { method: "POST" })
       const json = await res.json()
       if (json.synced) {
-        toast.success("Abonnement bijgewerkt")
+        toast.success(t("subscriptionSyncSuccess"))
         refetch()
       } else {
-        toast.error(json?.error ?? "Geen abonnement gevonden in Stripe")
+        toast.error(json?.error ?? t("subscriptionNoSubscription"))
       }
     } catch {
-      toast.error("Synchronisatie mislukt")
+      toast.error(t("subscriptionSyncError"))
     } finally {
       setSyncLoading(false)
     }
@@ -98,14 +100,18 @@ export function SubscriptionSettings() {
       const res = await fetch("/api/stripe/sync-invoice-expense", { method: "POST" })
       const json = await res.json()
       if (!res.ok) {
-        toast.error(json?.error ?? "Kon facturen niet toevoegen")
+        toast.error(json?.error ?? t("subscriptionAddInvoiceError"))
         return
       }
       const n = json.created ?? 0
-      if (n > 0) toast.success(`${n} abonnementsfactuur${n > 1 ? "en" : ""} toegevoegd aan kosten`)
-      else toast.info("Geen nieuwe facturen om toe te voegen")
+      if (n > 0) {
+        const msg = n === 1 ? t("subscriptionAddInvoiceSuccessOne") : t("subscriptionAddInvoiceSuccessMany").replace("{count}", String(n))
+        toast.success(msg)
+      } else {
+        toast.info(t("subscriptionNoNewInvoices"))
+      }
     } catch {
-      toast.error("Actie mislukt")
+      toast.error(t("subscriptionActionFailed"))
     } finally {
       setInvoiceExpenseLoading(false)
     }
@@ -123,12 +129,12 @@ export function SubscriptionSettings() {
       })
       const json = await res.json()
       if (!res.ok) {
-        toast.error(json?.error ?? "Kon geen portal openen")
+        toast.error(json?.error ?? t("subscriptionPortalError"))
         return
       }
       if (json.url) window.open(json.url, "_blank", "noopener,noreferrer")
     } catch {
-      toast.error("Er is een fout opgetreden")
+      toast.error(t("subscriptionGenericError"))
     } finally {
       setPortalLoading(false)
     }
@@ -160,26 +166,32 @@ export function SubscriptionSettings() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <CardTitle className="text-2xl">
-                {data ? TIER_LABELS[data.tier] ?? data.tier : "Gratis"}
+                {data ? (() => {
+                  const key = TIER_KEYS[data.tier]
+                  return key ? t(key) : data.tier
+                })() : t("subscriptionTierFree")}
               </CardTitle>
               <CardDescription>
                 {isPaidTier
                   ? isStripeSubscription
-                    ? "Je Stripe-abonnement en facturatie"
-                    : "Dit abonnement is handmatig toegewezen (niet via Stripe)."
-                  : "Je gebruikt het gratis plan. Upgrade voor meer functies."}
+                    ? t("subscriptionDescStripe")
+                    : t("subscriptionDescManual")
+                  : t("subscriptionDescFree")}
               </CardDescription>
               <div className="flex flex-wrap items-center gap-2 mt-2">
                 {isPaidTier && !isStripeSubscription && (
-                  <Badge variant="secondary">Handmatig toegewezen</Badge>
+                  <Badge variant="secondary">{t("subscriptionBadgeManual")}</Badge>
                 )}
                 {data?.status && (
                   <Badge variant={data.status === "ACTIVE" || data.status === "TRIALING" ? "default" : "secondary"}>
-                    {STATUS_LABELS[data.status] ?? data.status}
+                    {(() => {
+                      const key = STATUS_KEYS[data.status]
+                      return key ? t(key) : data.status
+                    })()}
                   </Badge>
                 )}
                 {isStripeSubscription && Boolean(data?.cancelAtPeriodEnd) && (
-                  <Badge variant="secondary">Wordt opgezegd</Badge>
+                  <Badge variant="secondary">{t("subscriptionBadgeCanceling")}</Badge>
                 )}
               </div>
             </div>
@@ -190,7 +202,7 @@ export function SubscriptionSettings() {
                 ) : (
                   <ExternalLink className="mr-2 h-4 w-4" />
                 )}
-                Beheer abonnement & facturen
+                {t("subscriptionManageButton")}
               </Button>
             )}
           </div>
@@ -219,17 +231,17 @@ export function SubscriptionSettings() {
 
           {hasPortal && (
             <div className="rounded-lg border p-4 space-y-2">
-              <p className="text-sm font-medium">In het Stripe-portaal kun je:</p>
+              <p className="text-sm font-medium">{t("subscriptionPortalIntro")}</p>
               <ul className="text-sm text-muted-foreground space-y-1 flex flex-wrap gap-x-6 gap-y-1">
                 <li className="flex items-center gap-1.5">
                   <FileText className="h-4 w-4" />
-                  Facturen bekijken en downloaden
+                  {t("subscriptionPortalInvoices")}
                 </li>
                 <li className="flex items-center gap-1.5">
                   <CreditCard className="h-4 w-4" />
-                  Betaalmethode wijzigen
+                  {t("subscriptionPortalPayment")}
                 </li>
-                <li>Abonnement opzeggen of wijzigen</li>
+                <li>{t("subscriptionPortalCancel")}</li>
               </ul>
             </div>
           )}
@@ -237,10 +249,10 @@ export function SubscriptionSettings() {
           {!isPaidTier && (
             <div className="rounded-lg border border-dashed p-4 space-y-3">
               <p className="text-sm text-muted-foreground">
-                Upgrade naar Starter, Professional of Business voor onbeperkt factureren, OCR, BTW-overzichten en meer.
+                {t("subscriptionUpgradeText")}
               </p>
               <Button asChild variant="default" size="sm">
-                <Link href="/upgrade">Bekijk abonnementen</Link>
+                <Link href="/upgrade">{t("subscriptionViewPlans")}</Link>
               </Button>
             </div>
           )}
@@ -256,7 +268,7 @@ export function SubscriptionSettings() {
                 className="text-muted-foreground"
               >
                 {syncLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                {syncLoading ? "Synchroniseren…" : "Synchroniseer met Stripe"}
+                {syncLoading ? t("subscriptionSyncing") : t("subscriptionSyncButton")}
               </Button>
               <Button
                 type="button"
@@ -267,7 +279,7 @@ export function SubscriptionSettings() {
                 className="text-muted-foreground"
               >
                 {invoiceExpenseLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Receipt className="h-4 w-4" />}
-                {invoiceExpenseLoading ? "Bezig…" : "Abonnementsfactuur toevoegen aan kosten"}
+                {invoiceExpenseLoading ? t("subscriptionAdding") : t("subscriptionAddInvoiceButton")}
               </Button>
             </div>
           )}

@@ -1,5 +1,6 @@
-import { Metadata } from "next"
+import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
+import { getServerT } from "@/lib/i18n"
 import { getPaymentPageData } from "./actions"
 import { PaymentForm } from "./payment-form"
 import { formatCurrency, formatDate } from "@/lib/utils"
@@ -7,10 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { CreditCard, Building2, Calendar, FileText } from "lucide-react"
+import { T } from "@/components/t"
 
-export const metadata: Metadata = {
-  title: "Factuur betalen",
-  description: "Betaal je factuur veilig met iDEAL",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getServerT("payPage")
+  return {
+    title: t("title"),
+    description: t("description"),
+  }
 }
 
 interface PaymentPageProps {
@@ -41,9 +46,9 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
             <CreditCard className="h-6 w-6 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold">Factuur betalen</h1>
+          <h1 className="text-2xl font-bold"><T ns="payPage" k="headerTitle" /></h1>
           <p className="text-muted-foreground mt-1">
-            Betaal veilig met iDEAL
+            <T ns="payPage" k="headerSubtitle" />
           </p>
         </div>
 
@@ -57,19 +62,19 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
                   {invoice.issuer.companyName}
                 </CardDescription>
                 <CardTitle className="text-lg mt-1">
-                  Factuur {invoice.invoiceNumber}
+                  <T ns="payPage" k="invoiceLabel" vars={{ number: invoice.invoiceNumber }} />
                 </CardTitle>
               </div>
               <Badge variant="outline" className="shrink-0">
                 <FileText className="h-3 w-3 mr-1" />
-                {invoice.status === "SENT" ? "Openstaand" : invoice.status}
+                {invoice.status === "SENT" ? <T ns="payPage" k="statusOutstanding" /> : invoice.status}
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Customer */}
             <div className="text-sm">
-              <span className="text-muted-foreground">Aan: </span>
+              <span className="text-muted-foreground"><T ns="payPage" k="toLabel" />: </span>
               <span className="font-medium">
                 {invoice.customer.companyName || invoice.customer.name}
               </span>
@@ -86,7 +91,7 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
 
             {/* Items */}
             <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">Factuurregels</p>
+              <p className="text-sm font-medium text-muted-foreground"><T ns="payPage" k="invoiceLinesLabel" /></p>
               {invoice.items.map((item, index) => (
                 <div key={index} className="flex justify-between text-sm">
                   <span className="truncate max-w-[200px]">{item.description}</span>
@@ -118,7 +123,7 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
         {/* Footer */}
         <div className="mt-8 text-center text-xs text-muted-foreground">
           <p>
-            Betalingen worden veilig verwerkt via{" "}
+            <T ns="payPage" k="footerSecure" />{" "}
             <a
               href="https://www.mollie.com"
               target="_blank"
@@ -129,7 +134,7 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
             </a>
           </p>
           <p className="mt-1">
-            Vragen? Neem contact op met{" "}
+            <T ns="payPage" k="footerQuestions" />{" "}
             <a
               href={`mailto:${invoice.issuer.companyEmail}`}
               className="underline hover:text-primary"

@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { toggleNewsletterSubscription } from "./actions"
 
 interface NewsletterFormProps {
@@ -20,6 +21,7 @@ interface NewsletterFormProps {
 
 export function NewsletterForm({ subscribed }: NewsletterFormProps) {
   const router = useRouter()
+  const { t } = useTranslations("settingsPage")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleToggle() {
@@ -29,11 +31,11 @@ export function NewsletterForm({ subscribed }: NewsletterFormProps) {
       router.refresh()
       toast.success(
         subscribed
-          ? "Je bent uitgeschreven van de nieuwsbrief"
-          : "Je bent ingeschreven voor de nieuwsbrief"
+          ? t("newsletterFormSuccessUnsubscribed")
+          : t("newsletterFormSuccessSubscribed")
       )
     } catch {
-      toast.error("Er is een fout opgetreden")
+      toast.error(t("newsletterFormError"))
     } finally {
       setIsSubmitting(false)
     }
@@ -42,9 +44,9 @@ export function NewsletterForm({ subscribed }: NewsletterFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Nieuwsbrief</CardTitle>
+        <CardTitle>{t("newsletterFormTitle")}</CardTitle>
         <CardDescription>
-          Ontvang periodiek tips over facturatie, belastingen en ondernemen
+          {t("newsletterFormDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -52,8 +54,8 @@ export function NewsletterForm({ subscribed }: NewsletterFormProps) {
           <div>
             <p className="text-sm text-muted-foreground">
               {subscribed
-                ? "Je bent ingeschreven voor de nieuwsbrief."
-                : "Je bent niet ingeschreven voor de nieuwsbrief."}
+                ? t("newsletterFormSubscribed")
+                : t("newsletterFormNotSubscribed")}
             </p>
           </div>
           <Button
@@ -62,7 +64,7 @@ export function NewsletterForm({ subscribed }: NewsletterFormProps) {
             disabled={isSubmitting}
           >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {subscribed ? "Uitschrijven" : "Inschrijven"}
+            {subscribed ? t("newsletterFormUnsubscribe") : t("newsletterFormSubscribe")}
           </Button>
         </div>
       </CardContent>

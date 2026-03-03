@@ -23,7 +23,13 @@ export async function generateRecurringInvoice({
         orderBy: { sortOrder: 'asc' },
       },
       customer: true,
-      user: true,
+      user: {
+        include: {
+          fiscalSettings: {
+            select: { useKOR: true },
+          },
+        },
+      },
       priceChanges: {
         where: {
           applied: false,
@@ -46,6 +52,8 @@ export async function generateRecurringInvoice({
     throw new Error('Recurring invoice is niet actief');
   }
 
+  const useKOR = recurring.user.fiscalSettings?.useKOR ?? false;
+
   // Check of er een price change moet worden toegepast
   const items = recurring.items;
   if (recurring.priceChanges.length > 0) {
@@ -64,15 +72,17 @@ export async function generateRecurringInvoice({
     }
   }
 
-  // Bereken totalen
+  // Bereken totalen (0% BTW bij KOR)
   const subtotal = items.reduce((sum, item) => {
     return sum + (Number(item.quantity) * Number(item.unitPrice));
   }, 0);
 
-  const vatAmount = items.reduce((sum, item) => {
-    const itemSubtotal = Number(item.quantity) * Number(item.unitPrice);
-    return sum + (itemSubtotal * (Number(item.vatRate) / 100));
-  }, 0);
+  const vatAmount = useKOR
+    ? 0
+    : items.reduce((sum, item) => {
+        const itemSubtotal = Number(item.quantity) * Number(item.unitPrice);
+        return sum + (itemSubtotal * (Number(item.vatRate) / 100));
+      }, 0);
 
   const total = subtotal + vatAmount;
 
@@ -89,7 +99,7 @@ export async function generateRecurringInvoice({
         description: item.description,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
-        vatRate: item.vatRate,
+        vatRate: useKOR ? 0 : Number(item.vatRate),
         subtotal: Number(item.quantity) * Number(item.unitPrice),
       })),
     };
@@ -142,16 +152,22 @@ export async function generateRecurringInvoice({
       notes: recurring.description,
       currencyCode: recurring.currencyCode || 'EUR',
       items: {
-        create: items.map((item, index) => ({
-          description: item.description,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          vatRate: item.vatRate,
-          subtotal: Number(item.quantity) * Number(item.unitPrice),
-          vatAmount: (Number(item.quantity) * Number(item.unitPrice)) * (Number(item.vatRate) / 100),
-          total: (Number(item.quantity) * Number(item.unitPrice)) * (1 + Number(item.vatRate) / 100),
-          sortOrder: index,
-        })),
+        create: items.map((item, index) => {
+          const itemVatRate = useKOR ? 0 : Number(item.vatRate);
+          const itemSubtotal = Number(item.quantity) * Number(item.unitPrice);
+          const itemVatAmount = itemSubtotal * (itemVatRate / 100);
+          const itemTotal = itemSubtotal + itemVatAmount;
+          return {
+            description: item.description,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            vatRate: itemVatRate,
+            subtotal: itemSubtotal,
+            vatAmount: itemVatAmount,
+            total: itemTotal,
+            sortOrder: index,
+          };
+        }),
       },
     },
     include: {

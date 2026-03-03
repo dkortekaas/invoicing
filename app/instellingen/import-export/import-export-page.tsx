@@ -34,7 +34,8 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { nl } from 'date-fns/locale';
+import { nl, enUS } from 'date-fns/locale';
+import { useTranslations } from '@/components/providers/locale-provider';
 import { ExportModal } from '@/components/import-export/export-modal';
 import { ImportWizard } from '@/components/import-export/import-wizard';
 import type { EntityType } from '@/lib/import-export/fields';
@@ -69,24 +70,44 @@ const ENTITY_ICONS: Record<EntityType, React.ComponentType<{ className?: string 
   TIME_ENTRIES: Clock,
 };
 
-const ENTITY_LABELS: Record<EntityType, string> = {
-  CUSTOMERS: 'Klanten',
-  INVOICES: 'Facturen',
-  EXPENSES: 'Onkosten',
-  PRODUCTS: 'Producten',
-  TIME_ENTRIES: 'Urenregistratie',
+const ENTITY_KEYS: Record<EntityType, string> = {
+  CUSTOMERS: 'importExportEntityCustomers',
+  INVOICES: 'importExportEntityInvoices',
+  EXPENSES: 'importExportEntityExpenses',
+  PRODUCTS: 'importExportEntityProducts',
+  TIME_ENTRIES: 'importExportEntityTimeEntries',
 };
 
-const STATUS_BADGES: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  PENDING: { label: 'Wachtend', variant: 'secondary' },
-  VALIDATING: { label: 'Valideren', variant: 'secondary' },
-  PROCESSING: { label: 'Bezig', variant: 'default' },
-  COMPLETED: { label: 'Voltooid', variant: 'default' },
-  FAILED: { label: 'Mislukt', variant: 'destructive' },
-  CANCELLED: { label: 'Geannuleerd', variant: 'outline' },
+const STATUS_KEYS: Record<string, string> = {
+  PENDING: 'importExportStatusPending',
+  VALIDATING: 'importExportStatusValidating',
+  PROCESSING: 'importExportStatusProcessing',
+  COMPLETED: 'importExportStatusCompleted',
+  FAILED: 'importExportStatusFailed',
+  CANCELLED: 'importExportStatusCancelled',
+};
+
+const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  PENDING: 'secondary',
+  VALIDATING: 'secondary',
+  PROCESSING: 'default',
+  COMPLETED: 'default',
+  FAILED: 'destructive',
+  CANCELLED: 'outline',
 };
 
 export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) {
+  const { t, locale } = useTranslations('settingsPage');
+  const dateLocale = locale === 'en' ? enUS : nl;
+
+  const getEntityLabel = (type: EntityType) => {
+    const key = ENTITY_KEYS[type];
+    return key ? t(key) : type;
+  };
+  const getStatusLabel = (status: string) => {
+    const key = STATUS_KEYS[status];
+    return key ? t(key) : status;
+  };
   const router = useRouter();
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [exportEntityType, setExportEntityType] = useState<EntityType>('CUSTOMERS');
@@ -124,9 +145,9 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
           </Link>
         </Button>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Import & Export</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t('importExportPageTitle')}</h2>
           <p className="text-muted-foreground">
-            Importeer en exporteer je gegevens als Excel of CSV
+            {t('importExportPageDescription')}
           </p>
         </div>
       </div>
@@ -134,8 +155,8 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
       {/* Export Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Exporteren</CardTitle>
-          <CardDescription>Download je gegevens als Excel of CSV bestand</CardDescription>
+          <CardTitle>{t('importExportExportTitle')}</CardTitle>
+          <CardDescription>{t('importExportExportDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -145,8 +166,8 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
                 <Card key={type} className="relative">
                   <CardContent className="pt-6 text-center">
                     <Icon className="mx-auto h-8 w-8 text-muted-foreground" />
-                    <div className="mt-2 font-medium">{ENTITY_LABELS[type]}</div>
-                    <div className="text-sm text-muted-foreground">{count} records</div>
+                    <div className="mt-2 font-medium">{getEntityLabel(type)}</div>
+                    <div className="text-sm text-muted-foreground">{count} {t('importExportRecords')}</div>
                     <Button
                       variant="outline"
                       size="sm"
@@ -154,7 +175,7 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
                       onClick={() => handleExport(type)}
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      Exporteren
+                      {t('importExportExport')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -167,8 +188,8 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
       {/* Import Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Importeren</CardTitle>
-          <CardDescription>Importeer gegevens vanuit Excel of CSV</CardDescription>
+          <CardTitle>{t('importExportImportTitle')}</CardTitle>
+          <CardDescription>{t('importExportImportDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -178,7 +199,7 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
                 <Card key={type} className="relative">
                   <CardContent className="pt-6 text-center">
                     <Icon className="mx-auto h-8 w-8 text-muted-foreground" />
-                    <div className="mt-2 font-medium">{ENTITY_LABELS[type]}</div>
+                    <div className="mt-2 font-medium">{getEntityLabel(type)}</div>
                     <Button
                       variant="outline"
                       size="sm"
@@ -186,7 +207,7 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
                       onClick={() => handleImport(type)}
                     >
                       <Upload className="mr-2 h-4 w-4" />
-                      Importeren
+                      {t('importExportImport')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -199,14 +220,14 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
       {/* Templates Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Templates</CardTitle>
-          <CardDescription>Download lege templates met de juiste kolomnamen</CardDescription>
+          <CardTitle>{t('importExportTemplatesTitle')}</CardTitle>
+          <CardDescription>{t('importExportTemplatesDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Template</TableHead>
+                <TableHead>{t('importExportTemplate')}</TableHead>
                 <TableHead className="w-32">Excel</TableHead>
                 <TableHead className="w-32">CSV</TableHead>
               </TableRow>
@@ -214,7 +235,7 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
             <TableBody>
               {entityData.map(({ type }) => (
                 <TableRow key={type}>
-                  <TableCell className="font-medium">{ENTITY_LABELS[type]}</TableCell>
+                  <TableCell className="font-medium">{getEntityLabel(type)}</TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
@@ -222,7 +243,7 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
                       onClick={() => handleDownloadTemplate(type, 'xlsx')}
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      Download
+                      {t('importExportDownload')}
                     </Button>
                   </TableCell>
                   <TableCell>
@@ -232,7 +253,7 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
                       onClick={() => handleDownloadTemplate(type, 'csv')}
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      Download
+                      {t('importExportDownload')}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -246,30 +267,32 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
       {recentJobs.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Recente imports</CardTitle>
-            <CardDescription>Overzicht van je laatste import taken</CardDescription>
+            <CardTitle>{t('importExportRecentTitle')}</CardTitle>
+            <CardDescription>{t('importExportRecentDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Datum</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Bestand</TableHead>
-                  <TableHead>Resultaat</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t('importExportColDate')}</TableHead>
+                  <TableHead>{t('importExportColType')}</TableHead>
+                  <TableHead>{t('importExportColFile')}</TableHead>
+                  <TableHead>{t('importExportColResult')}</TableHead>
+                  <TableHead>{t('importExportColStatus')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recentJobs.map((job) => {
-                  const statusBadge = STATUS_BADGES[job.status] || STATUS_BADGES.PENDING;
+                  const statusVariant = STATUS_VARIANTS[job.status] ?? STATUS_VARIANTS.PENDING;
                   return (
                     <TableRow key={job.id}>
                       <TableCell>
-                        {format(new Date(job.createdAt), 'dd-MM-yyyy HH:mm', { locale: nl })}
+                        {format(new Date(job.createdAt), 'dd-MM-yyyy HH:mm', { locale: dateLocale })}
                       </TableCell>
                       <TableCell>
-                        {ENTITY_LABELS[job.entityType as EntityType] || job.entityType}
+                        {ENTITY_KEYS[job.entityType as EntityType]
+                          ? getEntityLabel(job.entityType as EntityType)
+                          : job.entityType}
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {job.fileName || '-'}
@@ -278,27 +301,27 @@ export function ImportExportPage({ counts, recentJobs }: ImportExportPageProps) 
                         {job.status === 'COMPLETED' ? (
                           <span className="flex items-center gap-1">
                             <CheckCircle className="h-4 w-4 text-green-500" />
-                            {job.successRows} ok
+                            {job.successRows} {t('importExportResultOk')}
                             {job.errorRows ? (
-                              <span className="text-red-500">, {job.errorRows} fout</span>
+                              <span className="text-red-500">, {job.errorRows} {t('importExportResultError')}</span>
                             ) : null}
                           </span>
                         ) : job.status === 'FAILED' ? (
                           <span className="flex items-center gap-1 text-red-500">
                             <AlertCircle className="h-4 w-4" />
-                            Mislukt
+                            {t('importExportFailed')}
                           </span>
                         ) : job.status === 'PROCESSING' ? (
                           <span className="flex items-center gap-1">
                             <Loader2 className="h-4 w-4 animate-spin" />
-                            Bezig...
+                            {t('importExportProcessing')}
                           </span>
                         ) : (
                           '-'
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={statusBadge?.variant || 'secondary'}>{statusBadge?.label || job.status}</Badge>
+                        <Badge variant={statusVariant}>{getStatusLabel(job.status)}</Badge>
                       </TableCell>
                     </TableRow>
                   );

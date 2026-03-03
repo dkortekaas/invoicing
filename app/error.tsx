@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { AlertCircle, RefreshCw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useTranslations } from "@/components/providers/locale-provider";
 
 export default function Error({
   error,
@@ -13,6 +14,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { t } = useTranslations("errorPage");
+
   useEffect(() => {
     console.error("Application error:", error);
   }, [error]);
@@ -26,7 +29,7 @@ export default function Error({
         className="flex max-w-md flex-col items-center text-center"
       >
         <p className="mb-2 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-          Fout 500
+          {t("label")}
         </p>
         <div className="flex items-center justify-center gap-3">
           <span className="text-6xl font-bold tabular-nums text-destructive md:text-7xl">
@@ -35,21 +38,20 @@ export default function Error({
           <AlertCircle className="size-10 text-destructive md:size-12" aria-hidden />
         </div>
         <h2 className="mt-4 text-xl font-semibold text-foreground md:text-2xl">
-          Er ging iets mis
+          {t("title")}
         </h2>
         <p className="mt-3 text-muted-foreground">
-          Er is een onverwachte fout opgetreden. Probeer de pagina te vernieuwen of ga terug naar
-          het startscherm.
+          {t("description")}
         </p>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Button size="lg" onClick={reset} className="gap-2">
             <RefreshCw className="size-4" />
-            Opnieuw proberen
+            {t("tryAgain")}
           </Button>
           <Button asChild variant="outline" size="lg" className="gap-2">
             <Link href="/">
               <Home className="size-4" />
-              Naar home
+              {t("goHome")}
             </Link>
           </Button>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from '@/components/providers/locale-provider'
 import Link from 'next/link'
 import { MoreHorizontal, Pencil, Trash } from 'lucide-react'
 import { toast } from 'sonner'
@@ -31,6 +32,7 @@ interface VendorActionsProps {
 }
 
 export function VendorActions({ vendor }: VendorActionsProps) {
+  const { t } = useTranslations("vendorsPage")
   const router = useRouter()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -43,7 +45,7 @@ export function VendorActions({ vendor }: VendorActionsProps) {
       setIsDeleteDialogOpen(false)
       router.refresh()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Fout bij verwijderen')
+      toast.error(error instanceof Error ? error.message : t('deleteError'))
     } finally {
       setIsDeleting(false)
     }
@@ -62,7 +64,7 @@ export function VendorActions({ vendor }: VendorActionsProps) {
           <DropdownMenuItem asChild>
             <Link href={`/leveranciers/${vendor.id}`}>
               <Pencil className="mr-2 h-4 w-4" />
-              Bewerken
+              {t('edit')}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -70,7 +72,7 @@ export function VendorActions({ vendor }: VendorActionsProps) {
             className="text-destructive focus:text-destructive"
           >
             <Trash className="mr-2 h-4 w-4" />
-            Verwijderen
+            {t('delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -78,10 +80,9 @@ export function VendorActions({ vendor }: VendorActionsProps) {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Leverancier verwijderen</DialogTitle>
+            <DialogTitle>{t('deleteDialogTitle')}</DialogTitle>
             <DialogDescription>
-              Weet je zeker dat je &quot;{vendor.name}&quot; wilt verwijderen?
-              De gekoppelde uitgaven blijven behouden.
+              {t('deleteDialogDesc').replace('{name}', vendor.name)}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -90,14 +91,14 @@ export function VendorActions({ vendor }: VendorActionsProps) {
               onClick={() => setIsDeleteDialogOpen(false)}
               disabled={isDeleting}
             >
-              Annuleren
+              {t('cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? 'Verwijderen...' : 'Verwijderen'}
+              {isDeleting ? t('deleting') : t('delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

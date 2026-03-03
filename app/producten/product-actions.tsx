@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog"
 import { ProductForm } from "@/components/products/product-form"
 import { deleteProduct } from "./actions"
+import { useTranslations } from "@/components/providers/locale-provider"
 interface ProductActionsProps {
   product: {
     id: string
@@ -35,6 +36,7 @@ interface ProductActionsProps {
 
 export function ProductActions({ product }: ProductActionsProps) {
   const router = useRouter()
+  const { t } = useTranslations("productsPage")
   const [isLoading, setIsLoading] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -45,10 +47,10 @@ export function ProductActions({ product }: ProductActionsProps) {
       await deleteProduct(product.id)
       setIsDeleteDialogOpen(false)
       router.refresh()
-      toast.success("Product verwijderd")
+      toast.success(t("actionDeleteSuccess"))
     } catch (error) {
       console.error("Error deleting product:", error)
-      toast.error("Fout bij verwijderen product")
+      toast.error(t("actionDeleteError"))
     } finally {
       setIsLoading(false)
     }
@@ -60,13 +62,13 @@ export function ProductActions({ product }: ProductActionsProps) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" disabled={isLoading}>
             <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Acties</span>
+            <span className="sr-only">{t("actions")}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
             <Pencil className="mr-2 h-4 w-4" />
-            Bewerken
+            {t("edit")}
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-red-600"
@@ -74,7 +76,7 @@ export function ProductActions({ product }: ProductActionsProps) {
             disabled={isLoading}
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            Verwijderen
+            {t("delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -82,9 +84,9 @@ export function ProductActions({ product }: ProductActionsProps) {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Product verwijderen</DialogTitle>
+            <DialogTitle>{t("actionDeleteTitle")}</DialogTitle>
             <DialogDescription>
-              Weet je zeker dat je dit product wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
+              {t("actionDeleteDescription")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -93,14 +95,14 @@ export function ProductActions({ product }: ProductActionsProps) {
               onClick={() => setIsDeleteDialogOpen(false)}
               disabled={isLoading}
             >
-              Annuleren
+              {t("cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isLoading}
             >
-              Verwijderen
+              {t("delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

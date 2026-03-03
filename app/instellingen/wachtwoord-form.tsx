@@ -19,11 +19,13 @@ import {
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { changePasswordSchema, type ChangePasswordFormData } from "@/lib/validations"
 import { changePassword } from "./actions"
 
 export function WachtwoordForm() {
   const router = useRouter()
+  const { t } = useTranslations("settingsPage")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -48,7 +50,7 @@ export function WachtwoordForm() {
       form.reset()
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Fout bij wijzigen wachtwoord")
+      setError(err instanceof Error ? err.message : t("passwordFormError"))
     } finally {
       setIsSubmitting(false)
     }
@@ -59,10 +61,10 @@ export function WachtwoordForm() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Lock className="h-5 w-5" />
-          Wachtwoord wijzigen
+          {t("passwordFormTitle")}
         </CardTitle>
         <CardDescription>
-          Wijzig je wachtwoord om je account te beveiligen
+          {t("passwordFormDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -77,7 +79,7 @@ export function WachtwoordForm() {
             {success && (
               <Alert>
                 <AlertDescription>
-                  Je wachtwoord is succesvol gewijzigd.
+                  {t("passwordFormSuccess")}
                 </AlertDescription>
               </Alert>
             )}
@@ -87,11 +89,11 @@ export function WachtwoordForm() {
               name="currentPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Huidig wachtwoord</FormLabel>
+                  <FormLabel>{t("passwordFormCurrentPassword")}</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
-                      placeholder="Voer je huidige wachtwoord in"
+                      placeholder={t("passwordFormCurrentPasswordPlaceholder")}
                       {...field}
                     />
                   </FormControl>
@@ -105,16 +107,16 @@ export function WachtwoordForm() {
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nieuw wachtwoord</FormLabel>
+                  <FormLabel>{t("passwordFormNewPassword")}</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
-                      placeholder="Voer je nieuwe wachtwoord in"
+                      placeholder={t("passwordFormNewPasswordPlaceholder")}
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    Minimaal 6 karakters
+                    {t("passwordFormMinLength")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -126,11 +128,11 @@ export function WachtwoordForm() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bevestig nieuw wachtwoord</FormLabel>
+                  <FormLabel>{t("passwordFormConfirmPassword")}</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
-                      placeholder="Bevestig je nieuwe wachtwoord"
+                      placeholder={t("passwordFormConfirmPasswordPlaceholder")}
                       {...field}
                     />
                   </FormControl>
@@ -142,7 +144,7 @@ export function WachtwoordForm() {
             <div className="flex justify-end pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Wachtwoord wijzigen
+                {t("passwordFormSubmit")}
               </Button>
             </div>
           </form>

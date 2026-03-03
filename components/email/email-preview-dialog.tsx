@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Eye, Loader2 } from 'lucide-react';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 interface EmailPreviewDialogProps {
   invoiceId: string;
@@ -24,6 +25,7 @@ export function EmailPreviewDialog({
   reminderType,
   trigger,
 }: EmailPreviewDialogProps) {
+  const { t } = useTranslations('invoicesPage');
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [html, setHtml] = useState<string | null>(null);
@@ -45,13 +47,13 @@ export function EmailPreviewDialog({
       
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Preview laden mislukt');
+        throw new Error(data.error || t('emailPreviewFailed'));
       }
 
       const htmlContent = await response.text();
       setHtml(htmlContent);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Er is een fout opgetreden');
+      setError(err instanceof Error ? err.message : t('emailPreviewError'));
     } finally {
       setLoading(false);
     }
@@ -64,16 +66,16 @@ export function EmailPreviewDialog({
       ) : (
         <Button onClick={handlePreview} variant="outline" size="sm">
           <Eye className="mr-2 h-4 w-4" />
-          Preview
+          {t('emailPreviewButton')}
         </Button>
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle>Email Preview</DialogTitle>
+            <DialogTitle>{t('emailPreviewTitle')}</DialogTitle>
             <DialogDescription>
-              Voorbeeld van hoe de email eruit zal zien
+              {t('emailPreviewDescription')}
             </DialogDescription>
           </DialogHeader>
 
@@ -81,7 +83,7 @@ export function EmailPreviewDialog({
             {loading && (
               <div className="flex items-center justify-center h-64" role="status">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden="true" />
-                <span className="sr-only">Email preview laden...</span>
+                <span className="sr-only">{t('emailPreviewLoading')}</span>
               </div>
             )}
 
@@ -95,7 +97,7 @@ export function EmailPreviewDialog({
               <iframe
                 srcDoc={html}
                 className="w-full h-full min-h-[600px] border-0"
-                title="Email preview"
+                title={t('emailPreviewTitle')}
               />
             )}
           </div>

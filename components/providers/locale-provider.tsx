@@ -11,6 +11,7 @@ import {
   defaultLocale,
   createT,
 } from "@/lib/i18n";
+import { getTranslatedUtils } from "@/lib/utils";
 import { localePath, localeFromPathname, isMarketingPath } from "@/lib/i18n-routes";
 
 const messagesMap: Record<Locale, Messages> = {
@@ -118,4 +119,10 @@ export function useTranslations(namespace: keyof Messages) {
   const { t, locale, lp } = useLocale();
   const tNs = useCallback((key: string) => t(namespace, key), [t, namespace]);
   return { t: tNs, locale, lp };
+}
+
+/** Get translated utils (VAT_RATES, UNITS, etc.) for the current locale. */
+export function useTranslatedUtils() {
+  const { locale } = useLocale();
+  return useMemo(() => getTranslatedUtils(locale), [locale]);
 }

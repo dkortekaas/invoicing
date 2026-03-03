@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from '@/components/providers/locale-provider';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -62,22 +63,11 @@ const expenseSchema = z.object({
 
 type ExpenseFormData = z.infer<typeof expenseSchema>;
 
-const CATEGORIES = [
-  { value: 'OFFICE', label: 'Kantoorkosten' },
-  { value: 'TRAVEL', label: 'Reiskosten' },
-  { value: 'EQUIPMENT', label: 'Apparatuur' },
-  { value: 'SOFTWARE', label: 'Software/Subscriptions' },
-  { value: 'MARKETING', label: 'Marketing' },
-  { value: 'EDUCATION', label: 'Opleiding' },
-  { value: 'INSURANCE', label: 'Verzekeringen' },
-  { value: 'ACCOUNTANT', label: 'Accountant' },
-  { value: 'TELECOM', label: 'Telefoon/Internet' },
-  { value: 'UTILITIES', label: 'Energie' },
-  { value: 'RENT', label: 'Huur' },
-  { value: 'MAINTENANCE', label: 'Onderhoud' },
-  { value: 'PROFESSIONAL', label: 'Professionele diensten' },
-  { value: 'OTHER', label: 'Overig' },
-];
+const CATEGORY_VALUES = [
+  'OFFICE', 'TRAVEL', 'EQUIPMENT', 'SOFTWARE', 'MARKETING', 'EDUCATION',
+  'INSURANCE', 'ACCOUNTANT', 'TELECOM', 'UTILITIES', 'RENT', 'MAINTENANCE',
+  'PROFESSIONAL', 'OTHER',
+] as const;
 
 // Serialized expense type (Decimal fields converted to numbers for client components)
 type SerializedExpense = Omit<Expense, 'amount' | 'vatAmount' | 'vatRate' | 'netAmount' | 'deductiblePerc'> & {
@@ -96,7 +86,13 @@ interface ExpenseFormProps {
 }
 
 export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess = false }: ExpenseFormProps) {
+  const { t } = useTranslations('expenseForm');
   const router = useRouter();
+
+  const CATEGORIES = CATEGORY_VALUES.map((value) => ({
+    value,
+    label: t(`categories.${value}`),
+  }));
   const [loading, setLoading] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState<string | null>(expense?.receipt || null);
   const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
@@ -170,7 +166,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
       }
     } catch (error) {
       console.error('OCR error:', error);
-      toast.error('Fout bij automatisch herkennen van gegevens');
+      toast.error(t('ocrError'));
     } finally {
       setIsOcrProcessing(false);
     }
@@ -208,7 +204,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
     }
 
     setShowOcrPreview(false);
-    toast.success('Gegevens overgenomen uit factuur');
+    toast.success(t('ocrDataTaken'));
   };
 
   const handleReceiptUpload = async (file: File) => {
@@ -227,18 +223,18 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Fout bij uploaden bestand');
+        throw new Error(data.error || t('uploadError'));
       }
 
       const data = await response.json();
       setReceiptUrl(data.url);
-      toast.success('Bestand geüpload');
+      toast.success(t('uploadSuccess'));
 
       // Trigger OCR extraction automatically after upload
       await triggerOcrExtraction(data.url);
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error(error instanceof Error ? error.message : 'Fout bij uploaden bestand');
+      toast.error(error instanceof Error ? error.message : t('uploadError'));
     } finally {
       setIsUploadingReceipt(false);
       if (fileInputRef.current) {
@@ -262,13 +258,13 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     ];
     if (!allowedTypes.includes(file.type)) {
-      toast.error('Alleen PDF, afbeeldingen of Word documenten zijn toegestaan');
+      toast.error(t('uploadAllowedTypes'));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Bestand is te groot. Maximum 5MB toegestaan');
+      toast.error(t('uploadMaxSize'));
       return;
     }
 
@@ -293,10 +289,10 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
       }
 
       setReceiptUrl(null);
-      toast.success('Bestand verwijderd');
+      toast.success(t('uploadRemoveSuccess'));
     } catch (error) {
       console.error('Remove receipt error:', error);
-      toast.error('Fout bij verwijderen bestand');
+      toast.error(t('uploadRemoveError'));
     }
   };
 
@@ -336,10 +332,10 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
         router.push('/kosten');
         router.refresh();
       }
-      toast.success(expense ? 'Kosten bijgewerkt' : 'Kosten toegevoegd');
+      toast.success(expense ? t('updateSuccess') : t('addSuccess'));
     } catch (error) {
       console.error('Submit error:', error);
-      toast.error('Er is een fout opgetreden');
+      toast.error(t('submitError'));
     } finally {
       setLoading(false);
     }
@@ -358,13 +354,13 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
         throw new Error('Failed to delete expense');
       }
 
-      toast.success('Uitgave verwijderd');
+      toast.success(t('deleteSuccess'));
       setIsDeleteDialogOpen(false);
       router.push('/kosten');
       router.refresh();
     } catch (error) {
       console.error('Delete error:', error);
-      toast.error('Er is een fout opgetreden bij het verwijderen');
+      toast.error(t('deleteError'));
     } finally {
       setLoading(false);
     }
@@ -379,7 +375,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
             name="date"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Datum *</FormLabel>
+                <FormLabel>{t('formDateLabel')}</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -393,7 +389,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
                         {field.value ? (
                           format(field.value, 'PPP', { locale: nl })
                         ) : (
-                          <span>Kies een datum</span>
+                          <span>{t('formSelectDate')}</span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
@@ -418,11 +414,11 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
             name="category"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Categorie *</FormLabel>
+                <FormLabel>{t('formCategoryLabel')}</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecteer categorie" />
+                      <SelectValue placeholder={t('formSelectCategory')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -444,9 +440,9 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Beschrijving *</FormLabel>
+              <FormLabel>{t('formDescriptionLabel')}</FormLabel>
               <FormControl>
-                <Input placeholder="Bijv. Laptop voor werk" {...field} />
+                <Input placeholder={t('formDescriptionPlaceholder')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -459,7 +455,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
             name="amount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Bedrag (incl. BTW) *</FormLabel>
+                <FormLabel>{t('formAmountLabel')}</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -481,7 +477,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
             name="vatRate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>BTW% *</FormLabel>
+                <FormLabel>{t('formVatRateLabel')}</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(parseFloat(value))}
                   value={field.value.toString()}
@@ -508,7 +504,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
               name="deductiblePerc"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Aftrekbaar %</FormLabel>
+                  <FormLabel>{t('formDeductiblePercLabel')}</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -521,7 +517,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
                     />
                   </FormControl>
                   <FormDescription>
-                    Percentage BTW dat aftrekbaar is
+                    {t('formDeductiblePercDescription')}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -536,10 +532,10 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
             name="supplier"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Leverancier</FormLabel>
+                <FormLabel>{t('formSupplierLabel')}</FormLabel>
                 <FormControl>
                   <Input 
-                    placeholder="Naam leverancier" 
+                    placeholder={t('formSupplierPlaceholder')} 
                     value={field.value ?? ''}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
@@ -556,10 +552,10 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
             name="invoiceNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Factuurnummer</FormLabel>
+                <FormLabel>{t('formInvoiceNumberLabel')}</FormLabel>
                 <FormControl>
                   <Input 
-                    placeholder="Factuurnummer leverancier" 
+                    placeholder={t('formInvoiceNumberPlaceholder')} 
                     value={field.value ?? ''}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
@@ -577,10 +573,10 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notities</FormLabel>
+              <FormLabel>{t('formNotesLabel')}</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Extra informatie" 
+                  placeholder={t('formNotesPlaceholder')} 
                   value={field.value ?? ''}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
@@ -596,8 +592,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
-              Je maakt gebruik van de kleineondernemersregeling (KOR). BTW op uitgaven is niet aftrekbaar.
-              De kosten zijn wel aftrekbaar voor de inkomstenbelasting.
+              {t('korDescription')}
             </AlertDescription>
           </Alert>
         ) : (
@@ -607,9 +602,9 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
             render={({ field }) => (
               <FormItem className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-base">BTW aftrekbaar</FormLabel>
+                  <FormLabel className="text-base">{t('formDeductibleLabel')}</FormLabel>
                   <FormDescription>
-                    Is de BTW op deze uitgave aftrekbaar?
+                    {t('formDeductibleDescription')}
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -624,20 +619,20 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
         )}
 
         <FormItem>
-          <FormLabel>Factuur/Bon</FormLabel>
+          <FormLabel>{t('formReceiptLabel')}</FormLabel>
           <div className="space-y-4">
             {receiptUrl && (
               <div className="flex items-center gap-4 p-4 border rounded-lg">
                 <FileText className="h-8 w-8 text-muted-foreground" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium">Bestand geüpload</p>
+                  <p className="text-sm font-medium">{t('uploadSuccess')}</p>
                   <Link
                     href={receiptUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-primary hover:underline"
                   >
-                    Bekijk bestand
+                    {t('viewFile')}
                   </Link>
                 </div>
                 <Button
@@ -657,9 +652,9 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
               <div className="flex items-center gap-3 p-4 border rounded-lg bg-muted/50">
                 <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 <div>
-                  <p className="text-sm font-medium">Gegevens worden herkend...</p>
+                  <p className="text-sm font-medium">{t('ocrProcessing')}</p>
                   <p className="text-xs text-muted-foreground">
-                    We analyseren je factuur of bon
+                    {t('ocrProcessingDescription')}
                   </p>
                 </div>
               </div>
@@ -689,12 +684,12 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
                     {isUploadingReceipt ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploaden...
+                        {t('uploading')}
                       </>
                     ) : (
                       <>
                         <Upload className="mr-2 h-4 w-4" />
-                        {receiptUrl ? 'Bestand wijzigen' : 'Factuur/Bon uploaden'}
+                        {receiptUrl ? t('changeFile') : t('uploadReceipt')}
                       </>
                     )}
                   </span>
@@ -702,11 +697,11 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
               </Label>
             </div>
             <FormDescription>
-              Upload een PDF, afbeelding of Word document van de factuur of bon. Maximaal 5MB.
+              {t('uploadDescription')}
               {hasOcrAccess && (
                 <span className="flex items-center gap-1 mt-1 text-primary">
                   <Sparkles className="h-3 w-3" />
-                  Gegevens worden automatisch herkend (Pro)
+                  {t('ocrProDescription')}
                 </span>
               )}
             </FormDescription>
@@ -735,14 +730,14 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
                 onClick={() => setIsDeleteDialogOpen(true)}
                 disabled={loading}
               >
-                Verwijderen
+                {t('delete')}
               </Button>
               <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Uitgave verwijderen</DialogTitle>
+                    <DialogTitle>{t('deleteDialogTitle')}</DialogTitle>
                     <DialogDescription>
-                      Weet je zeker dat je deze uitgave wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
+                      {t('deleteDialogDescription')}
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter className="flex justify-end gap-2 sm:justify-end">
@@ -752,7 +747,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
                       onClick={() => setIsDeleteDialogOpen(false)}
                       disabled={loading}
                     >
-                      Annuleren
+                      {t('cancel')}
                     </Button>
                     <Button
                       type="button"
@@ -760,7 +755,7 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
                       onClick={handleDelete}
                       disabled={loading}
                     >
-                      Verwijderen
+                      {t('delete')}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -776,10 +771,10 @@ export function ExpenseForm({ expense, onSuccess, useKOR = false, hasOcrAccess =
               onClick={() => router.back()}
               disabled={loading}
             >
-              Annuleren
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Opslaan...' : 'Opslaan'}
+              {loading ? t('saving') : t('save')}
             </Button>
           </div>
         </div>

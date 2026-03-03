@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Info } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
@@ -37,16 +39,13 @@ import {
 import { creditNoteSchema, type CreditNoteFormData, type CreditNoteReason } from "@/lib/validations"
 import {
   formatCurrencyWithCode,
-  VAT_RATES,
-  UNITS,
-  CREDIT_NOTE_REASONS,
   roundToTwo,
   cn,
 } from "@/lib/utils"
 import { getCurrencySymbol } from "@/lib/currency/formatting"
 import { createCreditNote, updateCreditNote } from "@/app/creditnotas/actions"
 import { CurrencySelector } from "@/components/currency/currency-selector"
-import { useTranslations } from "@/components/providers/locale-provider"
+import { useTranslations, useTranslatedUtils } from "@/components/providers/locale-provider"
 
 const REASON_KEY_MAP: Record<string, string> = {
   PRICE_CORRECTION: "reasonPriceCorrection",
@@ -80,6 +79,7 @@ interface CreditNoteFormProps {
   preselectedCustomerId?: string
   preselectedInvoice?: Invoice
   defaultItems?: CreditNoteFormData["items"]
+  useKOR?: boolean
 }
 
 export function CreditNoteForm({
@@ -89,9 +89,11 @@ export function CreditNoteForm({
   preselectedCustomerId,
   preselectedInvoice,
   defaultItems,
+  useKOR = false,
 }: CreditNoteFormProps) {
   const router = useRouter()
   const { t } = useTranslations("creditNotesPage")
+  const { VAT_RATES, UNITS, CREDIT_NOTE_REASONS } = useTranslatedUtils()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const today = new Date()
@@ -118,7 +120,7 @@ export function CreditNoteForm({
           description: "",
           quantity: 1,
           unitPrice: 0,
-          vatRate: 21,
+          vatRate: useKOR ? 0 : 21,
           unit: "uur",
           originalInvoiceItemId: null,
         },
@@ -143,10 +145,11 @@ export function CreditNoteForm({
     (_inv) => !watchedCustomerId || invoices.length === 0
   )
 
-  // Calculate totals
+  // Calculate totals (use 0% VAT when KOR applies)
   const calculateItemTotal = (item: (typeof watchedItems)[0]) => {
+    const effectiveVatRate = useKOR ? 0 : item.vatRate
     const subtotal = roundToTwo(item.quantity * item.unitPrice)
-    const vatAmount = roundToTwo(subtotal * (item.vatRate / 100))
+    const vatAmount = roundToTwo(subtotal * (effectiveVatRate / 100))
     return { subtotal, vatAmount, total: roundToTwo(subtotal + vatAmount) }
   }
 
@@ -162,10 +165,10 @@ export function CreditNoteForm({
     { subtotal: 0, vatAmount: 0, total: 0 }
   )
 
-  // Group VAT by rate
+  // Group VAT by rate (use 0 when KOR)
   const vatByRate = watchedItems.reduce((acc, item) => {
     const { subtotal, vatAmount } = calculateItemTotal(item)
-    const rate = item.vatRate.toString()
+    const rate = (useKOR ? 0 : item.vatRate).toString()
     if (!acc[rate]) {
       acc[rate] = { subtotal: 0, vatAmount: 0 }
     }
@@ -175,12 +178,17 @@ export function CreditNoteForm({
   }, {} as Record<string, { subtotal: number; vatAmount: number }>)
 
   async function onSubmit(data: CreditNoteFormData, status: "DRAFT" | "FINAL" = "DRAFT") {
+    // When KOR applies, force all items to 0% VAT
+    const submitData = useKOR
+      ? { ...data, items: data.items.map((item) => ({ ...item, vatRate: 0 })) }
+      : data
+
     setIsSubmitting(true)
     try {
       if (creditNote?.id) {
-        await updateCreditNote(creditNote.id, data, status)
+        await updateCreditNote(creditNote.id, submitData, status)
       } else {
-        await createCreditNote(data, status)
+        await createCreditNote(submitData, status)
       }
       router.push("/creditnotas")
       router.refresh()
@@ -194,6 +202,17 @@ export function CreditNoteForm({
   return (
     <Form {...form}>
       <form className="space-y-6">
+        {useKOR && (
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertTitle>{t("formKorTitle")}</AlertTitle>
+            <AlertDescription>
+              {t("formKorDesc").split(t("formKorSettings"))[0]}
+              <a href="/instellingen" className="underline font-medium">{t("formKorSettings")}</a>
+              {t("formKorDesc").split(t("formKorSettings"))[1]}
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Left column - Customer & Details */}
           <div className="space-y-6 lg:col-span-2">
@@ -509,23 +528,29 @@ export function CreditNoteForm({
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>{t("formItemVat")}</FormLabel>
-                              <Select
-                                onValueChange={(v) => field.onChange(parseInt(v))}
-                                defaultValue={field.value?.toString()}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {VAT_RATES.map((rate) => (
-                                    <SelectItem key={rate.value} value={rate.value}>
-                                      {rate.value}%
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                              {useKOR ? (
+                                <div className="flex h-10 items-center rounded-md border bg-muted px-3 text-sm text-muted-foreground">
+                                  {t("formKorVatDisplay")}
+                                </div>
+                              ) : (
+                                <Select
+                                  onValueChange={(v) => field.onChange(parseInt(v))}
+                                  defaultValue={field.value?.toString()}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {VAT_RATES.map((rate) => (
+                                      <SelectItem key={rate.value} value={rate.value}>
+                                        {rate.value}%
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -551,7 +576,7 @@ export function CreditNoteForm({
                       description: "",
                       quantity: 1,
                       unitPrice: 0,
-                      vatRate: 21,
+                      vatRate: useKOR ? 0 : 21,
                       unit: "uur",
                       originalInvoiceItemId: null,
                     })
@@ -624,19 +649,27 @@ export function CreditNoteForm({
                 <Separator />
 
                 {/* VAT breakdown by rate */}
-                {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
-                  <div key={rate} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {t("formVatLine").replace("{rate}", rate).replace("{amount}", formatCurrencyWithCode(subtotal, watchedCurrencyCode))}
-                    </span>
-                    <span className="text-red-600">-{formatCurrencyWithCode(vatAmount, watchedCurrencyCode)}</span>
+                {useKOR ? (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t("formVatKorExempt")}</span>
+                    <span className="text-red-600">-{formatCurrencyWithCode(0, watchedCurrencyCode)}</span>
                   </div>
-                ))}
-
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">{t("formTotalVat")}</span>
-                  <span className="text-red-600">-{formatCurrencyWithCode(totals.vatAmount, watchedCurrencyCode)}</span>
-                </div>
+                ) : (
+                  <>
+                    {Object.entries(vatByRate).map(([rate, { subtotal, vatAmount }]) => (
+                      <div key={rate} className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          {t("formVatLine").replace("{rate}", rate).replace("{amount}", formatCurrencyWithCode(subtotal, watchedCurrencyCode))}
+                        </span>
+                        <span className="text-red-600">-{formatCurrencyWithCode(vatAmount, watchedCurrencyCode)}</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{t("formTotalVat")}</span>
+                      <span className="text-red-600">-{formatCurrencyWithCode(totals.vatAmount, watchedCurrencyCode)}</span>
+                    </div>
+                  </>
+                )}
 
                 <Separator />
 

@@ -3,7 +3,7 @@
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
-import { useTranslations } from "@/components/providers/locale-provider"
+import { useTranslations, useTranslatedUtils } from "@/components/providers/locale-provider"
 import { useState, useEffect } from "react"
 import { Loader2, Plus, Trash2, CalendarIcon, Info } from "lucide-react"
 import { format } from "date-fns"
@@ -39,8 +39,6 @@ import {
 import { invoiceSchema, type InvoiceFormData } from "@/lib/validations"
 import {
   formatCurrencyWithCode,
-  VAT_RATES,
-  UNITS,
   calculateDueDate,
   roundToTwo,
   cn,
@@ -77,6 +75,7 @@ interface InvoiceFormProps {
 export function InvoiceForm({ invoice, customers, products, useKOR = false }: InvoiceFormProps) {
   const router = useRouter()
   const { t } = useTranslations("invoicesPage")
+  const { VAT_RATES, UNITS } = useTranslatedUtils()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [, setSelectedCustomer] = useState<Customer | null>(null)
 

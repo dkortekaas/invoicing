@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { RefreshCw, Check, Loader2, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -64,6 +65,7 @@ export function CurrencySettingsForm({
   currencies,
   settings: initialSettings,
 }: CurrencySettingsFormProps) {
+  const { t, locale } = useTranslations("settingsPage")
   const router = useRouter()
   const [settings, setSettings] = useState(initialSettings)
   const [isSaving, setIsSaving] = useState(false)
@@ -117,17 +119,17 @@ export function CurrencySettingsForm({
       if (response.ok) {
         const data = await response.json()
         if (data.status === "success") {
-          setLastSyncResult(`${data.synced} wisselkoersen bijgewerkt`)
+          setLastSyncResult(t("currencySettingsSyncSuccess").replace("{count}", String(data.synced)))
         } else if (data.status === "skipped") {
-          setLastSyncResult("Wisselkoersen zijn al actueel")
+          setLastSyncResult(t("currencySettingsSyncSkipped"))
         }
         router.refresh()
       } else {
-        setLastSyncResult("Synchronisatie mislukt")
+        setLastSyncResult(t("currencySettingsSyncFailed"))
       }
     } catch (error) {
       console.error("Failed to sync rates:", error)
-      setLastSyncResult("Synchronisatie mislukt")
+      setLastSyncResult(t("currencySettingsSyncFailed"))
     } finally {
       setIsSyncing(false)
     }
@@ -138,18 +140,18 @@ export function CurrencySettingsForm({
       {/* Base Currency - Fixed to EUR for Dutch users */}
       <Card>
         <CardHeader>
-          <CardTitle>Basisvaluta</CardTitle>
+          <CardTitle>{t("currencySettingsBaseCurrency")}</CardTitle>
           <CardDescription>
-            Je basisvaluta is EUR. Dit wordt gebruikt voor BTW-rapportages en boekhouding.
+            {t("currencySettingsBaseCurrencyDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-3 rounded-lg border bg-muted/50 p-4">
             <span className="text-2xl">{CURRENCY_FLAGS.EUR}</span>
             <div>
-              <p className="font-medium">Euro (EUR)</p>
+              <p className="font-medium">{t("currencySettingsEuroTitle")}</p>
               <p className="text-sm text-muted-foreground">
-                Alle factuurbedragen worden ook in EUR equivalent berekend
+                {t("currencySettingsEuroDesc")}
               </p>
             </div>
           </div>
@@ -160,9 +162,9 @@ export function CurrencySettingsForm({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Beschikbare valuta&apos;s</CardTitle>
+            <CardTitle>{t("currencySettingsAvailable")}</CardTitle>
             <CardDescription>
-              Selecteer welke valuta&apos;s je wilt gebruiken voor facturering
+              {t("currencySettingsAvailableDesc")}
             </CardDescription>
           </div>
           <Button
@@ -172,7 +174,7 @@ export function CurrencySettingsForm({
             disabled={isSyncing}
           >
             <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
-            {isSyncing ? "Synchroniseren..." : "Koersen ophalen"}
+            {isSyncing ? t("currencySettingsSyncing") : t("currencySettingsFetchRates")}
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -186,8 +188,8 @@ export function CurrencySettingsForm({
               <Checkbox checked disabled />
               <span className="text-xl">{CURRENCY_FLAGS.EUR}</span>
               <div>
-                <p className="font-medium">EUR - Euro</p>
-                <p className="text-sm text-muted-foreground">Basisvaluta (altijd actief)</p>
+                <p className="font-medium">{t("currencySettingsEurLabel")}</p>
+                <p className="text-sm text-muted-foreground">{t("currencySettingsEurBase")}</p>
               </div>
             </div>
           </div>
@@ -209,7 +211,7 @@ export function CurrencySettingsForm({
                   <span className="text-xl">{CURRENCY_FLAGS[currency.code] || "💱"}</span>
                   <div>
                     <p className="font-medium">
-                      {currency.code} - {currency.nameDutch}
+                      {currency.code} - {locale === "nl" ? currency.nameDutch : currency.name}
                     </p>
                     <p className="text-sm text-muted-foreground">{currency.symbol}</p>
                   </div>
@@ -234,24 +236,20 @@ export function CurrencySettingsForm({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            Koers vastzetten
+            {t("currencySettingsLockRate")}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
                   <Info className="h-4 w-4 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
-                  <p>
-                    Bepaalt wanneer de wisselkoers wordt vastgezet. Na het vastzetten
-                    kan de koers niet meer gewijzigd worden en worden EUR equivalenten
-                    definitief berekend.
-                  </p>
+                  <p>{t("currencySettingsLockRateTooltip")}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </CardTitle>
           <CardDescription>
-            Wanneer moet de wisselkoers worden vastgezet?
+            {t("currencySettingsLockRateDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -267,27 +265,27 @@ export function CurrencySettingsForm({
             <div className="flex items-start space-x-3 rounded-lg border p-4">
               <RadioGroupItem value="SEND" id="lock-send" className="mt-1" />
               <Label htmlFor="lock-send" className="cursor-pointer">
-                <p className="font-medium">Bij verzenden (Aanbevolen)</p>
+                <p className="font-medium">{t("currencySettingsLockOnSend")}</p>
                 <p className="text-sm text-muted-foreground">
-                  De koers wordt vastgezet zodra je de factuur verzendt
+                  {t("currencySettingsLockOnSendDesc")}
                 </p>
               </Label>
             </div>
             <div className="flex items-start space-x-3 rounded-lg border p-4">
               <RadioGroupItem value="CREATE" id="lock-create" className="mt-1" />
               <Label htmlFor="lock-create" className="cursor-pointer">
-                <p className="font-medium">Bij aanmaken</p>
+                <p className="font-medium">{t("currencySettingsLockOnCreate")}</p>
                 <p className="text-sm text-muted-foreground">
-                  De koers wordt direct vastgezet bij het aanmaken van de factuur
+                  {t("currencySettingsLockOnCreateDesc")}
                 </p>
               </Label>
             </div>
             <div className="flex items-start space-x-3 rounded-lg border p-4">
               <RadioGroupItem value="MANUAL" id="lock-manual" className="mt-1" />
               <Label htmlFor="lock-manual" className="cursor-pointer">
-                <p className="font-medium">Handmatig</p>
+                <p className="font-medium">{t("currencySettingsLockOnManual")}</p>
                 <p className="text-sm text-muted-foreground">
-                  Je kiest zelf wanneer de koers wordt vastgezet
+                  {t("currencySettingsLockOnManualDesc")}
                 </p>
               </Label>
             </div>
@@ -298,17 +296,17 @@ export function CurrencySettingsForm({
       {/* Display Options */}
       <Card>
         <CardHeader>
-          <CardTitle>Weergave</CardTitle>
+          <CardTitle>{t("currencySettingsDisplay")}</CardTitle>
           <CardDescription>
-            Hoe worden niet-EUR bedragen weergegeven?
+            {t("currencySettingsDisplayDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>Toon EUR equivalent</Label>
+              <Label>{t("currencySettingsShowEquivalent")}</Label>
               <p className="text-sm text-muted-foreground">
-                Toon altijd het EUR equivalent naast buitenlandse bedragen
+                {t("currencySettingsShowEquivalentDesc")}
               </p>
             </div>
             <Checkbox
@@ -327,18 +325,18 @@ export function CurrencySettingsForm({
           variant="outline"
           onClick={() => router.back()}
         >
-          Annuleren
+          {t("currencySettingsCancel")}
         </Button>
         <Button onClick={handleSave} disabled={isSaving}>
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Opslaan...
+              {t("currencySettingsSaving")}
             </>
           ) : (
             <>
               <Check className="mr-2 h-4 w-4" />
-              Opslaan
+              {t("currencySettingsSave")}
             </>
           )}
         </Button>

@@ -82,8 +82,17 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   }
 }
 
-function formatCurrency(value: number | { toNumber(): number }): string {
-  const num = typeof value === 'number' ? value : value.toNumber();
+function toNumber(value: unknown): number {
+  if (typeof value === 'number' && !Number.isNaN(value)) return value;
+  if (typeof value === 'object' && value !== null && 'toNumber' in value && typeof (value as { toNumber(): number }).toNumber === 'function') {
+    return (value as { toNumber(): number }).toNumber();
+  }
+  if (typeof value === 'string') return parseFloat(value) || 0;
+  return 0;
+}
+
+function formatCurrency(value: unknown): string {
+  const num = toNumber(value);
   return new Intl.NumberFormat('nl-NL', {
     style: 'currency',
     currency: 'EUR',
@@ -317,10 +326,10 @@ function getStatusLabel(status: string): string {
 
 function calculateTotalDeductions(report: Record<string, unknown>): string {
   const total =
-    (report.kiaAmount as number) +
-    (report.zelfstandigenaftrek as number) +
-    (report.startersaftrek as number) +
-    (report.forDotation as number) +
-    (report.mkbVrijstelling as number);
+    toNumber(report.kiaAmount) +
+    toNumber(report.zelfstandigenaftrek) +
+    toNumber(report.startersaftrek) +
+    toNumber(report.forDotation) +
+    toNumber(report.mkbVrijstelling);
   return formatCurrency(total);
 }

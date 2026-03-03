@@ -39,6 +39,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useTranslations } from "@/components/providers/locale-provider"
 import {
   fiscalSettingsSchema,
   type FiscalSettingsFormData,
@@ -47,16 +48,16 @@ import {
 } from "@/lib/validations"
 import { updateFiscalSettings } from "./actions"
 
-const BUSINESS_TYPE_LABELS: Record<string, string> = {
-  EENMANSZAAK: "Eenmanszaak",
-  VOF: "Vennootschap onder firma (VOF)",
-  MAATSCHAP: "Maatschap",
-  BV: "Besloten vennootschap (BV)",
+const BUSINESS_TYPE_KEYS: Record<string, string> = {
+  EENMANSZAAK: "fiscalFormBusinessTypeEenmanszaak",
+  VOF: "fiscalFormBusinessTypeVof",
+  MAATSCHAP: "fiscalFormBusinessTypeMaatschap",
+  BV: "fiscalFormBusinessTypeBv",
 }
 
-const HOME_OFFICE_TYPE_LABELS: Record<string, string> = {
-  INDEPENDENT: "Zelfstandige werkruimte",
-  NON_INDEPENDENT: "Niet-zelfstandige werkruimte",
+const HOME_OFFICE_TYPE_KEYS: Record<string, string> = {
+  INDEPENDENT: "fiscalFormHomeOfficeTypeIndependent",
+  NON_INDEPENDENT: "fiscalFormHomeOfficeTypeNonIndependent",
 }
 
 interface FiscaalFormProps {
@@ -65,6 +66,7 @@ interface FiscaalFormProps {
 
 export function FiscaalForm({ initialData }: FiscaalFormProps) {
   const router = useRouter()
+  const { t } = useTranslations("settingsPage")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<FiscalSettingsFormData>({
@@ -83,10 +85,10 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
     try {
       await updateFiscalSettings(data)
       router.refresh()
-      toast.success("Fiscale instellingen opgeslagen")
+      toast.success(t("fiscalFormSaveSuccess"))
     } catch (error) {
       console.error("Error saving fiscal settings:", error)
-      toast.error("Fout bij opslaan fiscale instellingen")
+      toast.error(t("fiscalFormSaveError"))
     } finally {
       setIsSubmitting(false)
     }
@@ -99,10 +101,9 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
           {/* Rechtsvorm */}
           <Card>
             <CardHeader>
-              <CardTitle>Rechtsvorm</CardTitle>
+              <CardTitle>{t("fiscalFormLegalFormTitle")}</CardTitle>
               <CardDescription>
-                De rechtsvorm van je onderneming bepaalt welke aftrekposten van
-                toepassing zijn
+                {t("fiscalFormLegalFormDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -111,29 +112,31 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
                 name="businessType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Rechtsvorm</FormLabel>
+                    <FormLabel>{t("fiscalFormLegalFormLabel")}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full md:w-[300px]">
-                          <SelectValue placeholder="Selecteer rechtsvorm" />
+                          <SelectValue placeholder={t("fiscalFormLegalFormPlaceholder")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {businessTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {BUSINESS_TYPE_LABELS[type]}
-                          </SelectItem>
-                        ))}
+                        {businessTypes.map((type) => {
+                          const key = BUSINESS_TYPE_KEYS[type]
+                          return (
+                            <SelectItem key={type} value={type}>
+                              {key ? t(key) : type}
+                            </SelectItem>
+                          )
+                        })}
                       </SelectContent>
                     </Select>
                     <FormDescription>
                       {watchBusinessType === "BV" && (
                         <span className="text-amber-600">
-                          Let op: Bij een BV gelden andere fiscale regels.
-                          Sommige aftrekposten zijn niet van toepassing.
+                          {t("fiscalFormLegalFormBvWarning")}
                         </span>
                       )}
                     </FormDescription>
@@ -148,23 +151,18 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Kleineondernemersregeling (KOR)
+                {t("fiscalFormKorTitle")}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
-                    <p>
-                      Met de KOR hoef je geen BTW te berekenen en af te dragen.
-                      Je kunt ook geen BTW terugvragen op je inkopen. Je kosten
-                      zijn wel gewoon aftrekbaar voor de inkomstenbelasting.
-                    </p>
+                    <p>{t("fiscalFormKorTooltip")}</p>
                   </TooltipContent>
                 </Tooltip>
               </CardTitle>
               <CardDescription>
-                BTW-vrijstelling voor kleine ondernemers met minder dan €20.000
-                omzet per jaar
+                {t("fiscalFormKorDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -174,10 +172,9 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base">KOR toepassen</FormLabel>
+                      <FormLabel className="text-base">{t("fiscalFormKorApply")}</FormLabel>
                       <FormDescription>
-                        Ik maak gebruik van de kleineondernemersregeling en ben
-                        vrijgesteld van BTW
+                        {t("fiscalFormKorApplyDesc")}
                       </FormDescription>
                     </div>
                     <FormControl>
@@ -245,11 +242,11 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
                   name="manualHoursPerYear"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Geschatte uren per jaar</FormLabel>
+                      <FormLabel>{t("fiscalFormManualHours")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="1400"
+                          placeholder={t("fiscalFormManualHoursPlaceholder")}
                           className="w-32"
                           {...field}
                           value={field.value ?? ""}
@@ -263,9 +260,7 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
                         />
                       </FormControl>
                       <FormDescription>
-                        Vul handmatig het geschatte aantal uren in als je geen
-                        tijdregistratie gebruikt. Minimaal 1.225 uur voor
-                        urencriterium.
+                        {t("fiscalFormManualHoursDesc")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -279,22 +274,18 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Startersaftrek
+                {t("fiscalFormStarterTitle")}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
-                    <p>
-                      Als starter kun je maximaal 3 jaar startersaftrek krijgen
-                      bovenop de zelfstandigenaftrek. Je moet wel voldoen aan
-                      het urencriterium.
-                    </p>
+                    <p>{t("fiscalFormStarterTooltip")}</p>
                   </TooltipContent>
                 </Tooltip>
               </CardTitle>
               <CardDescription>
-                Extra aftrek voor startende ondernemers
+                {t("fiscalFormStarterDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -305,11 +296,10 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base">
-                        Ik ben een starter
+                        {t("fiscalFormStarterLabel")}
                       </FormLabel>
                       <FormDescription>
-                        Je bent starter als je in de afgelopen 5 jaar niet meer
-                        dan 2 jaar ondernemer bent geweest
+                        {t("fiscalFormStarterDesc2")}
                       </FormDescription>
                     </div>
                     <FormControl>
@@ -385,9 +375,9 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
           {/* Werkruimte thuis */}
           <Card>
             <CardHeader>
-              <CardTitle>Werkruimte thuis</CardTitle>
+              <CardTitle>{t("fiscalFormHomeOfficeTitle")}</CardTitle>
               <CardDescription>
-                Kosten voor een werkruimte aan huis kunnen deels aftrekbaar zijn
+                {t("fiscalFormHomeOfficeDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -398,10 +388,10 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base">
-                        Werkruimte aan huis
+                        {t("fiscalFormHomeOfficeLabel")}
                       </FormLabel>
                       <FormDescription>
-                        Ik heb een werkruimte in mijn eigen woning
+                        {t("fiscalFormHomeOfficeDesc2")}
                       </FormDescription>
                     </div>
                     <FormControl>
@@ -432,16 +422,18 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {homeOfficeTypes.map((type) => (
-                              <SelectItem key={type} value={type}>
-                                {HOME_OFFICE_TYPE_LABELS[type]}
-                              </SelectItem>
-                            ))}
+                            {homeOfficeTypes.map((type) => {
+                              const key = HOME_OFFICE_TYPE_KEYS[type]
+                              return (
+                                <SelectItem key={type} value={type}>
+                                  {key ? t(key) : type}
+                                </SelectItem>
+                              )
+                            })}
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Een zelfstandige werkruimte heeft een eigen ingang en
-                          sanitair
+                          {t("fiscalFormHomeOfficeTypeHelp")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -474,7 +466,7 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
                           </div>
                         </FormControl>
                         <FormDescription>
-                          Deel van de woning dat zakelijk wordt gebruikt
+                          {t("fiscalFormHomeOfficePercentageDesc")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -523,7 +515,7 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
                   name="carPrivateUsage"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Percentage privé gebruik</FormLabel>
+                      <FormLabel>{t("fiscalFormCarPrivateUsage")}</FormLabel>
                       <FormControl>
                         <div className="flex items-center gap-2">
                           <Input
@@ -544,7 +536,7 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
                         </div>
                       </FormControl>
                       <FormDescription>
-                        Boven 500 km privé per jaar geldt de bijtelling
+                        {t("fiscalFormCarPrivateUsageDesc")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -607,7 +599,7 @@ export function FiscaalForm({ initialData }: FiscaalFormProps) {
               {isSubmitting && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Opslaan
+              {t("fiscalFormSave")}
             </Button>
           </div>
         </form>

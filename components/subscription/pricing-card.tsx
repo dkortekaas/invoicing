@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
+import { useTranslations } from '@/components/providers/locale-provider';
 
 interface PricingCardProps {
   name: string;
@@ -28,6 +29,7 @@ export function PricingCard({
   currentPlan = false,
   onSubscribe,
 }: PricingCardProps) {
+  const { t } = useTranslations('upgradePage');
   const [loading, setLoading] = useState(false);
 
   const handleSubscribe = async () => {
@@ -45,11 +47,12 @@ export function PricingCard({
 
   const formatPrice = () => {
     const formatted = formatCurrency(price / 100);
+    const intervalLabel = interval === 'month' ? t('perMonth') : t('perYear');
 
     return (
       <div className="flex items-baseline gap-1">
         <span className="text-4xl font-bold">{formatted}</span>
-        <span className="text-muted-foreground">/{interval === 'month' ? 'maand' : 'jaar'}</span>
+        <span className="text-muted-foreground">/{intervalLabel}</span>
       </div>
     );
   };
@@ -58,7 +61,7 @@ export function PricingCard({
     <Card className={`relative ${popular ? 'border-primary border-2' : ''}`}>
       {popular && (
         <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
-          Populair
+          {t('popular')}
         </Badge>
       )}
 
@@ -69,7 +72,7 @@ export function PricingCard({
             <div className="mt-4">{formatPrice()}</div>
             {interval === 'year' && (
               <p className="text-sm text-muted-foreground mt-1">
-                {formatCurrency((price / 100) / 12)}/maand
+                {formatCurrency((price / 100) / 12)}/{t('perMonth')}
               </p>
             )}
           </div>
@@ -90,7 +93,7 @@ export function PricingCard({
             variant={popular ? 'default' : 'outline'}
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {currentPlan ? 'Huidig plan' : 'Upgrade nu'}
+            {currentPlan ? t('currentPlan') : t('upgradeNow')}
           </Button>
         </div>
       </CardContent>

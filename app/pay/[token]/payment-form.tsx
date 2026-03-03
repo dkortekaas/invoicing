@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -31,6 +32,7 @@ interface PaymentFormProps {
 }
 
 export function PaymentForm({ token, invoiceId, amount, pendingPayment }: PaymentFormProps) {
+  const { t } = useTranslations("payPage")
   const [issuers, setIssuers] = useState<Issuer[]>([])
   const [selectedIssuer, setSelectedIssuer] = useState<string>("")
   const [isLoading, setIsLoading] = useState(true)
@@ -66,7 +68,7 @@ export function PaymentForm({ token, invoiceId, amount, pendingPayment }: Paymen
         setIsSubmitting(false)
       }
     } catch (_err) {
-      setError("Er is een fout opgetreden. Probeer het opnieuw.")
+      setError(t("errorGeneric"))
       setIsSubmitting(false)
     }
   }
@@ -79,7 +81,7 @@ export function PaymentForm({ token, invoiceId, amount, pendingPayment }: Paymen
           <Alert>
             <Loader2 className="h-4 w-4 animate-spin" />
             <AlertDescription>
-              Er is al een betaling gestart voor deze factuur. Wacht tot deze is afgerond of probeer het later opnieuw.
+              {t("pendingPaymentAlert")}
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -92,7 +94,7 @@ export function PaymentForm({ token, invoiceId, amount, pendingPayment }: Paymen
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <CreditCard className="h-5 w-5" />
-          Kies je bank
+          {t("chooseBankTitle")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -142,7 +144,7 @@ export function PaymentForm({ token, invoiceId, amount, pendingPayment }: Paymen
         ) : (
           <Alert>
             <AlertDescription>
-              Selecteer je bank tijdens het betaalproces
+              {t("selectBankDuringProcess")}
             </AlertDescription>
           </Alert>
         )}
@@ -156,17 +158,17 @@ export function PaymentForm({ token, invoiceId, amount, pendingPayment }: Paymen
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Doorsturen naar bank...
+              {t("redirectingToBank")}
             </>
           ) : (
             <>
-              Betaal {formatCurrency(amount)}
+              {t("payAmount").replace("{amount}", formatCurrency(amount))}
             </>
           )}
         </Button>
 
         <p className="text-xs text-center text-muted-foreground">
-          Je wordt doorgestuurd naar de beveiligde betaalomgeving van je bank
+          {t("redirectNotice")}
         </p>
       </CardContent>
     </Card>

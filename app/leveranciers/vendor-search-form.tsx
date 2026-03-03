@@ -3,9 +3,11 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState, useTransition } from 'react'
 import { Search } from 'lucide-react'
+import { useTranslations } from '@/components/providers/locale-provider'
 import { Input } from '@/components/ui/input'
 
 export function VendorSearchForm() {
+  const { t } = useTranslations('vendorsPage')
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
@@ -30,7 +32,7 @@ export function VendorSearchForm() {
     <div className="relative flex-1 max-w-sm">
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
-        placeholder="Zoeken op naam of alias..."
+        placeholder={t("searchPlaceholder")}
         className="pl-9"
         value={value}
         onChange={(e) => {

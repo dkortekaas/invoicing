@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { financialInfoSchema, type FinancialInfoFormData } from "@/lib/validations"
 import { updateFinancialInfo } from "./actions"
 
@@ -28,6 +29,7 @@ interface FinancieleGegevensFormProps {
 
 export function FinancieleGegevensForm({ initialData }: FinancieleGegevensFormProps) {
   const router = useRouter()
+  const { t } = useTranslations("settingsPage")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<FinancialInfoFormData>({
@@ -40,10 +42,10 @@ export function FinancieleGegevensForm({ initialData }: FinancieleGegevensFormPr
     try {
       await updateFinancialInfo(data)
       router.refresh()
-      toast.success("Financiële gegevens opgeslagen")
+      toast.success(t("financialFormSaveSuccess"))
     } catch (error) {
       console.error("Error saving financial info:", error)
-      toast.error("Fout bij opslaan financiële gegevens")
+      toast.error(t("financialFormSaveError"))
     } finally {
       setIsSubmitting(false)
     }
@@ -54,9 +56,9 @@ export function FinancieleGegevensForm({ initialData }: FinancieleGegevensFormPr
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Financiële gegevens</CardTitle>
+            <CardTitle>{t("companySettingsFormFinancialTitle")}</CardTitle>
             <CardDescription>
-              BTW, KvK en bankgegevens voor je facturen
+              {t("companySettingsFormFinancialDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -66,16 +68,16 @@ export function FinancieleGegevensForm({ initialData }: FinancieleGegevensFormPr
                 name="vatNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>BTW-nummer</FormLabel>
+                    <FormLabel>{t("companySettingsFormVatNumber")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="NL123456789B01"
+                        placeholder={t("companySettingsFormVatPlaceholder")}
                         {...field}
                         value={field.value ?? ""}
                       />
                     </FormControl>
                     <FormDescription>
-                      Nederlands formaat: NL + 9 cijfers + B + 2 cijfers
+                      {t("companySettingsFormVatHelp")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -87,15 +89,15 @@ export function FinancieleGegevensForm({ initialData }: FinancieleGegevensFormPr
                 name="kvkNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>KvK-nummer</FormLabel>
+                    <FormLabel>{t("companySettingsFormKvkNumber")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="12345678"
+                        placeholder={t("companySettingsFormKvkPlaceholder")}
                         {...field}
                         value={field.value ?? ""}
                       />
                     </FormControl>
-                    <FormDescription>8 cijfers</FormDescription>
+                    <FormDescription>{t("companySettingsFormKvkHelp")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -107,16 +109,16 @@ export function FinancieleGegevensForm({ initialData }: FinancieleGegevensFormPr
               name="iban"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>IBAN</FormLabel>
+                  <FormLabel>{t("companySettingsFormIban")}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="NL91ABNA0417164300"
+                      placeholder={t("companySettingsFormIbanPlaceholder")}
                       {...field}
                       value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormDescription>
-                    Wordt getoond op facturen voor betalingen
+                    {t("companySettingsFormIbanHelp")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -128,12 +130,12 @@ export function FinancieleGegevensForm({ initialData }: FinancieleGegevensFormPr
               name="invoicePrefix"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Factuur prefix</FormLabel>
+                  <FormLabel>{t("companySettingsFormInvoicePrefix")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="FAC" {...field} className="w-32" />
+                    <Input placeholder={t("companySettingsFormInvoicePrefixPlaceholder")} {...field} className="w-32" />
                   </FormControl>
                   <FormDescription>
-                    Voorvoegsel voor factuurnummers (bijv. FAC-2025-0001)
+                    {t("companySettingsFormInvoicePrefixHelp")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -143,7 +145,7 @@ export function FinancieleGegevensForm({ initialData }: FinancieleGegevensFormPr
             <div className="flex justify-end pt-4">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Opslaan
+                {t("companySettingsFormSave")}
               </Button>
             </div>
           </CardContent>

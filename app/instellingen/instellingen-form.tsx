@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { companySettingsSchema, type CompanySettingsFormData } from "@/lib/validations"
 import { updateCompanySettings } from "./actions"
 
@@ -29,6 +30,7 @@ interface InstellingenFormProps {
 
 export function InstellingenForm({ initialData }: InstellingenFormProps) {
   const router = useRouter()
+  const { t } = useTranslations("settingsPage")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<CompanySettingsFormData>({
@@ -41,10 +43,10 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
     try {
       await updateCompanySettings(data)
       router.refresh()
-      toast.success("Instellingen opgeslagen")
+      toast.success(t("companySettingsFormSaveSuccess"))
     } catch (error) {
       console.error("Error saving settings:", error)
-      toast.error("Fout bij opslaan instellingen")
+      toast.error(t("companySettingsFormSaveError"))
     } finally {
       setIsSubmitting(false)
     }
@@ -56,9 +58,9 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
         {/* Bedrijfsgegevens */}
         <Card>
           <CardHeader>
-            <CardTitle>Bedrijfsgegevens</CardTitle>
+            <CardTitle>{t("companySettingsFormTitle")}</CardTitle>
             <CardDescription>
-              Deze gegevens worden getoond op je facturen
+              {t("companySettingsFormDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -67,9 +69,9 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
               name="companyName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bedrijfsnaam *</FormLabel>
+                  <FormLabel>{t("companySettingsFormCompanyName")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Mijn Bedrijf B.V." {...field} />
+                    <Input placeholder={t("companySettingsFormCompanyNamePlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -82,11 +84,11 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
                 name="companyEmail"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>E-mailadres *</FormLabel>
+                    <FormLabel>{t("companySettingsFormEmail")}</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="info@bedrijf.nl"
+                        placeholder={t("companySettingsFormEmailPlaceholder")}
                         {...field}
                       />
                     </FormControl>
@@ -100,10 +102,10 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
                 name="companyPhone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Telefoonnummer</FormLabel>
+                    <FormLabel>{t("companySettingsFormPhone")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="020-1234567"
+                        placeholder={t("companySettingsFormPhonePlaceholder")}
                         {...field}
                         value={field.value ?? ""}
                       />
@@ -121,9 +123,9 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
               name="companyAddress"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Adres *</FormLabel>
+                  <FormLabel>{t("companySettingsFormAddress")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Straatnaam 123" {...field} />
+                    <Input placeholder={t("companySettingsFormAddressPlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -136,9 +138,9 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
                 name="companyPostalCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Postcode *</FormLabel>
+                    <FormLabel>{t("companySettingsFormPostalCode")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="1234 AB" {...field} />
+                      <Input placeholder={t("companySettingsFormPostalCodePlaceholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -150,9 +152,9 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
                 name="companyCity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Plaats *</FormLabel>
+                    <FormLabel>{t("companySettingsFormCity")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Amsterdam" {...field} />
+                      <Input placeholder={t("companySettingsFormCityPlaceholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -164,7 +166,7 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
                 name="companyCountry"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Land</FormLabel>
+                    <FormLabel>{t("companySettingsFormCountry")}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -179,9 +181,9 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
         {/* Financiële gegevens */}
         <Card>
           <CardHeader>
-            <CardTitle>Financiële gegevens</CardTitle>
+            <CardTitle>{t("companySettingsFormFinancialTitle")}</CardTitle>
             <CardDescription>
-              BTW, KvK en bankgegevens voor je facturen
+              {t("companySettingsFormFinancialDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -191,16 +193,16 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
                 name="vatNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>BTW-nummer</FormLabel>
+                    <FormLabel>{t("companySettingsFormVatNumber")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="NL123456789B01"
+                        placeholder={t("companySettingsFormVatPlaceholder")}
                         {...field}
                         value={field.value ?? ""}
                       />
                     </FormControl>
                     <FormDescription>
-                      Nederlands formaat: NL + 9 cijfers + B + 2 cijfers
+                      {t("companySettingsFormVatHelp")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -212,15 +214,15 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
                 name="kvkNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>KvK-nummer</FormLabel>
+                    <FormLabel>{t("companySettingsFormKvkNumber")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="12345678"
+                        placeholder={t("companySettingsFormKvkPlaceholder")}
                         {...field}
                         value={field.value ?? ""}
                       />
                     </FormControl>
-                    <FormDescription>8 cijfers</FormDescription>
+                    <FormDescription>{t("companySettingsFormKvkHelp")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -232,16 +234,16 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
               name="iban"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>IBAN</FormLabel>
+                  <FormLabel>{t("companySettingsFormIban")}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="NL91ABNA0417164300"
+                      placeholder={t("companySettingsFormIbanPlaceholder")}
                       {...field}
                       value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormDescription>
-                    Wordt getoond op facturen voor betalingen
+                    {t("companySettingsFormIbanHelp")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -253,9 +255,9 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
         {/* Facturatie instellingen */}
         <Card>
           <CardHeader>
-            <CardTitle>Facturatie instellingen</CardTitle>
+            <CardTitle>{t("companySettingsFormInvoicingTitle")}</CardTitle>
             <CardDescription>
-              Instellingen voor je factuurnummering
+              {t("companySettingsFormInvoicingDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -264,12 +266,12 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
               name="invoicePrefix"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Factuur prefix</FormLabel>
+                  <FormLabel>{t("companySettingsFormInvoicePrefix")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="FAC" {...field} className="w-32" />
+                    <Input placeholder={t("companySettingsFormInvoicePrefixPlaceholder")} {...field} className="w-32" />
                   </FormControl>
                   <FormDescription>
-                    Voorvoegsel voor factuurnummers (bijv. FAC-2025-0001)
+                    {t("companySettingsFormInvoicePrefixHelp")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -282,7 +284,7 @@ export function InstellingenForm({ initialData }: InstellingenFormProps) {
         <div className="flex justify-end">
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Opslaan
+            {t("companySettingsFormSave")}
           </Button>
         </div>
       </form>

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { T } from "@/components/t"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { VendorForm } from "@/components/vendors/vendor-form"
@@ -45,7 +46,7 @@ export default async function EditLeverancierPage({ params }: EditLeverancierPag
 
       <Card>
         <CardHeader>
-          <CardTitle>Leverancier gegevens</CardTitle>
+          <CardTitle><T ns="vendorsPage" k="vendorDetailsTitle" /></CardTitle>
         </CardHeader>
         <CardContent>
           <VendorForm

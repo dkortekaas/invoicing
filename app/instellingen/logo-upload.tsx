@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
+import { useTranslations } from "@/components/providers/locale-provider"
 
 interface LogoUploadProps {
   currentLogo?: string | null
@@ -13,6 +14,7 @@ interface LogoUploadProps {
 }
 
 export function LogoUpload({ currentLogo, onUploadSuccess }: LogoUploadProps) {
+  const { t } = useTranslations("settingsPage")
   const [isUploading, setIsUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentLogo || null)
   const [error, setError] = useState<string | null>(null)
@@ -25,13 +27,13 @@ export function LogoUpload({ currentLogo, onUploadSuccess }: LogoUploadProps) {
     // Validate file type
     const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/svg+xml", "image/webp"]
     if (!allowedTypes.includes(file.type)) {
-      setError("Alleen PNG, JPEG, SVG of WebP afbeeldingen zijn toegestaan")
+      setError(t("logoUploadErrorType"))
       return
     }
 
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      setError("Bestand is te groot. Maximum 2MB toegestaan")
+      setError(t("logoUploadErrorSize"))
       return
     }
 
@@ -57,14 +59,14 @@ export function LogoUpload({ currentLogo, onUploadSuccess }: LogoUploadProps) {
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || "Fout bij uploaden")
+        throw new Error(data.error || t("logoUploadError"))
       }
 
       const data = await response.json()
       setPreview(data.url)
       onUploadSuccess(data.url)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Fout bij uploaden logo")
+      setError(err instanceof Error ? err.message : t("logoUploadErrorFallback"))
       setPreview(currentLogo || null)
     } finally {
       setIsUploading(false)
@@ -85,13 +87,13 @@ export function LogoUpload({ currentLogo, onUploadSuccess }: LogoUploadProps) {
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || "Fout bij verwijderen")
+        throw new Error(data.error || t("logoDeleteError"))
       }
 
       setPreview(null)
       onUploadSuccess("")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Fout bij verwijderen logo")
+      setError(err instanceof Error ? err.message : t("logoDeleteErrorFallback"))
     } finally {
       setIsUploading(false)
     }
@@ -99,13 +101,13 @@ export function LogoUpload({ currentLogo, onUploadSuccess }: LogoUploadProps) {
 
   return (
     <div className="space-y-4">
-      <Label>Bedrijfslogo</Label>
+      <Label>{t("logoUploadLabel")}</Label>
       <div className="flex items-start gap-4">
         {preview && (
           <div className="relative w-32 h-32 border rounded-lg overflow-hidden bg-gray-50">
             <Image
               src={preview}
-              alt="Bedrijfslogo"
+              alt={t("logoUploadAlt")}
               fill
               className="object-contain p-2"
             />
@@ -148,12 +150,12 @@ export function LogoUpload({ currentLogo, onUploadSuccess }: LogoUploadProps) {
                   {isUploading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploaden...
+                      {t("logoUploading")}
                     </>
                   ) : (
                     <>
                       <Upload className="mr-2 h-4 w-4" />
-                      {preview ? "Logo wijzigen" : "Logo uploaden"}
+                      {preview ? t("logoUploadChange") : t("logoUploadNew")}
                     </>
                   )}
                 </span>
@@ -161,7 +163,7 @@ export function LogoUpload({ currentLogo, onUploadSuccess }: LogoUploadProps) {
             </Label>
           </div>
           <p className="text-sm text-muted-foreground">
-            PNG, JPEG, SVG of WebP. Maximaal 2MB. Wordt getoond op facturen.
+            {t("logoUploadHelp")}
           </p>
           {error && (
             <p className="text-sm text-red-600">{error}</p>

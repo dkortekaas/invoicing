@@ -20,6 +20,7 @@
 
 import { useRef, useState } from "react"
 import { AlertCircle, CheckCircle2, Undo2, Trash2, XCircle } from "lucide-react"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -69,29 +70,30 @@ function sanitize(s: string): string {
 }
 
 function validateForm(
+  t: (key: string) => string,
   fields: FormFields,
   canvasEmpty: boolean,
 ): FieldErrors {
   const errors: FieldErrors = {}
 
   const name = sanitize(fields.signerName)
-  if (name.length < 2) errors.signerName = "Naam moet minimaal 2 tekens bevatten"
-  else if (name.length > 100) errors.signerName = "Naam mag maximaal 100 tekens bevatten"
+  if (name.length < 2) errors.signerName = t("nameMinLength")
+  else if (name.length > 100) errors.signerName = t("nameMaxLength")
 
   const email = fields.signerEmail.trim()
-  if (!email) errors.signerEmail = "E-mailadres is verplicht"
-  else if (!EMAIL_RE.test(email)) errors.signerEmail = "Voer een geldig e-mailadres in"
-  else if (email.length > 255) errors.signerEmail = "E-mailadres is te lang"
+  if (!email) errors.signerEmail = t("emailRequired")
+  else if (!EMAIL_RE.test(email)) errors.signerEmail = t("emailInvalid")
+  else if (email.length > 255) errors.signerEmail = t("emailTooLong")
 
   if (fields.signatureType === "DRAWN" && canvasEmpty) {
-    errors.signatureData = "Teken uw handtekening in het vak hierboven"
+    errors.signatureData = t("signatureDrawRequired")
   }
   if (fields.signatureType === "TYPED" && sanitize(fields.signerName).length < 2) {
-    errors.signatureData = "Voer eerst uw naam in"
+    errors.signatureData = t("signatureTypeRequired")
   }
 
   if (!fields.agreedToTerms) {
-    errors.agreedToTerms = "U moet akkoord gaan met de voorwaarden"
+    errors.agreedToTerms = t("agreedRequired")
   }
 
   return errors
@@ -100,6 +102,7 @@ function validateForm(
 // ─── Hoofdcomponent ───────────────────────────────────────────────────────────
 
 export default function SigningForm({ token, agreementText, primaryColor }: SigningFormProps) {
+  const { t } = useTranslations("signingForm")
   const canvasRef = useRef<SignatureCanvasRef>(null)
 
   const [phase, setPhase] = useState<Phase>("form")
@@ -134,7 +137,7 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
   // ─── Ondertekenen ────────────────────────────────────────────────────────
 
   async function handleSign() {
-    const errors = validateForm(fields, canvasEmpty)
+    const errors = validateForm(t, fields, canvasEmpty)
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors)
       return
@@ -174,11 +177,11 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
         setFieldErrors(data.fields as FieldErrors)
         setPhase("form")
       } else {
-        setServerError(data.error ?? "Er is een fout opgetreden. Probeer het opnieuw.")
+        setServerError(data.error ?? t("serverError"))
         setPhase("error")
       }
     } catch {
-      setServerError("Verbindingsfout. Controleer uw internet en probeer het opnieuw.")
+      setServerError(t("connectionError"))
       setPhase("error")
     }
   }
@@ -190,10 +193,9 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
     const email = fields.signerEmail.trim()
 
     if (name.length < 2 || !EMAIL_RE.test(email)) {
-      // Vul eerst naam en e-mail in
       setFieldErrors({
-        signerName: name.length < 2 ? "Naam is verplicht om af te wijzen" : undefined,
-        signerEmail: !EMAIL_RE.test(email) ? "E-mailadres is verplicht om af te wijzen" : undefined,
+        signerName: name.length < 2 ? t("nameRequiredReject") : undefined,
+        signerEmail: !EMAIL_RE.test(email) ? t("emailRequiredReject") : undefined,
       })
       setShowReject(false)
       return
@@ -219,11 +221,11 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
         setDeclinedAt(data.declinedAt)
         setPhase("declined")
       } else {
-        setServerError(data.error ?? "Er is een fout opgetreden.")
+        setServerError(data.error ?? t("rejectError"))
         setPhase("error")
       }
     } catch {
-      setServerError("Verbindingsfout. Probeer het opnieuw.")
+      setServerError(t("rejectConnectionError"))
       setPhase("error")
     }
   }
@@ -235,14 +237,14 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
       <div className="flex flex-col items-center gap-3 py-8 text-center">
         <CheckCircle2 className="h-12 w-12 text-green-500" />
         <div>
-          <p className="text-lg font-semibold text-gray-900">Offerte ondertekend</p>
+          <p className="text-lg font-semibold text-gray-900">{t("signedTitle")}</p>
           {signedAt && (
             <p className="text-sm text-muted-foreground mt-1">
-              Ondertekend op {formatDateLong(signedAt)}
+              {t("signedOn").replace("{date}", formatDateLong(signedAt))}
             </p>
           )}
           <p className="text-sm text-muted-foreground mt-3 max-w-sm mx-auto">
-            Bedankt! De opdrachtgever ontvangt een bevestiging. U ontvangt ook een kopie per e-mail.
+            {t("signedThankYou")}
           </p>
         </div>
       </div>
@@ -254,14 +256,14 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
       <div className="flex flex-col items-center gap-3 py-8 text-center">
         <XCircle className="h-12 w-12 text-red-400" />
         <div>
-          <p className="text-lg font-semibold text-gray-900">Offerte afgewezen</p>
+          <p className="text-lg font-semibold text-gray-900">{t("declinedTitle")}</p>
           {declinedAt && (
             <p className="text-sm text-muted-foreground mt-1">
-              Afgewezen op {formatDateLong(declinedAt)}
+              {t("declinedOn").replace("{date}", formatDateLong(declinedAt))}
             </p>
           )}
           <p className="text-sm text-muted-foreground mt-3 max-w-sm mx-auto">
-            De opdrachtgever is op de hoogte gesteld van uw beslissing.
+            {t("declinedThankYou")}
           </p>
         </div>
       </div>
@@ -274,14 +276,14 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
 
   return (
     <div className="space-y-6">
-      <h3 className="font-semibold text-gray-900">Offerte goedkeuren</h3>
+      <h3 className="font-semibold text-gray-900">{t("approveTitle")}</h3>
 
       {/* Gegevens indiener */}
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="signerName">
-              Naam <span className="text-red-500">*</span>
+              {t("nameLabel")} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="signerName"
@@ -291,7 +293,7 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
                 if (fieldErrors.signerName)
                   setFieldErrors((err) => ({ ...err, signerName: undefined }))
               }}
-              placeholder="Uw volledige naam"
+              placeholder={t("namePlaceholder")}
               maxLength={100}
               disabled={isLoading}
               aria-invalid={!!fieldErrors.signerName}
@@ -303,7 +305,7 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
 
           <div className="space-y-1.5">
             <Label htmlFor="signerEmail">
-              E-mailadres <span className="text-red-500">*</span>
+              {t("emailLabel")} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="signerEmail"
@@ -314,7 +316,7 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
                 if (fieldErrors.signerEmail)
                   setFieldErrors((err) => ({ ...err, signerEmail: undefined }))
               }}
-              placeholder="uw@email.nl"
+              placeholder={t("emailPlaceholder")}
               maxLength={255}
               disabled={isLoading}
               aria-invalid={!!fieldErrors.signerEmail}
@@ -327,14 +329,14 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
 
         <div className="space-y-1.5">
           <Label htmlFor="signerRole">
-            Functie / rol{" "}
-            <span className="text-muted-foreground font-normal">(optioneel)</span>
+            {t("roleLabel")}{" "}
+            <span className="text-muted-foreground font-normal">{t("roleOptional")}</span>
           </Label>
           <Input
             id="signerRole"
             value={fields.signerRole}
             onChange={(e) => set({ signerRole: e.target.value })}
-            placeholder="Bijv. Directeur, Inkoopmanager"
+            placeholder={t("rolePlaceholder")}
             maxLength={100}
             disabled={isLoading}
           />
@@ -346,7 +348,7 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
       {/* Handtekening */}
       <div className="space-y-3">
         <Label className="text-sm font-medium">
-          Handtekening <span className="text-red-500">*</span>
+          {t("signatureLabel")} <span className="text-red-500">*</span>
         </Label>
 
         {/* Type selector */}
@@ -364,7 +366,7 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
                   : "border-border bg-background hover:bg-muted",
               )}
             >
-              {type === "DRAWN" ? "✍ Tekenen" : "✏ Naam typen"}
+              {type === "DRAWN" ? t("signatureDraw") : t("signatureType")}
             </button>
           ))}
         </div>
@@ -392,7 +394,7 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
                 disabled={isLoading || canvasEmpty}
               >
                 <Undo2 className="h-3.5 w-3.5 mr-1.5" />
-                Ongedaan
+                {t("undo")}
               </Button>
               <Button
                 type="button"
@@ -405,7 +407,7 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
                 disabled={isLoading || canvasEmpty}
               >
                 <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-                Wissen
+                {t("clear")}
               </Button>
             </div>
           </div>
@@ -413,11 +415,11 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
           <div className="rounded-lg border bg-white px-6 py-4 min-h-[80px] flex items-end">
             <span
               style={{ fontFamily: "cursive", fontSize: "2rem", color: "#1a1a1a" }}
-              aria-label="Handtekening preview"
+              aria-label={t("signaturePlaceholder")}
             >
               {fields.signerName || (
                 <span className="text-gray-300" style={{ fontSize: "1.25rem" }}>
-                  Uw naam verschijnt hier als handtekening
+                  {t("signaturePlaceholder")}
                 </span>
               )}
             </span>
@@ -432,14 +434,14 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
       {/* Opmerkingen */}
       <div className="space-y-1.5">
         <Label htmlFor="remarks">
-          Opmerkingen{" "}
-          <span className="text-muted-foreground font-normal">(optioneel)</span>
+          {t("remarksLabel")}{" "}
+          <span className="text-muted-foreground font-normal">{t("roleOptional")}</span>
         </Label>
         <Textarea
           id="remarks"
           value={fields.remarks}
           onChange={(e) => set({ remarks: e.target.value })}
-          placeholder="Eventuele opmerkingen of voorwaarden"
+          placeholder={t("remarksPlaceholder")}
           rows={3}
           maxLength={1000}
           disabled={isLoading}
@@ -505,7 +507,7 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
           disabled={isLoading}
           className="text-red-700 border-red-200 hover:bg-red-50 hover:border-red-300"
         >
-          Offerte afwijzen
+          {t("rejectButton")}
         </Button>
         <Button
           type="button"
@@ -518,13 +520,14 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
               : undefined
           }
         >
-          {isLoading ? "Bezig met verwerken…" : "Offerte goedkeuren →"}
+          {isLoading ? t("loading") : t("approveButton")}
         </Button>
       </div>
 
       {/* Afwijzing bevestiging */}
       {showReject && (
         <RejectDialog
+          t={t}
           onCancel={() => setShowReject(false)}
           onConfirm={handleReject}
           disabled={isLoading}
@@ -537,10 +540,12 @@ export default function SigningForm({ token, agreementText, primaryColor }: Sign
 // ─── Afwijzing dialoog ────────────────────────────────────────────────────────
 
 function RejectDialog({
+  t,
   onCancel,
   onConfirm,
   disabled,
 }: {
+  t: (key: string) => string
   onCancel: () => void
   onConfirm: (remarks: string) => void
   disabled: boolean
@@ -551,21 +556,21 @@ function RejectDialog({
     <Card className="border-red-200 bg-red-50">
       <CardContent className="pt-5 space-y-4">
         <div>
-          <p className="font-medium text-red-900">Offerte afwijzen</p>
+          <p className="font-medium text-red-900">{t("rejectDialogTitle")}</p>
           <p className="text-sm text-red-700 mt-0.5">
-            Weet u zeker dat u deze offerte wilt afwijzen? De opdrachtgever wordt op de hoogte gesteld.
+            {t("rejectDialogBody")}
           </p>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="rejectRemarks" className="text-sm text-red-900">
-            Reden / opmerkingen{" "}
-            <span className="font-normal text-red-600">(optioneel)</span>
+            {t("rejectRemarksLabel")}{" "}
+            <span className="font-normal text-red-600">{t("roleOptional")}</span>
           </Label>
           <Textarea
             id="rejectRemarks"
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
-            placeholder="Bijv. prijsverschil, andere leverancier gekozen…"
+            placeholder={t("rejectRemarksPlaceholder")}
             rows={2}
             maxLength={1000}
             disabled={disabled}
@@ -579,7 +584,7 @@ function RejectDialog({
             onClick={onCancel}
             disabled={disabled}
           >
-            Annuleren
+            {t("cancel")}
           </Button>
           <Button
             type="button"
@@ -588,7 +593,7 @@ function RejectDialog({
             onClick={() => onConfirm(remarks)}
             disabled={disabled}
           >
-            Ja, offerte afwijzen
+            {t("confirmReject")}
           </Button>
         </div>
       </CardContent>

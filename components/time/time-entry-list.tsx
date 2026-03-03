@@ -1,7 +1,7 @@
 'use client';
 
 import { format } from 'date-fns';
-import { nl } from 'date-fns/locale';
+import { nl, enUS } from 'date-fns/locale';
 import { Clock, Edit, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,13 +33,16 @@ interface TimeEntryListProps {
   grouped?: boolean;
 }
 
+const dateFnsLocale = { nl, en: enUS } as const;
+
 export function TimeEntryList({
   entries,
   onEdit,
   onDelete,
   grouped = true,
 }: TimeEntryListProps) {
-  const { t } = useTranslations('timePage');
+  const { t, locale } = useTranslations('timePage');
+  const dfLocale = dateFnsLocale[locale] ?? nl;
 
   if (entries.length === 0) {
     return (
@@ -59,6 +62,7 @@ export function TimeEntryList({
             entry={entry}
             onEdit={onEdit}
             onDelete={onDelete}
+            dateLocale={dfLocale}
           />
         ))}
       </div>
@@ -83,7 +87,7 @@ export function TimeEntryList({
           <div key={date} className="space-y-2">
             <div className="flex items-center justify-between px-1 pb-2 border-b">
               <h3 className="font-semibold">
-                {format(new Date(date), 'EEEE d MMMM yyyy', { locale: nl })}
+                {format(new Date(date), 'EEEE d MMMM yyyy', { locale: dfLocale })}
               </h3>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <span>{formatDuration(dayTotal)}</span>
@@ -98,6 +102,7 @@ export function TimeEntryList({
                   entry={entry}
                   onEdit={onEdit}
                   onDelete={onDelete}
+                  dateLocale={dfLocale}
                 />
               ))}
             </div>
@@ -112,10 +117,12 @@ function TimeEntryCard({
   entry,
   onEdit,
   onDelete,
+  dateLocale,
 }: {
   entry: TimeEntryWithDetails;
   onEdit?: (entry: TimeEntryWithDetails) => void;
   onDelete?: (id: string) => void;
+  dateLocale: typeof nl;
 }) {
   const { t } = useTranslations('timePage');
   const startTime = typeof entry.startTime === 'string' ? new Date(entry.startTime) : entry.startTime;
@@ -164,9 +171,9 @@ function TimeEntryCard({
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-4 text-muted-foreground">
             <span>
-              {format(startTime, 'HH:mm', { locale: nl })}
+              {format(startTime, 'HH:mm', { locale: dateLocale })}
               {endTime && (
-                <> - {format(endTime, 'HH:mm', { locale: nl })}</>
+                <> - {format(endTime, 'HH:mm', { locale: dateLocale })}</>
               )}
             </span>
             <span className="font-medium text-foreground">

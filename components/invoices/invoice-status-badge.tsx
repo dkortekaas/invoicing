@@ -1,5 +1,8 @@
+"use client"
+
 import { Badge } from "@/components/ui/badge"
-import { STATUS_LABELS, STATUS_COLORS, cn } from "@/lib/utils"
+import { STATUS_COLORS, cn } from "@/lib/utils"
+import { useTranslatedUtils } from "@/components/providers/locale-provider"
 
 interface InvoiceStatusBadgeProps {
   status: string
@@ -7,6 +10,7 @@ interface InvoiceStatusBadgeProps {
 }
 
 export function InvoiceStatusBadge({ status, className }: InvoiceStatusBadgeProps) {
+  const { STATUS_LABELS } = useTranslatedUtils()
   return (
     <Badge
       variant="secondary"

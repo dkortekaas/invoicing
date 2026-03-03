@@ -5,9 +5,12 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/components/providers/locale-provider";
 
 export default function NotFound() {
   const pathname = usePathname();
+  const { t } = useTranslations("notFoundPage");
+  const description = t("description").replace("{path}", pathname || "...");
 
   return (
     <div className="flex min-h-[60vh] flex-1 flex-col items-center justify-center px-6 py-20">
@@ -18,23 +21,22 @@ export default function NotFound() {
         className="flex max-w-md flex-col items-center text-center"
       >
         <p className="mb-2 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-          Fout 404
+          {t("label")}
         </p>
         <h1 className="text-6xl font-bold tabular-nums text-primary md:text-7xl">
           404
         </h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground md:text-2xl">
-          Pagina niet gevonden
+          {t("title")}
         </h2>
         <p className="mt-3 text-muted-foreground">
-          De pagina <span className="font-medium text-foreground">{pathname || "..."}</span>{" "}
-          bestaat niet of is verplaatst.
+          {description}
         </p>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Button asChild size="lg" className="gap-2">
             <Link href="/">
               <Home className="size-4" />
-              Naar home
+              {t("goHome")}
             </Link>
           </Button>
           <Button
@@ -45,7 +47,7 @@ export default function NotFound() {
             onClick={() => window.history.back()}
           >
             <ArrowLeft className="size-4" />
-            Terug
+            {t("back")}
           </Button>
         </div>
       </motion.div>

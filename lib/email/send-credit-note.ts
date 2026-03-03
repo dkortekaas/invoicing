@@ -41,6 +41,9 @@ export async function sendCreditNoteEmail({
           kvkNumber: true,
           iban: true,
           company: true,
+          fiscalSettings: {
+            select: { useKOR: true },
+          },
         },
       },
     },
@@ -147,11 +150,13 @@ export async function sendCreditNoteEmail({
   });
 
   // Genereer PDF met watermerk settings
+  const useKOR = creditNote.user.fiscalSettings?.useKOR ?? false
   const pdfBuffer = await renderToBuffer(
     CreditNotePDF({
       creditNote: pdfData,
       watermarkSettings: settings,
       userTier: user?.subscriptionTier || 'FREE',
+      useKOR,
     })
   );
 

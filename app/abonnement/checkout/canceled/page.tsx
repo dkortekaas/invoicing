@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { T } from '@/components/t';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,19 +22,21 @@ export default async function CheckoutCanceledPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100">
             <XCircle className="h-10 w-10 text-orange-600" />
           </div>
-          <CardTitle className="text-2xl">Betaling geannuleerd</CardTitle>
+          <CardTitle className="text-2xl">
+            <T ns="checkoutCanceledPage" k="title" />
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <p className="text-muted-foreground">
-            Je betaling is geannuleerd. Je abonnement is niet gewijzigd.
+            <T ns="checkoutCanceledPage" k="description" />
           </p>
 
           <div className="flex gap-4 justify-center pt-4">
             <Button asChild>
-              <Link href="/upgrade">Probeer opnieuw</Link>
+              <Link href="/upgrade"><T ns="checkoutCanceledPage" k="tryAgain" /></Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/dashboard">Naar dashboard</Link>
+              <Link href="/dashboard"><T ns="checkoutCanceledPage" k="toDashboard" /></Link>
             </Button>
           </div>
         </CardContent>

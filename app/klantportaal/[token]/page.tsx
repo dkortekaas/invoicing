@@ -16,6 +16,7 @@ import type { Metadata } from "next"
 
 import { db } from "@/lib/db"
 import { formatCurrency, formatDate, cn } from "@/lib/utils"
+import { getServerT } from "@/lib/i18n"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -31,28 +32,32 @@ export async function generateMetadata({
   params: Promise<{ token: string }>
 }): Promise<Metadata> {
   const { token } = await params
+  const t = await getServerT("customerPortalPage")
   const customer = await db.customer.findUnique({
     where: { portalToken: token },
     select: { name: true, companyName: true },
   })
-  if (!customer) return { title: "Klantportaal" }
+  if (!customer) return { title: t("title") }
+  const company = customer.companyName ?? customer.name
   return {
-    title: `Klantportaal — ${customer.companyName ?? customer.name}`,
+    title: t("titleWithCompany").replace("{company}", company),
     robots: { index: false, follow: false },
   }
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function signingStatusLabel(status: string | null) {
-  switch (status) {
-    case "PENDING":  return "Wacht op ondertekening"
-    case "VIEWED":   return "Bekeken"
-    case "SIGNED":   return "Ondertekend"
-    case "DECLINED": return "Afgewezen"
-    case "EXPIRED":  return "Verlopen"
-    default:         return "Niet verzonden"
-  }
+const STATUS_KEYS: Record<string, string> = {
+  PENDING: "statusPending",
+  VIEWED: "statusViewed",
+  SIGNED: "statusSigned",
+  DECLINED: "statusDeclined",
+  EXPIRED: "statusExpired",
+}
+
+function getSigningStatusLabel(status: string | null, t: (k: string) => string) {
+  const key = status ? STATUS_KEYS[status] : null
+  return key ? t(key) : t("statusNotSent")
 }
 
 function signingStatusColors(status: string | null): string {
@@ -83,6 +88,7 @@ interface Props {
 
 export default async function KlantportaalPage({ params }: Props) {
   const { token } = await params
+  const t = await getServerT("customerPortalPage")
 
   const customer = await db.customer.findUnique({
     where: { portalToken: token },
@@ -148,7 +154,7 @@ export default async function KlantportaalPage({ params }: Props) {
             {company?.name && (
               <p className="text-sm font-semibold">{company.name}</p>
             )}
-            <p className="text-xs text-muted-foreground">Klantportaal</p>
+            <p className="text-xs text-muted-foreground">{t("headerLabel")}</p>
           </div>
         </div>
       </header>
@@ -168,10 +174,10 @@ export default async function KlantportaalPage({ params }: Props) {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
                 <PenLine className="h-4 w-4" />
-                Te ondertekenen offertes
+                {t("pendingSigningTitle")}
               </CardTitle>
               <CardDescription>
-                De volgende offertes wachten op uw akkoord.
+                {t("pendingSigningDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -188,7 +194,7 @@ export default async function KlantportaalPage({ params }: Props) {
                         variant="outline"
                         className={cn("text-xs", signingStatusColors(quote.signingStatus))}
                       >
-                        {signingStatusLabel(quote.signingStatus)}
+                        {getSigningStatusLabel(quote.signingStatus, t)}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground pl-6">
@@ -205,7 +211,7 @@ export default async function KlantportaalPage({ params }: Props) {
                     <Button size="sm" asChild>
                       <Link href={quote.signingUrl}>
                         <PenLine className="mr-1.5 h-3.5 w-3.5" />
-                        Ondertekenen
+                        {t("signButton")}
                       </Link>
                     </Button>
                   )}
@@ -218,7 +224,7 @@ export default async function KlantportaalPage({ params }: Props) {
         {/* Alle offertes */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Alle offertes</CardTitle>
+            <CardTitle className="text-base">{t("allQuotesTitle")}</CardTitle>
           </CardHeader>
           <CardContent>
             {customer.quotes.length === 0 ? (
@@ -238,7 +244,7 @@ export default async function KlantportaalPage({ params }: Props) {
                             variant="outline"
                             className={cn("text-xs", signingStatusColors(quote.signingStatus))}
                           >
-                            {signingStatusLabel(quote.signingStatus)}
+                            {getSigningStatusLabel(quote.signingStatus, t)}
                           </Badge>
                         )}
                       </div>
@@ -246,10 +252,10 @@ export default async function KlantportaalPage({ params }: Props) {
                         <span>{formatDate(quote.quoteDate)}</span>
                         <span className="font-medium text-foreground">{formatCurrency(quote.total)}</span>
                         {quote.signedAt && (
-                          <span className="text-green-700">Ondertekend op {formatDate(quote.signedAt)}</span>
+                          <span className="text-green-700">{t("signedOn").replace("{date}", formatDate(quote.signedAt))}</span>
                         )}
                         {quote.declinedAt && (
-                          <span className="text-red-600">Afgewezen op {formatDate(quote.declinedAt)}</span>
+                          <span className="text-red-600">{t("declinedOn").replace("{date}", formatDate(quote.declinedAt))}</span>
                         )}
                       </div>
                     </div>
@@ -260,7 +266,7 @@ export default async function KlantportaalPage({ params }: Props) {
                           <Button size="sm" variant="outline" asChild>
                             <Link href={quote.signingUrl}>
                               <PenLine className="mr-1.5 h-3.5 w-3.5" />
-                              Ondertekenen
+                              {t("signButton")}
                             </Link>
                           </Button>
                         )}
@@ -275,7 +281,7 @@ export default async function KlantportaalPage({ params }: Props) {
         <Separator />
 
         <p className="text-center text-xs text-muted-foreground">
-          Dit is een beveiligde pagina. Deel de URL niet met derden.
+          {t("secureNotice")}
         </p>
       </main>
     </div>

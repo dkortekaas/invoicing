@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from '@/components/providers/locale-provider';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -32,6 +33,7 @@ export function EmailSendButton({
   onSuccess,
 }: EmailSendButtonProps) {
   const router = useRouter();
+  const { t } = useTranslations('invoicesPage');
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +57,7 @@ export function EmailSendButton({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Email verzenden mislukt');
+        throw new Error(data.error || t('emailSendButtonSendFailed'));
       }
 
       setSuccess(true);
@@ -68,23 +70,23 @@ export function EmailSendButton({
         }
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Er is een fout opgetreden');
+      setError(err instanceof Error ? err.message : t('emailSendButtonSendFailed'));
     } finally {
       setLoading(false);
     }
   };
 
   const buttonText = {
-    invoice: 'Factuur versturen',
-    reminder: 'Herinnering versturen',
-    'payment-confirmation': 'Betalingsbevestiging versturen',
+    invoice: t('emailSendButtonInvoice'),
+    reminder: t('emailSendButtonReminder'),
+    'payment-confirmation': t('emailSendButtonPaymentConfirmation'),
   }[type];
 
   const reminderTypeLabels = {
-    friendly: 'Vriendelijke herinnering',
-    first: 'Eerste herinnering',
-    second: 'Tweede herinnering',
-    final: 'Finale herinnering',
+    friendly: t('emailSendButtonReminderFriendly'),
+    first: t('emailSendButtonReminderFirst'),
+    second: t('emailSendButtonReminderSecond'),
+    final: t('emailSendButtonReminderFinal'),
   };
 
   return (
@@ -99,7 +101,7 @@ export function EmailSendButton({
           <DialogHeader>
             <DialogTitle>{buttonText}</DialogTitle>
             <DialogDescription>
-              Email wordt verzonden naar {customerEmail}
+              {t('emailActionsDesc').replace('{email}', customerEmail)}
             </DialogDescription>
           </DialogHeader>
 
@@ -115,17 +117,17 @@ export function EmailSendButton({
               <Alert className="mb-4 border-green-500 bg-green-50">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-800">
-                  Email succesvol verzonden!
+                  {t('emailSendButtonSuccess')}
                 </AlertDescription>
               </Alert>
             )}
 
             {!success && (
               <div className="space-y-2 text-sm">
-                <p><strong>Aan:</strong> {customerEmail}</p>
-                <p><strong>Factuur:</strong> {invoiceNumber}</p>
+                <p><strong>{t('emailSendButtonTo')}:</strong> {customerEmail}</p>
+                <p><strong>{t('emailSendButtonInvoice')}:</strong> {invoiceNumber}</p>
                 {type === 'reminder' && reminderType && (
-                  <p><strong>Type:</strong> {reminderTypeLabels[reminderType]}</p>
+                  <p><strong>{t('emailSendButtonReminderType')}:</strong> {reminderTypeLabels[reminderType]}</p>
                 )}
               </div>
             )}
@@ -133,15 +135,15 @@ export function EmailSendButton({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>
-              Annuleren
+              {t('emailSendButtonCancel')}
             </Button>
             <Button onClick={handleSend} disabled={loading || success}>
               {loading ? (
-                <>Verzenden...</>
+                <>{t('emailSendButtonSending')}</>
               ) : (
                 <>
                   <Send className="mr-2 h-4 w-4" />
-                  Verstuur
+                  {t('emailSendButtonSend')}
                 </>
               )}
             </Button>

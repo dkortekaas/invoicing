@@ -1,11 +1,15 @@
 import { CreditNoteForm } from "@/components/creditnotes/credit-note-form"
 import { getCustomersForDropdown } from "@/app/klanten/actions"
+import { getFiscalSettings } from "@/app/instellingen/actions"
 import { T } from "@/components/t"
 
 export const dynamic = "force-dynamic"
 
 export default async function NieuweCreditNotaPage() {
-  const customers = await getCustomersForDropdown()
+  const [customers, fiscalSettings] = await Promise.all([
+    getCustomersForDropdown(),
+    getFiscalSettings(),
+  ])
 
   const customersForForm = customers.map((c: typeof customers[0]) => ({
     id: c.id,
@@ -22,7 +26,7 @@ export default async function NieuweCreditNotaPage() {
         </p>
       </div>
 
-      <CreditNoteForm customers={customersForForm} />
+      <CreditNoteForm customers={customersForForm} useKOR={fiscalSettings.useKOR} />
     </div>
   )
 }

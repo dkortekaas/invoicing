@@ -23,25 +23,9 @@ import { SearchForm } from './search-form';
 import { YearFilterSelect } from '@/components/year-filter-select';
 import { Pagination } from '@/components/ui/pagination';
 import { requireFeature } from '@/lib/auth/subscription-guard';
+import { getServerT } from '@/lib/i18n';
 
 const PAGE_SIZE = 50;
-
-const CATEGORY_LABELS: Record<string, string> = {
-  OFFICE: 'Kantoorkosten',
-  TRAVEL: 'Reiskosten',
-  EQUIPMENT: 'Apparatuur',
-  SOFTWARE: 'Software/Subscriptions',
-  MARKETING: 'Marketing',
-  EDUCATION: 'Opleiding',
-  INSURANCE: 'Verzekeringen',
-  ACCOUNTANT: 'Accountant',
-  TELECOM: 'Telefoon/Internet',
-  UTILITIES: 'Energie',
-  RENT: 'Huur',
-  MAINTENANCE: 'Onderhoud',
-  PROFESSIONAL: 'Professionele diensten',
-  OTHER: 'Overig',
-};
 
 const SORT_KEYS = ['date', 'description', 'category', 'amount', 'vatAmount'] as const;
 type SortKey = (typeof SORT_KEYS)[number];
@@ -54,6 +38,12 @@ interface ExpensesPageProps {
   searchParams: Promise<{ search?: string; year?: string; sortBy?: string; sortOrder?: string; page?: string }>;
 }
 
+const EXPENSE_CATEGORIES = [
+  'OFFICE', 'TRAVEL', 'EQUIPMENT', 'SOFTWARE', 'MARKETING', 'EDUCATION',
+  'INSURANCE', 'ACCOUNTANT', 'TELECOM', 'UTILITIES', 'RENT', 'MAINTENANCE',
+  'PROFESSIONAL', 'OTHER',
+] as const;
+
 export default async function ExpensesPage({ searchParams }: ExpensesPageProps) {
   await requireFeature('expenses');
 
@@ -62,6 +52,11 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
   if (!session?.user?.id) {
     redirect('/login');
   }
+
+  const t = await getServerT('expensesPage');
+  const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
+    EXPENSE_CATEGORIES.map((cat) => [cat, t(`categories.${cat}`)])
+  );
 
   const params = await searchParams;
   const currentYearNum = new Date().getFullYear();
@@ -179,7 +174,7 @@ export default async function ExpensesPage({ searchParams }: ExpensesPageProps) 
             <YearFilterSelect years={yearsList} currentYear={params.year === 'all' ? 'all' : (params.year ?? String(currentYearNum))} />
           </div>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="px-6">
           <Table>
             <TableHeader>
               <TableRow>

@@ -33,8 +33,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { productSchema, type ProductFormData } from "@/lib/validations"
-import { VAT_RATES, UNITS } from "@/lib/utils"
+import { getCurrencySymbol } from "@/lib/currency/formatting"
 import { createProduct, updateProduct } from "@/app/producten/actions"
+import { useTranslations, useTranslatedUtils } from "@/components/providers/locale-provider"
 
 interface ProductFormProps {
   product?: ProductFormData & { id: string }
@@ -50,7 +51,9 @@ export function ProductForm({
   onSuccess,
 }: ProductFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-
+  const { t } = useTranslations("productsPage")
+  const { VAT_RATES, UNITS } = useTranslatedUtils()
+  const currencySymbol = getCurrencySymbol("EUR")
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: product ?? {
@@ -86,12 +89,12 @@ export function ProductForm({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {product ? "Product bewerken" : "Nieuw product"}
+            {product ? t("formEditTitle") : t("formNewTitle")}
           </DialogTitle>
           <DialogDescription>
             {product
-              ? "Wijzig de productgegevens"
-              : "Voeg een nieuw product of dienst toe"}
+              ? t("formEditDescription").replace("{name}", product.name)
+              : t("formNewDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -102,7 +105,7 @@ export function ProductForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Naam *</FormLabel>
+                  <FormLabel>{t("formNameLabel")}</FormLabel>
                   <FormControl>
                     <Input placeholder="Consultancy" {...field} />
                   </FormControl>
@@ -116,10 +119,10 @@ export function ProductForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Omschrijving</FormLabel>
+                  <FormLabel>{t("formDescriptionLabel")}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Optionele omschrijving..."
+                      placeholder={t("formDescriptionPlaceholder")}
                       {...field}
                       value={field.value ?? ""}
                     />
@@ -135,11 +138,11 @@ export function ProductForm({
                 name="unitPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Prijs *</FormLabel>
+                    <FormLabel>{t("formPriceLabel")}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                          €
+                          {currencySymbol}
                         </span>
                         <Input
                           type="number"
@@ -164,14 +167,14 @@ export function ProductForm({
                 name="unit"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Eenheid</FormLabel>
+                    <FormLabel>{t("formUnitLabel")}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecteer eenheid" />
+                          <SelectValue placeholder={t("formUnitPlaceholder")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -193,14 +196,14 @@ export function ProductForm({
               name="vatRate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>BTW-tarief</FormLabel>
+                  <FormLabel>{t("formVatLabel")}</FormLabel>
                   <Select
                     onValueChange={(value) => field.onChange(parseInt(value))}
                     defaultValue={field.value?.toString()}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecteer BTW-tarief" />
+                        <SelectValue placeholder={t("formVatPlaceholder")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -212,7 +215,7 @@ export function ProductForm({
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Standaard Nederlands BTW-tarief
+                    {t("formVatDescription")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -225,13 +228,13 @@ export function ProductForm({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Annuleren
+                {t("actionCancel")}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                {product ? "Opslaan" : "Toevoegen"}
+                {product ? t("actionSave") : t("actionAdd")}
               </Button>
             </DialogFooter>
           </form>

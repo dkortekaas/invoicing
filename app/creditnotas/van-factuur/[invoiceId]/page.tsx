@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { CreditNoteForm } from "@/components/creditnotes/credit-note-form"
 import { getCustomersForDropdown } from "@/app/klanten/actions"
+import { getFiscalSettings } from "@/app/instellingen/actions"
 import { getInvoiceForCreditNote } from "../../actions"
 import { T } from "@/components/t"
 
@@ -12,9 +13,10 @@ interface VanFactuurPageProps {
 
 export default async function VanFactuurPage({ params }: VanFactuurPageProps) {
   const { invoiceId } = await params
-  const [invoice, customers] = await Promise.all([
+  const [invoice, customers, fiscalSettings] = await Promise.all([
     getInvoiceForCreditNote(invoiceId),
     getCustomersForDropdown(),
+    getFiscalSettings(),
   ])
 
   if (!invoice) {
@@ -66,6 +68,7 @@ export default async function VanFactuurPage({ params }: VanFactuurPageProps) {
         preselectedCustomerId={invoice.customerId}
         preselectedInvoice={preselectedInvoice}
         defaultItems={defaultItems}
+        useKOR={fiscalSettings.useKOR}
       />
     </div>
   )

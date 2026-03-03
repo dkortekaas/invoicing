@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { RefreshCw, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { generateReport } from "../actions"
 
 interface RefreshReportButtonProps {
@@ -14,17 +15,18 @@ interface RefreshReportButtonProps {
 
 export function RefreshReportButton({ year }: RefreshReportButtonProps) {
   const router = useRouter()
+  const { t } = useTranslations("taxPage")
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   async function handleRefresh() {
     setIsRefreshing(true)
     try {
       await generateReport(year)
-      toast.success("Rapport bijgewerkt")
+      toast.success(t("refreshSuccess"))
       router.refresh()
     } catch (error) {
       console.error("Error refreshing report:", error)
-      toast.error("Fout bij bijwerken rapport")
+      toast.error(t("refreshError"))
     } finally {
       setIsRefreshing(false)
     }
@@ -41,7 +43,7 @@ export function RefreshReportButton({ year }: RefreshReportButtonProps) {
       ) : (
         <RefreshCw className="mr-2 h-4 w-4" />
       )}
-      Herberekenen
+      {t("refreshReport")}
     </Button>
   )
 }

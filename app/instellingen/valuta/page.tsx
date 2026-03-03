@@ -1,5 +1,6 @@
 import { db } from "@/lib/db"
 import { getCurrentUserId } from "@/lib/server-utils"
+import { T } from "@/components/t"
 import { CurrencySettingsForm } from "./currency-settings-form"
 
 export const dynamic = "force-dynamic"
@@ -65,9 +66,9 @@ export default async function ValutaSettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Valuta-instellingen</h2>
+        <h2 className="text-2xl font-bold tracking-tight"><T ns="settingsPage" k="currencySettingsTitle" /></h2>
         <p className="text-muted-foreground">
-          Configureer welke valuta&apos;s beschikbaar zijn voor facturering
+          <T ns="settingsPage" k="currencySettingsDescription" />
         </p>
       </div>
 

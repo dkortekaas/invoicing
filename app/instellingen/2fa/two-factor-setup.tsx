@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, Shield, ShieldCheck, ShieldOff } from "lucide-react"
+import { useTranslations } from "@/components/providers/locale-provider"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -24,6 +25,7 @@ interface TwoFactorSetupProps {
 }
 
 export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
+  const { t } = useTranslations("settingsPage")
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState<"setup" | "verify" | "enabled">(
@@ -45,7 +47,7 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
       setSecret(result.secret)
       setStep("verify")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Fout bij genereren 2FA secret")
+      setError(err instanceof Error ? err.message : t("twoFactorErrorGenerate"))
     } finally {
       setIsLoading(false)
     }
@@ -53,7 +55,7 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
 
   const handleVerify = async () => {
     if (!verificationCode || verificationCode.length !== 6) {
-      setError("Voer een 6-cijferige code in")
+      setError(t("twoFactorErrorCodeRequired"))
       return
     }
 
@@ -65,7 +67,7 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
       setStep("enabled")
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ongeldige verificatie code")
+      setError(err instanceof Error ? err.message : t("twoFactorErrorInvalidCode"))
     } finally {
       setIsLoading(false)
     }
@@ -83,7 +85,7 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
       setBackupCodes([])
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Fout bij uitschakelen 2FA")
+      setError(err instanceof Error ? err.message : t("twoFactorErrorDisable"))
     } finally {
       setIsLoading(false)
     }
@@ -96,10 +98,10 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
         <CardHeader>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-green-600" />
-            <CardTitle>2FA is ingeschakeld</CardTitle>
+            <CardTitle>{t("twoFactorEnabledTitle")}</CardTitle>
           </div>
           <CardDescription>
-            Je account is beveiligd met twee-factor authenticatie
+            {t("twoFactorEnabledDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -107,7 +109,7 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
             <Alert>
               <AlertDescription>
                 <div className="space-y-2">
-                  <p className="font-semibold">Backup codes (bewaar deze veilig!):</p>
+                  <p className="font-semibold">{t("twoFactorBackupCodes")}</p>
                   <div className="grid grid-cols-2 gap-2 font-mono text-sm">
                     {backupCodes.map((code: string, i: number) => (
                       <div key={i} className="rounded bg-gray-100 p-2 text-center">
@@ -116,7 +118,7 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Deze codes worden maar één keer getoond. Bewaar ze op een veilige plek.
+                    {t("twoFactorBackupCodesHelp")}
                   </p>
                 </div>
               </AlertDescription>
@@ -129,7 +131,7 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
             disabled={isLoading}
           >
             <ShieldOff className="mr-2 h-4 w-4" />
-            2FA uitschakelen
+            {t("twoFactorDisable")}
           </Button>
         </CardContent>
       </Card>
@@ -137,9 +139,9 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
       <Dialog open={isDisableDialogOpen} onOpenChange={setIsDisableDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>2FA uitschakelen</DialogTitle>
+            <DialogTitle>{t("twoFactorDisableDialogTitle")}</DialogTitle>
             <DialogDescription>
-              Weet je zeker dat je 2FA wilt uitschakelen? Dit maakt je account minder veilig.
+              {t("twoFactorDisableDialogDesc")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -169,9 +171,9 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Verifieer 2FA Setup</CardTitle>
+          <CardTitle>{t("twoFactorVerifyTitle")}</CardTitle>
           <CardDescription>
-            Scan de QR code met je authenticator app en voer de code in
+            {t("twoFactorVerifyDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -184,13 +186,13 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
           {qrCode && (
             <div className="flex justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element -- QR code is a data URL, next/image does not support */}
-              <img src={qrCode} alt="QR Code" className="rounded border" />
+              <img src={qrCode} alt={t("twoFactorQrAlt")} className="rounded border" />
             </div>
           )}
 
           {secret && (
             <div className="space-y-2">
-              <Label>Secret Key (voor handmatige invoer)</Label>
+              <Label>{t("twoFactorSecretLabel")}</Label>
               <div className="rounded-md bg-gray-100 p-3 font-mono text-sm">
                 {secret}
               </div>
@@ -198,23 +200,23 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="verification-code">Verificatie Code</Label>
+            <Label htmlFor="verification-code">{t("twoFactorVerificationCode")}</Label>
             <Input
               id="verification-code"
               type="text"
-              placeholder="000000"
+              placeholder={t("twoFactorVerificationPlaceholder")}
               maxLength={6}
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ""))}
             />
             <p className="text-sm text-muted-foreground">
-              Voer de 6-cijferige code in van je authenticator app
+              {t("twoFactorVerificationHelp")}
             </p>
           </div>
 
           <Button onClick={handleVerify} disabled={isLoading || !verificationCode}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Verifieer en Activeer
+            {t("twoFactorVerifyButton")}
           </Button>
         </CardContent>
       </Card>
@@ -226,10 +228,10 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5" />
-          <CardTitle>Twee-Factor Authenticatie</CardTitle>
+          <CardTitle>{t("twoFactorSetupTitle")}</CardTitle>
         </div>
         <CardDescription>
-          Voeg een extra beveiligingslaag toe aan je account met een authenticator app
+          {t("twoFactorSetupDesc")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -241,16 +243,14 @@ export function TwoFactorSetup({ isEnabled, hasSecret }: TwoFactorSetupProps) {
 
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            Met twee-factor authenticatie moet je naast je wachtwoord ook een code
-            invoeren die gegenereerd wordt door een authenticator app zoals Google
-            Authenticator of Authy.
+            {t("twoFactorSetupInfo")}
           </p>
         </div>
 
         <Button onClick={handleEnable} disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           <ShieldCheck className="mr-2 h-4 w-4" />
-          2FA inschakelen
+          {t("twoFactorEnable")}
         </Button>
       </CardContent>
     </Card>

@@ -53,6 +53,20 @@ export function ExportModal({
   };
   const entityLabel = entityLabels[entityType];
 
+  const entityColumnKey: Record<EntityType, string> = {
+    CUSTOMERS: 'customers',
+    INVOICES: 'invoices',
+    EXPENSES: 'expenses',
+    PRODUCTS: 'products',
+    TIME_ENTRIES: 'timeEntries',
+  };
+  const columnKey = entityColumnKey[entityType];
+
+  const getColumnLabel = (fieldKey: string) => {
+    const translated = t(`columns.${columnKey}.${fieldKey}`);
+    return translated.startsWith('columns.') ? fields[fieldKey]?.label ?? fieldKey : translated;
+  };
+
   const handleColumnToggle = (column: string) => {
     setSelectedColumns((prev) =>
       prev.includes(column)
@@ -230,7 +244,7 @@ export function ExportModal({
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border rounded-md p-3">
-              {Object.entries(fields).map(([key, field]) => (
+              {Object.entries(fields).map(([key]) => (
                 <div key={key} className="flex items-center space-x-2">
                   <Checkbox
                     id={`col-${key}`}
@@ -238,7 +252,7 @@ export function ExportModal({
                     onCheckedChange={() => handleColumnToggle(key)}
                   />
                   <Label htmlFor={`col-${key}`} className="font-normal text-sm">
-                    {field.label}
+                    {getColumnLabel(key)}
                   </Label>
                 </div>
               ))}

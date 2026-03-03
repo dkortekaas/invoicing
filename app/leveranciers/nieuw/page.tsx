@@ -1,5 +1,6 @@
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { T } from "@/components/t"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { VendorForm } from "@/components/vendors/vendor-form"
@@ -15,16 +16,16 @@ export default function NieuweLeverancierPage() {
           </Link>
         </Button>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Nieuwe Leverancier</h2>
+          <h2 className="text-2xl font-bold tracking-tight"><T ns="vendorsPage" k="newVendorTitle" /></h2>
           <p className="text-muted-foreground">
-            Voeg een nieuwe leverancier toe voor automatische categorisatie
+            <T ns="vendorsPage" k="newVendorDescription" />
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Leverancier gegevens</CardTitle>
+          <CardTitle><T ns="vendorsPage" k="vendorDetailsTitle" /></CardTitle>
         </CardHeader>
         <CardContent>
           <VendorForm />

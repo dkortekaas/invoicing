@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/get-session"
 import { db } from "@/lib/db"
+import { T } from "@/components/t"
 import { TwoFactorSetup } from "./two-factor-setup"
 
 export default async function TwoFactorPage() {
@@ -24,9 +25,9 @@ export default async function TwoFactorPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Twee-Factor Authenticatie</h2>
+        <h2 className="text-2xl font-bold tracking-tight"><T ns="settingsPage" k="twoFactorTitle" /></h2>
         <p className="text-muted-foreground">
-          Beveilig je account met twee-factor authenticatie
+          <T ns="settingsPage" k="twoFactorDescription" />
         </p>
       </div>
 

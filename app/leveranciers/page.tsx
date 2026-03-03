@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Plus, Building2 } from "lucide-react"
 
 export const dynamic = "force-dynamic"
+import { getServerT } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -19,22 +20,11 @@ import { VendorActions } from "./vendor-actions"
 import { VendorSearchForm } from "./vendor-search-form"
 import { T } from "@/components/t"
 
-const CATEGORY_LABELS: Record<string, string> = {
-  OFFICE: 'Kantoorkosten',
-  TRAVEL: 'Reiskosten',
-  EQUIPMENT: 'Apparatuur',
-  SOFTWARE: 'Software/Subscriptions',
-  MARKETING: 'Marketing',
-  EDUCATION: 'Opleiding',
-  INSURANCE: 'Verzekeringen',
-  ACCOUNTANT: 'Accountant',
-  TELECOM: 'Telefoon/Internet',
-  UTILITIES: 'Energie',
-  RENT: 'Huur',
-  MAINTENANCE: 'Onderhoud',
-  PROFESSIONAL: 'Professionele diensten',
-  OTHER: 'Overig',
-}
+const CATEGORY_KEYS = [
+  'OFFICE', 'TRAVEL', 'EQUIPMENT', 'SOFTWARE', 'MARKETING', 'EDUCATION',
+  'INSURANCE', 'ACCOUNTANT', 'TELECOM', 'UTILITIES', 'RENT', 'MAINTENANCE',
+  'PROFESSIONAL', 'OTHER',
+] as const
 
 const VENDOR_SORT_KEYS = ["name", "defaultCategory", "useCount"] as const
 type VendorSortKey = (typeof VENDOR_SORT_KEYS)[number]
@@ -47,6 +37,7 @@ interface LeveranciersPageProps {
 }
 
 export default async function LeveranciersPage({ searchParams }: LeveranciersPageProps) {
+  const t = await getServerT("vendorsPage")
   const params = await searchParams
   const search = params.search ?? ""
   const sortBy = isVendorSortKey(params.sortBy) ? params.sortBy : "name"
@@ -168,7 +159,9 @@ export default async function LeveranciersPage({ searchParams }: LeveranciersPag
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">
-                        {CATEGORY_LABELS[vendor.defaultCategory] || vendor.defaultCategory}
+                        {CATEGORY_KEYS.includes(vendor.defaultCategory as typeof CATEGORY_KEYS[number])
+                          ? t(`categories.${vendor.defaultCategory}`)
+                          : vendor.defaultCategory}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">

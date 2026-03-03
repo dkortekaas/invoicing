@@ -1,6 +1,7 @@
 ---
 title: "Dutch VAT for Freelancers: Complete Guide (BTW Explained) — 2026"
 excerpt: "Everything foreign freelancers need to know about Dutch VAT (BTW): rates, registration, quarterly returns, input vs output VAT, reverse charge, and the KOR exemption."
+image: blog/dutch-vat-for-freelancers-btw-explained.jpg
 slug: "dutch-vat-for-freelancers-btw-explained"
 date: "2026-02-16"
 updatedAt: "2026-02-16"

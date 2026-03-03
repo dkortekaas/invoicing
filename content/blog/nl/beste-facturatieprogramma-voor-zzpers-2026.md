@@ -3,7 +3,7 @@ title: "Beste facturatieprogramma voor zzp'ers in 2026 (eerlijke vergelijking)"
 seoTitle: "Beste facturatieprogramma voor zzp'ers in 2026 (eerlijke vergelijking)"
 metaDescription: "We vergeleken 6 populaire facturatieprogramma's voor zzp'ers op prijs, functies en gebruiksgemak. Welk programma past bij jou? Inclusief vergelijkingstabel."
 excerpt: "We vergeleken 6 populaire facturatieprogramma's voor zzp'ers op prijs, functies en gebruiksgemak. Welk programma past bij jou? Inclusief vergelijkingstabel."
-image: blog/3-beste-facturatieprogramma-voor-zzpers.jpg
+image: blog/beste-facturatieprogramma-voor-zzpers.jpg
 date: "2026-02-01"
 updatedAt: "2026-02-14"
 category: facturatie

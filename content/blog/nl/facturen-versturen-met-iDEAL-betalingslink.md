@@ -3,7 +3,7 @@ title: "Facturen versturen met iDEAL of Wero — sneller betaald als zzp'er (202
 seoTitle: "Facturen versturen met iDEAL of Wero — sneller betaald als zzp'er (2026)"
 metaDescription: "Alles over betaallinks op facturen: hoe iDEAL en Wero werken, hoe je ze instelt via Mollie, en waarom je er gemiddeld 11 dagen sneller mee betaald wordt."
 excerpt: "Alles over betaallinks op facturen: hoe iDEAL en Wero werken, hoe je ze instelt via Mollie, en waarom je er gemiddeld 11 dagen sneller mee betaald wordt."
-image: blog/4-facturen-versturen-met-iDEAL-betalingslink.jpg
+image: blog/facturen-versturen-met-iDEAL-betalingslink.jpg
 date: "2026-02-13"
 updatedAt: "2026-02-14"
 category: facturatie

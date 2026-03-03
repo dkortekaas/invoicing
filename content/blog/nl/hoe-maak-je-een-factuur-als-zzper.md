@@ -3,7 +3,7 @@ title: "Hoe maak je een factuur als zzp'er? (stap-voor-stap gids 2026)"
 seoTitle: "Hoe maak je een factuur als zzp'er? (stap-voor-stap gids 2026)"
 metaDescription: "Leer hoe je als zzp'er een correcte factuur maakt: verplichte gegevens, BTW-tarieven, factuurnummering en versturen. Met praktisch voorbeeld en gratis checklist."
 excerpt: "Leer hoe je als zzp'er een correcte factuur maakt: verplichte gegevens, BTW-tarieven, factuurnummering en versturen. Met praktisch voorbeeld en gratis checklist."
-image: blog/1-hoe-maak-je-een-factuur-als-zzper.jpg
+image: blog/hoe-maak-je-een-factuur-als-zzper.jpg
 date: "2026-01-30"
 updatedAt: "2026-02-14"
 category: facturatie

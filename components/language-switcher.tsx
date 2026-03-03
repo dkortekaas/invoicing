@@ -35,8 +35,13 @@ export function LanguageSwitcher() {
       } else {
         targetPath = pathname;
       }
-
-      router.push(targetPath);
+      // For marketing pages like blog: do a full refresh so
+      // server-rendered content (e.g. blog posts) always matches the locale.
+      if (typeof window !== "undefined") {
+        window.location.href = targetPath;
+      } else {
+        router.push(targetPath);
+      }
     } else {
       // For non-marketing pages: update provider state instantly (cookie + deferred refresh happen inside setLocale)
       setLocale(targetLocale);

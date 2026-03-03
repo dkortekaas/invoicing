@@ -7,6 +7,7 @@ import { alternatesForPath } from "@/lib/seo";
 import { generateJsonLd } from "@/lib/jsonld";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://declair.app";
+export const dynamic = "force-dynamic";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;

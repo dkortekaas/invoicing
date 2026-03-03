@@ -5,6 +5,7 @@ import { BlogClient } from "@/components/marketing/blog-client";
 import { alternatesForPath } from "@/lib/seo";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://declair.app";
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocaleFromHeaders();

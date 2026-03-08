@@ -8,6 +8,7 @@ import {
   Receipt,
   Clock,
   BarChart3,
+  Plug,
   ArrowRight,
   Check,
 } from "lucide-react";
@@ -37,6 +38,7 @@ const featureItemsNl = [
   { icon: Receipt, titleKey: "expenses", nlSlug: "onkosten-en-bonnetjes", highlights: ["expensesHighlight1", "expensesHighlight2", "expensesHighlight3"] },
   { icon: Clock, titleKey: "projects", nlSlug: "projecten-en-uren", highlights: ["projectsHighlight1", "projectsHighlight2", "projectsHighlight3"] },
   { icon: BarChart3, titleKey: "reports", nlSlug: "rapportages-en-belasting", highlights: ["reportsHighlight1", "reportsHighlight2", "reportsHighlight3"] },
+  { icon: Plug, titleKey: "integrations", nlSlug: "koppelingen", highlights: ["integrationsHighlight1", "integrationsHighlight2", "integrationsHighlight3"] },
 ];
 
 const FeaturesPage = () => {

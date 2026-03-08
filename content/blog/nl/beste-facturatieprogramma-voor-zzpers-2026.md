@@ -262,7 +262,7 @@ Een iDEAL-betaallink op je factuur zorgt dat klanten met één klik kunnen betal
 
 ### 4. Prijs versus functies
 
-De goedkoopste optie is niet altijd de voordeligste. Als je door een ontbrekende betaallink één factuur van €500 twee weken later betaald krijgt, kost je dat méér dan het prijsverschil tussen de abonnementen.
+De goedkoopste optie is niet altijd de voordeligste. Als je door een ontbrekende betaallink één factuur van €500 twee weken later betaald krijgt, kost je dat méér dan het prijsverschil tussen de abonnementen. En als een klant ondanks reminders nog steeds niet betaalt, wil je weten welke stappen je kunt zetten — lees daarvoor [Factuur niet betaald — wat nu?](/blog/factuur-niet-betaald-wat-nu)
 
 ---
 
@@ -312,4 +312,4 @@ Alle genoemde programma's zijn cloudgebaseerd en gebruiken versleutelde verbindi
 
 ---
 
-*Wil je weten hoe je een factuur opmaakt? Lees [Hoe maak je een factuur als zzp'er?](/blog/hoe-maak-je-een-factuur-als-zzper) of bekijk [wat verplicht op een factuur moet staan](/blog/wat-moet-verplicht-op-een-factuur-staan).*
+*Wil je weten hoe je een factuur opmaakt? Lees [Hoe maak je een factuur als zzp'er?](/blog/hoe-maak-je-een-factuur-als-zzper) of bekijk [wat verplicht op een factuur moet staan](/blog/wat-moet-verplicht-op-een-factuur-staan). Betaalt een klant niet? Lees [Factuur niet betaald — wat nu?](/blog/factuur-niet-betaald-wat-nu)*

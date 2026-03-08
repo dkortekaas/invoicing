@@ -192,6 +192,8 @@ Met Declair Professional stel je automatische herinneringen in die de betaallink
 
 Elke herinnering bevat automatisch de betaallink — je klant hoeft niet te zoeken naar de originele factuur.
 
+Blijft betaling toch uit na de laatste aanmaning? Lees het complete stappenplan in [Factuur niet betaald — wat nu?](/blog/factuur-niet-betaald-wat-nu) — met aanmaningskosten, incasso en kant-en-klare brieftemplates.
+
 ---
 
 ## iDEAL-betaallink op een al verstuurde factuur
@@ -272,4 +274,4 @@ Ja, Declair gebruikt Mollie als betaalprovider voor iDEAL en creditcardbetalinge
 
 ---
 
-*Meer weten over sneller betaald worden? Lees ook [hoe automatische betalingsherinneringen werken](/blog/hoe-maak-je-een-factuur-als-zzper) of bekijk de [vergelijking van facturatieprogramma's](/blog/beste-facturatieprogramma-voor-zzpers-2026) om te zien welke tools betaallinks ondersteunen.*
+*Meer weten over sneller betaald worden? Lees ook [hoe automatische betalingsherinneringen werken](/blog/hoe-maak-je-een-factuur-als-zzper) of bekijk de [vergelijking van facturatieprogramma's](/blog/beste-facturatieprogramma-voor-zzpers-2026) om te zien welke tools betaallinks ondersteunen. Betaalt een klant ondanks alles niet? Lees [Factuur niet betaald — wat nu?](/blog/factuur-niet-betaald-wat-nu)*

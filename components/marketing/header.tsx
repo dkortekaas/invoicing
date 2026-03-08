@@ -24,6 +24,7 @@ const featureKeysNl = [
   { key: "expenses", slug: "onkosten-en-bonnetjes" },
   { key: "projects", slug: "projecten-en-uren" },
   { key: "reports", slug: "rapportages-en-belasting" },
+  { key: "integrations", slug: "koppelingen" },
 ] as const;
 
 const Header = () => {

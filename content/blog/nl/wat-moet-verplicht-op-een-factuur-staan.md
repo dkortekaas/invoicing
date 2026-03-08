@@ -196,6 +196,8 @@ Vermeld je IBAN-rekeningnummer zodat je klant weet naar welke rekening hij moet 
 
 Een concrete datum werkt beter dan "binnen 30 dagen" — klanten hoeven dan niet zelf te rekenen.
 
+> **Klant betaalt niet op tijd?** Lees wat je kunt doen in [Factuur niet betaald — wat nu?](/blog/factuur-niet-betaald-wat-nu) — inclusief aanmaningskosten, incasso en kant-en-klare templates.
+
 ---
 
 ## Optionele maar nuttige toevoegingen
@@ -321,8 +323,8 @@ Een onvolledige factuur kan door je klant worden geweigerd of teruggestuurd. Daa
 
 ### Moet ik een betalingstermijn vermelden op mijn factuur?
 
-Het is niet wettelijk verplicht, maar sterk aanbevolen. Zonder betalingstermijn geldt de wettelijke termijn van 30 dagen. Door een concrete datum te noemen — *"Betaling vóór 15 maart 2026"* — betalen klanten gemiddeld sneller.
+Het is niet wettelijk verplicht, maar sterk aanbevolen. Zonder betalingstermijn geldt de wettelijke termijn van 30 dagen. Door een concrete datum te noemen — *"Betaling vóór 15 maart 2026"* — betalen klanten gemiddeld sneller. Betaalt een klant toch niet op tijd? Lees het stappenplan in [Factuur niet betaald — wat nu?](/blog/factuur-niet-betaald-wat-nu)
 
 ---
 
-*Wil je weten hoe je stap voor stap een factuur opmaakt? Lees dan [Hoe maak je een factuur als zzp'er?](/blog/hoe-maak-je-een-factuur-als-zzper) — inclusief rekenvoorbeeld en veelgemaakte fouten.*
+*Wil je weten hoe je stap voor stap een factuur opmaakt? Lees dan [Hoe maak je een factuur als zzp'er?](/blog/hoe-maak-je-een-factuur-als-zzper) — inclusief rekenvoorbeeld en veelgemaakte fouten. Of lees wat je doet als een klant niet betaalt: [Factuur niet betaald — wat nu?](/blog/factuur-niet-betaald-wat-nu)*

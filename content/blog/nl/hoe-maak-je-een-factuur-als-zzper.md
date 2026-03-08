@@ -207,6 +207,8 @@ Herinneringen sturen voelt ongemakkelijk, maar onbetaalde facturen zijn duurder 
 - **14 dagen ná vervaldatum** — tweede aanmaning
 - **30 dagen ná vervaldatum** — laatste aanmaning voor juridische stappen
 
+Wat je doet als een klant daarna nog steeds niet betaalt — inclusief aanmaningskosten en incasso — lees je in [Factuur niet betaald — wat nu?](/blog/factuur-niet-betaald-wat-nu)
+
 ---
 
 ## Veelgemaakte fouten bij factureren als zzp'er
@@ -298,8 +300,8 @@ Een verzonden factuur kun je niet zomaar verwijderen — dat is boekhoudkundig n
 
 ### Wat doe ik als een klant niet betaalt?
 
-Stuur eerst een vriendelijke betalingsherinnering, gevolgd door een formele aanmaning als de klant na 7–14 dagen nog niet betaald heeft. Automatische herinneringen via een factuurprogramma als Declair verminderen het aantal openstaande facturen sterk.
+Stuur eerst een vriendelijke betalingsherinnering, gevolgd door een formele aanmaning als de klant na 7–14 dagen nog niet betaald heeft. Automatische herinneringen via een factuurprogramma als Declair verminderen het aantal openstaande facturen sterk. Lees het complete stappenplan in [Factuur niet betaald — wat nu?](/blog/factuur-niet-betaald-wat-nu)
 
 ---
 
-*Volgende stap: lees ook [Wat moet verplicht op een factuur staan? (zzp checklist)](/blog/wat-moet-verplicht-op-een-factuur-staan) of bekijk de [vergelijking van de beste facturatieprogramma's voor zzp'ers in 2026](/blog/beste-facturatieprogramma-voor-zzpers-2026).*
+*Volgende stap: lees ook [Wat moet verplicht op een factuur staan? (zzp checklist)](/blog/wat-moet-verplicht-op-een-factuur-staan) of bekijk de [vergelijking van de beste facturatieprogramma's voor zzp'ers in 2026](/blog/beste-facturatieprogramma-voor-zzpers-2026). Factuur nog steeds onbetaald? Lees [Factuur niet betaald — wat nu?](/blog/factuur-niet-betaald-wat-nu)*

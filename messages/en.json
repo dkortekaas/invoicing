@@ -231,7 +231,7 @@
       },
       "integrations": {
         "title": "Integrations",
-        "description": "Integrate with your favorite tools"
+        "description": "Connect Declair to Exact Online, Moneybird or Snelstart. No more duplicate data entry."
       }
     }
   },

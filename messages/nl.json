@@ -238,8 +238,8 @@
         "description": "Rapportages en analyses"
       },
       "integrations": {
-        "title": "Integraties",
-        "description": "Integraties met je favoriete tools"
+        "title": "Koppelingen",
+        "description": "Koppel Declair aan Exact Online, Moneybird of Snelstart. Geen dubbel invoerwerk meer."
       }
     }
   },

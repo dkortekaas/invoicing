@@ -8,6 +8,7 @@ import {
   Receipt,
   Clock,
   BarChart3,
+  Plug,
   ArrowRight,
 } from "lucide-react";
 import { useTranslations } from "@/components/providers/locale-provider";
@@ -61,12 +62,12 @@ const FeaturesSection = () => {
       description: t("featuresList.reports.description"),
       href: "/functies/rapportages-en-belasting",
     },
-    // {
-    //   icon: Plug,
-    //   title: t("featuresList.integrations.title"),
-    //   description: t("featuresList.integrations.description"),
-    //   href: "/functies/koppelingen",
-    // },
+    {
+      icon: Plug,
+      title: t("featuresList.integrations.title"),
+      description: t("featuresList.integrations.description"),
+      href: "/functies/koppelingen",
+    },
   ];
 
   return (

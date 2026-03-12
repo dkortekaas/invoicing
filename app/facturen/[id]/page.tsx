@@ -216,7 +216,7 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                   </div>
                 ))}
                 <Separator />
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm px-4 py-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground"><T ns="invoicesPage" k="subtotal" /></span>
                     <span>{formatCurrency(invoice.subtotal)}</span>
@@ -272,30 +272,30 @@ export default async function FactuurDetailPage({ params }: FactuurDetailPagePro
                 </TableBody>
                 <TableFooter>
                   <TableRow>
-                    <TableCell colSpan={4}><T ns="invoicesPage" k="subtotal" /></TableCell>
-                    <TableCell className="text-right">
+                    <TableCell colSpan={4} className="px-4 py-3"><T ns="invoicesPage" k="subtotal" /></TableCell>
+                    <TableCell className="text-right px-4 py-3">
                       {formatCurrency(invoice.subtotal)}
                     </TableCell>
                   </TableRow>
                   {(Object.entries(vatByRate) as Array<[string, { subtotal: number; vatAmount: number }]>).map(([rate, values]) => (
                     <TableRow key={rate}>
-                      <TableCell colSpan={4}>
+                      <TableCell colSpan={4} className="px-4 py-3">
                         <T ns="invoicesPage" k="vatLine" vars={{ rate, amount: formatCurrency(values.subtotal) }} />
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right px-4 py-3">
                         {formatCurrency(values.vatAmount)}
                       </TableCell>
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell colSpan={4}><T ns="invoicesPage" k="totalVat" /></TableCell>
-                    <TableCell className="text-right">
+                    <TableCell colSpan={4} className="px-4 py-3"><T ns="invoicesPage" k="totalVat" /></TableCell>
+                    <TableCell className="text-right px-4 py-3">
                       {formatCurrency(invoice.vatAmount)}
                     </TableCell>
                   </TableRow>
                   <TableRow className="font-bold">
-                    <TableCell colSpan={4}><T ns="invoicesPage" k="total" /></TableCell>
-                    <TableCell className="text-right">
+                    <TableCell colSpan={4} className="px-4 py-3"><T ns="invoicesPage" k="total" /></TableCell>
+                    <TableCell className="text-right px-4 py-3">
                       {formatCurrency(invoice.total)}
                     </TableCell>
                   </TableRow>

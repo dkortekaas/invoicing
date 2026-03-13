@@ -6,7 +6,7 @@ excerpt: "De Kleineondernemersregeling (KOR) laat je btw-vrij ondernemen tot €
 image: blog/kor-aanvragen-kleineondernemersregeling.jpg
 date: "2026-03-10"
 updatedAt: "2026-03-10"
-category: btw
+category: belasting
 readTime: 11
 author: Declair Redactie
 authorRole: Slimme facturatie voor zzp'ers

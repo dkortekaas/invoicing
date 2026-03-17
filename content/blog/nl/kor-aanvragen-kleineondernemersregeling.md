@@ -3,7 +3,7 @@ title: "KOR aanvragen — alles over de Kleineondernemersregeling (2026)"
 seoTitle: "KOR aanvragen — alles over de Kleineondernemersregeling (2026)"
 metaDescription: "De Kleineondernemersregeling (KOR) laat je btw-vrij ondernemen tot €20.000 omzet. Wanneer is het voordelig, hoe vraag je het aan, en wat zijn de valkuilen?"
 excerpt: "De Kleineondernemersregeling (KOR) laat je btw-vrij ondernemen tot €20.000 omzet. Wanneer is het voordelig, hoe vraag je het aan, en wat zijn de valkuilen?"
-image: blog/kor-aanvragen-kleineondernemersregeling.jpg
+image: blog/pexels-karola-g-5900034.jpg
 date: "2026-03-10"
 updatedAt: "2026-03-10"
 category: belasting
